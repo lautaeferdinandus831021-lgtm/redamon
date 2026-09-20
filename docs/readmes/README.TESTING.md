@@ -28,6 +28,33 @@ alias for `unit`).
 
 ---
 
+## CI (GitHub Actions)
+
+[`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs the unit gate
+on every pull request (and on `workflow_dispatch`). It is the same gate as
+locally — `./redamon.sh test unit`, inside the section images, one test file per
+pytest subprocess — split across jobs. It has to be split: `cmd_test` resolves
+each section by image tag and treats a missing image as a FAILURE of the gate, and
+the built images do not all fit on one runner's disk.
+
+| Job | What runs |
+|---|---|
+| `plan` | parses `_TEST_SECTIONS` out of `redamon.sh` and emits the matrix, so a section added or renamed there cannot silently drop out of CI (an unparseable block fails the job instead) |
+| `section` (one leg per section) | `docker compose build <service>` for that section only, then `./redamon.sh test unit` with `REDAMON_TEST_ALLOW_MISSING` naming the *other* sections and `webapp` |
+| `host-suites` | `npm ci` in `webapp/`, then `./redamon.sh test unit` with every Python section allowed missing — the shell suites and vitest run for real |
+
+Two properties to keep in mind when editing it:
+
+- **A leg can never miss its own image.** `REDAMON_TEST_ALLOW_MISSING` names only
+  the inputs that leg genuinely lacks, and the gate prints a `SKIPPED` line for
+  each one, so the log says exactly what ran and what did not. If that leg's own
+  image failed to build, the job is red — never green with a skip.
+- **The shell suites need no image**, so the gate runs them on the host in every
+  leg; `host-suites` is where their result is attributed, and where a missing
+  `webapp/node_modules` is a failure rather than a skip.
+
+---
+
 ## How it is built
 
 - Runner: **pytest**, which runs the existing `unittest.TestCase` tests unchanged.
@@ -255,7 +282,7 @@ missing skip-guard *is* the bug.
 
 ## Future work / next steps
 
-- **CI**: run the unit gate on every PR and the full `all` tier nightly.
+- **Nightly CI**: the PR gate ([`.github/workflows/test.yml`](../../.github/workflows/test.yml)) covers the `unit` tier; a scheduled run of the full `all` tier is still open.
 - **Mutation testing** on the security-critical modules (supply-chain, auth /
   access control) as the *real* quality gate — coverage alone is not one.
 - **HTTP record/replay** (`respx` / VCR) so the `live` tier shrinks.

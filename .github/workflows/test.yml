@@ -1,0 +1,188 @@
+# The unit gate from the repo ruleset (AGENTS.md QA checklist, and
+# docs/readmes/README.TESTING.md): every section's tests run INSIDE its own
+# image, each test file isolated in its own pytest subprocess.
+#
+# Why this is a matrix of sections rather than one `./redamon.sh test unit`:
+#
+#   * `cmd_test` resolves each section by IMAGE TAG and treats a missing image as
+#     a FAILURE of the gate ("a suite that never ran proves nothing"). So the
+#     section images have to be built before the gate can run.
+#   * Built together, those images do not fit a standard runner's disk, and the
+#     agent/recon images alone take a long time to build. One section per runner
+#     keeps each job inside its own budget and lets them run in parallel.
+#
+# The section list is READ FROM redamon.sh (`_TEST_SECTIONS`), not duplicated
+# here, so a section that is added or renamed cannot silently drop out of CI: the
+# plan job fails loudly if the block cannot be parsed, or if any entry in it does
+# not yield a name/image pair.
+#
+# Each leg runs the canonical entry point unchanged, `./redamon.sh test unit`,
+# with REDAMON_TEST_ALLOW_MISSING naming the inputs that leg genuinely does not
+# have: the other sections' images, and the webapp's node_modules (vitest lives
+# there, and it is installed in the `host-suites` leg). That is the gate's own
+# opt-out - it prints a SKIPPED line for each one, so a leg's log says exactly
+# what it ran and what it did not - and the ONE input a leg is not allowed to
+# miss is its own image: a leg whose image failed to build is red, never green
+# with a skip.
+#
+# The shell suites need no image, so they run on the host in every leg (the gate
+# bundles them with the tier). Their result is attributed in `host-suites`, which
+# is also where vitest runs.
+name: tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to the same PR cancels the previous run: the gate is
+  # deterministic, so a superseded run tells you nothing.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The gate looks sections up by tag (redamon-agent, redamon-recon, ...), and
+  # compose only produces those tags when the project is named redamon - the
+  # default project name is the checkout directory.
+  COMPOSE_PROJECT_NAME: redamon
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    outputs:
+      sections: ${{ steps.plan.outputs.sections }}
+      all_sections: ${{ steps.plan.outputs.all_sections }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: plan
+        name: Derive the section matrix from redamon.sh
+        shell: bash
+        run: |
+          matrix="$(python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          text = pathlib.Path("redamon.sh").read_text(encoding="utf-8")
+          block = re.search(r"^_TEST_SECTIONS=\(\n(.*?)^\)\n", text, re.S | re.M)
+          if not block:
+              sys.exit("could not find the _TEST_SECTIONS block in redamon.sh")
+
+          entries = [line.strip() for line in block.group(1).splitlines() if line.strip()]
+          if not entries:
+              sys.exit("_TEST_SECTIONS parsed to zero entries")
+
+          include = []
+          for entry in entries:
+              fields = entry.strip('"').split("|")
+              if len(fields) < 7:
+                  sys.exit(f"unexpected section spec ({len(fields)} fields): {entry}")
+              name, image = fields[0], fields[1]
+              if not name or not image.startswith("redamon-"):
+                  sys.exit(f"unexpected section spec: {entry}")
+              include.append({
+                  "section": name,
+                  "image": image,
+                  # redamon-<service>:latest -> <service>: every section image is
+                  # built by the compose service of that name.
+                  "service": image.split(":")[0].replace("redamon-", "", 1),
+              })
+
+          names = [entry["section"] for entry in include]
+          for entry in include:
+              # The other sections' images, plus the webapp suite (its
+              # node_modules live in the host-suites leg). `shell` is NOT in the
+              # list: those suites need no image, so this leg really runs them.
+              missing = [n for n in names if n != entry["section"]] + ["webapp"]
+              entry["allow_missing"] = ",".join(missing)
+
+          print(json.dumps({"include": include}, separators=(",", ":")))
+          PY
+          )"
+          if [[ -z "$matrix" || "$matrix" == "null" ]]; then
+            echo "::error::could not derive the section matrix from redamon.sh"
+            exit 1
+          fi
+          echo "matrix: $matrix"
+          echo "sections=$matrix" >> "$GITHUB_OUTPUT"
+          echo "all_sections=$(printf '%s' "$matrix" | python3 -c 'import json,sys; print(",".join(e["section"] for e in json.load(sys.stdin)["include"]))')" >> "$GITHUB_OUTPUT"
+
+  section:
+    name: unit / ${{ matrix.section }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      # Every leg's result matters: one section failing must not hide the others.
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.sections) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free runner disk
+        # One section image fits comfortably; the toolchains shipped on the image
+        # do not need to share the disk with it.
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          docker image prune -af >/dev/null 2>&1 || true
+          df -h /
+
+      - name: Build the ${{ matrix.image }} image
+        run: docker compose build ${{ matrix.service }}
+
+      - name: "Unit gate - section ${{ matrix.section }}"
+        env:
+          REDAMON_TEST_ALLOW_MISSING: ${{ matrix.allow_missing }}
+          # The gate runs each test FILE in its own pytest subprocess in parallel.
+          REDAMON_TEST_PARALLEL: "4"
+        run: ./redamon.sh test unit
+
+      - name: Note the skipped inputs
+        if: always()
+        run: |
+          echo "This leg built only ${{ matrix.image }}. The other sections and" \
+               "the webapp suite were reported as SKIPPED" \
+               "(REDAMON_TEST_ALLOW_MISSING); each of those sections runs in its" \
+               "own matrix leg, and the webapp runs in host-suites."
+          echo "The shell suites run on the host in every leg (they need no image)."
+
+  host-suites:
+    name: unit / shell + webapp
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"          # webapp/package.json requires node >= 20
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+
+      - name: Install webapp dependencies
+        # vitest is looked up at webapp/node_modules/.bin/vitest; without it the
+        # webapp suite is a gate failure, not a skip.
+        working-directory: webapp
+        env:
+          # `npm ci` runs the package's postinstall (`prisma generate`), which
+          # reads the datasource block in schema.prisma. This is a placeholder so
+          # that step has something to parse; no database is contacted, and the
+          # test suite is hermetic (the container gate runs it with no DB too).
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+        run: npm ci
+
+      - name: Unit gate (shell suites + webapp vitest)
+        env:
+          # No section images in this job: the Python sections are allowed
+          # missing, and `shell` / `webapp` are NOT - if either cannot run, this
+          # leg fails.
+          REDAMON_TEST_ALLOW_MISSING: ${{ needs.plan.outputs.all_sections }}
+        run: ./redamon.sh test unit
