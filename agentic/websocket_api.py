@@ -247,6 +247,27 @@ class WebSocketConnection:
         return None
 
 
+def _memory_session_end(session_key: str, reason: str) -> None:
+    """Run the memory end-of-session pass for a "user:project:session" key.
+
+    A cancelled task never reaches generate_response, which is where a normally
+    completed run closes out its memory (decay + reflection). This covers every
+    stop that ends a run early - the Stop button, a deleted conversation, the
+    emergency stop. Fail-open in every direction: a session must not fail on its
+    way out because memory was unavailable.
+    """
+    try:
+        parts = session_key.split(":", 2)
+        if len(parts) != 3:
+            return
+        _, project_id, session_id = parts
+        from memory_hook import session_end_pass
+
+        session_end_pass(project_id=project_id, session_id=session_id, reason=reason)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"memory session-end pass skipped for {session_key}: {e}")
+
+
 class WebSocketManager:
     """Manages active WebSocket connections"""
 
@@ -1315,6 +1336,11 @@ class WebSocketHandler:
             logger.info(f"Query completed for session {connection.session_id}")
         except asyncio.CancelledError:
             logger.info(f"Query task cancelled for session {connection.session_id}")
+            # A cancelled run never reaches generate_response, which is where a
+            # completed one closes out its memory. Do it here instead.
+            key = connection.get_key()
+            if key:
+                _memory_session_end(key, "run cancelled")
         except Exception as e:
             logger.error(f"Error processing query: {e}")
             try:

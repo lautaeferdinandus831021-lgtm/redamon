@@ -23,7 +23,7 @@ agentic/
     entities.py                entity extraction (graph nodes)
     agentmemory_client.py      optional best-effort mirror to an agentmemory server
   memory_tools.py              the 4 agent tools (in-process, non-MCP)
-  memory_hook.py               the 2 seams into the agent loop
+  memory_hook.py               the 4 seams into the agent loop
 ```
 
 ## Why it lives agent-side
@@ -46,6 +46,23 @@ module over SQLite, configured by environment, phase-agnostic at runtime.
 Recalled text is wrapped in the unforgeable `<<<UNTRUSTED_MEMORY ...>>>` boundary
 (`prompt_safety.wrap_untrusted`): it contains digests of output a scanned target
 influenced, so it is data, never instructions.
+
+## Session seams
+
+Both ends of a session are wired into the graph:
+
+* **Start** — `initialize_node` recovers the playbook digest once per session
+  (`memory_hook.session_context_text`, wrapped as untrusted data), stores it on
+  the state, and `think_node` prepends it to every system prompt for the rest of
+  the session. It sits below the stealth rules and the report discipline in
+  priority.
+* **End** — `generate_response_node` (the terminal node) runs
+  `memory_hook.session_end_pass`: decay, then a reflection pass. A run cancelled
+  before reaching it (Stop, deleted conversation, emergency stop) is covered by
+  the cancellation path in `websocket_api._run_orchestrator_query`.
+
+Both are fail-open, and the digest is empty (so nothing is injected) when memory
+is off or the project has learned nothing yet.
 
 ## Auto-update (capture)
 
@@ -79,7 +96,10 @@ traffic its own dominant content.
 * Reuse raises confidence proportionally to the remaining headroom (asymptotic,
   never a linear ramp to 1.0).
 * Idle memories decay on a half-life (`MEMORY_DECAY_HALF_LIFE_DAYS`, default 30d);
-  a decay never drives confidence to exactly 0.
+  a decay never drives confidence to exactly 0. Decay runs on a sweep, not on the
+  capture counter: at session end and on an explicit `memory_reflect`. A sweep
+  applies only the idleness no earlier sweep accounted for, so a project with
+  several sessions in one day does not decay several times for one idle day.
 * States: `candidate` → `active` → `archived`. An archived memory is never
   resurrected by decay alone — but seeing the same observation again revives it
   as a candidate, because a repeat is evidence it was archived too early.
@@ -92,7 +112,8 @@ Deterministic, no LLM call, every conclusion auditable against the timeline:
    failed 4/5 recent calls here"). Fewer than 3 attempts is not a conclusion, and
    the middle band (20–60% failure) stays silent: "about half the time" is noise.
 2. **Promote** — a lesson/note recalled 3+ times with confidence ≥ 0.5 graduates
-   to `playbook`, the tier `playbook_digest()` injects into the next session.
+   to `playbook`, the tier the session-start digest injects and
+   `memory_recall(scope="playbook")` answers from.
 3. **Resolve contradictions** — two lessons about one subject with opposite
    polarity cannot both be true; the weaker is ARCHIVED, never deleted, so the
    reversal stays visible on the timeline.
@@ -127,7 +148,7 @@ Read from the environment at call time (no rebuild-time coupling):
 | `MEMORY_ENABLED` | `true` | Master switch |
 | `MEMORY_AUTO_UPDATE` | `true` | Auto-capture tool outcomes |
 | `MEMORY_SELF_IMPROVE` | `true` | Run reflection passes |
-| `MEMORY_SELF_IMPROVE_EVERY` | `10` | Observations between periodic passes (0 = session-end only) |
+| `MEMORY_SELF_IMPROVE_EVERY` | `10` | Observations between periodic passes (0 turns the periodic pass off; the session-end pass still runs) |
 | `MEMORY_DB_PATH` | `/workspace/.memory/memory.db` | Store location (falls back to `~/.redamon/memory/`) |
 | `MEMORY_RECALL_LIMIT` | `8` | Default recall size |
 | `MEMORY_DECAY_HALF_LIFE_DAYS` | `30` | Idle half-life |
@@ -153,8 +174,11 @@ Read from the environment at call time (no rebuild-time coupling):
 * `tests/test_memory_self_improve.py` — distillation thresholds, promotion,
   contradiction archival, timeline marker (stdlib only).
 * `tests/test_memory_agent_surface.py` — registry completeness, phase access,
-  the prompt renderers actually offering the tools, the tool coroutines, and
-  the hook wiring in both execute nodes (agent dependency set).
+  the prompt renderers actually offering the tools, the tool coroutines, the
+  hook wiring in both execute nodes, and the two session seams: the digest
+  recovered at init (project-scoped, wrapped as data, empty for a new project)
+  and the end-of-session pass, including that a second sweep in the same day
+  does not decay twice (agent dependency set).
 
 `agentic/` is baked into the image: after any change here,
 `docker compose build agent && docker compose up -d agent`.
@@ -162,6 +186,7 @@ Read from the environment at call time (no rebuild-time coupling):
 ## Related
 
 * Root ruleset: [`AGENTS.md`](../../AGENTS.md); component rules: [`agentic/AGENTS.md`](../../agentic/AGENTS.md)
+* How to actually use it in a session, inspect the store and tune it: [`README.USAGE.md`](README.USAGE.md)
 * The evidence/report discipline layer that reviews what this memory recovered: [`README.REPORT_KIT.md`](README.REPORT_KIT.md)
 * Adding a tool the agent can call: skill `agentic-tool-integration`
 * Per-project settings cascade (if memory ever becomes a UI toggle): skill `project-settings-cascade`

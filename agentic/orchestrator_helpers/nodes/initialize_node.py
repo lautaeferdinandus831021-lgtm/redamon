@@ -129,6 +129,21 @@ async def _run_scope_guardrail(llm, user_id, project_id, session_id) -> dict | N
     return None
 
 
+def _memory_context(state: dict, project_id: str) -> str:
+    """Project memory recovered once at session init, then carried by the checkpoint.
+
+    Injected into every think prompt for the life of the session (think_node), so
+    the agent starts oriented instead of re-deriving what this project already
+    knows. Fail-open: an unavailable store means no block, never a failed turn.
+    """
+    existing = state.get("memory_context") or ""
+    if existing:
+        return existing
+    from memory_hook import session_context_text
+
+    return session_context_text(project_id=project_id)
+
+
 async def initialize_node(state: AgentState, config, *, llm, neo4j_creds) -> dict:
     """
     Initialize state for new conversation or update for continuation.
@@ -373,6 +388,7 @@ async def initialize_node(state: AgentState, config, *, llm, neo4j_creds) -> dic
                 "chain_waves_memory": state.get("chain_waves_memory", []),
                 "_last_chain_step_id": state.get("_last_chain_step_id"),
                 "_prior_chain_context": state.get("_prior_chain_context"),
+                "memory_context": _memory_context(state, project_id),
             }
 
     # Otherwise, continue with current objective
@@ -421,6 +437,8 @@ async def initialize_node(state: AgentState, config, *, llm, neo4j_creds) -> dic
         "chain_waves_memory": state.get("chain_waves_memory", []),
         "_last_chain_step_id": state.get("_last_chain_step_id"),
         "_prior_chain_context": state.get("_prior_chain_context"),
+        # Carried, or recovered here for a session created before this shipped.
+        "memory_context": _memory_context(state, project_id),
     }
 
     # Load prior chain context on first invocation (empty trace)

@@ -169,6 +169,18 @@ async def generate_response_node(
             content += appendix
             logger.info(f"[{user_id}/{project_id}/{session_id}] Report self-check appended")
 
+    # Session conclusion: this is the terminal node, so the end-of-session memory
+    # pass (decay, then reflection) runs here rather than on the WebSocket
+    # teardown - an agent loop keeps running headlessly after the tab closes.
+    # A run cancelled before reaching this node is covered by
+    # _run_orchestrator_query's cancellation path. Fail-open.
+    from memory_hook import session_end_pass
+    session_end_pass(
+        project_id=project_id,
+        session_id=session_id,
+        reason="run completed",
+    )
+
     return {
         "messages": [AIMessage(content=content)],
         "task_complete": True,

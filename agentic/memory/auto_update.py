@@ -263,7 +263,14 @@ class MemoryAutoUpdater:
 
     # ------------------------------------------------------------------ lifecycle
     def decay_sweep(self, project_id: str, *, session_id: str = "") -> int:
-        """Apply half-life decay to idle memories. Returns how many changed."""
+        """Apply half-life decay to idle memories. Returns how many changed.
+
+        Only the idleness NO earlier sweep has accounted for is decayed. It has
+        to work that way now that a sweep runs at every session end: `idle_days()`
+        is measured from last use, so it keeps growing across sweeps, and a
+        project with three sessions in a day would otherwise decay three times
+        for one idle day - much faster than the configured half-life promises.
+        """
         if not (self.config.enabled and project_id):
             return 0
         store = self.store()
@@ -279,10 +286,22 @@ class MemoryAutoUpdater:
             return 0
 
         now = time.time()
+        try:
+            decayed_at = store.last_decay_at(project_id)
+        except Exception as e:  # noqa: BLE001 - decay is best-effort
+            logger.warning(f"decay sweep could not read its own history: {e}")
+            decayed_at = {}
+
         for rec in records:
             idle = rec.idle_days(now)
             if idle < 1.0:
                 continue  # same-day use: nothing has had time to go stale
+            previous = decayed_at.get(rec.memory_id)
+            if previous:
+                unaccounted = (now - previous) / 86400.0
+                if unaccounted < 1.0:
+                    continue  # this memory was already swept for this idleness
+                idle = min(idle, unaccounted)
             new_conf = scoring.confidence_after_decay(
                 rec.confidence, idle, half_life_days=self.config.decay_half_life_days,
             )

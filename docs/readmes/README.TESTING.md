@@ -9,6 +9,9 @@ the [authoring rules](#test-authoring-rules-hard-rules) first.
 
 ## TL;DR
 
+Running the gate, reading a red one, and the local-vs-CI split are walked through
+in [`README.USAGE.md`](README.USAGE.md).
+
 ```bash
 ./redamon.sh test              # unit gate across every section (the canonical gate)
 ./redamon.sh test unit         # same

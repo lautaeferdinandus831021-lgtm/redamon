@@ -559,6 +559,14 @@ async def think_node(state: AgentState, config, *, llm, guidance_queues, neo4j_c
     workspace_block = build_workspace_layout_block(project_id)
     system_prompt = workspace_block + "\n\n" + system_prompt
 
+    # Project memory recovered at session init (initialize_node). Prepended first,
+    # so the stealth rules and the report discipline - both prepended after this
+    # - keep their priority over it. The digest is already framed as untrusted
+    # DATA by the hook, because it comes from a scanned target's own output.
+    _memory_context = state.get("memory_context") or ""
+    if _memory_context:
+        system_prompt = _memory_context + "\n\n" + system_prompt
+
     # Inject stealth mode rules if enabled (prepended for maximum priority)
     if get_setting('STEALTH_MODE', False):
         from prompts.stealth_rules import STEALTH_MODE_RULES
