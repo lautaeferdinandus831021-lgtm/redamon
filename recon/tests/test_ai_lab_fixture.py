@@ -30,6 +30,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -42,17 +44,30 @@ COMPOSE_PATH = LAB_DIR / "docker-compose.override.yml"
 VERIFY_SCRIPT = LAB_DIR / "verify_lab_graph_state.py"
 README_PATH = LAB_DIR / "README.md"
 
+#: The compose override is deliberately untracked (.gitignore), so a clean
+#: checkout - CI included - has none. Those assertions skip rather than fail on
+#: a prerequisite no checkout can satisfy.
+_requires_compose = pytest.mark.skipif(
+    not COMPOSE_PATH.is_file(),
+    reason="the lab compose file is not present (untracked local artifact)",
+)
+
 
 # ---------------------------------------------------------------------------
 # Structural tests on the lab artifacts
 # ---------------------------------------------------------------------------
 
-def test_lab_directory_contains_all_three_artifacts():
-    assert COMPOSE_PATH.is_file(), "docker-compose.override.yml missing"
+def test_lab_directory_contains_the_tracked_artifacts():
     assert VERIFY_SCRIPT.is_file(), "verify_lab_graph_state.py missing"
     assert README_PATH.is_file(), "README.md missing"
 
 
+@_requires_compose
+def test_lab_directory_contains_the_compose_file():
+    assert COMPOSE_PATH.is_file(), "docker-compose.override.yml missing"
+
+
+@_requires_compose
 def test_lab_compose_lists_three_required_services():
     """The plan §16.1 mandates Ollama + Open WebUI + Chroma."""
     body = COMPOSE_PATH.read_text()
@@ -60,6 +75,7 @@ def test_lab_compose_lists_three_required_services():
         assert service in body, f"compose missing service {service!r}"
 
 
+@_requires_compose
 def test_lab_compose_pins_lab_to_host_network_for_loopback_scans():
     body = COMPOSE_PATH.read_text()
     # All three services use network_mode: host so the recon container
@@ -70,6 +86,7 @@ def test_lab_compose_pins_lab_to_host_network_for_loopback_scans():
     )
 
 
+@_requires_compose
 def test_lab_compose_chroma_binds_disambiguate_port():
     """Port 8000 is the canonical disambiguate test fixture. Catalog has
     8000 with disambiguate=True. Lab must use 8000 to exercise the guard."""
@@ -78,6 +95,7 @@ def test_lab_compose_chroma_binds_disambiguate_port():
     assert "8000" in chroma_block, "Chroma must listen on 8000 to test the disambiguate guard"
 
 
+@_requires_compose
 def test_lab_compose_ollama_uses_canonical_port_11434():
     body = COMPOSE_PATH.read_text()
     ollama_block = body[body.find("ai-lab-ollama"):]
@@ -89,6 +107,7 @@ def test_lab_compose_ollama_uses_canonical_port_11434():
     assert "11434" in body, "Ollama must listen on 11434 (the canonical AI runtime port)"
 
 
+@_requires_compose
 def test_lab_compose_open_webui_disables_auth_for_smoke_testing():
     body = COMPOSE_PATH.read_text()
     assert 'WEBUI_AUTH: "false"' in body, (
@@ -97,6 +116,7 @@ def test_lab_compose_open_webui_disables_auth_for_smoke_testing():
     )
 
 
+@_requires_compose
 def test_lab_compose_has_healthchecks_on_every_service():
     """Healthchecks are the operator's first signal that the lab is
     ready to scan. All three services should have one."""
@@ -106,6 +126,7 @@ def test_lab_compose_has_healthchecks_on_every_service():
     )
 
 
+@_requires_compose
 def test_lab_compose_declares_named_volumes():
     """Persistent volumes avoid re-pulling the Ollama model on every
     bring-up. The compose file uses 3 named volumes."""
@@ -114,6 +135,7 @@ def test_lab_compose_declares_named_volumes():
         assert vol in body, f"compose missing named volume {vol!r}"
 
 
+@_requires_compose
 def test_lab_compose_open_webui_depends_on_ollama():
     """Without the depends_on, Open WebUI's first start may race ahead
     of Ollama. The compose file must enforce ordering."""
@@ -130,14 +152,14 @@ def test_lab_compose_open_webui_depends_on_ollama():
     )
 
 
+@_requires_compose
 def test_lab_compose_yaml_parses():
     """Defence against subtle YAML syntax errors (mismatched indent,
     tab/space mix)."""
     try:
         import yaml  # type: ignore
     except ImportError:
-        print("SKIP: test_lab_compose_yaml_parses (PyYAML unavailable)")
-        return
+        pytest.skip("PyYAML unavailable")
     data = yaml.safe_load(COMPOSE_PATH.read_text())
     assert isinstance(data, dict), "compose top level must be a mapping"
     assert "services" in data, "compose missing 'services' key"
