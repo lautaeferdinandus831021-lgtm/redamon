@@ -274,7 +274,7 @@ def run_probe_packs(
     *,
     target_port: int = 0,
     timeout: float = 10.0,
-    user_agent: str = "RedAmon-AISurfaceRecon/1.0",
+    user_agent: str = "WhiteHat-AISurfaceRecon/1.0",
     extract_models: bool = True,
 ) -> list[ProbeResult]:
     """Run all probes against base_url, return matches ranked by specificity (desc).

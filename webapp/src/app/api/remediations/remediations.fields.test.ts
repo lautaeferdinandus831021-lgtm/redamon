@@ -68,7 +68,7 @@ describe('PUT /api/remediations/[id] — writable field whitelist', () => {
       status: 'pr_created',
       prUrl: 'https://github.com/o/r/pull/1',
       prStatus: 'open',
-      fixBranch: 'redamon/fix-r1',
+      fixBranch: 'whitehat/fix-r1',
       fileChanges: [],
     }), PARAMS)
     expect(res.status).toBe(200)

@@ -306,7 +306,7 @@ def run_amass(domain: str, settings: dict = None) -> set:
     print(f"[*][Amass] Running enumeration ({mode})...")
 
     # Amass v4 needs a writable config dir
-    amass_temp = Path("/tmp/redamon/.amass_temp")
+    amass_temp = Path("/tmp/whitehat/.amass_temp")
     amass_temp.mkdir(parents=True, exist_ok=True)
 
     # The wordlist is inside this container at /app/recon/wordlists/
@@ -476,16 +476,16 @@ def dns_lookup(hostname: str, max_retries: int = 3, parallel: bool = True) -> di
     }
 
 
-def verify_domain_ownership(domain: str, token: str, txt_prefix: str = "_redamon-verify") -> dict:
+def verify_domain_ownership(domain: str, token: str, txt_prefix: str = "_whitehat-verify") -> dict:
     """
     Verify domain ownership via DNS TXT record.
 
-    Checks for a TXT record at {txt_prefix}.{domain} containing "redamon-verify={token}".
+    Checks for a TXT record at {txt_prefix}.{domain} containing "whitehat-verify={token}".
 
     Args:
         domain: Root domain to verify (e.g., "example.com")
         token: Expected ownership token
-        txt_prefix: DNS record prefix (default: "_redamon-verify")
+        txt_prefix: DNS record prefix (default: "_whitehat-verify")
 
     Returns:
         Dictionary with:
@@ -496,7 +496,7 @@ def verify_domain_ownership(domain: str, token: str, txt_prefix: str = "_redamon
         - error: Error message if verification failed
     """
     record_name = f"{txt_prefix}.{domain}"
-    expected_value = f"redamon-verify={token}"
+    expected_value = f"whitehat-verify={token}"
 
     result = {
         "verified": False,
@@ -630,8 +630,8 @@ def run_puredns_resolve(subdomains: list, domain: str, settings: dict = None) ->
 
     print(f"[*][Puredns] Validating {len(subdomains)} subdomains (wildcard filtering)...")
 
-    # Prepare temp files in /tmp/redamon (same path inside and outside container)
-    data_dir = Path("/tmp/redamon")
+    # Prepare temp files in /tmp/whitehat (same path inside and outside container)
+    data_dir = Path("/tmp/whitehat")
     data_dir.mkdir(parents=True, exist_ok=True)
     input_file = data_dir / f"puredns_input_{domain}.txt"
     output_file = data_dir / f"puredns_output_{domain}.txt"

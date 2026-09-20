@@ -1,5 +1,5 @@
 """
-RedAmon Agent Utility Functions
+WhiteHat Agent Utility Functions
 
 Utility functions for API and prompts that are not orchestrator-specific.
 Orchestrator-specific helpers are in orchestrator_helpers/.
@@ -344,7 +344,7 @@ def get_session_config_prompt() -> str:
                - Requires: Bind port on target (e.g. 4444)""")
 
         # The reverse-shell LHOST is the HOST's LAN IP, never the container's
-        # 172.x address. redamon.sh detects it on the host and passes it in via
+        # 172.x address. whitehat.sh detects it on the host and passes it in via
         # HOST_LAN_IP; suggest it here. Suppressed when a tunnel is configured —
         # in that case the ask-branch is a tunnel-is-broken state (an active
         # tunnel makes mode="reverse", not "ask"), and its remedy above is "fix

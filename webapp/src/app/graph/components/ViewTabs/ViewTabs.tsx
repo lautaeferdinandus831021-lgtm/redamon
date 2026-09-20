@@ -590,7 +590,7 @@ export const ViewTabs = memo(function ViewTabs({
           onClick={() => onViewChange('terminal')}
         >
           <SquareTerminal size={14} />
-          <span>RedAmon Terminal</span>
+          <span>WhiteHat Terminal</span>
         </button>
         {/* Navigates to the dedicated AI Attack Surface page (not a graph view). */}
         <Link href="/ai-attack-surface" className={styles.tab}>

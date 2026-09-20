@@ -10,13 +10,13 @@ import { mintToken, signIn } from './auth'
  *
  *   npx playwright test tests/captureTlsxDocsShots.spec.ts
  *
- * Shots land in redamon.wiki/images/ under the name the page links. The project
+ * Shots land in whitehat.wiki/images/ under the name the page links. The project
  * is a throwaway on a .test domain and is deleted afterwards: a screenshot is
  * published, so it must never carry a real hostname.
  */
 
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
-const OUT = join(__dirname, '..', '..', '..', 'redamon.wiki', 'images')
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const OUT = join(__dirname, '..', '..', '..', 'whitehat.wiki', 'images')
 
 let projectId = ''
 let api: APIRequestContext
@@ -24,7 +24,7 @@ let api: APIRequestContext
 test.beforeAll(async ({ playwright, baseURL }) => {
   mkdirSync(OUT, { recursive: true })
   api = await playwright.request.newContext({
-    baseURL, extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    baseURL, extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await api.post('/api/projects', {
     data: { name: 'acme-staging', targetDomain: 'example.test' },
@@ -41,10 +41,10 @@ test.afterAll(async () => {
 test.beforeEach(async ({ context, baseURL }) => {
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
 })
 

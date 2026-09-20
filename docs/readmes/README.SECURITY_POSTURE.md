@@ -1,6 +1,6 @@
-# RedAmon Security Posture
+# WhiteHat Security Posture
 
-> **What this document is.** RedAmon is offensive software, so we hold it to the standard it tests others by. This is the **defense-in-depth control catalog**: every security layer implemented in the product, grounded in repository evidence (source, `docker-compose.yml`, nginx templates, deploy scripts). It is the companion to the **[Threat Model](README.TM.SYSTEM_OVERVIEW.md)**, which describes the assets, trust boundaries, entry points, and network surface the analysis is built on. Read the threat model for "what exists and what it is worth"; read this for "how each of those things is defended."
+> **What this document is.** WhiteHat is offensive software, so we hold it to the standard it tests others by. This is the **defense-in-depth control catalog**: every security layer implemented in the product, grounded in repository evidence (source, `docker-compose.yml`, nginx templates, deploy scripts). It is the companion to the **[Threat Model](README.TM.SYSTEM_OVERVIEW.md)**, which describes the assets, trust boundaries, entry points, and network surface the analysis is built on. Read the threat model for "what exists and what it is worth"; read this for "how each of those things is defended."
 >
 > **Methodology.** The platform was assessed with a systematic, adversarial threat-modeling pass (a STRIDE-style analysis across every trust boundary: spoofing, tampering, repudiation, information disclosure, denial of service, and elevation of privilege). Findings were remediated in sequenced, independently verified waves, each fix carrying a test and, where applicable, a before-and-after exploit reproduction. This document catalogs the resulting controls; the per-release history lives in the **[Changelog](../../CHANGELOG.md)** security entries.
 
@@ -37,7 +37,7 @@
 Five principles drive every control below.
 
 - **Secure by design.** Security is a property of the architecture (privilege separation, network segmentation, a least-trusted target-facing worker that holds no secrets), not a bolt-on.
-- **Fail closed.** In the hardened posture every authentication and authorization control rejects on absence or error rather than serving. Where a control fails open, it does so only in a local dev stack with a one-time warning, and `redamon.sh` auto-generates the secret that flips it closed. The internet-facing deploy additionally runs a secrets gate that refuses to boot with any weak or unset secret.
+- **Fail closed.** In the hardened posture every authentication and authorization control rejects on absence or error rather than serving. Where a control fails open, it does so only in a local dev stack with a one-time warning, and `whitehat.sh` auto-generates the secret that flips it closed. The internet-facing deploy additionally runs a secrets gate that refuses to boot with any weak or unset secret.
 - **Least privilege.** Each component holds only the credentials it needs. The worker holds none; scanners hold a scoped key, not the master key; the graph worker reads through a tenant-filtered proxy with no database credentials of its own.
 - **Defense in depth.** No single control is load-bearing. The agent WebSockets, for example, sit behind an app-layer signed ticket, a server-side same-origin check, an nginx session-cookie gate, an operator IP allowlist, and a host firewall.
 - **Evidence over claims.** Every control here maps to a file in the repository, and every security fix shipped with a test. Accepted residual risks are documented in the open (see [Section 20](#20-documented-residual-risks)).
@@ -46,11 +46,11 @@ Five principles drive every control below.
 
 ## 2. Two deployment postures
 
-RedAmon supports two postures with different trust models. The controls that apply depend on which one you run.
+WhiteHat supports two postures with different trust models. The controls that apply depend on which one you run.
 
 | | **Local (default)** | **Public-internet (hardened)** |
 |---|---|---|
-| Provisioned by | `redamon.sh` / `docker compose` | `tooling/deploy/single-host/deploy.sh` |
+| Provisioned by | `whitehat.sh` / `docker compose` | `tooling/deploy/single-host/deploy.sh` |
 | Attacker model | No anonymous internet attacker; operator LAN only | **Anonymous internet attacker is a first-class actor** |
 | `webapp:3000`, `agent:8090`, `revshell:4444` | Published on `0.0.0.0` (LAN-reachable) | Re-bound to `127.0.0.1`; only nginx `443` faces the internet |
 | TLS | None | TLS 1.2/1.3, HSTS, single public origin |
@@ -93,7 +93,7 @@ Containers still bind `0.0.0.0` **inside their own network namespace** so cross-
 
 ## 4. Edge hardening (nginx)
 
-nginx runs as a **host service** (not a container), sits **only at the edge** on 80/443, and reverse-proxies to two loopback backends: the webapp (`127.0.0.1:3000` for `/` and `/api/*`) and the agent (`127.0.0.1:8090` for only the four `/ws/*` paths). It is not a middlebox between containers. Templates: `tooling/deploy/single-host/nginx/redamon.conf.tmpl` and the `snippets/`.
+nginx runs as a **host service** (not a container), sits **only at the edge** on 80/443, and reverse-proxies to two loopback backends: the webapp (`127.0.0.1:3000` for `/` and `/api/*`) and the agent (`127.0.0.1:8090` for only the four `/ws/*` paths). It is not a middlebox between containers. Templates: `tooling/deploy/single-host/nginx/whitehat.conf.tmpl` and the `snippets/`.
 
 **Single-origin proxy model.** The only agent routes proxied are `~ ^/ws/(agent|kali-terminal|cypherfix-triage|cypherfix-codefix)$`. The agent's entire REST surface (`/graph/exec`, `/emergency-stop-all`, `/mcp/*`, `/llm/*`, `/workspace/*`, `/sessions/*`) has no nginx route and stays loopback-only. Port 80 serves only the ACME challenge and a `301` redirect to the canonical HTTPS host (not `$host` in domain mode, to prevent open-redirect / cache poisoning).
 
@@ -112,7 +112,7 @@ nginx runs as a **host service** (not a container), sits **only at the edge** on
 
 **Inbound trust-header stripping** (`snippets/proxy-common.conf`). On every proxied request nginx clears `X-Internal-Key`, `X-Scanner-Key`, `X-User-Id`, and `X-User-Role` (the webapp trusts these from internal callers), pins `X-Forwarded-For`/`X-Real-IP` to the real peer rather than appending the client-supplied chain, and hides `X-Powered-By`. A client therefore cannot spoof identity or replay an internal service key from the edge.
 
-**WebSocket session gate.** With `WS_REQUIRE_SESSION=true` (default), nginx runs an `auth_request` against an internal `/_redamon_session` validator (which proxies to the webapp's `/api/auth/me` with body off and the trust headers stripped) before allowing any `/ws/*` upgrade. Reaching an agent socket therefore requires a logged-in session, on top of the app-layer ticket.
+**WebSocket session gate.** With `WS_REQUIRE_SESSION=true` (default), nginx runs an `auth_request` against an internal `/_whitehat_session` validator (which proxies to the webapp's `/api/auth/me` with body off and the trust headers stripped) before allowing any `/ws/*` upgrade. Reaching an agent socket therefore requires a logged-in session, on top of the app-layer ticket.
 
 **Operator gate.** The whole `443` server sits behind `GATE_MODE`: `ip_allowlist` (nginx `allow`/`deny` from `OPERATOR_ALLOW_CIDRS`), `basic_auth` (htpasswd via `openssl passwd -apr1`), or `none`. Leaving `OPERATOR_ALLOW_CIDRS` empty makes ufw open 443 (and SSH) to the world with a loud warning, so set it.
 
@@ -134,7 +134,7 @@ Applied idempotently by `tooling/deploy/single-host/deploy.sh` and `modules/`.
 
 **Host bootstrap (`modules/host_bootstrap.sh`).** Detect-and-install matrix that is idempotent and hard-fails on a half-provisioned host: base packages, Docker Engine + Compose v2 (>= 2.24) from Docker's official GPG-verified repo (purging any conflicting `docker.io`/v1 packages first), nginx, certbot (only when Let's Encrypt is used), ufw, fail2ban, unattended-upgrades, an 8 GB swapfile (mode 600) on hosts under 16 GB RAM, optional Docker DNS, and raised inotify limits.
 
-**TLS provisioning (`modules/tls.sh`).** Let's Encrypt (webroot ACME, auto-renew wired through certbot's timer with an nginx-reload deploy hook), operator-provided certificates (installed at `/etc/ssl/redamon/`, key mode 600, md5-idempotent, decrypting an encrypted key with `SSL_KEY_PASSWORD`), or self-signed for bare-IP labs. Private keys are always mode 600.
+**TLS provisioning (`modules/tls.sh`).** Let's Encrypt (webroot ACME, auto-renew wired through certbot's timer with an nginx-reload deploy hook), operator-provided certificates (installed at `/etc/ssl/whitehat/`, key mode 600, md5-idempotent, decrypting an encrypted key with `SSL_KEY_PASSWORD`), or self-signed for bare-IP labs. Private keys are always mode 600.
 
 ---
 
@@ -142,11 +142,11 @@ Applied idempotently by `tooling/deploy/single-host/deploy.sh` and `modules/`.
 
 Application layer, both postures. Evidence: `webapp/src/lib/auth.ts`, `middleware.ts`, `lib/loginThrottle.ts`, `lib/cookieSecurity.ts`, `app/api/auth/*`.
 
-**Login and JWT.** Passwords are hashed with **bcrypt at cost factor 12** (`bcryptjs`), compared in bcrypt's own constant-time routine. On success the webapp issues an **HS256 JWT** (`jose`) with `{ sub: userId, role }`, a **7-day** expiry, in the httpOnly cookie `redamon-auth`. The signing secret is `AUTH_SECRET`, and the code **throws if it is unset or the literal `changeme`**. Verification rejects any token missing `sub` or `role`.
+**Login and JWT.** Passwords are hashed with **bcrypt at cost factor 12** (`bcryptjs`), compared in bcrypt's own constant-time routine. On success the webapp issues an **HS256 JWT** (`jose`) with `{ sub: userId, role }`, a **7-day** expiry, in the httpOnly cookie `whitehat-auth`. The signing secret is `AUTH_SECRET`, and the code **throws if it is unset or the literal `changeme`**. Verification rejects any token missing `sub` or `role`.
 
 **Cookie flags.** `httpOnly`, `SameSite=Lax`, `Path=/`, `maxAge` 7 days, and `Secure` set from the request (`x-forwarded-proto === 'https'` in production, `lib/cookieSecurity.ts`) rather than hardcoded, so the Secure flag is correct behind the deploy's TLS terminator without breaking a plain-HTTP local stack.
 
-**Route protection (`middleware.ts`).** Every route requires a valid `redamon-auth` JWT except a tight public allowlist: `/login`, `/api/auth/login`, `/api/auth/logout`, `/api/health`, `/api/version/check`, `/api/global/tunnel-config/sync`, plus static assets. On success the middleware overwrites `x-user-id`/`x-user-role` from the verified token (a client cannot inject them). Missing token yields 401 (API) or a redirect (page); an invalid token additionally deletes the cookie.
+**Route protection (`middleware.ts`).** Every route requires a valid `whitehat-auth` JWT except a tight public allowlist: `/login`, `/api/auth/login`, `/api/auth/logout`, `/api/health`, `/api/version/check`, `/api/global/tunnel-config/sync`, plus static assets. On success the middleware overwrites `x-user-id`/`x-user-role` from the verified token (a client cannot inject them). Missing token yields 401 (API) or a redirect (page); an invalid token additionally deletes the cookie.
 
 **Login lockout (`lib/loginThrottle.ts`).** In-memory throttle keyed by **both** lowercased email and source IP: **5 attempts** (`LOGIN_MAX_ATTEMPTS`) then a **900-second** lockout (`LOGIN_LOCKOUT_SECONDS`) over a rolling 15-minute window, returning **429 with `Retry-After`**. The store is bounded at 10,000 entries with oldest-first eviction so a distinct-IP flood cannot exhaust memory. The per-IP key is applied only when the client IP is trusted (`TRUST_PROXY`), so a spoofed `X-Forwarded-For` cannot cause lockout evasion or collateral lockout of a real user. In the hardened posture the nginx `limit_req` on the login route is a second, network-level brake.
 
@@ -158,11 +158,11 @@ Failed and successful logins, logout, and lockouts are all audited (see [Section
 
 ## 7. Authorization and multi-tenancy (BOLA)
 
-RedAmon is multi-tenant: every user owns their projects, graph, conversations, scans, remediations, reports, presets, workspace files, and settings. Evidence: `webapp/src/lib/access.ts`, `lib/session.ts`, `graph_db/tenant_filter.py`.
+WhiteHat is multi-tenant: every user owns their projects, graph, conversations, scans, remediations, reports, presets, workspace files, and settings. Evidence: `webapp/src/lib/access.ts`, `lib/session.ts`, `graph_db/tenant_filter.py`.
 
 **Per-user object ownership.** A single trust core scopes every request to an **effective user**. A standard user is always their own id (any client-supplied `userId`/path id is ignored for ownership). Reusable guards (`guardProject`, `requireProjectAccess`, `requireConversationAccess`, `requireProjectScopedResource`, `requireUserAccess`, `ownerScope`) enforce ownership on every data route. Enforcement is **on by default** (`ACCESS_ENFORCE`, fail-closed) with a log-only phase available for rollout. Cross-user access returns **404, not 403** (anti-enumeration: an attacker cannot even confirm a resource exists); secret-exposure routes use an immediate 403 instead.
 
-**Admin impersonation is server-enforced.** An admin acts as their own id unless actively simulating user X through a signed, httpOnly `redamon-act-as` cookie (`{ sub: adminId, act: targetId }`, 12-hour expiry) minted only by the admin-only `POST /api/auth/act-as`. `getEffectiveUser` honors the act-as cookie only when it was minted by that same admin, and act-as can only narrow an admin to one user, never elevate a standard user. The agent WebSocket ticket binds the **effective** user, so a simulated session acts as the target, not the admin. Logout clears both cookies. (On a small set of user-secret GET routes an admin can still read masked values without act-as, a legacy convenience flagged in code for subsumption; it is a read, never a write.)
+**Admin impersonation is server-enforced.** An admin acts as their own id unless actively simulating user X through a signed, httpOnly `whitehat-act-as` cookie (`{ sub: adminId, act: targetId }`, 12-hour expiry) minted only by the admin-only `POST /api/auth/act-as`. `getEffectiveUser` honors the act-as cookie only when it was minted by that same admin, and act-as can only narrow an admin to one user, never elevate a standard user. The agent WebSocket ticket binds the **effective** user, so a simulated session acts as the target, not the admin. Logout clears both cookies. (On a small set of user-secret GET routes an admin can still read masked values without act-as, a legacy convenience flagged in code for subsumption; it is a read, never a write.)
 
 **Graph tenant isolation (`graph_db/tenant_filter.py`).** Every Cypher query is rewritten to inject `user_id` and `project_id` predicates onto every labeled node pattern, as bound parameters, before it reaches Neo4j (which is Community edition and has no row-level RBAC). The read-only worker proxy (`/graph/exec`) additionally refuses an unlabeled `MATCH (n)` so the tenant filter can always apply. A single filter module is shared by the agent and the worker-facing proxy.
 
@@ -174,7 +174,7 @@ RedAmon is multi-tenant: every user owns their projects, graph, conversations, s
 
 ## 8. Service-to-service authentication
 
-Internal calls between components are authenticated with distinct, scoped, constant-time-compared keys. All of these are generated by `redamon.sh` (`ensure_auth_secrets`, `openssl rand -hex 32`, idempotent).
+Internal calls between components are authenticated with distinct, scoped, constant-time-compared keys. All of these are generated by `whitehat.sh` (`ensure_auth_secrets`, `openssl rand -hex 32`, idempotent).
 
 | Credential | Held by | Protects | Comparison |
 |---|---|---|---|
@@ -188,7 +188,7 @@ Internal calls between components are authenticated with distinct, scoped, const
 
 **Key scoping is deliberate.** The orchestrator holds the real Docker socket, so its key is distinct from `INTERNAL_API_KEY` (which recon containers hold and could otherwise replay). Scanners receive only `SCANNER_API_KEY`, whose allowlist is a strict subset, so a compromised scanner cannot mint an admin or reach the control plane. The worker holds **neither** the master internal key nor the Neo4j credential.
 
-**Fail posture.** The orchestrator key, MCP bearer, tunnel token, and WebSocket ticket **fail closed** (reject when their secret is unset). The webapp/agent `X-Internal-Key` check and the scanner-key fallback fail open with a one-time warning **only** in a dev stack where the secret has not been generated yet; `redamon.sh` generates all of them on install, and the deploy secrets gate refuses to boot the internet-facing posture without them. The webapp-side comparators and the agent's LLM guard also reject the literal `changeme`; the other Python service comparators rely on the deploy secrets gate to reject weak values (and the webapp never mints a ticket signed with `changeme`, so no valid weak ticket exists). The internal-key **route allowlist** is enforced only when `INTERNAL_KEY_ALLOWLIST_ENFORCE=true`; by default it is log-only (a valid internal key is currently accepted off-allowlist with a warning), while the scanner-key allowlist is always enforced.
+**Fail posture.** The orchestrator key, MCP bearer, tunnel token, and WebSocket ticket **fail closed** (reject when their secret is unset). The webapp/agent `X-Internal-Key` check and the scanner-key fallback fail open with a one-time warning **only** in a dev stack where the secret has not been generated yet; `whitehat.sh` generates all of them on install, and the deploy secrets gate refuses to boot the internet-facing posture without them. The webapp-side comparators and the agent's LLM guard also reject the literal `changeme`; the other Python service comparators rely on the deploy secrets gate to reject weak values (and the webapp never mints a ticket signed with `changeme`, so no valid weak ticket exists). The internal-key **route allowlist** is enforced only when `INTERNAL_KEY_ALLOWLIST_ENFORCE=true`; by default it is log-only (a valid internal key is currently accepted off-allowlist with a warning), while the scanner-key allowlist is always enforced.
 
 **Header spoofing is blocked at the edge** (see [Section 4](#4-edge-hardening-nginx)): nginx strips `X-Internal-Key`, `X-Scanner-Key`, `X-User-Id`, `X-User-Role` inbound, so these headers are honored only from internal callers on the Docker network.
 
@@ -217,9 +217,9 @@ The target-facing worker is the least-trusted component and holds no secrets; a 
 - `Privileged=true`; any capability outside `{NET_RAW, NET_ADMIN}`; device passthrough.
 - Host or `container:` for `PidMode`/`IpcMode`/`UsernsMode`/`CgroupnsMode`, and `container:` network mode (host network is allowed, since raw/loopback scanning needs it); `VolumesFrom`; masked/readonly-path overrides; any `SecurityOpt` containing `unconfined`.
 - Non-allowlisted images (a fixed allowlist of the shipped tool images, operator-extensible via env), enforced on both `create` and `docker pull`.
-- Bind sources outside `/tmp/redamon` (normalized first to defeat traversal) and any path touching the docker socket; source-tree binds must be read-only, read-write only under an explicit prefix/volume allowlist.
+- Bind sources outside `/tmp/whitehat` (normalized first to defeat traversal) and any path touching the docker socket; source-tree binds must be read-only, read-write only under an explicit prefix/volume allowlist.
 
-The broker also stamps a `redamon.broker-owned=1` label on everything it creates, **gates operate-on-existing verbs** (exec/attach/kill/archive/...) to broker-owned containers only, and forces an ownership filter onto `GET /containers/json`, so a pivot cannot exec into infrastructure containers or even enumerate them. Denied requests never reach the real daemon (lazy upstream connect). It injects a 2 GiB memory cap on every tool container, caps request headers at 1 MiB and create bodies at 8 MiB, and forces `Connection: close` to prevent request smuggling.
+The broker also stamps a `whitehat.broker-owned=1` label on everything it creates, **gates operate-on-existing verbs** (exec/attach/kill/archive/...) to broker-owned containers only, and forces an ownership filter onto `GET /containers/json`, so a pivot cannot exec into infrastructure containers or even enumerate them. Denied requests never reach the real daemon (lazy upstream connect). It injects a 2 GiB memory cap on every tool container, caps request headers at 1 MiB and create bodies at 8 MiB, and forces `Connection: close` to prevent request smuggling.
 
 **Capability scoping.** No container runs `privileged`. The Kali worker and the GVM scanner carry only `NET_ADMIN` + `NET_RAW` (raw sockets for SYN scans, tunneling); the previously-granted `SYS_PTRACE` was dropped. The kb-refresh sidecar runs `cap_drop: ALL`. Recon containers, formerly `privileged: true` (a full host-escape primitive), now request only `NET_RAW`. Note that spawned scan containers get `NET_RAW`-only plus the scoped scanner key but are not otherwise `cap_drop`ped or `no-new-privileges`; they are constrained by the broker, the pentest-net segment, and holding no master secret (see [Section 20](#20-documented-residual-risks)).
 
@@ -227,10 +227,10 @@ The broker also stamps a `redamon.broker-owned=1` label on everything it creates
 
 **Network segmentation.** Three bridge networks plus a per-job isolated one:
 
-- `redamon-network`: webapp, agent, kali-sandbox, postgres, neo4j.
-- `redamon-orchestrator-net` (isolated, pinned subnet): recon-orchestrator and the on-demand Ollama judge, with the webapp multi-homed in as the **only** legitimate caller. The worker cannot reach the privileged orchestration API (`:8010` is also loopback-bound).
+- `whitehat-network`: webapp, agent, kali-sandbox, postgres, neo4j.
+- `whitehat-orchestrator-net` (isolated, pinned subnet): recon-orchestrator and the on-demand Ollama judge, with the webapp multi-homed in as the **only** legitimate caller. The worker cannot reach the privileged orchestration API (`:8010` is also loopback-bound).
 - `pentest-net`: kali-sandbox and spawned scanners (target-facing plane).
-- `redamon-codefix-net`: created on demand for the CodeFix build sandbox; it has NAT egress but **no RedAmon peer**.
+- `whitehat-codefix-net`: created on demand for the CodeFix build sandbox; it has NAT egress but **no WhiteHat peer**.
 
 **CodeFix build sandbox.** Building an operator's GitHub repo can execute attacker-influenced code (malicious `postinstall`, prompt-injected build steps). That build/test runs in an ephemeral, per-job sandbox container: **empty environment (no secrets)**, `cap_drop=ALL`, read-only root filesystem, non-root user, setuid/setgid stripped from the image, memory/CPU/PID limited, a size-capped `/tmp` tmpfs as the only writable path, on the isolated network, with `.git` mounted read-only. It is driven via `docker exec` through `agent -> webapp -> orchestrator` (each hop authenticated), so the agent gains no new reach. The GitHub token is supplied via `GIT_ASKPASS` (never in the clone URL or `.git/config`, never entering the sandbox), git hooks are disabled, commits stage only approved files (no `git add -A`), and pushes to `main`/`master`/default are refused. A TTL reaper tears the sandbox down.
 
@@ -292,9 +292,9 @@ The autonomous agent is powerful (it drives offensive tools against live targets
 
 ## 14. Secret management
 
-**Generation and rotation (`redamon.sh`).** All service secrets are generated with `openssl rand` on install, idempotently (append-if-absent). Database passwords are handled with care (`ensure_db_secrets`): on a fresh install a strong password is generated *before* the volume initializes; on an existing volume still on a legacy default, the live database is rotated in place (Postgres `ALTER USER`; Neo4j `ALTER CURRENT USER SET PASSWORD FROM ... TO ...`, the Community-safe self-service form) and the new value is written to `.env` **only after** the rotation succeeds, so a failure leaves no split-brain lockout. Compose refuses to start with unset DB passwords via `${POSTGRES_PASSWORD:?}` / `${NEO4J_PASSWORD:?}`.
+**Generation and rotation (`whitehat.sh`).** All service secrets are generated with `openssl rand` on install, idempotently (append-if-absent). Database passwords are handled with care (`ensure_db_secrets`): on a fresh install a strong password is generated *before* the volume initializes; on an existing volume still on a legacy default, the live database is rotated in place (Postgres `ALTER USER`; Neo4j `ALTER CURRENT USER SET PASSWORD FROM ... TO ...`, the Community-safe self-service form) and the new value is written to `.env` **only after** the rotation succeeds, so a failure leaves no split-brain lockout. Compose refuses to start with unset DB passwords via `${POSTGRES_PASSWORD:?}` / `${NEO4J_PASSWORD:?}`.
 
-**Secrets gate (deploy, `modules/secrets_gate.sh`).** Before exposing a host, the deploy verifies nine secrets (`AUTH_SECRET`, `INTERNAL_API_KEY`, `SCANNER_API_KEY`, `ORCHESTRATOR_API_KEY`, `MCP_AUTH_TOKEN`, `AGENT_WS_TICKET_SECRET`, `TUNNEL_AUTH_TOKEN`, `POSTGRES_PASSWORD`, `NEO4J_PASSWORD`) and **fails the build** if any is empty, a known default (`changeme`, `redamon_secret`, ...), or shorter than 24 characters.
+**Secrets gate (deploy, `modules/secrets_gate.sh`).** Before exposing a host, the deploy verifies nine secrets (`AUTH_SECRET`, `INTERNAL_API_KEY`, `SCANNER_API_KEY`, `ORCHESTRATOR_API_KEY`, `MCP_AUTH_TOKEN`, `AGENT_WS_TICKET_SECRET`, `TUNNEL_AUTH_TOKEN`, `POSTGRES_PASSWORD`, `NEO4J_PASSWORD`) and **fails the build** if any is empty, a known default (`changeme`, `whitehat_secret`, ...), or shorter than 24 characters.
 
 **Log redaction (`agentic/logging_config.py`).** A redaction filter on every log handler scrubs token shapes (GitHub PAT/OAuth/fine-grained, OpenAI `sk-`, Slack `xox*`, Bearer tokens, `authorization`/`api-key`/`token` key-value pairs, `user:pass@` in URLs, AWS `AKIA...`) to `[REDACTED]`. Harvested secret values are no longer printed to secret-hunter stdout, and the LLM-provider test returns a generic error.
 
@@ -304,7 +304,7 @@ The autonomous agent is powerful (it drives offensive tools against live targets
 
 ## 15. Denial-of-service and resource governance
 
-RedAmon runs heavy concurrent scans and agent sessions on one host, so resource exhaustion is a first-class DoS concern.
+WhiteHat runs heavy concurrent scans and agent sessions on one host, so resource exhaustion is a first-class DoS concern.
 
 **RAM-aware governor (`graph_db/resource_governor.py`).** A dual-cap system: every RAM-heavy knob keeps its configured ceiling **and** gains a second cap derived from live available memory (read from `/proc/meminfo`, VM-aware). Concurrency parameters scale down under pressure; per-unit allocations use a measured byte budget; reductions are logged with a `[RESOURCE-CAP]` marker. It fails open (to the configured cap) when memory is unreadable.
 
@@ -336,7 +336,7 @@ Two **append-only** tables record security-relevant events. `AuditLog` (`audit_l
 
 **Image allowlisting** (see [Section 12](#12-injection-and-input-validation-defenses)) prevents substitution of tool images at run time.
 
-**Third-party threat feeds are treated as untrusted input, not as data we trust.** The supply-chain incident catalog (supplychainattack.org) is fetched by a sidecar that is host-pinned (the allowlist is re-checked on every redirect hop), byte-capped, envelope-validated, and runs `cap_drop: ALL` with no Neo4j, Postgres or Docker-socket access. Its volume is mounted **read-only everywhere except that sidecar** and is deliberately absent from the broker's `ALLOWED_RW_VOLUMES`, so a compromised scanner cannot poison the intel other scans then trust. Because anyone can get an advisory published, every field is gated on the way in: hostnames against an LDH charset (prose entries and slash-joined garbage are dropped **and counted**), IPs against `is_global` so a poisoned entry cannot make RedAmon flag its own infrastructure, package names against the same `sanitize_name` used for subprocess arguments, incident URLs against an http(s) scheme check (they reach `<a href>` sinks, and React renders a `javascript:` href without complaint), and free text capped. A feed that returns no indicators at all is refused rather than allowed to overwrite good data with an empty set. The incident prose reaches the agent through `query_graph` wrapped in the same unforgeable `UNTRUSTED_GRAPH_DATA` boundary tool output gets, decided from the executed Cypher rather than the result text so a column alias cannot turn the containment off.
+**Third-party threat feeds are treated as untrusted input, not as data we trust.** The supply-chain incident catalog (supplychainattack.org) is fetched by a sidecar that is host-pinned (the allowlist is re-checked on every redirect hop), byte-capped, envelope-validated, and runs `cap_drop: ALL` with no Neo4j, Postgres or Docker-socket access. Its volume is mounted **read-only everywhere except that sidecar** and is deliberately absent from the broker's `ALLOWED_RW_VOLUMES`, so a compromised scanner cannot poison the intel other scans then trust. Because anyone can get an advisory published, every field is gated on the way in: hostnames against an LDH charset (prose entries and slash-joined garbage are dropped **and counted**), IPs against `is_global` so a poisoned entry cannot make WhiteHat flag its own infrastructure, package names against the same `sanitize_name` used for subprocess arguments, incident URLs against an http(s) scheme check (they reach `<a href>` sinks, and React renders a `javascript:` href without complaint), and free text capped. A feed that returns no indicators at all is refused rather than allowed to overwrite good data with an empty set. The incident prose reaches the agent through `query_graph` wrapped in the same unforgeable `UNTRUSTED_GRAPH_DATA` boundary tool output gets, decided from the executed Cypher rather than the result text so a column alias cannot turn the containment off.
 
 ---
 
@@ -372,7 +372,7 @@ Maturity means naming what is not yet closed. The following are accepted and tra
 - **Plaintext secrets at rest.** Per-user LLM/OSINT keys are stored in the database without application-layer encryption, accepted for a single-operator, loopback-database host.
 - **Body-derived tenant on the graph read proxy.** The `/graph/exec` endpoint is authenticated and the query is tenant-filtered, but the tenant identity in the request body is currently logged rather than cryptographically bound; the enforcing flip is a tracked follow-up.
 - **Exfiltration to a public custom LLM endpoint.** A bring-your-own provider pointed at an attacker-controlled public endpoint is indistinguishable from a legitimate one; an opt-in operator allowlist is the planned closure.
-- **Fail-open service keys in dev; internal-key allowlist log-only by default.** The webapp/agent internal-key check and scanner-key fallback fail open with a warning when their secret is unset, and the internal-key route allowlist is enforced only with `INTERNAL_KEY_ALLOWLIST_ENFORCE=true`; `redamon.sh` generates the secrets on install and the deploy secrets gate refuses to boot without them.
+- **Fail-open service keys in dev; internal-key allowlist log-only by default.** The webapp/agent internal-key check and scanner-key fallback fail open with a warning when their secret is unset, and the internal-key route allowlist is enforced only with `INTERNAL_KEY_ALLOWLIST_ENFORCE=true`; `whitehat.sh` generates the secrets on install and the deploy secrets gate refuses to boot without them.
 - **No CSRF token and no JWT revocation.** State-changing routes rely on `SameSite=Lax` cookies (no separate CSRF token), and login tokens are stateless for 7 days with no server-side denylist, so logout only clears the cookie and a stolen token cannot be revoked before expiry.
 - **Weak password floor on self-service change.** The password-change route enforces only a minimal length; the first-admin bootstrap requires a stronger minimum. Operators should set strong passwords (the hardened posture's login rate-limit is the only brute-force brake).
 - **DNS-rebinding TOCTOU on the SSRF guards.** The guards resolve then hand off to an HTTP client that re-resolves at connect time.

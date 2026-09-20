@@ -9,7 +9,7 @@ and produced nothing:
   2. gvmd lists the OpenVAS scanner from its own database, so the scan connected
      happily even though ospd-openvas was never started, then sat at 0% until the
      4h task timeout - once per target, 1140 targets.
-  3. (compose-side, covered by tests/redamon_gvm_compose_test.sh)
+  3. (compose-side, covered by tests/whitehat_gvm_compose_test.sh)
 
 These tests pin 1 and 2.
 
@@ -232,7 +232,7 @@ class StallWatchdogTest(unittest.TestCase):
         # It must NOT claim the scanner is dead: this bound fires while the
         # scanner is still answering, and blaming ospd sent issue #177 chasing
         # a broker that had nothing to do with the failure.
-        self.assertNotIn("redamon-gvm-ospd", message)
+        self.assertNotIn("whitehat-gvm-ospd", message)
         self.assertIn("GVM_NO_PROGRESS_TIMEOUT", message)
 
     def test_minus_one_progress_also_trips_it(self):
@@ -323,7 +323,7 @@ class FailureStreakTest(unittest.TestCase):
         with self.assertRaises(self.main.ScanAborted) as ctx:
             self.main.check_failure_streak(self._failed(), streak, "10.0.0.9")
         message = str(ctx.exception)
-        self.assertIn("redamon-gvm-ospd", message)
+        self.assertIn("whitehat-gvm-ospd", message)
         self.assertIn("10.0.0.9", message)
 
     def test_a_working_target_resets_the_streak(self):
@@ -446,7 +446,7 @@ class ScannerlessStackTest(unittest.TestCase):
         self.assertEqual(attempted, gvm_main.MAX_CONSECUTIVE_TARGET_FAILURES,
                          "the scan must stop after the streak limit, not grind on")
         self.assertLess(attempted, len(targets))
-        self.assertIn("redamon-gvm-ospd", str(ctx.exception))
+        self.assertIn("whitehat-gvm-ospd", str(ctx.exception))
         # And each target died on the liveness verdict, not after a stall window.
         self.assertEqual(gmp.verify_scanner.call_count, attempted,
                          "one decisive probe per target, no waiting")
@@ -1008,7 +1008,7 @@ class ProbeCostTest(unittest.TestCase):
 
 
 class PortListFeedContractTest(unittest.TestCase):
-    """Every port-list name RedAmon ships must be one GVM actually has.
+    """Every port-list name WhiteHat ships must be one GVM actually has.
 
     Caught by a live run, not by this suite: the default shipped as "All TCP and
     Nmap top 1000 UDP", which does not exist - the Greenbone feed ships top *100*.

@@ -87,7 +87,7 @@ class TestWorkspaceFileModesUnderUmaskZero(unittest.TestCase):
     workspace_fs helpers produce dirs at 0o777 and files at 0o666."""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-phase6-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-phase6-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         self._orig_umask = os.umask(0)  # mirror production
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
@@ -242,7 +242,7 @@ class TestWorkspaceFileModesUnderUmaskZero(unittest.TestCase):
 
 class TestOffloadAndJobModes(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-phase6b-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-phase6b-")
         self._orig_off = output_offload.WORKSPACE_ROOT
         self._orig_jr = job_runner.WORKSPACE_ROOT
         self._orig_umask = os.umask(0)

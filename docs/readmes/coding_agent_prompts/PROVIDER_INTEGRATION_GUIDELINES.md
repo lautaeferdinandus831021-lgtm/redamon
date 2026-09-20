@@ -1,6 +1,6 @@
 # LLM Provider Integration Guidelines
 
-> Audience: an AI coding agent (or a human engineer) preparing a PR that adds a **brand-new LLM provider** to RedAmon end-to-end.
+> Audience: an AI coding agent (or a human engineer) preparing a PR that adds a **brand-new LLM provider** to WhiteHat end-to-end.
 >
 > Read this entire document before you touch a single file. The integration is **cross-stack** (Next.js + React + Prisma + FastAPI + LangChain + the recon pipeline + the kali-sandbox/redagraph/MCP layer + the CypherFix orchestrators). Skipping any one section will produce a half-wired provider that appears in the dropdown but silently fails on certain features.
 
@@ -457,7 +457,7 @@ A common failure mode: `ModelPicker` shows your model under group "My Provider",
 
 To verify after deploy: open the graph view, click "Ask the graph", switch the model to one of your provider's models in the project settings, and confirm a natural-language query produces a Cypher result.
 
-**The INBOUND MCP server is a second consumer of that same path, and it is not in the file list above.** `mcp/servers/` is RedAmon as an MCP *client*; `webapp/src/lib/mcp/` + `/api/mcp-server` is RedAmon as an MCP *server*, where a third-party agent connects in with a personal access token. Its `query_graph` tool routes a `question` argument through the identical `/graph/nl-query` -> `_build_cypher_manager` -> `setup_llm` chain, so it needs no code change here either - but it is the surface where a routing miss is least visible, because the external agent sees only "try rephrasing" and has no way to reach your logs. The LLM spend is billed against the token owner's key and bounded per token. Verify it with the acceptance-criteria item in [§2](#2-what-fully-integrated-means-acceptance-criteria).
+**The INBOUND MCP server is a second consumer of that same path, and it is not in the file list above.** `mcp/servers/` is WhiteHat as an MCP *client*; `webapp/src/lib/mcp/` + `/api/mcp-server` is WhiteHat as an MCP *server*, where a third-party agent connects in with a personal access token. Its `query_graph` tool routes a `question` argument through the identical `/graph/nl-query` -> `_build_cypher_manager` -> `setup_llm` chain, so it needs no code change here either - but it is the surface where a routing miss is least visible, because the external agent sees only "try rephrasing" and has no way to reach your logs. The LLM spend is billed against the token owner's key and bounded per token. Verify it with the acceptance-criteria item in [§2](#2-what-fully-integrated-means-acceptance-criteria).
 
 ---
 
@@ -470,7 +470,7 @@ Follow this order exactly. Each step is small enough to verify in isolation.
 1. Add icon to [`ProviderBrandIcons.tsx`](../../../webapp/src/components/icons/ProviderBrandIcons.tsx) (or skip if using a `react-icons/si` entry).
 2. Add `PROVIDER_TYPES` entry in [`llmProviderPresets.ts`](../../../webapp/src/lib/llmProviderPresets.ts).
 3. Add `id` to the `isKeyBased` array in [`LlmProviderForm.tsx`](../../../webapp/src/components/settings/LlmProviderForm.tsx) (or add a new credential branch if not key-based).
-4. **Smoke test**: `/settings` shows the new card with the right icon, name, description. Wizard step 2 shows the right credential fields. Save creates a row in `user_llm_providers` (verify with `docker compose exec postgres psql -U postgres -d redamon -c 'select id, provider_type, name from user_llm_providers;'`).
+4. **Smoke test**: `/settings` shows the new card with the right icon, name, description. Wizard step 2 shows the right credential fields. Save creates a row in `user_llm_providers` (verify with `docker compose exec postgres psql -U postgres -d whitehat -c 'select id, provider_type, name from user_llm_providers;'`).
 
 ### Phase B - Agent provider plumbing
 
@@ -507,7 +507,7 @@ Use this table as a quick comparison. Every cell is a real value in today's code
 |---|---|---|---|---|---|---|
 | OpenAI | `openai` | `ChatOpenAI` | `https://api.openai.com/v1` | (none - bare id) | `Authorization: Bearer` | `/v1/models`, filter `gpt-*`, `o1-*`, `o3-*`, `o4-*` |
 | Anthropic | `anthropic` | `ChatAnthropic` | `https://api.anthropic.com` | `claude-*` (bare) | `x-api-key`, `anthropic-version` | `/v1/models?limit=100` |
-| OpenRouter | `openrouter` | `ChatOpenAI` | `https://openrouter.ai/api/v1` | `openrouter/` | `Authorization: Bearer` + `HTTP-Referer: https://redamon.dev`, `X-Title: RedAmon Agent` | public `/api/v1/models`, filter text I/O |
+| OpenRouter | `openrouter` | `ChatOpenAI` | `https://openrouter.ai/api/v1` | `openrouter/` | `Authorization: Bearer` + `HTTP-Referer: https://redamon.dev`, `X-Title: WhiteHat Agent` | public `/api/v1/models`, filter text I/O |
 | DeepSeek | `deepseek` | `ChatOpenAI` | `https://api.deepseek.com/v1` | `deepseek/` | `Authorization: Bearer` | `/v1/models` + fallback list |
 | Google Gemini | `gemini` | `ChatGoogleGenerativeAI` | `https://generativelanguage.googleapis.com` | `gemini/` | `?key=` query param | `/v1beta/models`, filter `models/gemini-*` with `generateContent` |
 | GLM (Zhipu) | `glm` | `ChatOpenAI` | `https://open.bigmodel.cn/api/paas/v4` | `glm/` | `Authorization: Bearer` | OpenAI-compat `/models` + fallback |

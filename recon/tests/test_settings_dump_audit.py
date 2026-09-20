@@ -14,7 +14,7 @@ test:
      early-return (so disabled tools don't pollute the log drawer).
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_settings_dump_audit.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_settings_dump_audit.py -v
 """
 
 from __future__ import annotations

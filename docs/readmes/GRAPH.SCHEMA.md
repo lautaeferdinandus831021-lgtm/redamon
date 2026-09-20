@@ -1,4 +1,4 @@
-# RedAmon Neo4j Graph Schema
+# WhiteHat Neo4j Graph Schema
 
 ## Overview
 

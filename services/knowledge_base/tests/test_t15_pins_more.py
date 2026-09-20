@@ -67,7 +67,7 @@ class TestEveryTarballClientAbortsOnMismatch(unittest.TestCase):
                 with mock.patch.dict(
                     FEED_PINS, {source: {"ref": get_feed_ref(source), "sha256": wrong}}
                 ), mock.patch.object(module, "safe_get", return_value=_fake_resp(poisoned)):
-                    client = client_cls(cache_dir=f"/tmp/redamon-t15-{source}-cache")
+                    client = client_cls(cache_dir=f"/tmp/whitehat-t15-{source}-cache")
                     with self.assertRaises(PinMismatchError):
                         client.fetch()
 
@@ -83,7 +83,7 @@ class TestExploitDBFailsClosedEvenWithCache(unittest.TestCase):
         source = "exploitdb"
         poisoned = b"id,description\n1,evil"
         wrong = hashlib.sha256(b"legit").hexdigest()
-        cache_dir = tempfile.mkdtemp(prefix="redamon-t15-edb-")
+        cache_dir = tempfile.mkdtemp(prefix="whitehat-t15-edb-")
         # Seed a pre-existing cache file — the fail-closed contract says it must
         # NOT be served when the fresh download fails integrity.
         with open(os.path.join(cache_dir, "files_exploits.csv"), "w") as f:

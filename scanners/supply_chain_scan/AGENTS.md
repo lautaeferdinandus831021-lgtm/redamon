@@ -26,7 +26,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
   container by default. It is **not baked** into the analyzer image (only the
   entrypoint is COPYed); every caller must **bind-mount** it at spawn, or the run
   dies with `ModuleNotFoundError: No module named 'supply_chain_common'` (see
-  [redamon.sh:2349](../../redamon.sh#L2349)).
+  [whitehat.sh:2349](../../whitehat.sh#L2349)).
 
 ---
 
@@ -36,7 +36,7 @@ Python 3.11 · offline OSV + GuardDog + retire.js + trufflehog, a 3-layer
 malicious/vulnerable package detector. `scanners/supply_chain_common/` is the
 shared library (bind-mounted, not baked); `scanners/supply_chain_analyzer/`
 dispatches; the scan
-runs under the `root-agent` test section (image `redamon-agent`).
+runs under the `root-agent` test section (image `whitehat-agent`).
 
 ## PROJECT STRUCTURE
 
@@ -50,13 +50,13 @@ main.py  supply_chain_runner.py  deep_analysis.py  repo_clone.py   scan entry + 
 ## COMMANDS
 
 ```bash
-./redamon.sh test unit                    # supply_chain_* run under the root-agent section
-./redamon.sh supply-chain-sync <ecos>     # bootstrap the offline OSV DB volume (separate from any scan)
+./whitehat.sh test unit                    # supply_chain_* run under the root-agent section
+./whitehat.sh supply-chain-sync <ecos>     # bootstrap the offline OSV DB volume (separate from any scan)
 ```
 
 ## QA CHECKLIST
 
-- [ ] `./redamon.sh test unit` green (root-agent section).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] `./whitehat.sh test unit` green (root-agent section).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] Any new spawn bind-mounts `supply_chain_common` (it is not baked into the image).
 - [ ] Invalid analyzer/GuardDog output does not erase existing soft-error markers.

@@ -28,7 +28,7 @@ contains(){ if echo "$2" | grep -q "$3"; then ok "$1"; else bad "$1 (missing '$3
 login(){ curl -s -o /dev/null -c "$2" -X POST "$BASE/api/auth/login" -H 'Content-Type: application/json' -d "{\"email\":\"$1\",\"password\":\"e2epass123\"}"; }
 gcode(){ curl -s -o /dev/null -w '%{http_code}' -b "$1" "$BASE$2"; }
 gbody(){ curl -s -b "$1" "$BASE$2"; }
-psql_(){ $DC exec -T postgres psql -U redamon -d redamon -tAc "$1"; }
+psql_(){ $DC exec -T postgres psql -U whitehat -d whitehat -tAc "$1"; }
 
 echo "== Preconditions =="
 [ -n "$KEY" ] && [ "$KEY" != "changeme" ] || { echo "SCANNER_API_KEY unset"; exit 1; }
@@ -37,7 +37,7 @@ echo "== Ensure the bodies volume is writable by all capture components =="
 # The named volume's owner depends on which container created it first; a one-time
 # root chmod makes it shared-writable (proxy writes, webapp reads + GCs). In a real
 # deploy this is done once at provisioning.
-docker run --rm -v redamon_capture_bodies:/b alpine sh -c 'chmod 777 /b' >/dev/null 2>&1 || true
+docker run --rm -v whitehat_capture_bodies:/b alpine sh -c 'chmod 777 /b' >/dev/null 2>&1 || true
 
 echo "== Start capture proxy =="
 curl -s -X POST "http://127.0.0.1:8010/capture-proxy/start" -H "X-Orchestrator-Key: $OKEY" -o /dev/null -w "start %{http_code}\n"
@@ -50,7 +50,7 @@ login bola-a@e2e.local "$TMP/a.jar"
 psql_ "UPDATE projects SET capture_proxy_enabled=true WHERE id='$PA_ID';" >/dev/null
 
 echo "== Write an offloaded body blob (root, via the shared volume) =="
-docker run --rm -v redamon_capture_bodies:/b alpine sh -c "printf 'OFFLOADED-BODY-MARKER-XYZ' > /b/$SHA && chmod 666 /b/$SHA" >/dev/null 2>&1
+docker run --rm -v whitehat_capture_bodies:/b alpine sh -c "printf 'OFFLOADED-BODY-MARKER-XYZ' > /b/$SHA && chmod 666 /b/$SHA" >/dev/null 2>&1
 
 echo "== Create rows: 1 inline (webapp ingest) + 1 offloaded (SQL, as the proxy ingest would) =="
 ING='{"source":"recon","runId":"ttest-p2","transactions":[{"tool":"httpx","host":"p2b.example","scheme":"https","port":443,"path":"/b","method":"GET","statusCode":500,"respHeaders":{},"respBody":"inline","respBodySize":6,"startedAt":"2026-07-19T10:00:00Z"}]}'
@@ -78,13 +78,13 @@ echo "== Batch delete (ids): row removed; fresh blob SPARED by GC grace window =
 DEL2="$(curl -s -b "$TMP/a.jar" -X DELETE "$BASE/api/traffic/$PA_ID" -H 'Content-Type: application/json' -d "{\"ids\":[\"$ROWID\"]}")"
 contains "delete-by-id removed 1" "$DEL2" '"deleted":1'
 contains "freshly-written blob spared (grace window)" "$DEL2" '"blobsDeleted":0'
-BLOB_LEFT="$(docker run --rm -v redamon_capture_bodies:/b alpine sh -c "ls /b/$SHA 2>/dev/null | wc -l" | tr -d '\r\n ')"
+BLOB_LEFT="$(docker run --rm -v whitehat_capture_bodies:/b alpine sh -c "ls /b/$SHA 2>/dev/null | wc -l" | tr -d '\r\n ')"
 check "blob still present right after delete (grace)" "1" "$BLOB_LEFT"
 
 echo "== Age the orphaned blob, then the maintenance orphan sweep GCs it =="
-docker run --rm -v redamon_capture_bodies:/b alpine touch -d '2020-01-01' "/b/$SHA" >/dev/null 2>&1
+docker run --rm -v whitehat_capture_bodies:/b alpine touch -d '2020-01-01' "/b/$SHA" >/dev/null 2>&1
 curl -s -o /dev/null -X POST "$BASE/api/traffic/maintenance" -H "X-Internal-Key: $IKEY" -d '{}'
-BLOB_LEFT2="$(docker run --rm -v redamon_capture_bodies:/b alpine sh -c "ls /b/$SHA 2>/dev/null | wc -l" | tr -d '\r\n ')"
+BLOB_LEFT2="$(docker run --rm -v whitehat_capture_bodies:/b alpine sh -c "ls /b/$SHA 2>/dev/null | wc -l" | tr -d '\r\n ')"
 check "aged orphan blob swept by maintenance" "0" "$BLOB_LEFT2"
 
 echo "== Maintenance route (internal key) =="

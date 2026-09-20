@@ -52,10 +52,10 @@ class ReportKitConfig:
 
 def load_config() -> ReportKitConfig:
     return ReportKitConfig(
-        enabled=_flag("REDAMON_REPORT_DISCIPLINE", True),
-        report_block=_flag("REDAMON_REPORT_DISCIPLINE_REPORT_BLOCK", True),
-        autocheck=_flag("REDAMON_REPORT_DISCIPLINE_AUTOCHECK", True),
-        max_flags=max(1, _int("REDAMON_REPORT_DISCIPLINE_MAX_FLAGS", 12)),
+        enabled=_flag("WHITEHAT_REPORT_DISCIPLINE", True),
+        report_block=_flag("WHITEHAT_REPORT_DISCIPLINE_REPORT_BLOCK", True),
+        autocheck=_flag("WHITEHAT_REPORT_DISCIPLINE_AUTOCHECK", True),
+        max_flags=max(1, _int("WHITEHAT_REPORT_DISCIPLINE_MAX_FLAGS", 12)),
     )
 
 

@@ -3,7 +3,7 @@
  *
  * kali_exec is a SHELL: it hands the command verbatim to `kali_shell`, which is
  * `bash -c` on the sandbox. No allowlist, no per-command target check, at
- * deliberate parity with RedAmon's in-app agent - which has no per-command
+ * deliberate parity with WhiteHat's in-app agent - which has no per-command
  * admission either (its RoE gate matches tool NAMES and never reads a command).
  *
  * So nothing in this file inspects or rewrites the command, and that is the
@@ -44,7 +44,7 @@ export function kaliExecEnabled(): boolean {
 function assertEnabled(): void {
   if (!kaliExecEnabled()) {
     throw new McpToolError(
-      'Sandbox commands are disabled on this RedAmon deployment. An operator enables them ' +
+      'Sandbox commands are disabled on this WhiteHat deployment. An operator enables them ' +
       'with MCP_KALI_EXEC_ENABLED=true.',
       'disabled'
     )
@@ -126,7 +126,7 @@ function jobResult(projectId: string, job: KaliJob): Record<string, unknown> {
           'nmap port range, testssl --fast, or nikto -maxtime under 300.'
       : job.truncated
         ? 'Output continues. Call kali_output with this jobId and nextCursor for the rest.'
-        : 'Finished. A non-zero exitCode is the TOOL failing, not RedAmon refusing.',
+        : 'Finished. A non-zero exitCode is the TOOL failing, not WhiteHat refusing.',
   }
 }
 

@@ -1,9 +1,9 @@
 /** @vitest-environment node */
 import { describe, test, expect } from 'vitest'
-import { signTag } from './redamonCtx'
+import { signTag } from './whitehatCtx'
 
-describe('signTag — cross-compatible with redamon_ctx.py', () => {
-  // Reference token produced by scanners/capture_proxy/redamon_ctx.py sign_tag
+describe('signTag — cross-compatible with whitehat_ctx.py', () => {
+  // Reference token produced by scanners/capture_proxy/whitehat_ctx.py sign_tag
   // for this exact payload + key. If the canonicalization drifts, the ingest
   // worker's verify_tag will reject operator tags, so this must stay byte-exact.
   test('matches the Python reference token', () => {

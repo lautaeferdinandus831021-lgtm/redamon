@@ -38,7 +38,7 @@ _SKILL_FILE = _SKILLS_DIR / f"{_SKILL_ID}.md"
 _REGISTRY_FILE = _REPO_ROOT / "agentic" / "prompts" / "tool_registry.py"
 _DOCKERFILE = _REPO_ROOT / "mcp" / "kali-sandbox" / "Dockerfile"
 _README = _SKILLS_DIR / "README.md"
-_WIKI = _REPO_ROOT / "redamon.wiki" / "Agent-Skills.md"
+_WIKI = _REPO_ROOT / "whitehat.wiki" / "Agent-Skills.md"
 
 # These are the 7 real community-skill .md files at time of writing. Used by
 # the regression test to make sure adding insecure_deserialization didn't
@@ -254,7 +254,7 @@ class TestIndexUpdates(unittest.TestCase):
 
     def test_wiki_lists_skill(self):
         if not _WIKI.exists():
-            self.skipTest("redamon.wiki/ not checked out (sub-repo)")
+            self.skipTest("whitehat.wiki/ not checked out (sub-repo)")
         text = _WIKI.read_text(encoding="utf-8")
         self.assertIn(f"{_SKILL_ID}.md", text,
                       "wiki Agent-Skills.md Community Skills table must include the new entry")

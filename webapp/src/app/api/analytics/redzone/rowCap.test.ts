@@ -26,7 +26,7 @@ function routeFiles(): { name: string; src: string }[] {
 }
 
 afterEach(() => {
-  delete process.env.REDAMON_REDZONE_ROW_CAP
+  delete process.env.WHITEHAT_REDZONE_ROW_CAP
 })
 
 describe('the global row cap', () => {
@@ -36,7 +36,7 @@ describe('the global row cap', () => {
   })
 
   test('can be lowered per-process for small hosts', () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '5000'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '5000'
     expect(rowCap()).toBe(5000)
   })
 
@@ -45,13 +45,13 @@ describe('the global row cap', () => {
   test.each(['', 'lots', '0', '-1', 'NaN', 'Infinity'])(
     'falls back to the default for a junk override (%j)',
     raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       expect(rowCap()).toBe(REDZONE_ROW_CAP)
     },
   )
 
   test('truncates a fractional override to an integer (Cypher LIMIT takes an Integer)', () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '1500.7'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '1500.7'
     expect(rowCap()).toBe(1500)
     expect(Number.isInteger(rowCap())).toBe(true)
   })
@@ -63,7 +63,7 @@ describe('the global row cap', () => {
   test.each(['0.5', '0.9', '0.0001'])(
     'a sub-1 fraction (%j) never becomes LIMIT 0',
     raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       expect(rowCap()).toBe(REDZONE_ROW_CAP)
       expect(rowCap()).toBeGreaterThan(0)
     },
@@ -75,7 +75,7 @@ describe('the global row cap', () => {
   test.each(['1e21', '999999999999999999999', '1e308'])(
     'an absurdly large override (%j) still renders as a plain integer literal',
     raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       expect(String(rowCap())).toMatch(/^\d+$/)
       expect(Number.isSafeInteger(rowCap())).toBe(true)
     },
@@ -84,13 +84,13 @@ describe('the global row cap', () => {
   // A large-but-safe integer is clamped rather than rejected: it is a ceiling,
   // so "more than the maximum" means the maximum, not "back to the default".
   test('clamps a huge but representable override to the ceiling', () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '50000000'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '50000000'
     expect(rowCap()).toBe(10_000_000)
     expect(String(rowCap())).toMatch(/^\d+$/)
   })
 
   test('a value just under the ceiling is passed through untouched', () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '9999999'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '9999999'
     expect(rowCap()).toBe(9_999_999)
   })
 
@@ -102,8 +102,8 @@ describe('the global row cap', () => {
     '1_000', '0.5', '1500.7', '  500  ', '1e6', '1e21', '0x10', 'null',
     '999999999999999999999', String(Number.MAX_SAFE_INTEGER), String(Number.MAX_SAFE_INTEGER + 10),
   ])('always yields a Cypher-safe positive integer for %j', raw => {
-    if (raw === undefined) delete process.env.REDAMON_REDZONE_ROW_CAP
-    else process.env.REDAMON_REDZONE_ROW_CAP = raw
+    if (raw === undefined) delete process.env.WHITEHAT_REDZONE_ROW_CAP
+    else process.env.WHITEHAT_REDZONE_ROW_CAP = raw
 
     const cap = rowCap()
     expect(String(cap), `"LIMIT ${cap}" is not valid Cypher`).toMatch(/^\d+$/)

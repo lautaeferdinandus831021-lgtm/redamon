@@ -7,7 +7,7 @@ RUN GOBIN=/out go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.4.
 
 FROM kalilinux/kali-rolling:latest
 
-LABEL maintainer="RedAmon Project"
+LABEL maintainer="WhiteHat Project"
 LABEL description="Kali Linux sandbox with MCP servers for agentic penetration testing"
 
 # Avoid prompts during package installation
@@ -224,7 +224,7 @@ RUN pip install --no-cache-dir neo4j
 
 # Supply-chain L3 tools (plan Phase 1):
 #  - osv-scanner: offline verdict engine (binary from the builder stage above).
-#    Reads the redamon-osv-db volume (mounted read-only in docker-compose); the
+#    Reads the whitehat-osv-db volume (mounted read-only in docker-compose); the
 #    execute_osv_scanner MCP tool sets OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY.
 #  - guarddog: behavioural analysis. execute_guarddog dispatches the actual
 #    tarball unpack to the hardened analyzer image, but guarddog is installed
@@ -466,9 +466,9 @@ COPY servers/ /opt/mcp_servers/
 RUN chmod +x /opt/mcp_servers/redagraph.py \
     && ln -sf /opt/mcp_servers/redagraph.py /usr/local/bin/redagraph
 
-# RedAmon MOTD hint shown after the Kali login banner.
-COPY kali-sandbox/redamon-motd.sh /etc/profile.d/zz-redamon-motd.sh
-RUN chmod 0644 /etc/profile.d/zz-redamon-motd.sh
+# WhiteHat MOTD hint shown after the Kali login banner.
+COPY kali-sandbox/whitehat-motd.sh /etc/profile.d/zz-whitehat-motd.sh
+RUN chmod 0644 /etc/profile.d/zz-whitehat-motd.sh
 
 # Copy and set entrypoint script
 COPY kali-sandbox/entrypoint.sh /opt/entrypoint.sh

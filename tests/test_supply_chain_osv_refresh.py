@@ -98,8 +98,8 @@ def _mgr(logs=b"", code=0):
     """Build a ContainerManager without touching Docker."""
     m = ContainerManager.__new__(ContainerManager)
     m.client = types.SimpleNamespace(containers=_FakeContainers(logs, code))
-    m.supply_chain_analyzer_image = "redamon-supply-chain-analyzer:latest"
-    m.supply_chain_osv_db_volume = "redamon-osv-db"
+    m.supply_chain_analyzer_image = "whitehat-supply-chain-analyzer:latest"
+    m.supply_chain_osv_db_volume = "whitehat-osv-db"
     m.osv_db_refresh_timeout = 900
     m._osv_db_refresh_lock = threading.Lock()
     return m
@@ -230,9 +230,9 @@ class TestEcosystemListsDoNotDrift(unittest.TestCase):
     """REGRESSION: three copies of the ecosystem list, two of them wrong.
 
     The set lived in three places that could not import each other:
-      * scanners/supply_chain_common/osv_db_sync.py SEED_MANIFESTS  (redamon.sh path)
+      * scanners/supply_chain_common/osv_db_sync.py SEED_MANIFESTS  (whitehat.sh path)
       * container_manager._OSV_SYNC_ECOSYSTEMS             (auto-refresh)
-      * redamon.sh OSV_ALL_ECOSYSTEMS                      (install/update)
+      * whitehat.sh OSV_ALL_ECOSYSTEMS                      (install/update)
 
     The orchestrator was missing Maven and NuGet, so an operator could sync
     them by hand and then watch them silently go stale forever - the refresh
@@ -260,12 +260,12 @@ class TestEcosystemListsDoNotDrift(unittest.TestCase):
             self.assertIn("%s)" % eco, src,
                           "no seed manifest branch for %s in the refresh script" % eco)
 
-    def test_redamon_sh_lists_every_seeded_ecosystem(self):
+    def test_whitehat_sh_lists_every_seeded_ecosystem(self):
         from supply_chain_common.osv_db_sync import SEED_MANIFESTS
-        src = open(self._repo("redamon.sh")).read()
+        src = open(self._repo("whitehat.sh")).read()
         line = [l for l in src.splitlines() if l.startswith("OSV_ALL_ECOSYSTEMS=")][0]
         for eco in SEED_MANIFESTS:
-            self.assertIn(eco, line, "%s missing from redamon.sh" % eco)
+            self.assertIn(eco, line, "%s missing from whitehat.sh" % eco)
 
     def test_compose_default_covers_every_seeded_ecosystem(self):
         """The auto-refresh only touches what OSV_DB_ECOSYSTEMS names."""
@@ -278,7 +278,7 @@ class TestEcosystemListsDoNotDrift(unittest.TestCase):
     def test_install_and_update_populate_the_db(self):
         """Cold-install must not leave the feature inert until someone finds
         the supply-chain-sync subcommand."""
-        src = open(self._repo("redamon.sh")).read()
+        src = open(self._repo("whitehat.sh")).read()
         self.assertIn("ensure_osv_db()", src)
         # called from install, update and up (plus the dev variant)
         self.assertGreaterEqual(src.count("\n    ensure_osv_db\n"), 3)

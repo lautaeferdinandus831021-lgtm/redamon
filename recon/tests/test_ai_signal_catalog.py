@@ -10,12 +10,12 @@ fill in.
 
 Runs under pytest or as a plain Python script:
 
-    docker exec redamon-recon-orchestrator python3 -m pytest \
+    docker exec whitehat-recon-orchestrator python3 -m pytest \
         /app/recon/tests/test_ai_signal_catalog.py -v
 
     # OR (no pytest required)
     docker run --rm --entrypoint python3 \
-        -v "$PWD/recon:/app/recon:ro" -w /app redamon-recon:latest \
+        -v "$PWD/recon:/app/recon:ro" -w /app whitehat-recon:latest \
         recon/tests/test_ai_signal_catalog.py
 """
 from __future__ import annotations

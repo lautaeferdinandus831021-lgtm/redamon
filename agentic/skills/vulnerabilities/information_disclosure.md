@@ -24,10 +24,10 @@ Reference for hunting and triaging information leaks. Pull this in when you need
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history first (proxy_brain only see traffic that crossed the capture proxy; blind artifact-path fuzzing for `/.git`, `/.env` and friends stays with `execute_ffuf`, since those were never requested).
 
-- `redamon.grep` across all captured response bodies for secret patterns, tokens, API keys, and version strings (`AKIA`, `BEGIN PRIVATE KEY`, `password`, framework version markers).
-- `redamon.query` / `redamon.search` to inventory disclosure headers already observed (`Server`, `X-Powered-By`, `Server-Timing`, `Via`, `X-Cache`, and the other cache headers).
-- `redamon.sitemap` measures observed-endpoint coverage so the differential oracle runs against real captured paths.
-- Differential oracle: `redamon.replay id mutate:{dropHeaders:["Authorization"], headers:{"Authorization":"Bearer $B"}}` re-requests one path as token A, token B, and anon, then `redamon.diff` the pair to expose cross-principal leakage (status / body length / ETag).
+- `whitehat.grep` across all captured response bodies for secret patterns, tokens, API keys, and version strings (`AKIA`, `BEGIN PRIVATE KEY`, `password`, framework version markers).
+- `whitehat.query` / `whitehat.search` to inventory disclosure headers already observed (`Server`, `X-Powered-By`, `Server-Timing`, `Via`, `X-Cache`, and the other cache headers).
+- `whitehat.sitemap` measures observed-endpoint coverage so the differential oracle runs against real captured paths.
+- Differential oracle: `whitehat.replay id mutate:{dropHeaders:["Authorization"], headers:{"Authorization":"Bearer $B"}}` re-requests one path as token A, token B, and anon, then `whitehat.diff` the pair to expose cross-principal leakage (status / body length / ETag).
 
 ## Artifact path inventory
 

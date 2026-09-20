@@ -23,14 +23,14 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
   address. A new egress path must route through the egress guard
   ([egress.py](egress.py)), which denies on the **resolved IP** (RFC1918 etc.)
   via `EgressPolicy` so the capture proxy cannot become an SSRF pivot into
-  RedAmon's internal network or a hard-guardrail bypass.
+  WhiteHat's internal network or a hard-guardrail bypass.
 
 ---
 
 ## TECH STACK
 
 Python 3.11 · mitmproxy addon + spool-tailing ingest worker. Runs in the
-`redamon-capture-proxy` image (spawned by the orchestrator). Captured traffic is
+`whitehat-capture-proxy` image (spawned by the orchestrator). Captured traffic is
 spooled and ingested into Postgres for the agent's replay/fuzz tools.
 
 ## PROJECT STRUCTURE
@@ -40,19 +40,19 @@ capture_addon.py     the mitmproxy addon (intercepts request/response)
 capture_lib.py       shared capture helpers
 egress.py            the egress guard (SSRF/internal denylist by resolved IP; EgressPolicy)
 ingest_worker.py     async spool -> Postgres ingest
-tests/               pytest (section capture_proxy, image redamon-capture-proxy)
+tests/               pytest (section capture_proxy, image whitehat-capture-proxy)
 ```
 
 ## COMMANDS
 
 ```bash
 docker compose --profile tools build capture-proxy    # rebuild the capture-proxy image (Dockerfile change)
-./redamon.sh test unit                                # includes the capture_proxy section
+./whitehat.sh test unit                                # includes the capture_proxy section
 ```
 
 ## QA CHECKLIST
 
-- [ ] `./redamon.sh test unit` green (capture_proxy section).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] `./whitehat.sh test unit` green (capture_proxy section).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] Any new forward/replay path routes through the `egress.py` guard (no internal pivot).
 - [ ] Capture work does not block or slow the scan it observes.

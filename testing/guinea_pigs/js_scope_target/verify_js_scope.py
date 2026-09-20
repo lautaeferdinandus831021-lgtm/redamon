@@ -1,7 +1,7 @@
 """Assert what a JS scope lab run left in Neo4j. Exit 0 only if every check holds.
 
     docker run --rm --network host -v "$PWD:/repo:ro" -w /repo --entrypoint python \\
-        redamon-agent:latest testing/guinea_pigs/js_scope_target/verify_js_scope.py \\
+        whitehat-agent:latest testing/guinea_pigs/js_scope_target/verify_js_scope.py \\
         --project-id <id> [--expect-partial]
 
 Case ids match static/app.js, uploads/scope-lab-upload.js and README.md.

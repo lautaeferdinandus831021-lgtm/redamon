@@ -496,7 +496,7 @@ export default function McpServersTab({ userId, onDirtyChange }: Props) {
                     key={preset.key}
                     className={styles.presetCard}
                     onClick={() => startFromPreset(preset)}
-                    title={preset.whyForRedamon}
+                    title={preset.whyForWhiteHat}
                   >
                     <div className={styles.presetCardTop}>
                       <span className={styles.presetCardLabel}>{preset.label}</span>

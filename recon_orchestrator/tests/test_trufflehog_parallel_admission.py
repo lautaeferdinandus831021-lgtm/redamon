@@ -43,8 +43,8 @@ def make_manager():
     m.trufflehog_states = {}
     m.codefix_sandboxes = {}
     m.guarddog_jobs = set()
-    m.trufflehog_image = "redamon-trufflehog:latest"
-    m.trufflehog_network = "redamon-trufflehog-net"
+    m.trufflehog_image = "whitehat-trufflehog:latest"
+    m.trufflehog_network = "whitehat-trufflehog-net"
     m.trufflehog_scan_roots = {}
     m.trufflehog_scope_checker = None
     m.ledger = MagicMock()
@@ -331,7 +331,7 @@ class TestDirtyContainerShape(unittest.TestCase):
 
     def test_no_host_networking(self):
         # On host networking a target of 127.0.0.1:7687 resolves straight into
-        # RedAmon's own Neo4j.
+        # WhiteHat's own Neo4j.
         spawn = self._spawn_source()
         self.assertNotIn('network_mode="host"', spawn)
         self.assertIn("network=self.trufflehog_network", spawn)

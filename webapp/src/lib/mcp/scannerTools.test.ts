@@ -129,7 +129,7 @@ describe('the raw orchestrator body is masked', () => {
       status: 'error',
       container_id: 'a1b2c3d4e5f6',
       error: 'invalid mount config for type "bind": bind source path does not exist: '
-           + '/home/operator/deploy/redamon/recon',
+           + '/home/operator/deploy/whitehat/recon',
     })
     const r = await getScanStatus(ctx(), 'p1', 'gvm')
     const s = JSON.stringify(r)

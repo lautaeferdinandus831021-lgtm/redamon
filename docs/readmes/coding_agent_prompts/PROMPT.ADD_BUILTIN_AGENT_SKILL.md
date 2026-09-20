@@ -1,6 +1,6 @@
 # ADD A BUILT-IN AGENT SKILL
 
-Add **[SKILL_ID]** (e.g. `ssrf`, `xxe`, `deserialization`) as a new **built-in Agent Skill** to RedAmon.
+Add **[SKILL_ID]** (e.g. `ssrf`, `xxe`, `deserialization`) as a new **built-in Agent Skill** to WhiteHat.
 
 > **Scope**: this is the heaviest of the three skill systems. A built-in Agent Skill ships hardcoded with the product: it lives in Python, is classified automatically by the Intent Router, has its own workflow prompt injected into the agent's system prompt, declares per-skill tool requirements, shows up with a dedicated badge in the UI, and is toggleable per project. Use this flow **only** when the skill has deep tool integration and stable, production-grade content. For user-uploadable workflows, see [PROMPT.ADD_COMMUNITY_AGENT_SKILL.md](PROMPT.ADD_COMMUNITY_AGENT_SKILL.md). For on-demand reference docs, see [PROMPT.ADD_COMMUNITY_CHAT_SKILL.md](PROMPT.ADD_COMMUNITY_CHAT_SKILL.md).
 
@@ -51,7 +51,7 @@ Confirm this skill does not already exist:
 1. Search [agentic/prompts/](../../../agentic/prompts/) for any `<skill_id>_prompts.py`. If found, STOP.
 2. Check `_BUILTIN_SKILL_MAP` in [classification.py](../../../agentic/prompts/classification.py) for an existing entry with the same ID.
 3. Check [AttackSkillsSection.tsx `BUILT_IN_SKILLS`](../../../webapp/src/components/projects/ProjectForm/sections/AttackSkillsSection.tsx) around lines 36-73.
-4. Consider whether this should be a Community Agent Skill or a Chat Skill instead (see the comparison in [redamon.wiki/Chat-Skills.md "Complete Skill System Comparison"](../../../redamon.wiki/Chat-Skills.md)). Built-in is only justified when you need custom tool-routing hooks, per-skill Python logic (format strings, conditional fallbacks, execution-trace inspection), or first-class badge treatment in the UI.
+4. Consider whether this should be a Community Agent Skill or a Chat Skill instead (see the comparison in [whitehat.wiki/Chat-Skills.md "Complete Skill System Comparison"](../../../whitehat.wiki/Chat-Skills.md)). Built-in is only justified when you need custom tool-routing hooks, per-skill Python logic (format strings, conditional fallbacks, execution-trace inspection), or first-class badge treatment in the UI.
 
 If all checks pass, proceed.
 
@@ -102,7 +102,7 @@ Add a tunable ONLY when the answer is yes to at least one of the following, AND 
 
 **Disqualifier (do NOT make it a tunable):** the agent can decide this at runtime from observed target behaviour. Concretely: which payload to try first, whether to escalate to a noisier technique, retry counts, timing variance for oracle detection, which order to enumerate parameters in, how many parallel curls to fire. These belong in the prompt as guidance ("start with the simplest payload; escalate only if filtered"), not in settings.
 
-The competitor benchmark in [internal/SKILL_TO_ADD.md](../../../_local/internal/SKILL_TO_ADD.md) is also a useful sanity-check: count the per-skill knobs the upstream prompt actually parameterizes. Strix prompts have ~0-2 user-facing variables; Shannon has ~5-10 because of the deliverable-CLI plumbing we strip. Aim for 2-5 RedAmon tunables; over 6 usually means something belongs in code as the agent's default.
+The competitor benchmark in [internal/SKILL_TO_ADD.md](../../../_local/internal/SKILL_TO_ADD.md) is also a useful sanity-check: count the per-skill knobs the upstream prompt actually parameterizes. Strix prompts have ~0-2 user-facing variables; Shannon has ~5-10 because of the deliverable-CLI plumbing we strip. Aim for 2-5 WhiteHat tunables; over 6 usually means something belongs in code as the agent's default.
 
 ### The three dynamic-prompt patterns (and when to use each)
 

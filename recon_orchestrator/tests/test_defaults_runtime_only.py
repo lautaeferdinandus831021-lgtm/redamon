@@ -126,7 +126,7 @@ def test_the_targeting_columns_that_are_not_defaults_are_excluded():
 def test_the_targeting_columns_that_ARE_defaults_are_included():
     """
     The other direction, so the exclusion does not quietly widen. An empty
-    subdomain list and the shipped `_redamon-verify` TXT prefix are real
+    subdomain list and the shipped `_whitehat-verify` TXT prefix are real
     defaults a new project form needs.
     """
     for key in ("SUBDOMAIN_LIST", "OWNERSHIP_TXT_PREFIX", "VERIFY_DOMAIN_OWNERSHIP", "IP_MODE"):

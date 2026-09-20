@@ -1,4 +1,4 @@
-# RedAmon MCP Servers - Python Dependencies
+# WhiteHat MCP Servers - Python Dependencies
 
 # FastMCP - Fast Python MCP server framework.
 # fastmcp and mcp are a matched pair and must be pinned together (issue #181).

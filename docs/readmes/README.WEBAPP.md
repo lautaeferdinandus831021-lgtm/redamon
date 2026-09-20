@@ -1,4 +1,4 @@
-# RedAmon Web Application
+# WhiteHat Web Application
 
 Production-ready Next.js 16 web application with Neo4j integration, PostgreSQL project storage, and integrated recon control.
 
@@ -62,13 +62,13 @@ webapp/
 
 ## Authorization & Multi-User Access Control
 
-RedAmon is single-admin / multi-user: one admin manages many standard users, and **each standard user may only access their own data** (projects, graph, conversations, scans, reports, settings). Authentication (a JWT in the httpOnly `redamon-auth` cookie, verified in `middleware.ts` and `lib/session.ts`) proves *who* is calling; **authorization** proves they *own* what they touch.
+WhiteHat is single-admin / multi-user: one admin manages many standard users, and **each standard user may only access their own data** (projects, graph, conversations, scans, reports, settings). Authentication (a JWT in the httpOnly `whitehat-auth` cookie, verified in `middleware.ts` and `lib/session.ts`) proves *who* is calling; **authorization** proves they *own* what they touch.
 
 **Effective user.** `getEffectiveUser()` (`lib/session.ts`) returns the identity a request is scoped to:
 
 - standard user -> their own id (any impersonation input is ignored);
 - admin, not simulating -> their own id;
-- admin simulating user X -> X, and only X (via a signed httpOnly `redamon-act-as` cookie set by the admin-only `POST /api/auth/act-as`).
+- admin simulating user X -> X, and only X (via a signed httpOnly `whitehat-act-as` cookie set by the admin-only `POST /api/auth/act-as`).
 
 So an admin has no "see everything" mode; to view a user's data they explicitly *switch to* that user (see the User-Management wiki page).
 
@@ -130,15 +130,15 @@ The development server uses Turbopack for fast refresh - changes to your code ar
 
 ```bash
 # Build the production image
-docker build -t redamon-webapp:latest .
+docker build -t whitehat-webapp:latest .
 
 # Run production container locally
 docker run -p 3000:3000 \
   --network graph_db_default \
-  -e NEO4J_URI=bolt://redamon-neo4j:7687 \
+  -e NEO4J_URI=bolt://whitehat-neo4j:7687 \
   -e NEO4J_USER=neo4j \
   -e NEO4J_PASSWORD=your_password \
-  redamon-webapp:latest
+  whitehat-webapp:latest
 ```
 
 ### Production with Docker Compose
@@ -193,12 +193,12 @@ aws ecr get-login-password --region us-east-1 | \
   YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
 # Tag image
-docker tag redamon-webapp:latest \
-  YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/redamon-webapp:latest
+docker tag whitehat-webapp:latest \
+  YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/whitehat-webapp:latest
 
 # Push image
 docker push \
-  YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/redamon-webapp:latest
+  YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/whitehat-webapp:latest
 ```
 
 ### 2. ECS Fargate Deployment
@@ -207,7 +207,7 @@ Create a task definition (`task-definition.json`):
 
 ```json
 {
-  "family": "redamon-webapp",
+  "family": "whitehat-webapp",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
@@ -216,7 +216,7 @@ Create a task definition (`task-definition.json`):
   "containerDefinitions": [
     {
       "name": "webapp",
-      "image": "YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/redamon-webapp:latest",
+      "image": "YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/whitehat-webapp:latest",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -230,7 +230,7 @@ Create a task definition (`task-definition.json`):
       "secrets": [
         {
           "name": "NEO4J_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT:secret:redamon/neo4j"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT:secret:whitehat/neo4j"
         }
       ],
       "healthCheck": {
@@ -243,7 +243,7 @@ Create a task definition (`task-definition.json`):
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/redamon-webapp",
+          "awslogs-group": "/ecs/whitehat-webapp",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -261,8 +261,8 @@ aws ecs register-task-definition --cli-input-json file://task-definition.json
 # Create service with ALB
 aws ecs create-service \
   --cluster your-cluster \
-  --service-name redamon-webapp \
-  --task-definition redamon-webapp \
+  --service-name whitehat-webapp \
+  --task-definition whitehat-webapp \
   --desired-count 2 \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={subnets=[subnet-xxx],securityGroups=[sg-xxx],assignPublicIp=ENABLED}" \
@@ -276,7 +276,7 @@ aws ecs create-service \
 aws application-autoscaling register-scalable-target \
   --service-namespace ecs \
   --scalable-dimension ecs:service:DesiredCount \
-  --resource-id service/your-cluster/redamon-webapp \
+  --resource-id service/your-cluster/whitehat-webapp \
   --min-capacity 2 \
   --max-capacity 100
 
@@ -284,7 +284,7 @@ aws application-autoscaling register-scalable-target \
 aws application-autoscaling put-scaling-policy \
   --service-namespace ecs \
   --scalable-dimension ecs:service:DesiredCount \
-  --resource-id service/your-cluster/redamon-webapp \
+  --resource-id service/your-cluster/whitehat-webapp \
   --policy-name cpu-tracking \
   --policy-type TargetTrackingScaling \
   --target-tracking-scaling-policy-configuration '{
@@ -438,10 +438,10 @@ Downloads the recon output JSON file for the project.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `NEO4J_URI` | Neo4j connection URI | `bolt://localhost:7687` (dev) / `bolt://redamon-neo4j:7687` (Docker) |
+| `NEO4J_URI` | Neo4j connection URI | `bolt://localhost:7687` (dev) / `bolt://whitehat-neo4j:7687` (Docker) |
 | `NEO4J_USER` | Neo4j username | `neo4j` |
 | `NEO4J_PASSWORD` | Neo4j password | (set in .env.local) |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://redamon:<POSTGRES_PASSWORD>@localhost:5432/redamon` (password from `.env`, generated on fresh install; host port loopback-only) |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://whitehat:<POSTGRES_PASSWORD>@localhost:5432/whitehat` (password from `.env`, generated on fresh install; host port loopback-only) |
 | `RECON_ORCHESTRATOR_URL` | Recon orchestrator service URL | `http://localhost:8010` |
 | `ORCHESTRATOR_API_KEY` | Sent as `X-Orchestrator-Key` on every orchestrator call; must match the orchestrator's value (auto-generated in `.env`) | (generated) |
 | `INTERNAL_API_KEY` | Master service-to-service key. Attached (as `x-internal-key`) when the webapp proxies to the agent's guarded endpoints; accepted (constant-time) on the internal-route allowlist | (generated) |
@@ -493,7 +493,7 @@ const { logs, currentPhase, currentPhaseNumber, isConnected, clearLogs } = useRe
 
 ### AI Agent Chat (AIAssistantDrawer)
 
-The `AIAssistantDrawer` is the primary interface for interacting with the RedAmon pentesting agent. It communicates over WebSocket via the `useAgentWebSocket` hook and renders a real-time timeline of agent activity.
+The `AIAssistantDrawer` is the primary interface for interacting with the WhiteHat pentesting agent. It communicates over WebSocket via the `useAgentWebSocket` hook and renders a real-time timeline of agent activity.
 
 The component is split into a thin orchestrator (`AIAssistantDrawer.tsx`, ~426 lines) that composes purpose-built hooks and sub-components. All files live in `webapp/src/app/graph/components/AIAssistantDrawer/`.
 

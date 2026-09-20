@@ -19,7 +19,7 @@ that:
 
 **Fail-open when neither secret is set** (with a one-time warning), matching
 the MCP / WS-ticket rollout convention, so a pre-secret install never hard
--breaks; it closes the moment ``redamon.sh`` generates the key. Rate/spend
+-breaks; it closes the moment ``whitehat.sh`` generates the key. Rate/spend
 limits are always active (they need no secret) and bound damage either way.
 """
 
@@ -89,7 +89,7 @@ def _key_ok(provided: str) -> bool:
             logger.warning(
                 "llm_guard: neither INTERNAL_API_KEY nor SCANNER_API_KEY is set; "
                 "billed LLM endpoints are FAIL-OPEN (dev only). Generate the "
-                "secret via redamon.sh to enforce auth."
+                "secret via whitehat.sh to enforce auth."
             )
             _warned_failopen = True
         return True  # fail-open until a secret exists
@@ -237,7 +237,7 @@ async def require_master_internal_auth(request: Request) -> None:
             logger.warning(
                 "llm_guard: INTERNAL_API_KEY is not set; master-only endpoints "
                 "(/graph/triage) are FAIL-OPEN (dev only). Generate the secret "
-                "via redamon.sh to enforce auth."
+                "via whitehat.sh to enforce auth."
             )
             _warned_failopen_master = True
         return

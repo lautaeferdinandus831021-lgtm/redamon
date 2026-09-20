@@ -86,10 +86,10 @@ Match against an allowlist for `trusted.tld`:
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history (proxy_brain only see traffic that crossed the capture proxy).
 
-- `redamon.params` surfaces captured redirect params (`next`, `url`, `redirect_uri`, `return_to`) and flags the injectable ones.
-- `redamon.fuzz id "next" [...]` runs the allowlist-evasion matrix above over one captured redirect QUERY param, reading per-payload status and `Location` to spot the payloads that redirect off-host.
-- `redamon.replay id mutate:{param:{"next":"https://trusted.tld@attacker.tld/cb"}}` mutates a single candidate and reads the resulting `Location`.
-- `redamon.grep "attacker.tld"` confirms the input was reflected into a captured `Location`.
+- `whitehat.params` surfaces captured redirect params (`next`, `url`, `redirect_uri`, `return_to`) and flags the injectable ones.
+- `whitehat.fuzz id "next" [...]` runs the allowlist-evasion matrix above over one captured redirect QUERY param, reading per-payload status and `Location` to spot the payloads that redirect off-host.
+- `whitehat.replay id mutate:{param:{"next":"https://trusted.tld@attacker.tld/cb"}}` mutates a single candidate and reads the resulting `Location`.
+- `whitehat.grep "attacker.tld"` confirms the input was reflected into a captured `Location`.
 
 Caveat: proxy_brain prove the server emitted the redirect only. Address-bar confirmation (where the browser actually navigates) still needs `execute_playwright`.
 

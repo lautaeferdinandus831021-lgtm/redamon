@@ -1,5 +1,5 @@
 """
-Redamon capture context tag (X-Redamon-Ctx) — sign / verify.
+WhiteHat capture context tag (X-WhiteHat-Ctx) — sign / verify.
 
 This is the security primitive the credential-free capture proxy depends on
 (plan §7.2, §15.2, §20.4). Every generator (recon tool, agent tool) that routes

@@ -47,7 +47,7 @@ model User {
 }
 
 /// A personal access token for the INBOUND MCP server (/api/mcp-server), which
-/// lets an external agent act as one RedAmon user.
+/// lets an external agent act as one WhiteHat user.
 ///
 /// Per USER, never per project: it carries no projectId, so which projects it
 /// reaches is decided per call by the ownership check. A project created after
@@ -418,7 +418,7 @@ model Project {
   domainBatchGroups           Json?    @map("domain_batch_groups")
   verifyDomainOwnership       Boolean  @default(false) @map("verify_domain_ownership")
   ownershipToken              String   @default("your-secret-token-here") @map("ownership_token")
-  ownershipTxtPrefix          String   @default("_redamon-verify") @map("ownership_txt_prefix")
+  ownershipTxtPrefix          String   @default("_whitehat-verify") @map("ownership_txt_prefix")
   stealthMode                 Boolean  @default(false) @map("stealth_mode")
   targetGuardrailEnabled      Boolean  @default(true) @map("target_guardrail_enabled")
   aiInPipeline                Boolean  @default(false) @map("ai_in_pipeline")
@@ -660,7 +660,7 @@ model Project {
   takeoverCertValidationEnabled    Boolean  @default(true)  @map("takeover_cert_validation_enabled")
   // BadDNS (AGPL-3.0 isolated sidecar — off by default, opt-in)
   baddnsEnabled                    Boolean  @default(false) @map("baddns_enabled")
-  baddnsDockerImage                String   @default("redamon-baddns:latest") @map("baddns_docker_image")
+  baddnsDockerImage                String   @default("whitehat-baddns:latest") @map("baddns_docker_image")
   baddnsModules                    String[] @default(["cname", "ns", "mx", "txt", "spf"]) @map("baddns_modules")
   baddnsNameservers                String[] @default([]) @map("baddns_nameservers")
   baddnsRunTimeout                 Int      @default(1800) @map("baddns_run_timeout")
@@ -703,7 +703,7 @@ model Project {
   // ========== WEB CACHE POISONING ==========
   // Active GROUP 6 scanner: WCVS breadth engine + native 5-phase confirmation.
   webCachePoisonEnabled            Boolean  @default(false) @map("web_cache_poison_enabled")
-  webCachePoisonDockerImage        String   @default("redamon-wcvs:latest") @map("web_cache_poison_docker_image")
+  webCachePoisonDockerImage        String   @default("whitehat-wcvs:latest") @map("web_cache_poison_docker_image")
   webCachePoisonScanProfile        String   @default("safe-confirm") @map("web_cache_poison_scan_profile")
   webCachePoisonTimeout            Int      @default(1800) @map("web_cache_poison_timeout")
   webCachePoisonTimeoutPerReq      Int      @default(10) @map("web_cache_poison_timeout_per_req")
@@ -737,7 +737,7 @@ model Project {
   aiSurfaceReconEnabled                   Boolean @default(true) @map("ai_surface_recon_enabled")
   aiSurfaceReconTimeout                   Int     @default(10) @map("ai_surface_recon_timeout")
   aiSurfaceReconMaxWorkers                Int     @default(5) @map("ai_surface_recon_max_workers")
-  aiSurfaceReconUserAgent                 String  @default("RedAmon-AISurfaceRecon/1.0") @map("ai_surface_recon_user_agent")
+  aiSurfaceReconUserAgent                 String  @default("WhiteHat-AISurfaceRecon/1.0") @map("ai_surface_recon_user_agent")
   aiSurfaceReconChatShapeProbeEnabled     Boolean @default(true) @map("ai_surface_recon_chat_shape_probe_enabled")
   aiSurfaceReconMcpHandshakeEnabled       Boolean @default(true) @map("ai_surface_recon_mcp_handshake_enabled")
   aiSurfaceReconMcpListToolsEnabled       Boolean @default(true) @map("ai_surface_recon_mcp_list_tools_enabled")

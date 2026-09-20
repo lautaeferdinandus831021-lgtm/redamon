@@ -1,4 +1,4 @@
-# `supply_chain_target` — RedAmon guinea pig for Supply-Chain recon (L2)
+# `supply_chain_target` — WhiteHat guinea pig for Supply-Chain recon (L2)
 
 A deterministic, dependency-free HTTP target that fires **every branch** of the
 L2 supply-chain harvest chain exactly once, with a known expected outcome.
@@ -261,7 +261,7 @@ The offline OSV database must be populated, or the scan fails loudly rather
 than reporting a false clean:
 
 ```bash
-./redamon.sh supply-chain-sync npm
+./whitehat.sh supply-chain-sync npm
 ```
 
 ## Known limits of this harness

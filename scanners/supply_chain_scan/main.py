@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RedAmon - Supply-Chain Scan (L1 "Other Scans") entry point.
+"""WhiteHat - Supply-Chain Scan (L1 "Other Scans") entry point.
 
 Runs a standalone supply-chain audit of an operator-uploaded SBOM / lockfile
 against the OFFLINE OSV database, writes Package / MalPackageFinding graph nodes,
@@ -52,7 +52,7 @@ def run_supply_chain_scan(project_id: str) -> dict:
                                 str(Path(__file__).parent / "output"))
 
     print("\n" + "=" * 70)
-    print("           RedAmon - Supply-Chain Scan (L1)")
+    print("           WhiteHat - Supply-Chain Scan (L1)")
     print("=" * 70)
     if input_mode == "github":
         print(f"  Repository:     {repo_url or '(not set)'}")

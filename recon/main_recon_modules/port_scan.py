@@ -1,5 +1,5 @@
 """
-RedAmon - Port Scanner Module
+WhiteHat - Port Scanner Module
 
 Fast, lightweight port scanning.
 Runs via Docker for consistent environment and no installation required.
@@ -204,10 +204,10 @@ def get_host_path(container_path: str) -> str:
     The recon container mounts: ./output:/app/recon/output
     So /app/recon/output/* inside the container maps to <host>/recon/output/* on host.
 
-    /tmp/redamon is mounted to the same path inside and outside, so no translation needed.
+    /tmp/whitehat is mounted to the same path inside and outside, so no translation needed.
     """
-    # /tmp/redamon paths are the same inside and outside the container
-    if container_path.startswith("/tmp/redamon"):
+    # /tmp/whitehat paths are the same inside and outside the container
+    if container_path.startswith("/tmp/whitehat"):
         return container_path
 
     host_output_path = os.environ.get("HOST_RECON_OUTPUT_PATH", "")
@@ -568,8 +568,8 @@ def run_port_scan(recon_data: dict, output_file: Path = None, settings: dict = N
     print(f"[*][Naabu] Total targets to scan: {len(all_targets)}")
 
     # Create temp directory for scan files
-    # Use /tmp/redamon to avoid spaces in paths (snap Docker issue)
-    scan_temp_dir = Path("/tmp/redamon/.naabu_temp")
+    # Use /tmp/whitehat to avoid spaces in paths (snap Docker issue)
+    scan_temp_dir = Path("/tmp/whitehat/.naabu_temp")
     scan_temp_dir.mkdir(parents=True, exist_ok=True)
 
     try:

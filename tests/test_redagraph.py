@@ -463,12 +463,12 @@ class TestRequireTenant(unittest.TestCase):
             self.assertEqual(cm.exception.code, 2)
 
     def test_returns_pair_when_set(self):
-        env = {"REDAMON_USER_ID": "U", "REDAMON_PROJECT_ID": "P"}
+        env = {"WHITEHAT_USER_ID": "U", "WHITEHAT_PROJECT_ID": "P"}
         with mock.patch.dict(os.environ, env, clear=True):
             self.assertEqual(rg._require_tenant(), ("U", "P"))
 
     def test_blank_strings_treated_as_missing(self):
-        env = {"REDAMON_USER_ID": "  ", "REDAMON_PROJECT_ID": "P"}
+        env = {"WHITEHAT_USER_ID": "  ", "WHITEHAT_PROJECT_ID": "P"}
         with mock.patch.dict(os.environ, env, clear=True):
             with self.assertRaises(SystemExit):
                 rg._require_tenant()
@@ -616,14 +616,14 @@ class TestReadInitFrame(unittest.TestCase):
     def test_init_frame_parsed(self):
         ws = _FakeWS([json.dumps({"type": "init", "user_id": "U", "project_id": "P"})])
         env, replay = self._run(ws)
-        self.assertEqual(env, {"REDAMON_USER_ID": "U", "REDAMON_PROJECT_ID": "P"})
+        self.assertEqual(env, {"WHITEHAT_USER_ID": "U", "WHITEHAT_PROJECT_ID": "P"})
         self.assertEqual(replay, b"")
 
     def test_init_with_blank_user_is_skipped(self):
         ws = _FakeWS([json.dumps({"type": "init", "user_id": "", "project_id": "P"})])
         env, replay = self._run(ws)
-        self.assertNotIn("REDAMON_USER_ID", env)
-        self.assertEqual(env.get("REDAMON_PROJECT_ID"), "P")
+        self.assertNotIn("WHITEHAT_USER_ID", env)
+        self.assertEqual(env.get("WHITEHAT_PROJECT_ID"), "P")
         self.assertEqual(replay, b"")
 
     def test_non_init_json_is_replayed(self):

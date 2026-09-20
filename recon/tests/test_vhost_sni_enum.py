@@ -14,7 +14,7 @@ Covers:
     - Discovered-baseurl injection into http_probe.
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_enum.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_enum.py -v
 """
 
 from __future__ import annotations

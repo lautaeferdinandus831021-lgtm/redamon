@@ -6,7 +6,7 @@ Skips automatically if the database is not reachable, so it is safe in CI.
 Run inside the recon image with host networking:
   docker run --rm --network host \
     -e NEO4J_URI=bolt://localhost:7687 -e NEO4J_USER=neo4j -e NEO4J_PASSWORD=... \
-    --entrypoint python3 redamon-recon:latest \
+    --entrypoint python3 whitehat-recon:latest \
     -m unittest recon.tests.test_cache_scan_integration -v
 """
 import os

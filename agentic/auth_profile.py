@@ -2,9 +2,9 @@
 Agent-side AuthProfile header builder.
 
 The agent image does not carry the recon source, so this mirrors
-``recon/helpers/auth_profile.py`` the same way ``redamon_ctx.py`` is copied
+``recon/helpers/auth_profile.py`` the same way ``whitehat_ctx.py`` is copied
 across images. Keep the sanitizing rules identical: a target-controlled value
-must not inject headers or spoof the internal ``X-Redamon-Ctx`` tag.
+must not inject headers or spoof the internal ``X-WhiteHat-Ctx`` tag.
 
 Used by the ``/traffic/replay`` and ``/traffic/browser`` paths to give the agent
 an authenticated identity for in-scope target hosts, layered UNDER the origin
@@ -25,7 +25,7 @@ MAX_HEADER_VALUE_LEN = 8192
 
 _HEADER_NAME_RE = re.compile(r"^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$")
 _CONTROL_CHARS_RE = re.compile(r'[\x00-\x08\x0a-\x1f\x7f]')
-_RESERVED_HEADER_NAMES = frozenset({'x-redamon-ctx'})
+_RESERVED_HEADER_NAMES = frozenset({'x-whitehat-ctx'})
 
 
 def _sanitize_name(name) -> Optional[str]:

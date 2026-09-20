@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import redamon_ctx  # noqa: E402
+import whitehat_ctx  # noqa: E402
 from capture_lib import build_record  # noqa: E402
 from ingest_worker import build_row, _insert_sql, _JSONB_COLS  # noqa: E402
 
@@ -32,7 +32,7 @@ class TestFullPipelineSmoke(unittest.TestCase):
             "source": "recon", "project_id": "proj-1", "user_id": "owner-1",
             "run_id": "run-9", "tool": "nuclei", "phase": "informational",
         }
-        token = redamon_ctx.sign_tag(payload, _KEY)
+        token = whitehat_ctx.sign_tag(payload, _KEY)
         rec = build_record(
             ctx_token=token, method="GET", scheme="https", host="target.tld",
             port=443, path="/login", query="next=/admin",
@@ -53,7 +53,7 @@ class TestFullPipelineSmoke(unittest.TestCase):
 
     def test_happy_path_end_to_end(self):
         token, rec = self._signed_record()
-        payload = redamon_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
+        payload = whitehat_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
         self.assertIsNotNone(payload)
         row = build_row(payload, rec, redact=True)
         # tenant + attribution come from the verified tag
@@ -72,17 +72,17 @@ class TestFullPipelineSmoke(unittest.TestCase):
 
     def test_tenant_cannot_be_forged_via_record(self):
         token, rec = self._signed_record(forged_user="attacker")
-        payload = redamon_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
+        payload = whitehat_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
         row = build_row(payload, rec, redact=False)
         self.assertEqual(row["user_id"], "owner-1")  # NOT "attacker"
 
     def test_wrong_key_rejects_whole_record(self):
         token, rec = self._signed_record()
-        self.assertIsNone(redamon_ctx.verify_tag(rec["ctx_token"], {"recon": "wrong"}))
+        self.assertIsNone(whitehat_ctx.verify_tag(rec["ctx_token"], {"recon": "wrong"}))
 
     def test_insert_sql_is_wellformed(self):
         token, rec = self._signed_record()
-        payload = redamon_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
+        payload = whitehat_ctx.verify_tag(rec["ctx_token"], {"recon": _KEY})
         row = build_row(payload, rec, redact=False)
         sql, values = _insert_sql(row)
         self.assertTrue(sql.startswith("INSERT INTO captured_http_transactions"))

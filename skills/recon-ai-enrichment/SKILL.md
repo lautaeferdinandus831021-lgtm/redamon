@@ -11,7 +11,7 @@ description: >
   apply_ai_pipeline_overrides in recon/project_settings.py.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [recon]
   auto_invoke:

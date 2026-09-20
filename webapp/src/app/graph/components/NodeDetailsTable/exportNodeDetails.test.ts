@@ -257,7 +257,7 @@ describe('exportNodeDetailsJson / Markdown', () => {
 
     const downloads = await getDownloads()
     expect(downloads).toHaveLength(1)
-    expect(downloads[0].filename).toMatch(/^redamon-domain-\d{4}-\d{2}-\d{2}.*\.json$/)
+    expect(downloads[0].filename).toMatch(/^whitehat-domain-\d{4}-\d{2}-\d{2}.*\.json$/)
     expect(downloads[0].mimeType).toBe('application/json;charset=utf-8')
     const parsed = JSON.parse(downloads[0].content)
     expect(parsed.nodeType).toBe('Domain')
@@ -279,7 +279,7 @@ describe('exportNodeDetailsJson / Markdown', () => {
 
     const downloads = await getDownloads()
     expect(downloads).toHaveLength(1)
-    expect(downloads[0].filename).toMatch(/^redamon-domain-\d{4}-\d{2}-\d{2}.*\.md$/)
+    expect(downloads[0].filename).toMatch(/^whitehat-domain-\d{4}-\d{2}-\d{2}.*\.md$/)
     expect(downloads[0].mimeType).toBe('text/markdown;charset=utf-8')
     const md = downloads[0].content
     expect(md).toContain('# Domain - Node Inspector Export')
@@ -362,7 +362,7 @@ describe('exportNodeDetailsCsv', () => {
       showOut: false,
     })
     const dl = await getDownload()
-    expect(dl.filename).toMatch(/^redamon-domain-\d{4}-\d{2}-\d{2}.*\.csv$/)
+    expect(dl.filename).toMatch(/^whitehat-domain-\d{4}-\d{2}-\d{2}.*\.csv$/)
     expect(dl.mimeType).toBe('text/csv;charset=utf-8')
     // Strip BOM, split CRLF
     const lines = dl.content.replace(/^\uFEFF/, '').trimEnd().split('\r\n')

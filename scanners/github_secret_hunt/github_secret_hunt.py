@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RedAmon - GitHub Secret Hunter
+WhiteHat - GitHub Secret Hunter
 ====================================
 Advanced reconnaissance tool for finding leaked secrets, credentials,
 and sensitive data in GitHub repositories.

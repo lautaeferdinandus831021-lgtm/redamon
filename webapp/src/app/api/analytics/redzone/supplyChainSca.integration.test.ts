@@ -37,9 +37,9 @@ let authCookie = ''
 let driver: Driver
 let session: Session
 
-const PG_CONTAINER = process.env.SCA_ITEST_PG_CONTAINER || 'redamon-postgres'
-const PG_DB        = process.env.POSTGRES_DB   || 'redamon'
-const PG_ROLE      = process.env.POSTGRES_USER || 'redamon'
+const PG_CONTAINER = process.env.SCA_ITEST_PG_CONTAINER || 'whitehat-postgres'
+const PG_DB        = process.env.POSTGRES_DB   || 'whitehat'
+const PG_ROLE      = process.env.POSTGRES_USER || 'whitehat'
 
 /**
  * The route guard requires a real project row owned by the caller, so one has to

@@ -25,8 +25,8 @@ from recon.main_recon_modules import tls_scan
 # Command built
 # --------------------------------------------------------------------------- #
 def _cmd(settings=None):
-    return tls_scan.build_tlsx_command("/tmp/redamon/x/tlsx_targets.txt",
-                                       "/tmp/redamon/x", settings or {})
+    return tls_scan.build_tlsx_command("/tmp/whitehat/x/tlsx_targets.txt",
+                                       "/tmp/whitehat/x", settings or {})
 
 
 def test_base_flags_present_exactly_once():

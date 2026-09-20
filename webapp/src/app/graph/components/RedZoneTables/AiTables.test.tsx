@@ -29,7 +29,7 @@ const SURFACE = {
     llmEndpoints: [{ baseUrl: 'http://h:9106', path: '/v1/chat/completions', method: 'GET',
       interfaceType: 'llm-chat', streaming: true, tools: true, vision: true, modelFamily: 'llama',
       latencyMs: 11.2, ragIngest: null, framework: null, source: 'ai_surface_recon' }],
-    mcpServers: [{ baseUrl: 'http://h:9107', path: '/mcp', serverName: 'redamon-poison-mcp',
+    mcpServers: [{ baseUrl: 'http://h:9107', path: '/mcp', serverName: 'whitehat-poison-mcp',
       serverVersion: '1.0', protocolVersion: '2025-06-18', toolCount: 4, resourceCount: 1,
       promptCount: 1, capabilities: ['tools'], authRequired: false, toolsHash: 'abc' }],
     technologies: [{ name: 'qdrant', category: 'ai-vector-db', version: '', detectedBy: ['naabu-ai-port'], attachedTo: 2 }],
@@ -89,7 +89,7 @@ describe('AiSurfaceTable', () => {
     renderWithClient(createElement(AiSurfaceTable, { projectId: 'p1' }))
     await waitFor(() => screen.getByText('/v1/chat/completions'))
     fireEvent.click(screen.getByRole('button', { name: /MCP Servers/ }))
-    await waitFor(() => expect(screen.getByText('redamon-poison-mcp')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('whitehat-poison-mcp')).toBeTruthy())
     expect(screen.getByText('2025-06-18')).toBeTruthy()
   })
 

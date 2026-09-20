@@ -1,4 +1,4 @@
-# RedAmon Supply-Chain Scan (L1 CLEAN writer)
+# WhiteHat Supply-Chain Scan (L1 CLEAN writer)
 # ============================================
 # Holds Neo4j creds and writes Package/MalPackageFinding graph nodes. Runs a
 # static, no-install, OFFLINE osv-scanner pass over its input (plan S1).

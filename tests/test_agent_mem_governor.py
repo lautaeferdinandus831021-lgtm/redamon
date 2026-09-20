@@ -59,7 +59,7 @@ def _reset_governors():
 
 class AgentGovTestBase(unittest.TestCase):
     def setUp(self):
-        os.environ.pop('REDAMON_MEM_GOVERNOR', None)
+        os.environ.pop('WHITEHAT_MEM_GOVERNOR', None)
         _reset_governors()
 
     def tearDown(self):
@@ -99,7 +99,7 @@ class TestByteBudgetScaling(AgentGovTestBase):
 
 class TestGuards(AgentGovTestBase):
     def test_governor_off(self):
-        os.environ['REDAMON_MEM_GOVERNOR'] = 'false'
+        os.environ['WHITEHAT_MEM_GOVERNOR'] = 'false'
         _set_mem(32 * GB, 1 * GB)
         s = {'FIRETEAM_MAX_CONCURRENT': 5, 'PLAN_MAX_PARALLEL_TOOLS': 10}
         out = aps.apply_memory_governor(dict(s))

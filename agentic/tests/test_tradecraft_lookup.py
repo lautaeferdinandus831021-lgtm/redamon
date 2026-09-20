@@ -610,8 +610,8 @@ class TestSplitGithubUrl(unittest.TestCase):
 
     def test_strips_dot_git_suffix(self):
         self.assertEqual(
-            _split_github_url("https://github.com/redamon/redamon.git"),
-            ("redamon", "redamon"),
+            _split_github_url("https://github.com/whitehat/whitehat.git"),
+            ("whitehat", "whitehat"),
         )
 
     def test_repo_ending_in_t_not_truncated(self):

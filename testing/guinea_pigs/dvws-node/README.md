@@ -8,13 +8,13 @@ Modern Node.js vulnerable application (32 vuln categories) plus CVE Lab containe
 
 ## Public Test Server -- Rules of Engagement
 
-A public instance of this environment is available at **http://gpigs.devergolabs.com** for testing with RedAmon.
+A public instance of this environment is available at **http://gpigs.devergolabs.com** for testing with WhiteHat.
 
 ### Acceptable Use Policy
 
 By accessing this server you agree to the following terms:
 
-1. **RedAmon-only testing** -- This server is provided exclusively for testing with the [RedAmon](https://github.com/samugit83/redamon) framework. Manual exploitation, third-party scanners, and automated tools other than RedAmon are not authorized.
+1. **WhiteHat-only testing** -- This server is provided exclusively for testing with the [WhiteHat](https://github.com/samugit83/redamon) framework. Manual exploitation, third-party scanners, and automated tools other than WhiteHat are not authorized.
 
 2. **Scope** -- You may only interact with the services listed in the target service map below (ports 80, 443, 4000, 9090, 3306, 27017, 8080, 8888, 21/6200). All other ports, IPs, and infrastructure behind this server are out of scope.
 
@@ -26,7 +26,7 @@ By accessing this server you agree to the following terms:
 
 6. **No modification of the environment** -- Do not delete databases, drop tables, modify other users' data, or alter the running services in ways that affect other testers. The environment resets periodically, but destructive actions impact concurrent users.
 
-7. **Responsible disclosure** -- If you discover a vulnerability in RedAmon itself (not in the intentionally vulnerable target), report it via [GitHub Issues](https://github.com/samugit83/redamon/issues) or email. Do not exploit vulnerabilities in RedAmon's infrastructure.
+7. **Responsible disclosure** -- If you discover a vulnerability in WhiteHat itself (not in the intentionally vulnerable target), report it via [GitHub Issues](https://github.com/samugit83/redamon/issues) or email. Do not exploit vulnerabilities in WhiteHat's infrastructure.
 
 8. **Legal compliance** -- You are solely responsible for ensuring your testing complies with all applicable laws in your jurisdiction. Unauthorized access to computer systems is illegal in most countries regardless of the target's intended vulnerability.
 
@@ -130,13 +130,13 @@ Violations of these rules will result in immediate IP ban and may be reported to
 
 ---
 
-## VHost & SNI Demo (RedAmon module test fixture)
+## VHost & SNI Demo (WhiteHat module test fixture)
 
-The nginx landing container exposes **seven hidden virtual hosts** specifically designed to exercise every detection class produced by RedAmon's [VHost & SNI Enumeration](https://github.com/samugit83/redamon/wiki/VHost-and-SNI-Enumeration) module. None of these hostnames have public DNS records -- they are reachable only when the requester forges the HTTP `Host:` header (L7) or the TLS SNI value (L4).
+The nginx landing container exposes **seven hidden virtual hosts** specifically designed to exercise every detection class produced by WhiteHat's [VHost & SNI Enumeration](https://github.com/samugit83/redamon/wiki/VHost-and-SNI-Enumeration) module. None of these hostnames have public DNS records -- they are reachable only when the requester forges the HTTP `Host:` header (L7) or the TLS SNI value (L4).
 
 ### Hidden vhosts on port 80 (HTTP, L7 / Host-header trick)
 
-| Hostname | Status | Body size | Severity RedAmon should report | Why |
+| Hostname | Status | Body size | Severity WhiteHat should report | Why |
 |----------|:---:|:---:|:---:|-----|
 | `admin.gpigs.devergolabs.com` | 200 | ~1.7 KB | **medium** | `admin` is in the internal-keyword list -> escalated |
 | `staging.gpigs.devergolabs.com` | 200 | ~1.1 KB | **medium** | `staging` keyword |
@@ -146,18 +146,18 @@ The nginx landing container exposes **seven hidden virtual hosts** specifically 
 
 > Baseline (port 80, no Host override) returns the landing page **200 / ~21 B** for the proxied default in this fixture (the real DVWS landing is larger -- the fixture is intentionally small so size deltas are unambiguous).
 
-The default port-80 server keeps serving the landing page + DVWS proxy as before -- that landing page IS the baseline RedAmon compares against.
+The default port-80 server keeps serving the landing page + DVWS proxy as before -- that landing page IS the baseline WhiteHat compares against.
 
 ### Hidden vhosts on port 443 (TLS, L4 / SNI trick)
 
-The nginx server presents a multi-SAN self-signed cert (CN=`gpigs.devergolabs.com`, SANs covering all hidden vhost names). RedAmon's httpx scrapes the SAN list and feeds the discovered names back into the VHost & SNI module's candidate set on the next run.
+The nginx server presents a multi-SAN self-signed cert (CN=`gpigs.devergolabs.com`, SANs covering all hidden vhost names). WhiteHat's httpx scrapes the SAN list and feeds the discovered names back into the VHost & SNI module's candidate set on the next run.
 
 | Hostname | Reachable via | Severity | Why |
 |----------|---------------|:---:|-----|
 | `internal.gpigs.devergolabs.com` | TLS SNI only (curl `--resolve`) | **medium** | Internal-keyword `internal`, large body delta vs the small TLS baseline |
-| `k8s.gpigs.devergolabs.com` | Either L4 or L7 -- BUT returns DIFFERENT bodies depending on which lane reached it | **high** -- `host_header_bypass` | `if ($ssl_server_name = ...)` returns ~2 KB JSON when SNI matched, ~1 KB JSON when only the Host header matched. RedAmon flags the L7 vs L4 disagreement as a routing-bypass primitive |
+| `k8s.gpigs.devergolabs.com` | Either L4 or L7 -- BUT returns DIFFERENT bodies depending on which lane reached it | **high** -- `host_header_bypass` | `if ($ssl_server_name = ...)` returns ~2 KB JSON when SNI matched, ~1 KB JSON when only the Host header matched. WhiteHat flags the L7 vs L4 disagreement as a routing-bypass primitive |
 
-### Expected RedAmon output
+### Expected WhiteHat output
 
 After a full recon run targeting `gpigs.devergolabs.com` with `vhostSniEnabled: true`:
 
@@ -173,7 +173,7 @@ After a full recon run targeting `gpigs.devergolabs.com` with `vhostSniEnabled: 
 To run only this module against the target:
 
 ```bash
-# In RedAmon project settings: enable VHost & SNI, leave defaults
+# In WhiteHat project settings: enable VHost & SNI, leave defaults
 # Then in the workflow graph, click Play on the VHost & SNI node
 # Or via API:
 curl -X POST http://localhost:8010/recon/<projectId>/partial \
@@ -181,7 +181,7 @@ curl -X POST http://localhost:8010/recon/<projectId>/partial \
   -d '{"tool_id":"VhostSni","graph_inputs":{"domain":"gpigs.devergolabs.com"}}'
 ```
 
-> **Cert is self-signed.** Browsers will warn -- accept the risk for testing. RedAmon's curl probes use `-k` so they bypass cert validation.
+> **Cert is self-signed.** Browsers will warn -- accept the risk for testing. WhiteHat's curl probes use `-k` so they bypass cert validation.
 
 ---
 
@@ -192,19 +192,19 @@ curl -X POST http://localhost:8010/recon/<projectId>/partial \
 - **Type**: t2.micro (or larger for faster builds)
 - **Security Group**: SSH (22) + TCP 80 + TCP 443 + TCP 4000 + TCP 9090 -- your IP only
 
-> **NEW:** TCP 443 is required for the [VHost & SNI demo](#vhost--sni-demo-redamon-module-test-fixture). Without it the SNI-routed hidden vhosts (`internal.*`, `k8s.*`) are unreachable and only the L7 detection path can be exercised.
+> **NEW:** TCP 443 is required for the [VHost & SNI demo](#vhost--sni-demo-whitehat-module-test-fixture). Without it the SNI-routed hidden vhosts (`internal.*`, `k8s.*`) are unreachable and only the L7 detection path can be exercised.
 
 ### 2. Deploy (first time or any update)
 
 ```bash
-# from folder /redamon
+# from folder /whitehat
 scp -i ~/.ssh/guinea_pigs.pem -r testing/guinea_pigs/dvws-node/setup.sh testing/guinea_pigs/dvws-node/xss-lab ubuntu@15.160.68.117:~/ && ssh -i ~/.ssh/guinea_pigs.pem ubuntu@15.160.68.117 "bash ~/setup.sh"
 ```
 
 ### 3. Wipe & Clean (remove everything)
 
 ```bash
-# from folder /redamon
+# from folder /whitehat
 ssh -i ~/.ssh/guinea_pigs.pem ubuntu@15.160.68.117 "cd ~/dvws-node && sudo docker-compose down --volumes && sudo docker system prune -a -f --volumes && rm -rf ~/dvws-node"
 ```
 

@@ -7,7 +7,7 @@ vendored julius packs and runs them against a fake session.
 
 Run inside the recon image (needs PyYAML; jq is optional/lazy):
     docker run --rm --entrypoint python3 -v "$PWD/recon:/app/recon:ro" -w /app \
-        redamon-recon:latest recon/tests/test_probe_pack_engine.py
+        whitehat-recon:latest recon/tests/test_probe_pack_engine.py
 """
 from __future__ import annotations
 import sys

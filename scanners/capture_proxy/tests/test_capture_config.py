@@ -1,6 +1,6 @@
 """
 Unit tests for the capture proxy's DB-file config loader + hot-reload
-(RedamonCapture._read_config / _apply_config / _as_bool).
+(WhiteHatCapture._read_config / _apply_config / _as_bool).
 
 These are the security-critical paths of the "DB is the single source of truth"
 refactor: the proxy reads /spool/.capture-config.json and applies it live. The
@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-# capture_addon instantiates `RedamonCapture()` at module load (the mitmdump addon
+# capture_addon instantiates `WhiteHatCapture()` at module load (the mitmdump addon
 # singleton), whose __init__ mkdir's the spool/bodies dirs and starts daemon threads.
 # Point those at a throwaway dir and neuter the watcher poll so importing is a no-op
 # side-effect-wise. mitmproxy is stubbed (not installed in the test env).
@@ -46,9 +46,9 @@ import capture_addon  # noqa: E402
 
 
 def _new_instance(tmpdir: str):
-    """Build a RedamonCapture WITHOUT running __init__ (no threads / mkdir), wired
+    """Build a WhiteHatCapture WITHOUT running __init__ (no threads / mkdir), wired
     with just what the config methods touch."""
-    inst = capture_addon.RedamonCapture.__new__(capture_addon.RedamonCapture)
+    inst = capture_addon.WhiteHatCapture.__new__(capture_addon.WhiteHatCapture)
     inst._config_lock = threading.Lock()
     inst.spool_dir = tmpdir
     inst.config_file = os.path.join(tmpdir, ".capture-config.json")
@@ -58,7 +58,7 @@ def _new_instance(tmpdir: str):
 
 class TestAsBool(unittest.TestCase):
     def test_as_bool(self):
-        f = capture_addon.RedamonCapture._as_bool
+        f = capture_addon.WhiteHatCapture._as_bool
         self.assertTrue(f(None, True))
         self.assertFalse(f(None, False))
         self.assertTrue(f(True))
@@ -246,35 +246,35 @@ class TestRequestTagInjection(unittest.TestCase):
         flow = _FakeFlow("app.target.test")
         with mock.patch.object(capture_addon, "check_egress", return_value=(True, None, "ok")):
             inst.request(flow)
-        self.assertEqual(flow.metadata["redamon_ctx"], "operator.signed.tag")
+        self.assertEqual(flow.metadata["whitehat_ctx"], "operator.signed.tag")
 
     def test_real_tag_is_never_overridden(self):
         inst = self._inst(self._AR)
-        flow = _FakeFlow("app.target.test", {"X-Redamon-Ctx": "real-recon-tag"})
+        flow = _FakeFlow("app.target.test", {"X-WhiteHat-Ctx": "real-recon-tag"})
         with mock.patch.object(capture_addon, "check_egress", return_value=(True, None, "ok")):
             inst.request(flow)
-        self.assertEqual(flow.metadata["redamon_ctx"], "real-recon-tag")
+        self.assertEqual(flow.metadata["whitehat_ctx"], "real-recon-tag")
 
     def test_out_of_scope_stays_untagged(self):
         inst = self._inst(self._AR)
         flow = _FakeFlow("unrelated.test")
         with mock.patch.object(capture_addon, "check_egress", return_value=(True, None, "ok")):
             inst.request(flow)
-        self.assertIsNone(flow.metadata["redamon_ctx"])
+        self.assertIsNone(flow.metadata["whitehat_ctx"])
 
     def test_no_active_recording_stays_untagged(self):
         inst = self._inst(None)
         flow = _FakeFlow("app.target.test")
         with mock.patch.object(capture_addon, "check_egress", return_value=(True, None, "ok")):
             inst.request(flow)
-        self.assertIsNone(flow.metadata["redamon_ctx"])
+        self.assertIsNone(flow.metadata["whitehat_ctx"])
 
     def test_expired_recording_stays_untagged(self):
         inst = self._inst({**self._AR, "expires_at": "2000-01-01T00:00:00Z"})
         flow = _FakeFlow("app.target.test")
         with mock.patch.object(capture_addon, "check_egress", return_value=(True, None, "ok")):
             inst.request(flow)
-        self.assertIsNone(flow.metadata["redamon_ctx"])
+        self.assertIsNone(flow.metadata["whitehat_ctx"])
 
 
 class _StopLoop(BaseException):

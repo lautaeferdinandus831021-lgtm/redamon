@@ -1,5 +1,5 @@
 """
-RedAmon - Classification Helpers
+WhiteHat - Classification Helpers
 ================================
 Parameter and endpoint classification utilities for resource enumeration.
 """

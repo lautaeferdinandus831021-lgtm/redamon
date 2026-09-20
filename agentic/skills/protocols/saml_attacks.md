@@ -109,12 +109,12 @@ Common IdPs and their footprints:
 
 If HTTP Traffic Capture is enabled, source and drive the SAML probes from the recorded ACS POST instead of rebuilding the flow by hand. proxy_brain tools only see traffic that went through the capture proxy, so drive the SSO login (`execute_playwright`) through it first.
 
-- `redamon.search({"bodyq":"SAMLResponse","method":"POST"})` locates the captured POST to the SP's ACS; `redamon.get(<acs_txn>, "both")` returns the full `SAMLResponse=` / `RelayState=` body to decode and the Set-Cookie session it produced.
-- Replay-twice freshness test (the cleanest first probe): `redamon.replay(<acs_txn>, {})` re-POSTs the identical captured response to the ACS. A second successful session proves replay-detection / `NotOnOrAfter` freshness is gone. This runs against the pinned SP ACS host, exactly where you want it.
-- Mutation probes against the same ACS: build the XSW variant, Comment Injection NameID, or audience-stripped assertion (per the attack matrix / probe template below), base64-encode it, and `redamon.replay(<acs_txn>, {"body":"SAMLResponse=<encoded>&RelayState=<relay>"})`. One variant per replay; cycle the 8 XSW positions.
-- `redamon.diff(<legit_acs_response>, <tampered_acs_response>)` confirms whether the tampered assertion minted an equivalent session (Set-Cookie, redirect, status); `redamon.to_curl(id)` renders the winning POST for the report.
+- `whitehat.search({"bodyq":"SAMLResponse","method":"POST"})` locates the captured POST to the SP's ACS; `whitehat.get(<acs_txn>, "both")` returns the full `SAMLResponse=` / `RelayState=` body to decode and the Set-Cookie session it produced.
+- Replay-twice freshness test (the cleanest first probe): `whitehat.replay(<acs_txn>, {})` re-POSTs the identical captured response to the ACS. A second successful session proves replay-detection / `NotOnOrAfter` freshness is gone. This runs against the pinned SP ACS host, exactly where you want it.
+- Mutation probes against the same ACS: build the XSW variant, Comment Injection NameID, or audience-stripped assertion (per the attack matrix / probe template below), base64-encode it, and `whitehat.replay(<acs_txn>, {"body":"SAMLResponse=<encoded>&RelayState=<relay>"})`. One variant per replay; cycle the 8 XSW positions.
+- `whitehat.diff(<legit_acs_response>, <tampered_acs_response>)` confirms whether the tampered assertion minted an equivalent session (Set-Cookie, redirect, status); `whitehat.to_curl(id)` renders the winning POST for the report.
 
-Caveat: redamon.replay pins host/scheme/port to the origin ACS transaction, which is exactly the SP endpoint you target, but it cannot pivot to a second SP for the cross-SP replay test (section 3) on a different host: use execute_curl there. IdP-side steps and browser consent still need execute_playwright.
+Caveat: whitehat.replay pins host/scheme/port to the origin ACS transaction, which is exactly the SP endpoint you target, but it cannot pivot to a second SP for the cross-SP replay test (section 3) on a different host: use execute_curl there. IdP-side steps and browser consent still need execute_playwright.
 
 ## Attack matrix
 

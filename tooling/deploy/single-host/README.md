@@ -1,14 +1,14 @@
-# RedAmon single-host deploy
+# WhiteHat single-host deploy
 
-Provision and operate a full RedAmon instance on any Linux server (EC2, DigitalOcean,
+Provision and operate a full WhiteHat instance on any Linux server (EC2, DigitalOcean,
 Hetzner, bare metal) from your laptop, given only its **IP + an SSH credential + a domain**.
 
 ## What this is
 
-`deploy.sh` is a thin remote driver around RedAmon's own `redamon.sh` control script. It
-prepares a bare host, clones the repo onto it, drives `redamon.sh` over SSH, and wraps the
-whole thing in an internet-facing security layer that `redamon.sh` deliberately does not
-provide (RedAmon is designed local-only): nginx + TLS + firewall + host hardening.
+`deploy.sh` is a thin remote driver around WhiteHat's own `whitehat.sh` control script. It
+prepares a bare host, clones the repo onto it, drives `whitehat.sh` over SSH, and wraps the
+whole thing in an internet-facing security layer that `whitehat.sh` deliberately does not
+provide (WhiteHat is designed local-only): nginx + TLS + firewall + host hardening.
 
 **The security promise: one public origin over HTTPS.** From the internet only the webapp
 UI (443, plus 80 for the ACME challenge and an HTTP->HTTPS redirect) is reachable. The agent
@@ -36,8 +36,8 @@ First build takes **30-60 minutes** (Kali + agent images). When it finishes, log
 
 > **Upgrading from before 6.9?** This directory moved from `deploy/single-host` to
 > `tooling/deploy/single-host`. `git pull` moves only tracked files, so your `.env` and
-> any provided TLS material stay at the old path. Run `./redamon.sh migrate-layout` from
-> the repo root once to move them (`./redamon.sh update` and `up` do it automatically).
+> any provided TLS material stay at the old path. Run `./whitehat.sh migrate-layout` from
+> the repo root once to move them (`./whitehat.sh update` and `up` do it automatically).
 > Until then `deploy.sh` falls back to the old location and warns.
 
 ## Prerequisites
@@ -52,8 +52,8 @@ certbot, ufw, fail2ban, swap, ...) idempotently. See "How the host is bootstrapp
 
 ## Server sizing
 
-RedAmon is heavy. `redamon.sh` enforces a hard **8 GB** Docker-visible RAM floor at bring-up
-(effective ~7.5 GB after slack), aborting below it unless `REDAMON_SKIP_RAM_GATE=true`.
+WhiteHat is heavy. `whitehat.sh` enforces a hard **8 GB** Docker-visible RAM floor at bring-up
+(effective ~7.5 GB after slack), aborting below it unless `WHITEHAT_SKIP_RAM_GATE=true`.
 
 | Profile | vCPU | RAM | Disk | Example | Notes |
 |---|---|---|---|---|---|
@@ -96,8 +96,8 @@ intend to use supply-chain SCA.
 |---|---|
 | `REPO_URL` | Public clone URL. No token needed. |
 | `REPO_BRANCH` | Branch to deploy (default `master`). |
-| `APP_DIR` | Checkout dir name. Keep stable - it fixes `COMPOSE_PROJECT_NAME`, which redamon.sh uses for DB-volume detection. Do not change between init and update. |
-| `REDAMON_VERSION` | Optional version stamp baked into images. Blank -> redamon.sh default. |
+| `APP_DIR` | Checkout dir name. Keep stable - it fixes `COMPOSE_PROJECT_NAME`, which whitehat.sh uses for DB-volume detection. Do not change between init and update. |
+| `WHITEHAT_VERSION` | Optional version stamp baked into images. Blank -> whitehat.sh default. |
 
 ### Access mode
 | Key | Purpose |
@@ -130,15 +130,15 @@ intend to use supply-chain SCA.
 | `ENABLE_FAIL2BAN` | sshd + nginx jails. |
 | `ENABLE_UNATTENDED_UPGRADES` | Auto security patches. |
 
-### Feature flags (map to redamon.sh)
+### Feature flags (map to whitehat.sh)
 | Key | Maps to | Notes |
 |---|---|---|
 | `ENABLE_GVM` | `--gvm` | Heavy; 10-20 min feed sync; the install generates a strong `GVM_PASSWORD` (pinned in the server `.env`) and applies it to gvmd's `admin`. |
 | `ENABLE_KB` | `--kbase` | Bakes ML embedding models (+~4.4 GB image). The real KB switch. |
 | `ENABLE_KB_REFRESH` | kb-refresh sidecar | |
-| `ENABLE_ZRAM` | `REDAMON_ENABLE_ZRAM=1` | Compressed-RAM cushion. |
+| `ENABLE_ZRAM` | `WHITEHAT_ENABLE_ZRAM=1` | Compressed-RAM cushion. |
 
-`SKIP_KB` is intentionally **not** an input: redamon.sh derives it from the `.kbase-enabled`
+`SKIP_KB` is intentionally **not** an input: whitehat.sh derives it from the `.kbase-enabled`
 flag it manages. Control KB with `ENABLE_KB` only.
 
 ### Resources / tuning
@@ -146,11 +146,11 @@ flag it manages. Control KB with `ENABLE_KB` only.
 |---|---|
 | `SWAP_PCT` | Swapfile as a percentage of host RAM, at ANY size (default 25, `0` skips). 25% is what unlocks the memory governor's higher burst factor. |
 | `SWAP_SIZE_GB` | DEPRECATED explicit override in GB; blank uses `SWAP_PCT`. |
-| `OS_RESERVE_PCT` / `SERVICES_PCT` / `BURST_FACTOR` / `BURST_SWAP_MIN_PCT` / `BLAST_PCT` / `DISK_RESERVE_PCT` / `REDAMON_WEIGHT_*` | Memory-governor shares. Percentages only, so the same file is correct on an 8 GB and a 64 GB instance: redamon.sh computes the actual sizes from the target's own RAM. |
-| `REDAMON_SKIP_RAM_GATE` | `true` bypasses the 8 GB floor on tiny boxes (risky). |
-| `REDAMON_BUILD_PARALLEL` | Cap concurrent image builds. Blank -> redamon.sh auto-sizes. |
+| `OS_RESERVE_PCT` / `SERVICES_PCT` / `BURST_FACTOR` / `BURST_SWAP_MIN_PCT` / `BLAST_PCT` / `DISK_RESERVE_PCT` / `WHITEHAT_WEIGHT_*` | Memory-governor shares. Percentages only, so the same file is correct on an 8 GB and a 64 GB instance: whitehat.sh computes the actual sizes from the target's own RAM. |
+| `WHITEHAT_SKIP_RAM_GATE` | `true` bypasses the 8 GB floor on tiny boxes (risky). |
+| `WHITEHAT_BUILD_PARALLEL` | Cap concurrent image builds. Blank -> whitehat.sh auto-sizes. |
 | `DOCKER_DNS` | e.g. `8.8.8.8,8.8.4.4` merged into `/etc/docker/daemon.json` if container DNS breaks. |
-| `DOCKER_BUILD_CACHE_MAX_GB` | Cap the BuildKit build cache (GB) via `daemon.json` auto-GC. Blank -> Docker's default. `install`/`update` already drop the cache each build orphans, so this is a second-line ceiling for cache the daemon accumulates outside RedAmon's builds; set e.g. `30` on a shared or long-lived host. |
+| `DOCKER_BUILD_CACHE_MAX_GB` | Cap the BuildKit build cache (GB) via `daemon.json` auto-GC. Blank -> Docker's default. `install`/`update` already drop the cache each build orphans, so this is a second-line ceiling for cache the daemon accumulates outside WhiteHat's builds; set e.g. `30` on a shared or long-lived host. |
 | `<SERVICE>_CPUS` | Per-service CPU limit (`NEO4J_CPUS`, `KALI_CPUS`, `AGENT_CPUS`, ...). Auto-capped at `init` to `min(compose default, host nproc)` so `up` never fails on a box with fewer CPUs than compose's generous defaults (neo4j 8 / kali 10 / agent 8). Set one to pin it; blank -> auto. |
 
 ### Engagement knobs
@@ -183,11 +183,11 @@ flag it manages. Control KB with `ENABLE_KB` only.
 
 LLM provider keys are configured in the UI, not here.
 
-**Supply-chain SCA / offline OSV database.** `init` and `update` call `redamon.sh`'s
-`ensure_osv_db`, which populates the `redamon-osv-db` volume (~280 MB for all eight ecosystems)
+**Supply-chain SCA / offline OSV database.** `init` and `update` call `whitehat.sh`'s
+`ensure_osv_db`, which populates the `whitehat-osv-db` volume (~280 MB for all eight ecosystems)
 after the tool images are built. It is **best-effort**: a network failure warns and lets the
 stack come up, so `verify` re-checks the volume and warns if it is empty. To fix one by hand:
-`ssh` in and run `./redamon.sh supply-chain-sync` (optionally `... npm PyPI Go`). The download
+`ssh` in and run `./whitehat.sh supply-chain-sync` (optionally `... npm PyPI Go`). The download
 is plain HTTPS egress to the OSV GCS bucket, which the default ufw policy (`allow outgoing`)
 already permits.
 
@@ -230,7 +230,7 @@ The agent WebSocket URL is **baked into the webapp image at build time**
   hook. Set `LETSENCRYPT_STAGING=true` while testing.
 - **provided** (`https-domain` or `https-ip`): drop `fullchain.pem` + `privkey.pem` in
   `cert/` (or point `SSL_CERT_LOCAL`/`SSL_KEY_LOCAL` at them). They are SCP'd to
-  `/etc/ssl/redamon/` (key `600`), md5-idempotent. The only way to a trusted cert on a bare IP.
+  `/etc/ssl/whitehat/` (key `600`), md5-idempotent. The only way to a trusted cert on a bare IP.
 - **self-signed** (`https-ip` escape hatch): generated on the host with the IP in a SAN.
   Browser warning expected. Not for production.
 - **No TLS** (`http-*`): certbot is skipped entirely.
@@ -240,8 +240,8 @@ The agent WebSocket URL is **baked into the webapp image at build time**
 | Command | What it does | Destructive |
 |---|---|---|
 | `./deploy.sh init` | Wipe ALL Docker state + the checkout, then build from zero. Auto-creates the first admin from `.env`. | **yes** (typed `INIT` confirm) |
-| `./deploy.sh update` | Pull latest `REPO_BRANCH` HEAD and apply (diff-driven rebuild via redamon.sh). Preserves all volumes/data. | no |
-| `./deploy.sh status` | redamon.sh status + `docker compose ps` + ufw + nginx -t + cert expiry. | no |
+| `./deploy.sh update` | Pull latest `REPO_BRANCH` HEAD and apply (diff-driven rebuild via whitehat.sh). Preserves all volumes/data. | no |
+| `./deploy.sh status` | whitehat.sh status + `docker compose ps` + ufw + nginx -t + cert expiry. | no |
 | `./deploy.sh harden` | Re-apply host hardening + nginx/TLS only (idempotent), no rebuild. | no |
 | `./deploy.sh ssl-renew` | Renew (certbot) or re-install (provided) the cert + reload nginx. | no |
 | `./deploy.sh down` | Stop the stack, keep volumes/images. | no |
@@ -250,13 +250,13 @@ The agent WebSocket URL is **baked into the webapp image at build time**
 | `./deploy.sh revshell-close` | Tear the `4444` forwarder down and remove its ufw rules. | no |
 
 Connection fields can be overridden positionally, e.g.
-`./deploy.sh init 1.2.3.4 ~/.ssh/redamon.pem ubuntu`. Use `--env NAME` to select
+`./deploy.sh init 1.2.3.4 ~/.ssh/whitehat.pem ubuntu`. Use `--env NAME` to select
 `.env.NAME` for per-instance configs (`prod`, `staging`, a client name).
 
 ## The inbound MCP server (off by default)
 
 `MCP_SERVER_ENABLED=true` exposes `/api/mcp-server` so your own AI agent can start recon
-scans, read the attack-surface graph and adjust recon tuning, acting as ONE RedAmon user
+scans, read the attack-surface graph and adjust recon tuning, acting as ONE WhiteHat user
 inside that user's own projects. Tokens are minted per user in Global Settings ->
 **MCP Server**; the full model is in
 [docs/readmes/README.MCP.SERVER.md](../../../docs/readmes/README.MCP.SERVER.md).
@@ -287,14 +287,14 @@ Two hard rules the deploy enforces for you:
 
 `deploy.sh verify` probes the endpoint and distinguishes the failure modes: 404 (disabled or
 the flag never reached the container), 401 (working), 403 (the edge gate ate the header).
-Repeated 401s are banned by the `redamon-mcp-auth` fail2ban jail.
+Repeated 401s are banned by the `whitehat-mcp-auth` fail2ban jail.
 
 In `https-ip` with a self-signed certificate most MCP clients reject the connection. Use a
 real certificate (`TLS_MODE=provided`) or a domain.
 
 ## Security posture
 
-RedAmon's threat model assumes a local-only deployment with no anonymous internet attacker.
+WhiteHat's threat model assumes a local-only deployment with no anonymous internet attacker.
 Putting it on a public IP invalidates that, so the deploy closes the gap:
 
 - Parts of the agent REST API remain **unauthenticated** (the whole `/workspace/*` family,
@@ -321,7 +321,7 @@ Putting it on a public IP invalidates that, so the deploy closes the gap:
   DENY`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and COOP/CORP.
 - **TLS:** TLS 1.2/1.3 only, modern ECDHE ciphers, `ssl_session_tickets off`, OCSP stapling.
 - Every secret must be strong: the deploy runs a **secrets gate** that fails the build on any
-  unset/default/short secret (`changeme`, `redamon_secret`, ...). redamon.sh generates them;
+  unset/default/short secret (`changeme`, `whitehat_secret`, ...). whitehat.sh generates them;
   the deploy only verifies.
 - `ip_allowlist` (default `GATE_MODE`) is strongly recommended given the powerful
   agent WS surface + root PTY - defense-in-depth on top of the app-layer ws-ticket and login.
@@ -335,13 +335,13 @@ Putting it on a public IP invalidates that, so the deploy closes the gap:
   a Docker-published port would be bypassed by Docker's own iptables chains. A host **reboot
   drops the forwarder**, so 4444 fails closed. The msf handler on 4444 is unauthenticated, so
   it is exposed only to `REVSHELL_TARGET_CIDRS`, never the world; set your payload's LHOST to
-  the host's public IP and start the msf handler in RedAmon. (Alternative: a tunnel
+  the host's public IP and start the msf handler in WhiteHat. (Alternative: a tunnel
   ngrok/chisel to `127.0.0.1:4444` with `TUNNELS_ENABLED=true`; never run a world-open 4444
   and a tunnel at once.)
 - If `ENABLE_GVM=true`, the install generates a strong `GVM_PASSWORD`, pins it in the server
   `.env`, and applies it to gvmd's `admin` user (so the app and gvmd never disagree). The
   deploy prints `admin / <password>` once; it is always recoverable with
-  `grep '^GVM_PASSWORD=' ~/redamon/.env` on the host.
+  `grep '^GVM_PASSWORD=' ~/whitehat/.env` on the host.
 
 ### Cloud firewall / Security Group
 
@@ -378,7 +378,7 @@ its session gate. The browser reaches the agent's WebSockets at `wss://<domain>/
    `LETSENCRYPT_EMAIL`, and `ADMIN_NAME`/`ADMIN_EMAIL`/`ADMIN_PASSWORD`. Point `DOMAIN`'s
    A-record at `HOST_IP` first (letsencrypt needs it).
 2. `./deploy.sh init` -> type `INIT` to confirm the wipe.
-3. Watch: teardown -> host bootstrap -> hardening -> clone + overlay -> `redamon.sh install`
+3. Watch: teardown -> host bootstrap -> hardening -> clone + overlay -> `whitehat.sh install`
    (30-60 min build) -> secrets gate -> admin bootstrap -> nginx + TLS -> verify.
 4. Verification asserts loopback binds (3000/8090 on 127.0.0.1 only), datastores never
    off-loopback, container health, an admin exists, and `https://<domain>/api/health` -> 200.
@@ -397,16 +397,16 @@ hosts, optional Docker DNS, and inotify limits. Nothing is assumed pre-present.
 
 ## Update and rollback
 
-`update` is a thin wrapper around `redamon.sh update`: `git pull --ff-only` + diff-driven
-selective rebuild + secret regen (all via redamon.sh, which preserves DB passwords by volume
+`update` is a thin wrapper around `whitehat.sh update`: `git pull --ff-only` + diff-driven
+selective rebuild + secret regen (all via whitehat.sh, which preserves DB passwords by volume
 detection), then re-renders nginx. No source patches are applied: the single-origin agent WS
 URL is a first-class `ARG NEXT_PUBLIC_AGENT_WS_URL` in the base `webapp/Dockerfile`, baked from
-the prod overlay's build-arg, so redamon.sh's own webapp rebuild bakes the right value.
+the prod overlay's build-arg, so whitehat.sh's own webapp rebuild bakes the right value.
 **All engagement data (Postgres, Neo4j, reports, GVM feeds, models) lives in named volumes
 that survive `update`.**
 
 The prod compose overlay (`compose/docker-compose.prod.yml`) is SCP'd to the host and installed
-at `$HOME/.redamon-deploy` (outside the checkout, so it never blocks `git pull --ff-only`). It
+at `$HOME/.whitehat-deploy` (outside the checkout, so it never blocks `git pull --ff-only`). It
 sets `NEXT_PUBLIC_AGENT_WS_URL=wss://<host>/ws/agent` as the webapp build-arg. The deploy works
 even if `tooling/deploy/single-host/` is not committed to the cloned branch (committing it is still fine
 and makes the overlay part of the repo history).
@@ -415,27 +415,27 @@ Rollback is manual: `git reset --hard <prev>` on the host checkout, then `./depl
 
 ## Troubleshooting and FAQ
 
-- **RAM gate abort** ("need ~8 GB"): provision more RAM, or set `REDAMON_SKIP_RAM_GATE=true`
+- **RAM gate abort** ("need ~8 GB"): provision more RAM, or set `WHITEHAT_SKIP_RAM_GATE=true`
   (risky) and keep swap on (`SWAP_PCT`).
 - **certbot fails**: `DOMAIN` must resolve to the host and port 80 must be reachable (open it
   in your cloud Security Group / `OPERATOR_ALLOW_CIDRS` must not block the ACME check - LE
   validates from arbitrary IPs, so 80 must be world-open). Use `LETSENCRYPT_STAGING=true` to
   iterate without burning the rate limit.
-- **Secrets-gate failure**: a secret is unset/default/short. redamon.sh should have generated
+- **Secrets-gate failure**: a secret is unset/default/short. whitehat.sh should have generated
   them; check the server `~/<APP_DIR>/.env`.
 - **GVM feed-sync wait**: with `ENABLE_GVM=true`, scans don't work until feeds finish syncing
   (10-20 min after first boot).
 - **Never run raw `docker compose up` on the host.** The loopback re-binds hold only while
   the prod overlay is active (`COMPOSE_FILE`). A bare `docker compose up` reloads the base
   file and republishes 3000/8090/4444 on 0.0.0.0 and starts the profile-less GVM stack.
-  Always go through `redamon.sh` (which the deploy points at the overlay). `redamon.sh up dev`
+  Always go through `whitehat.sh` (which the deploy points at the overlay). `whitehat.sh up dev`
   is likewise forbidden here (it hardcodes its own compose files and defeats the overlay).
 - **Locked out over SSH**: if you deployed over a password, `ENABLE_SSH_HARDENING` will not
   disable password login. Install a key, then re-run `harden` with key auth to close it.
 
-## The redamon.sh parameter surface
+## The whitehat.sh parameter surface
 
-`deploy.sh` never edits `redamon.sh`. It drives it through four channels: the subcommand
+`deploy.sh` never edits `whitehat.sh`. It drives it through four channels: the subcommand
 (`MODE`), CLI flags on `install`, exported env vars, and keys appended to the server-side
 application `.env`.
 
@@ -443,17 +443,17 @@ application `.env`.
 |---|---|
 | `ENABLE_GVM` | `install --gvm` |
 | `ENABLE_KB` | `install --kbase` |
-| `ENABLE_ZRAM` | `REDAMON_ENABLE_ZRAM=1` |
-| `REDAMON_BUILD_PARALLEL` | `REDAMON_BUILD_PARALLEL` (blank -> auto) |
+| `ENABLE_ZRAM` | `WHITEHAT_ENABLE_ZRAM=1` |
+| `WHITEHAT_BUILD_PARALLEL` | `WHITEHAT_BUILD_PARALLEL` (blank -> auto) |
 | `DOCKER_BUILD_CACHE_MAX_GB` | `builder.gc.defaultKeepStorage` in `/etc/docker/daemon.json` (blank -> Docker default) |
-| `REDAMON_SKIP_RAM_GATE` | `REDAMON_SKIP_RAM_GATE=1` |
-| `REDAMON_VERSION` | image build-arg stamp |
+| `WHITEHAT_SKIP_RAM_GATE` | `WHITEHAT_SKIP_RAM_GATE=1` |
+| `WHITEHAT_VERSION` | image build-arg stamp |
 | (fixed) | `COMPOSE_FILE` = base + prod overlay, made sticky |
 | `APP_DIR` | `COMPOSE_PROJECT_NAME` (do not change between init/update) |
 | `ADMIN_*` | first-admin creation on init |
 | `NVD_API_KEY`, `KB_EMBEDDING_*`, `TUNNELS_ENABLED`, `OSV_DB_*` | appended to the server `.env` |
 
-Intentionally hands-off (redamon.sh owns these; the deploy only verifies): `AUTH_SECRET`,
+Intentionally hands-off (whitehat.sh owns these; the deploy only verifies): `AUTH_SECRET`,
 `INTERNAL_API_KEY`, `SCANNER_API_KEY`, `ORCHESTRATOR_API_KEY`, `MCP_AUTH_TOKEN`,
 `AGENT_WS_TICKET_SECRET`, `TUNNEL_AUTH_TOKEN`, `POSTGRES_PASSWORD`, `NEO4J_PASSWORD`, and
 `SKIP_KB` (derived from the `.kbase-enabled` flag).

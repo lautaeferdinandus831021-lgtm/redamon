@@ -27,7 +27,7 @@
 **/coverage.xml
 
 # ---------- Virtualenvs ----------
-services/knowledge_base/.redamon-venv/
+services/knowledge_base/.whitehat-venv/
 **/*-env/
 **/*-venv/
 **/.venv/

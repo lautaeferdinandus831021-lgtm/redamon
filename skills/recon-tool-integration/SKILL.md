@@ -11,7 +11,7 @@ description: >
   in recon/main.py or the IMAGES array in recon/entrypoint.sh.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [recon]
   auto_invoke:
@@ -110,7 +110,7 @@ From [recon/main_recon_modules/censys_enrich.py](../../recon/main_recon_modules/
 ```bash
 docker compose build recon                            # if you added a Docker-based tool (recon/entrypoint.sh IMAGES)
 docker compose exec webapp npx prisma db push         # for new settings (NEVER prisma migrate)
-./redamon.sh test unit                                # recon + root-recon sections
+./whitehat.sh test unit                                # recon + root-recon sections
 ```
 
 ## Resources

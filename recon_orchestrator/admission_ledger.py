@@ -25,16 +25,16 @@ import resource_governor as rg
 #
 # These are PERCENTAGES OF HOST RAM, not fixed sizes. They used to be a flat 6 GB
 # baseline and 2 GB headroom, which meant the scan pool was computed from numbers
-# that had no relationship to the machine OR to what redamon.sh actually handed
+# that had no relationship to the machine OR to what whitehat.sh actually handed
 # the always-on services: on an 8 GB host the two constants alone claimed the
 # entire machine, and on a 512 GB host they under-reserved by two orders of
-# magnitude. redamon.sh now exports OS_HEADROOM_MEM and SERVICE_BASELINE_MEM from
+# magnitude. whitehat.sh now exports OS_HEADROOM_MEM and SERVICE_BASELINE_MEM from
 # the same computation that sets the per-service mem_limits, so these apply only
 # when it has never run (a bare `docker compose up` on a fresh clone).
 #
 # Absolute floors are kept so a tiny host still reserves something meaningful.
-_FALLBACK_SERVICE_BASELINE_PCT = 60   # matches redamon.sh's services share of usable
-_FALLBACK_OS_HEADROOM_PCT = 8         # matches redamon.sh's OS_RESERVE_PCT
+_FALLBACK_SERVICE_BASELINE_PCT = 60   # matches whitehat.sh's services share of usable
+_FALLBACK_OS_HEADROOM_PCT = 8         # matches whitehat.sh's OS_RESERVE_PCT
 _FALLBACK_SERVICE_BASELINE_MIN = 2 * 1024 ** 3
 _FALLBACK_OS_HEADROOM_MIN = 512 * 1024 ** 2
 

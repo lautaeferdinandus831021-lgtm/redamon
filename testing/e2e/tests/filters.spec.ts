@@ -14,8 +14,8 @@ import { mintToken, signIn } from './auth'
  * Requires the stack to be up. Run: npx playwright test
  */
 
-const PROJECT = process.env.REDAMON_PROJECT || '9417780d1f864e928fbe9091a'
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROJECT = process.env.WHITEHAT_PROJECT || '9417780d1f864e928fbe9091a'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 
 /** Every entry of the table dropdown that carries per-column filters. */
 const VIEWS = [
@@ -33,10 +33,10 @@ test.beforeEach(async ({ context, baseURL }) => {
   // The onboarding gate and the star banner are full-screen overlays keyed off
   // localStorage. Pre-accepting them is the only way to reach the table at all.
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
 })
 
@@ -44,7 +44,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 test.beforeAll(async ({ playwright, baseURL }) => {
   const api = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await api.patch('/api/user/preferences', {
     data: { featureKey: 'tableFilters', value: {} },

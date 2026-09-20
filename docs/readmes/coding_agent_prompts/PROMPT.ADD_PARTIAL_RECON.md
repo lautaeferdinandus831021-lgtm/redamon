@@ -44,7 +44,7 @@ How to manage input fields from modal:
 
 - **NEVER duplicate recon code.** Import and call the exact same functions from the existing pipeline modules (`domain_recon.py`, `port_scan.py`, `http_probe.py`, etc.). The partial recon entry point is a thin orchestration layer.
 - **All graph writes use MERGE -- deduplication is automatic.** Every node type has a uniqueness constraint declared in `graph_db/schema_keys.py` (e.g. IP is unique on `(address, user_id, project_id)`, Port on `(number, protocol, ip_address, user_id, project_id)`); `graph_db/schema.py` renders the `CREATE CONSTRAINT` statements from it. All Cypher writes use `MERGE` matching on these keys -- if the node exists it gets updated, if not it gets created. Never use CREATE for nodes that might already exist. You do NOT need to implement deduplication logic -- it's handled by the schema + MERGE.
-- **Container-based execution.** Partial recon runs inside the same `redamon-recon` Docker image as the full pipeline, with a different command (`python /app/recon/partial_recon.py`). The orchestrator manages the container lifecycle.
+- **Container-based execution.** Partial recon runs inside the same `whitehat-recon` Docker image as the full pipeline, with a different command (`python /app/recon/partial_recon.py`). The orchestrator manages the container lifecycle.
 - **Settings come from `get_settings()`.** The recon container fetches project settings via the webapp API (camelCase to UPPER_SNAKE_CASE conversion). Never pass raw camelCase settings.
 - **Input node types come from `nodeMapping.ts`.** This is the single source of truth for what each tool consumes and produces. The modal reads from this mapping.
 - **Each input type gets its own textarea + validation.** Never mix input types in a single textarea. Each has its own validator, error display, and graph association logic.
@@ -69,7 +69,7 @@ User clicks Play on tool node (ProjectForm)
   -> User clicks "Run" (disabled if any validation errors)
   -> Frontend POST /api/recon/{projectId}/partial  { user_targets: { ...per user input types... } }
   -> Proxied to orchestrator POST /recon/{project_id}/partial  
-  -> Orchestrator writes config JSON to /tmp/redamon/, spawns recon container
+  -> Orchestrator writes config JSON to /tmp/whitehat/, spawns recon container
   -> Container runs: python /app/recon/partial_recon.py
   -> partial_recon.py reads config, processes user_targets, calls tool function
   -> Updates Neo4j graph via mixin methods
@@ -88,7 +88,7 @@ User clicks Play on tool node (ProjectForm)
 4. Orchestrator model (models.py): PartialReconStartRequest validates via Pydantic
    [user_targets: dict | None = None]
 5. Orchestrator API (api.py): builds config dict, includes "user_targets": request.user_targets
-6. Container manager: json.dump(config) -> /tmp/redamon/partial_{project_id}.json
+6. Container manager: json.dump(config) -> /tmp/whitehat/partial_{project_id}.json
 7. Container: load_config() reads JSON, run_<tool>(config) reads config["user_targets"]
 8. Processing: if tool has multiple user input types, process in dependency order
    (e.g. subdomains resolved FIRST so IPs can reference them via ip_attach_to)

@@ -1,5 +1,5 @@
 
-## Metasploit (via RedAmon Kali Container)
+## Metasploit (via WhiteHat Kali Container)
 
 ### CVE-2021-41773 / CVE-2021-42013 (Path Traversal + RCE)
 
@@ -246,7 +246,7 @@ curl -X POST "http://target:8080/cgi-bin/.%%32%65/.%%32%65/.%%32%65/.%%32%65/bin
 
 ```bash
 # Enter Kali container with Metasploit
-docker exec -it redamon-kali msfconsole
+docker exec -it whitehat-kali msfconsole
 
 # Search for the module
 msf6 > search CVE-2021-42013

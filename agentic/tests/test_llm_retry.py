@@ -11,7 +11,7 @@ Run (inside agent container):
         -v "/path/agentic:/app" \\
         -v "/path/graph_db:/app/graph_db:ro" \\
         -v "/path/knowledge_base:/app/knowledge_base:ro" \\
-        -w /app redamon-agent python -m unittest \\
+        -w /app whitehat-agent python -m unittest \\
         tests.test_llm_retry -v
 """
 
@@ -345,7 +345,7 @@ _NON_TEMPERATURE_ERRORS = {
 
 
 class ProviderTemperatureSelfHealTests(unittest.IsolatedAsyncioTestCase):
-    """Proof that the temperature self-heal covers every provider RedAmon
+    """Proof that the temperature self-heal covers every provider WhiteHat
     supports. The classifier must fire on each real 400 string, the heal helper
     must return a temperature-stripped clone, and retry_llm_call must recover."""
 

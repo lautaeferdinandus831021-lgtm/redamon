@@ -40,8 +40,8 @@ interface ProjectContextValue {
 
 const ProjectContext = createContext<ProjectContextValue | null>(null)
 
-const STORAGE_KEY_PROJECT = 'redamon-current-project'
-const STORAGE_KEY_USER = 'redamon-current-user'
+const STORAGE_KEY_PROJECT = 'whitehat-current-project'
+const STORAGE_KEY_USER = 'whitehat-current-user'
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProjectState] = useState<ProjectSummary | null>(null)
@@ -185,7 +185,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
     // Persist the UI hint immediately; the localStorage value is NOT trusted for
     // authorization - the server derives the effective user from the signed
-    // `redamon-act-as` cookie set below (admin-only, verified server-side).
+    // `whitehat-act-as` cookie set below (admin-only, verified server-side).
     if (id && id !== authUser?.id) {
       localStorage.setItem(STORAGE_KEY_USER, id)
     } else {

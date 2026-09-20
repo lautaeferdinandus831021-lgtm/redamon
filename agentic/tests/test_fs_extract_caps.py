@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 TMP = tempfile.mkdtemp(prefix="fsextract-")
 os.environ["WORKSPACE_ROOT"] = TMP
-os.environ["REDAMON_PROJECT_ID"] = "p1"
+os.environ["WHITEHAT_PROJECT_ID"] = "p1"
 # small caps so we don't need giant fixtures
 os.environ["FS_EXTRACT_MAX_ENTRIES"] = "5"
 os.environ["FS_EXTRACT_MAX_TOTAL_BYTES"] = "1024"  # 1 KB

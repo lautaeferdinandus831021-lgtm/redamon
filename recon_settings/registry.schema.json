@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "RedAmon recon settings registry",
+  "title": "WhiteHat recon settings registry",
   "type": "object",
   "required": ["version", "tools", "fields", "runtime_only"],
   "additionalProperties": false,

@@ -139,7 +139,7 @@ def main():
             print("    - jsReconEnabled = true AND supplyChainReconEnabled = true")
             print("    - the target was http://192.88.99.10 and it was reachable")
             print("    - the offline OSV DB is populated "
-                  "(./redamon.sh supply-chain-sync npm)")
+                  "(./whitehat.sh supply-chain-sync npm)")
             return 1
 
         # -- Path A: technologies -> purl -------------------------------------

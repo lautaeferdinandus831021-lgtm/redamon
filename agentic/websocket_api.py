@@ -1,5 +1,5 @@
 """
-WebSocket API for RedAmon Agent
+WebSocket API for WhiteHat Agent
 
 Provides WebSocket endpoint for real-time bidirectional communication with the agent.
 Supports streaming of LLM thoughts, tool executions, and interactive approval/question flows.
@@ -1182,7 +1182,7 @@ class WebSocketHandler:
             # to the cryptographically attested identity. A missing/invalid/
             # expired ticket is rejected outright. When the ticket secret is UNSET
             # we now FAIL CLOSED (STRIDE S2): reject the connection instead of
-            # trusting the self-asserted identity. redamon.sh ensure_auth_secrets
+            # trusting the self-asserted identity. whitehat.sh ensure_auth_secrets
             # always generates AGENT_WS_TICKET_SECRET, so real installs are
             # unaffected; only a token-less dev stack is refused (by design).
             from ws_ticket import ticket_secret, verify_ws_ticket

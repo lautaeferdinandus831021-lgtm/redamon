@@ -23,7 +23,7 @@ Coverage layers:
 Run (inside agent container):
     docker run --rm -v "$PWD/agentic:/app" -v "$PWD/graph_db:/app/graph_db" \\
         -v "$PWD/knowledge_base:/app/knowledge_base" -w /app \\
-        redamon-agent python -m unittest tests.test_switch_skill -v
+        whitehat-agent python -m unittest tests.test_switch_skill -v
 """
 
 from __future__ import annotations

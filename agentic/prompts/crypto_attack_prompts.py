@@ -1,5 +1,5 @@
 """
-RedAmon Cryptographic Attack Skill Prompts
+WhiteHat Cryptographic Attack Skill Prompts
 
 Built-in attack skill workflow for breaking cryptographic constructions the
 target trusts: decrypting or forging an attacker-controllable ciphertext, cookie,
@@ -61,7 +61,7 @@ attack with `execute_code` (Python) - never hand-guess ciphertext bytes.
 - Reuse the SAME session / auth the endpoint requires (authenticate first if it
   sits behind a login), and resend tokens through the exact request that consumes
   them - `execute_curl`, or `requests` inside `execute_code`, or replay a REAL
-  captured request via `redamon.to_curl` -> `redamon.replay` when capture is on.
+  captured request via `whitehat.to_curl` -> `whitehat.replay` when capture is on.
 - Do not conclude "not vulnerable" from one probe. Decrypt-oracle, forge-oracle,
   malleability, weak-key, and predictable-token are DIFFERENT flaws; a token can
   be broken through only one of them. Satisfy the abandonment gate first.
@@ -73,8 +73,8 @@ params, `Authorization` / custom headers, and any "token" / "sig" / "state" /
 "data" blob. For each: url-decode, then decode the encoding (base64, base64url,
 hex, sometimes double-encoded) with `execute_code`. Record the RAW BYTE LENGTH and
 whether it changes across issues of the same token. Reuse recon: `query_graph` for
-already-mapped Endpoints / Parameters / Cookies; `redamon.search` / `redamon.params` /
-`redamon.grep` to mine captured traffic for token-bearing requests.
+already-mapped Endpoints / Parameters / Cookies; `whitehat.search` / `whitehat.params` /
+`whitehat.grep` to mine captured traffic for token-bearing requests.
 
 ### Step 2 - Fingerprint the construction from structure alone
 - Raw length a multiple of 8 or 16, high entropy, no delimiters -> a BLOCK CIPHER
@@ -200,8 +200,8 @@ decoding in `execute_code` handle these in seconds and prevent over-thinking.
   bit-flip, keystream, JWT-forge, and RSA attack here.
 - `kali_shell`: `openssl` (enc/dgst/rsa/x509 inspection), `jwt_tool` (JWT attack
   automation), `hashcat` / `john` (crack HMAC/JWT secrets, hashes, keys).
-- `execute_curl` for single probes; `job_spawn` for long oracle sweeps; `redamon.to_curl`
-  -> `redamon.replay` to resend a REAL captured token-bearing request; `fs_write` /
+- `execute_curl` for single probes; `job_spawn` for long oracle sweeps; `whitehat.to_curl`
+  -> `whitehat.replay` to resend a REAL captured token-bearing request; `fs_write` /
   `fs_read` to stage helper scripts and offloaded output.
 - Not installed (do not depend on them): padbuster, hashpump, sage, xortool,
   gmpy2, sympy, PIL/numpy. Script the equivalent in Python instead.

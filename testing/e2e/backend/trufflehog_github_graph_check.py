@@ -31,7 +31,7 @@ What is checked:
 Run:  python3 testing/e2e/backend/trufflehog_github_graph_check.py
       python3 testing/e2e/backend/trufflehog_github_graph_check.py --twice
       python3 testing/e2e/backend/trufflehog_github_graph_check.py --no-scan
-Env:  REDAMON_PROJECT, REDAMON_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
+Env:  WHITEHAT_PROJECT, WHITEHAT_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
       GITHUB_FIXTURE_TOKEN (else _local/gh_fixture_token)
 """
 import json
@@ -42,8 +42,8 @@ import time
 import urllib.error
 import urllib.request
 
-PROJECT = os.environ.get("REDAMON_PROJECT", "e651f859c3114faf94196ab02")
-USER = os.environ.get("REDAMON_USER", "cmrzlj3xk0000ob3vo67o3igg")
+PROJECT = os.environ.get("WHITEHAT_PROJECT", "e651f859c3114faf94196ab02")
+USER = os.environ.get("WHITEHAT_USER", "cmrzlj3xk0000ob3vo67o3igg")
 ORCH = os.environ.get("ORCH_URL", "http://127.0.0.1:8010")
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 ARTIFACT = os.path.join(
@@ -77,7 +77,7 @@ MF = _read(MANIFEST)
 # No fallback: the account comes from the manifest the builder wrote, so this
 # file carries no one's GitHub login. main() refuses to run without it.
 OWNER = MF.get("owner", "")
-PREFIX = MF.get("prefix", "redamon-th")
+PREFIX = MF.get("prefix", "whitehat-th")
 GIST = MF.get("gist", "")
 TOKEN = _token()
 

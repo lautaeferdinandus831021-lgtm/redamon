@@ -5,7 +5,7 @@ per-phase try/except in main pipeline, and Docker APIError handling.
 These tests verify that one bad item in a batch does NOT crash the whole batch,
 and that good items before and after the bad one are still processed.
 
-Run: cd "/home/samuele/Progetti didattici/redamon" && python3 -m unittest recon.tests.test_crash_resilience -v
+Run: cd "/home/samuele/Progetti didattici/whitehat" && python3 -m unittest recon.tests.test_crash_resilience -v
 """
 
 import pytest

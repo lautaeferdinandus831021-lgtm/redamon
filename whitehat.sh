@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# RedAmon CLI - Simplified installation, update, and lifecycle management
+# WhiteHat CLI - Simplified installation, update, and lifecycle management
 # =============================================================================
 set -euo pipefail
 
@@ -17,15 +17,15 @@ LEGACY_SKIPKBASE_FLAG_FILE="$SCRIPT_DIR/.skipkbase"
 # Service lists
 CORE_SERVICES="postgres neo4j docker-broker recon-orchestrator kali-sandbox agent webapp"
 # Build-only images run on demand (NOT long-running services). All live under the
-# compose `tools` profile and the redamon-* tag namespace. ai-attack-surface is the
+# compose `tools` profile and the whitehat-* tag namespace. ai-attack-surface is the
 # AI Attack Surface scanner (garak/pyrit/giskard/promptfoo). wcvs is the Web Cache
 # Vulnerability Scanner, run docker-in-docker by the recon container for the web
 # cache poisoning module.
-TOOL_IMAGES="redamon-recon:latest redamon-vuln-scanner:latest redamon-github-hunter:latest redamon-trufflehog:latest redamon-baddns:latest redamon-ai-attack-surface:latest redamon-codefix-sandbox:latest redamon-wcvs:latest redamon-supply-chain-analyzer:latest redamon-supply-chain:latest"
+TOOL_IMAGES="whitehat-recon:latest whitehat-vuln-scanner:latest whitehat-github-hunter:latest whitehat-trufflehog:latest whitehat-baddns:latest whitehat-ai-attack-surface:latest whitehat-codefix-sandbox:latest whitehat-wcvs:latest whitehat-supply-chain-analyzer:latest whitehat-supply-chain:latest"
 # Core services whose images are BUILT from this repo (postgres/neo4j are pulled,
 # so they are absent here). Used to verify `up` has something to start; the tags
 # are resolved through `docker compose config` so a renamed compose project or a
-# clone directory other than "redamon" still matches.
+# clone directory other than "whitehat" still matches.
 CORE_BUILD_SERVICES="docker-broker recon-orchestrator kali-sandbox agent webapp"
 DEV_COMPOSE="-f docker-compose.yml -f docker-compose.dev.yml"
 
@@ -35,7 +35,7 @@ DEV_COMPOSE="-f docker-compose.yml -f docker-compose.dev.yml"
 DISK_FULL_BUILD_GB=40
 DISK_PARTIAL_BUILD_GB=15
 
-# Tracked paths that RedAmon REWRITES at runtime. A modified copy makes
+# Tracked paths that WhiteHat REWRITES at runtime. A modified copy makes
 # `git pull --ff-only` refuse to fast-forward, which stranded users on an old
 # version behind a confusing "you may have local changes" error. They are
 # machine-local bookkeeping (never user edits), so `update` restores them before
@@ -59,18 +59,18 @@ UPDATE_BASE_HEAD=""
 # Orchestrator-spawned containers that docker compose does NOT manage (they are
 # created at runtime via the Docker API, so `compose down` leaves them behind and
 # they must be wiped explicitly):
-#   - AI Attack Surface scan containers:  redamon-ai-attack-<proj>-<run>
-#   - On-demand local LLM (Ollama) judge/attacker:  redamon-local-llm
-#   - CodeFix build sandboxes (T6/E10):  redamon-codefix-<job>
+#   - AI Attack Surface scan containers:  whitehat-ai-attack-<proj>-<run>
+#   - On-demand local LLM (Ollama) judge/attacker:  whitehat-local-llm
+#   - CodeFix build sandboxes (T6/E10):  whitehat-codefix-<job>
 # Orchestrator-spawned, NON-compose-managed containers (repeated name filters are
 # OR'd by docker ps). Includes the capture proxy + ingest pair: they are spawned by
 # the orchestrator with restart:unless-stopped and live in the "capture" profile, so
 # `docker compose down` (no --profile capture) would NOT stop them and they would
 # leak past down/clean/purge — and hold the capture_* volumes purge tries to drop.
-SPAWNED_CONTAINER_NAME_FILTERS=(--filter "name=redamon-ai-attack-" --filter "name=redamon-local-llm" --filter "name=redamon-codefix-" --filter "name=redamon-capture-proxy" --filter "name=redamon-traffic-ingest")
+SPAWNED_CONTAINER_NAME_FILTERS=(--filter "name=whitehat-ai-attack-" --filter "name=whitehat-local-llm" --filter "name=whitehat-codefix-" --filter "name=whitehat-capture-proxy" --filter "name=whitehat-traffic-ingest")
 # The on-demand local LLM image (pulled at runtime, not built) + its models volume.
 LOCAL_LLM_IMAGE="${LOCAL_LLM_IMAGE:-ollama/ollama:latest}"
-LOCAL_LLM_VOLUME="${LOCAL_LLM_VOLUME:-redamon_llm_models}"
+LOCAL_LLM_VOLUME="${LOCAL_LLM_VOLUME:-whitehat_llm_models}"
 
 # Colors
 RED='\033[0;31m'
@@ -105,7 +105,7 @@ error()   { echo -e "${RED}[ERROR]${NC} $*"; }
 # its output as `x="$(_env_get ...)"` under `set -euo pipefail`, where a bare
 # `grep` that finds nothing exits 1, `pipefail` propagates it, and `set -e` then
 # aborts the whole script mid-assignment with no error message. That is exactly
-# what made `./redamon.sh install` die silently right after generating the auth
+# what made `./whitehat.sh install` die silently right after generating the auth
 # tokens on a FRESH install (#157): the new `.env` has no POSTGRES_DB line, so
 # the TRAFFIC_INGEST_DATABASE_URL grep failed and killed the install before a
 # single container was built. The trailing `|| true` pins the exit status to 0.
@@ -143,7 +143,7 @@ _env_get() {
 # be misleading. `docker info` reports the engine's real limits and is correct on
 # Linux, macOS and Windows alike; host probing (/proc, sysctl) is only a fallback.
 #
-# Override: REDAMON_BUILD_PARALLEL=N forces the limit (N>=1), =0 leaves it
+# Override: WHITEHAT_BUILD_PARALLEL=N forces the limit (N>=1), =0 leaves it
 # unbounded. webapp isolation always applies regardless of the override.
 
 BUILD_MEM_MB=0
@@ -230,8 +230,8 @@ detect_build_resources() {
 # Assumes detect_build_resources() has already run.
 pick_parallelism() {
     # Explicit override wins and skips heuristics entirely.
-    if [[ -n "${REDAMON_BUILD_PARALLEL:-}" ]]; then
-        local ov="${REDAMON_BUILD_PARALLEL//[^0-9]/}"
+    if [[ -n "${WHITEHAT_BUILD_PARALLEL:-}" ]]; then
+        local ov="${WHITEHAT_BUILD_PARALLEL//[^0-9]/}"
         if [[ -z "$ov" ]]; then ov=1; fi
         printf '%s' "$ov"
         return
@@ -243,7 +243,7 @@ pick_parallelism() {
         return
     fi
 
-    # Reserve headroom for the OS plus RedAmon containers that stay running
+    # Reserve headroom for the OS plus WhiteHat containers that stay running
     # during `update` (neo4j/postgres/agent), and budget ~2GB per concurrent
     # heavy build.
     local reserve=2560 per_build=2048 usable mem_bound parallel
@@ -326,13 +326,13 @@ _disk_reserve_gb() {
 
 # Refuse to start when the host/VM can't hold the always-on core services, with
 # a clear message, instead of failing mysteriously later. Returns 1 to abort.
-# Override with REDAMON_SKIP_RAM_GATE=1 or REDAMON_MIN_RAM_MB=<mb>.
+# Override with WHITEHAT_SKIP_RAM_GATE=1 or WHITEHAT_MIN_RAM_MB=<mb>.
 preflight_ram_gate() {
-    [[ "${REDAMON_SKIP_RAM_GATE:-}" == "1" ]] && return 0
+    [[ "${WHITEHAT_SKIP_RAM_GATE:-}" == "1" ]] && return 0
     detect_build_resources
     local required_mb baseline_mb headroom_mb
-    if [[ -n "${REDAMON_MIN_RAM_MB:-}" ]]; then
-        required_mb="${REDAMON_MIN_RAM_MB//[^0-9]/}"
+    if [[ -n "${WHITEHAT_MIN_RAM_MB:-}" ]]; then
+        required_mb="${WHITEHAT_MIN_RAM_MB//[^0-9]/}"
     elif [[ -n "${SERVICE_BASELINE_MEM:-}" || -n "${OS_HEADROOM_MEM:-}" ]]; then
         # An operator pinned the budget: honour it verbatim.
         baseline_mb="$(_size_to_mb "${SERVICE_BASELINE_MEM:-6g}")"; [[ -z "$baseline_mb" ]] && baseline_mb=6144
@@ -352,7 +352,7 @@ preflight_ram_gate() {
         error "  (short by ~$(( _ALLOC_SHORTFALL_MB / 1024 + 1 ))GB)."
         is_gvm_enabled 2>/dev/null && error "  The --gvm profile roughly doubles the requirement; try without it."
         is_kbase_enabled 2>/dev/null && error "  The Knowledge Base profile also adds to it."
-        error "Free up memory, raise the Docker VM memory, or set REDAMON_SKIP_RAM_GATE=1 to override."
+        error "Free up memory, raise the Docker VM memory, or set WHITEHAT_SKIP_RAM_GATE=1 to override."
         return 1
     fi
     [[ -z "$required_mb" || "$required_mb" -le 0 ]] && return 0
@@ -361,8 +361,8 @@ preflight_ram_gate() {
     local threshold=$(( required_mb - 512 ))
     [[ "$threshold" -lt 0 ]] && threshold="$required_mb"
     if [[ "${BUILD_MEM_MB:-0}" -gt 0 && "$BUILD_MEM_MB" -lt "$threshold" ]]; then
-        error "Insufficient memory for RedAmon core services: ~$(( BUILD_MEM_MB / 1024 ))GB available to Docker (source: ${BUILD_RES_SOURCE}), need ~$(( required_mb / 1024 ))GB."
-        error "Free up memory, raise the Docker VM memory, or set REDAMON_SKIP_RAM_GATE=1 to override."
+        error "Insufficient memory for WhiteHat core services: ~$(( BUILD_MEM_MB / 1024 ))GB available to Docker (source: ${BUILD_RES_SOURCE}), need ~$(( required_mb / 1024 ))GB."
+        error "Free up memory, raise the Docker VM memory, or set WHITEHAT_SKIP_RAM_GATE=1 to override."
         return 1
     fi
     return 0
@@ -421,12 +421,12 @@ _docker_disk_path() {
 # <path> defaults to the Docker data directory; callers that already ran
 # detect_build_resources() pass $BUILD_DISK_PATH so no second `docker info` is
 # issued mid-build.
-# Override with REDAMON_SKIP_DISK_GATE=1 or REDAMON_MIN_DISK_GB=<gb>.
+# Override with WHITEHAT_SKIP_DISK_GATE=1 or WHITEHAT_MIN_DISK_GB=<gb>.
 preflight_disk_gate() {
     local required_gb="${1:-$DISK_FULL_BUILD_GB}" what="${2:-build}" path="${3:-}"
-    [[ "${REDAMON_SKIP_DISK_GATE:-}" == "1" ]] && return 0
-    if [[ -n "${REDAMON_MIN_DISK_GB:-}" ]]; then
-        required_gb="${REDAMON_MIN_DISK_GB//[^0-9]/}"
+    [[ "${WHITEHAT_SKIP_DISK_GATE:-}" == "1" ]] && return 0
+    if [[ -n "${WHITEHAT_MIN_DISK_GB:-}" ]]; then
+        required_gb="${WHITEHAT_MIN_DISK_GB//[^0-9]/}"
         [[ -z "$required_gb" ]] && required_gb="$DISK_FULL_BUILD_GB"
     fi
     [[ "$required_gb" -le 0 ]] && return 0
@@ -443,12 +443,12 @@ preflight_disk_gate() {
 
     if [[ "$free" -lt "$required_gb" ]]; then
         error "Not enough disk space for the ${what}: ${free}GB free on ${path}, need ~${required_gb}GB."
-        error "RedAmon's images total ~70GB on disk and the build needs working room on top."
+        error "WhiteHat's images total ~70GB on disk and the build needs working room on top."
         error "Reclaim space, then re-run:"
         error "    docker builder prune -af     # build cache (usually the biggest win)"
         error "    docker image prune -af       # unused images"
         error "    docker system df             # see what is actually using space"
-        error "Override with REDAMON_SKIP_DISK_GATE=1 (the build may then fail part-way)."
+        error "Override with WHITEHAT_SKIP_DISK_GATE=1 (the build may then fail part-way)."
         return 1
     fi
 
@@ -531,7 +531,7 @@ _GVM_DATA_CONTAINERS=8
 _GVM_DATA_MIN_MB=512
 _MEM_SPEC_KB="KB_REFRESH:150:512:b"
 
-# Results, published as parallel indexed arrays (NOT associative: redamon.sh
+# Results, published as parallel indexed arrays (NOT associative: whitehat.sh
 # supports macOS, whose system bash is 3.2). Read by persist_memory_env and
 # cmd_status.
 _ALLOC_NAMES=()
@@ -550,8 +550,8 @@ _ALLOC_BURST_PCT=0
 
 # Markers around the block in .env that the allocator owns and regenerates.
 # Anything OUTSIDE it is the operator's and is never touched.
-_MEM_BLOCK_BEGIN="# >>> redamon memory governor (auto) >>>"
-_MEM_BLOCK_END="# <<< redamon memory governor <<<"
+_MEM_BLOCK_BEGIN="# >>> whitehat memory governor (auto) >>>"
+_MEM_BLOCK_END="# <<< whitehat memory governor <<<"
 
 # True when VAR is assigned in .env OUTSIDE the managed block, i.e. an operator
 # pin rather than something we wrote ourselves last run.
@@ -580,7 +580,7 @@ _factor_to_pct() {
 
 # Read a tuning knob from the shell environment, falling back to .env.
 #
-# redamon.sh deliberately does NOT source .env (it must not inherit every app
+# whitehat.sh deliberately does NOT source .env (it must not inherit every app
 # var into its own shell), so a knob documented in .env.example would otherwise
 # be SILENTLY INERT -- the operator sets SERVICES_PCT=70, nothing changes, and
 # nothing says why. This is the same class of bug as the memory pins that used to
@@ -703,7 +703,7 @@ allocate_memory() {
         IFS=':' read -r name weight floor tier <<< "$spec"
         # A per-service weight override keeps the model proportional: it changes
         # the SHARE, never a size.
-        w_override="$(_env_knob "REDAMON_WEIGHT_${name}")"
+        w_override="$(_env_knob "WHITEHAT_WEIGHT_${name}")"
         [[ "$w_override" =~ ^[0-9]+$ ]] && weight="$w_override"
         [[ "$weight" =~ ^[0-9]+$ ]] || weight=0
         wsum=$(( wsum + weight ))
@@ -1009,7 +1009,7 @@ _env_strip_var() {
 # Write the computed allocation into a managed block in .env.
 #
 # WHY THIS EXISTS: the values used to be `export`ed into a shell that then
-# exited, so they lived exactly as long as one redamon.sh process. Any later
+# exited, so they lived exactly as long as one whitehat.sh process. Any later
 # bare `docker compose up -d` -- which is what most people run locally, and what
 # had been run on the server this feature came from -- silently fell back to the
 # compose defaults, a fixed ~12.6 GB budget with no relation to the machine.
@@ -1040,7 +1040,7 @@ persist_memory_env() {
 
     {
         printf '\n%s\n' "$_MEM_BLOCK_BEGIN"
-        printf '# Generated by redamon.sh from MemTotal=%sMB. Do not edit: this block is\n' "$_ALLOC_TOTAL_MB"
+        printf '# Generated by whitehat.sh from MemTotal=%sMB. Do not edit: this block is\n' "$_ALLOC_TOTAL_MB"
         printf '# rewritten on every `up`, so it re-tunes itself when the host is resized.\n'
         printf '# To pin a value, set it ANYWHERE OUTSIDE this block: the block then omits it\n'
         printf '# entirely, so there is never a competing assignment and order does not matter.\n'
@@ -1083,9 +1083,9 @@ export_resource_caps() {
 # Optional one-time compressed-RAM (zram) swap cushion so brief memory overshoots
 # degrade gracefully (swap to compressed RAM) instead of OOM-killing. Linux-native
 # host only; a NO-OP on macOS/Windows (Docker Desktop's VM manages its own swap)
-# and when REDAMON_ENABLE_ZRAM != 1. Best-effort: never fatal, never interactive.
+# and when WHITEHAT_ENABLE_ZRAM != 1. Best-effort: never fatal, never interactive.
 setup_zram() {
-    [[ "${REDAMON_ENABLE_ZRAM:-}" == "1" ]] || return 0
+    [[ "${WHITEHAT_ENABLE_ZRAM:-}" == "1" ]] || return 0
 
     # Docker Desktop / WSL2 / mac: cannot add zram to the host VM from here.
     case "$(uname -s 2>/dev/null || echo unknown)" in
@@ -1104,10 +1104,10 @@ setup_zram() {
     fi
 
     detect_build_resources
-    local size="${REDAMON_ZRAM_SIZE:-}"
+    local size="${WHITEHAT_ZRAM_SIZE:-}"
     if [[ -z "$size" ]]; then
         if [[ "${BUILD_MEM_MB:-0}" -le 0 ]]; then
-            warn "zram: cannot size (RAM undetectable); set REDAMON_ZRAM_SIZE to enable"; return 0
+            warn "zram: cannot size (RAM undetectable); set WHITEHAT_ZRAM_SIZE to enable"; return 0
         fi
         # Default: half of detected RAM, clamped to [512M, 8G].
         local half=$(( BUILD_MEM_MB / 2 ))
@@ -1151,12 +1151,12 @@ setup_zram() {
 # with the images and stay on disk regardless -- turning every future rebuild
 # into a cold one for nothing.
 #
-# Opt out with REDAMON_NO_AUTO_PRUNE=1. The builder cache is per-DAEMON, not
+# Opt out with WHITEHAT_NO_AUTO_PRUNE=1. The builder cache is per-DAEMON, not
 # per-project: there is no filter that scopes a prune to one compose project, so
 # on a shared workstation this also evicts other projects' orphaned cache.
 # Harmless on a dedicated deployment host, rude on a dev box.
 prune_stale_build_cache() {
-    [[ "${REDAMON_NO_AUTO_PRUNE:-}" == "1" ]] && return 0
+    [[ "${WHITEHAT_NO_AUTO_PRUNE:-}" == "1" ]] && return 0
 
     local out reclaimed=""
     # A prune failure (old daemon, wedged builder) must never turn a SUCCESSFUL
@@ -1168,7 +1168,7 @@ prune_stale_build_cache() {
     # something was actually freed, so the common no-op case stays silent.
     reclaimed="$(printf '%s\n' "$out" | awk '/^Total:/ {print $NF}' | tail -1)"
     if [[ -n "$reclaimed" && "$reclaimed" != "0B" ]]; then
-        info "Reclaimed ${reclaimed} of stale build cache (disable: REDAMON_NO_AUTO_PRUNE=1)"
+        info "Reclaimed ${reclaimed} of stale build cache (disable: WHITEHAT_NO_AUTO_PRUNE=1)"
     fi
     return 0
 }
@@ -1294,7 +1294,7 @@ compose_build() {
         COMPOSE_PARALLEL_LIMIT="$parallel" docker compose "${base[@]}" ${svcs[@]+"${svcs[@]}"} \
             || build_rc=$?
     else
-        # REDAMON_BUILD_PARALLEL=0 -> unbounded, one call, no pacing at all.
+        # WHITEHAT_BUILD_PARALLEL=0 -> unbounded, one call, no pacing at all.
         docker compose "${base[@]}" ${svcs[@]+"${svcs[@]}"} || build_rc=$?
     fi
 
@@ -1327,18 +1327,18 @@ _capture_start_post() {
 # is a global singleton, so one enabled operator means it should run.
 _capture_master_switch_on() {
     local v
-    v="$(docker compose exec -T postgres psql -U redamon -d redamon -tAc \
+    v="$(docker compose exec -T postgres psql -U whitehat -d whitehat -tAc \
         "SELECT bool_or(capture_proxy_enabled) FROM user_settings;" 2>/dev/null | tr -d '[:space:]')"
     [ "$v" = "t" ]
 }
 
 # If the capture proxy is currently running, ask the orchestrator to recreate it so
-# a freshly-rebuilt redamon-capture-proxy:latest actually goes live — a running
+# a freshly-rebuilt whitehat-capture-proxy:latest actually goes live — a running
 # container otherwise keeps the OLD image (security fixes to the addon / egress /
 # ingest / redaction would NOT apply until the next Settings toggle). Best-effort.
 # A UI-customised port/scope reverts to the .env defaults until the next Settings save.
 _reconcile_capture_if_running() {
-    docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-capture-proxy$' || return 0
+    docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-capture-proxy$' || return 0
     info "Refreshing the running capture proxy onto the rebuilt image..."
     if _capture_start_post; then
         success "Capture proxy refreshed onto the new image."
@@ -1354,14 +1354,14 @@ _reconcile_capture_if_running() {
 # retries briefly while the just-started orchestrator becomes reachable.
 ensure_capture_proxy_running() {
     _capture_master_switch_on || return 0
-    docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-capture-proxy$' && return 0
+    docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-capture-proxy$' && return 0
     info "HTTP Traffic Capture is enabled — starting the capture proxy..."
     local i
     for i in 1 2 3 4 5 6 7 8; do
         if _capture_start_post; then success "Capture proxy started."; return 0; fi
         sleep 3
     done
-    warn "HTTP Traffic Capture is on but the capture proxy could not be started (orchestrator not ready or ORCHESTRATOR_API_KEY missing). Re-run ./redamon.sh up, or toggle it in Settings."
+    warn "HTTP Traffic Capture is on but the capture proxy could not be started (orchestrator not ready or ORCHESTRATOR_API_KEY missing). Re-run ./whitehat.sh up, or toggle it in Settings."
 }
 
 get_version() {
@@ -1471,14 +1471,14 @@ _migrate_reorg_layout() {
         [[ "${#_REORG_FAILED[@]}" -gt 5 ]] && echo "    ... and $(( ${#_REORG_FAILED[@]} - 5 )) more"
         echo ""
         echo "  They are container-written (root-owned). Finish the move with:"
-        echo "    sudo ./redamon.sh migrate-layout"
+        echo "    sudo ./whitehat.sh migrate-layout"
         echo ""
     elif [[ "$_REORG_MOVED" -gt 0 ]]; then
         success "Layout migration complete ($_REORG_MOVED item(s) moved to the new paths)."
     fi
 }
 
-# One-time migration from the legacy `.skipkbase` flag (RedAmon <=4.9.3) to the
+# One-time migration from the legacy `.skipkbase` flag (WhiteHat <=4.9.3) to the
 # new explicit flag pair (`.kbase-enabled` / `.kbase-disabled`). cmd_install
 # always writes one of the two markers so the user's explicit choice is sticky
 # across `clean` (which keeps KB data on disk). Behavior per case:
@@ -1528,8 +1528,8 @@ check_prerequisites() {
 }
 
 export_version() {
-    export REDAMON_VERSION
-    REDAMON_VERSION="$(get_version)"
+    export WHITEHAT_VERSION
+    WHITEHAT_VERSION="$(get_version)"
 }
 
 # Restore any RUNTIME_TRACKED_PATHS the running stack has rewritten, so the
@@ -1581,7 +1581,7 @@ _warn_root_owned_runtime_files() {
 }
 
 # The ref `update` pulls from: the branch's own upstream when it has one, else
-# origin/master (what a plain `git clone` of RedAmon leaves you on). Empty output
+# origin/master (what a plain `git clone` of WhiteHat leaves you on). Empty output
 # + rc 1 when neither exists, which is a legitimate state for an archive install.
 _upstream_ref() {
     local u
@@ -1625,7 +1625,7 @@ _is_runtime_tracked_path() {
 
 # True when every file those local-only commits touch is a RUNTIME_TRACKED_PATH.
 #
-# Such commits are RedAmon's own runtime scribbles, committed because a previous
+# Such commits are WhiteHat's own runtime scribbles, committed because a previous
 # release's error message literally told users to `git commit -am 'local changes'`
 # (issue #185) - advice that converted a self-healing dirty tree into a permanent
 # fast-forward dead end. Discarding them loses nothing the next scan will not
@@ -1641,7 +1641,7 @@ _diverged_by_runtime_scribbles_only() {
     return 0
 }
 
-# Refuse to run a half-privileged update. `sudo ./redamon.sh install` (or the
+# Refuse to run a half-privileged update. `sudo ./whitehat.sh install` (or the
 # `sudo git commit` the old error message provoked) leaves root-owned files in a
 # user-owned checkout; the next non-root run then fails PIECEMEAL - git cannot
 # rewrite .git/index, _gpu_export_env cannot write .torch-variant - and the user
@@ -1656,10 +1656,10 @@ _assert_checkout_writable() {
     error "This checkout has files the current user ($(id -un)) cannot write:"
     printf '    %s\n' "${unwritable[@]}"
     echo ""
-    echo "  They were almost certainly created by an earlier 'sudo ./redamon.sh ...'"
-    echo "  or 'sudo git ...'. RedAmon does not need root for its own files. Fix:"
+    echo "  They were almost certainly created by an earlier 'sudo ./whitehat.sh ...'"
+    echo "  or 'sudo git ...'. WhiteHat does not need root for its own files. Fix:"
     echo "    sudo chown -R \"\$(id -un):\$(id -gn)\" \"$SCRIPT_DIR\""
-    echo "  then re-run WITHOUT sudo:  ./redamon.sh update"
+    echo "  then re-run WITHOUT sudo:  ./whitehat.sh update"
     exit 1
 }
 
@@ -1698,13 +1698,13 @@ _update_pull() {
         echo "  git said:"
         printf '%s\n' "$out" | sed 's/^/    /'
         echo ""
-        echo "  A RedAmon installed by downloading a zip has no git remote. Re-install"
+        echo "  A WhiteHat installed by downloading a zip has no git remote. Re-install"
         echo "  from a clone instead:  git clone https://github.com/samugit83/redamon.git"
         exit 1
     fi
 
     # A bare `dirty="$(_dirty_tracked_files)"` aborts this whole function under
-    # redamon.sh's own `set -euo pipefail` the moment git status fails - exit 128,
+    # whitehat.sh's own `set -euo pipefail` the moment git status fails - exit 128,
     # no output at all, update dead before it says anything. And git status really
     # does fail while refs still resolve: a corrupt index, or another git process
     # holding .git/index.lock while status refreshes it. Capture the status
@@ -1719,8 +1719,8 @@ _update_pull() {
     if _has_local_only_commits "$upstream"; then
         # Self-heal the case a previous release actively caused: commits that
         # contain nothing but runtime-written files.
-        if [[ -n "${REDAMON_NO_AUTO_RESET:-}" ]] && _diverged_by_runtime_scribbles_only "$upstream"; then
-            warn "Diverged by runtime files only, but REDAMON_NO_AUTO_RESET is set."
+        if [[ -n "${WHITEHAT_NO_AUTO_RESET:-}" ]] && _diverged_by_runtime_scribbles_only "$upstream"; then
+            warn "Diverged by runtime files only, but WHITEHAT_NO_AUTO_RESET is set."
             warn "  Not touching your history. Recover by hand when you are ready:"
             warn "    git -C \"$SCRIPT_DIR\" reset --hard $upstream"
             exit 1
@@ -1732,7 +1732,7 @@ _update_pull() {
             # release never touched, and arm the 40 GB disk gate. Hand back the real
             # pre-divergence base instead.
             UPDATE_BASE_HEAD="$(git -C "$SCRIPT_DIR" merge-base HEAD "$upstream" 2>/dev/null || true)"
-            warn "This checkout has local commit(s) containing ONLY files RedAmon writes"
+            warn "This checkout has local commit(s) containing ONLY files WhiteHat writes"
             warn "  at runtime (the MITRE database refreshed by scans). An older version's"
             warn "  error message told you to commit those; that is what blocked the update."
             info "Discarding them and resetting to $upstream (no user edits are affected)."
@@ -1753,14 +1753,14 @@ _update_pull() {
         echo ""
         echo "  A fast-forward can never resolve this. Choose one:"
         echo ""
-        echo "  If those commits are NOT yours (RedAmon runtime files you were once"
+        echo "  If those commits are NOT yours (WhiteHat runtime files you were once"
         echo "  told to commit), discard them:"
         echo "    git -C \"$SCRIPT_DIR\" reset --hard $upstream   # destructive"
         echo ""
         echo "  If they ARE your work, keep it on a branch, then update:"
         echo "    git -C \"$SCRIPT_DIR\" branch my-changes"
         echo "    git -C \"$SCRIPT_DIR\" reset --hard $upstream"
-        echo "    ./redamon.sh update"
+        echo "    ./whitehat.sh update"
         _warn_unreadable_tree "$dirty_known"
         exit 1
     fi
@@ -1776,7 +1776,7 @@ _update_pull() {
         echo "    git -C \"$SCRIPT_DIR\" checkout -- .          # all of them (destructive)"
         echo ""
         echo "  If they ARE your edits, set them aside first:"
-        echo "    git -C \"$SCRIPT_DIR\" stash && ./redamon.sh update && git -C \"$SCRIPT_DIR\" stash pop"
+        echo "    git -C \"$SCRIPT_DIR\" stash && ./whitehat.sh update && git -C \"$SCRIPT_DIR\" stash pop"
         echo ""
         echo "  Do NOT 'git commit' them: that diverges your copy from the project and"
         echo "  no future update can fast-forward past it."
@@ -1835,15 +1835,15 @@ ensure_sca_intel() {
     # Seeding it here closes that hole and costs one 5 MB fetch.
     local auto_refresh=true
     [[ "$(_env_get SCA_INTEL_AUTO_REFRESH "$SCRIPT_DIR/.env")" == "false" ]] && auto_refresh=false
-    if ! docker image inspect redamon-supply-chain-analyzer:latest &>/dev/null; then
-        warn "Analyzer image not built yet; skipping incident catalog (run './redamon.sh sca-intel-sync' after the build)"
+    if ! docker image inspect whitehat-supply-chain-analyzer:latest &>/dev/null; then
+        warn "Analyzer image not built yet; skipping incident catalog (run './whitehat.sh sca-intel-sync' after the build)"
         return 0
     fi
     if [[ "$auto_refresh" == "false" ]]; then
         # Air-gapped: never fetch, but an empty catalog still gets the bundled
         # offline copy from disk. A catalog already present is left alone.
         info "SCA_INTEL_AUTO_REFRESH=false; not contacting the incident feed (air-gapped)"
-        ( cmd_sca_intel_sync --seed-only ) || warn "Could not install the bundled incident catalog (reason above). RedAmon runs normally without it."
+        ( cmd_sca_intel_sync --seed-only ) || warn "Could not install the bundled incident catalog (reason above). WhiteHat runs normally without it."
         return 0
     fi
     info "Ensuring supply-chain incident catalog"
@@ -1851,19 +1851,19 @@ ensure_sca_intel() {
     # on failure, and a bare `|| warn` cannot catch an exit - it would abort the
     # whole install/update. A missing catalog must degrade to "did not run",
     # never stop the stack coming up.
-    ( cmd_sca_intel_sync ) || warn "Incident catalog not refreshed (the reason is printed above). This is not a problem: install/update continues and RedAmon runs normally; the refresh is retried automatically."
+    ( cmd_sca_intel_sync ) || warn "Incident catalog not refreshed (the reason is printed above). This is not a problem: install/update continues and WhiteHat runs normally; the refresh is retried automatically."
 }
 
 ensure_osv_db() {
     local ecos="${OSV_DB_ECOSYSTEMS:-$(_env_get OSV_DB_ECOSYSTEMS "$SCRIPT_DIR/.env")}"
     ecos="${ecos:-$OSV_ALL_ECOSYSTEMS}"
     ecos="${ecos//,/ }"
-    if ! docker image inspect redamon-supply-chain-analyzer:latest &>/dev/null; then
+    if ! docker image inspect whitehat-supply-chain-analyzer:latest &>/dev/null; then
         # cmd_supply_chain_sync builds it on demand, so this is only reachable
         # when the caller runs before any image exists. Say so rather than
         # skipping in silence - an empty OSV DB makes every supply-chain scan
         # report a missing ecosystem.
-        warn "Analyzer image not built yet; skipping OSV database sync (run './redamon.sh supply-chain-sync' after the build)"
+        warn "Analyzer image not built yet; skipping OSV database sync (run './whitehat.sh supply-chain-sync' after the build)"
         return 0
     fi
     info "Ensuring offline OSV database (${ecos})"
@@ -1878,7 +1878,7 @@ ensure_osv_db() {
 }
 
 ensure_volume_ownership() {
-    local vol="redamon_supply_chain_uploads"
+    local vol="whitehat_supply_chain_uploads"
     docker volume inspect "$vol" >/dev/null 2>&1 || return 0
     # Cheap no-op when already correct; only chown when it is not.
     if docker run --rm -u root -v "$vol":/d alpine \
@@ -1943,7 +1943,7 @@ ensure_auth_secrets() {
     if ! grep -q '^TRAFFIC_INGEST_DATABASE_URL=' "$env_file" 2>/dev/null; then
         local _ti_db
         _ti_db="$(_env_get POSTGRES_DB "$env_file")"
-        _ti_db="${_ti_db:-redamon}"
+        _ti_db="${_ti_db:-whitehat}"
         echo "TRAFFIC_INGEST_DATABASE_URL=postgresql://traffic_ingest:$(openssl rand -hex 32)@postgres:5432/${_ti_db}" >> "$env_file"
         info "Generated TRAFFIC_INGEST_DATABASE_URL (capture ingest role)"
     fi
@@ -1975,7 +1975,7 @@ mcp_server_preflight() {
         error "MCP_SERVER_ENABLED=true but INTERNAL_API_KEY is unset or 'changeme'."
         error "The agent's auth fails OPEN in that state, and its port is published"
         error "on 0.0.0.0 in docker-compose.yml. Refusing to enable the inbound MCP"
-        error "server. Run './redamon.sh install' to generate the secrets, or set"
+        error "server. Run './whitehat.sh install' to generate the secrets, or set"
         error "MCP_SERVER_ENABLED=false in .env."
         return 1
     fi
@@ -2020,9 +2020,9 @@ _rotate_postgres_password() {
     local user db
     user="$(_env_get POSTGRES_USER)"
     db="$(_env_get POSTGRES_DB)"
-    user="${user:-redamon}"
-    db="${db:-redamon}"
-    docker exec -e "PGPASSWORD=${old}" redamon-postgres \
+    user="${user:-whitehat}"
+    db="${db:-whitehat}"
+    docker exec -e "PGPASSWORD=${old}" whitehat-postgres \
         psql -U "$user" -d "$db" -v ON_ERROR_STOP=1 \
         -c "ALTER USER \"${user}\" WITH PASSWORD '${new}';" >/dev/null 2>&1
 }
@@ -2034,7 +2034,7 @@ _rotate_postgres_password() {
 # this cypher-shell rotation is the only effective path. Returns 0 on success.
 _rotate_neo4j_password() {
     local old="$1" new="$2"
-    docker exec redamon-neo4j \
+    docker exec whitehat-neo4j \
         cypher-shell -u neo4j -p "$old" \
         "ALTER CURRENT USER SET PASSWORD FROM '${old}' TO '${new}';" >/dev/null 2>&1
 }
@@ -2048,13 +2048,13 @@ _rotate_neo4j_password() {
 # reconcile_gvm_admin_password for the two-phase generate-then-apply flow.)
 _rotate_gvm_admin_password() {
     local new="$1"
-    docker exec -u gvmd redamon-gvm-gvmd \
+    docker exec -u gvmd whitehat-gvm-gvmd \
         gvmd --user=admin --new-password="$new" >/dev/null 2>&1
 }
 
 # True iff `password` authenticates against the running Neo4j.
 _neo4j_auth_ok() {
-    docker exec redamon-neo4j cypher-shell -u neo4j -p "$1" 'RETURN 1;' >/dev/null 2>&1
+    docker exec whitehat-neo4j cypher-shell -u neo4j -p "$1" 'RETURN 1;' >/dev/null 2>&1
 }
 
 # S13 / #160: the password Neo4j baked into its volume at first init is the ONLY
@@ -2074,7 +2074,7 @@ _reconcile_neo4j_password() {
 
     # Need Neo4j running to probe. .env already carries the password so the
     # fail-closed compose `:?` resolves; start it idempotently if it is down.
-    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-neo4j$'; then
+    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-neo4j$'; then
         docker compose up -d neo4j >/dev/null 2>&1 || return 0
     fi
     _kb_wait_neo4j >/dev/null 2>&1 || return 0   # cannot verify -> do not block
@@ -2082,7 +2082,7 @@ _reconcile_neo4j_password() {
     _neo4j_auth_ok "$envpw" && return 0
 
     warn "Neo4j did not accept NEO4J_PASSWORD from .env; clearing any auth rate-limit..."
-    docker restart redamon-neo4j >/dev/null 2>&1
+    docker restart whitehat-neo4j >/dev/null 2>&1
     _kb_wait_neo4j >/dev/null 2>&1 || true
     if _neo4j_auth_ok "$envpw"; then
         success "Neo4j auth OK after clearing the rate-limit."
@@ -2126,12 +2126,12 @@ _start_dbs_for_rotation_if_needed() {
     local svcs=() need=false
     if ! grep -q '^POSTGRES_PASSWORD=' "$env_file" 2>/dev/null \
          && _data_volume_exists postgres_data \
-         && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-postgres$'; then
+         && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-postgres$'; then
         svcs+=(postgres); need=true
     fi
     if ! grep -q '^NEO4J_PASSWORD=' "$env_file" 2>/dev/null \
          && _data_volume_exists neo4j_data \
-         && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-neo4j$'; then
+         && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-neo4j$'; then
         svcs+=(neo4j); need=true
     fi
     [[ "$need" == false ]] && return 0
@@ -2141,7 +2141,7 @@ _start_dbs_for_rotation_if_needed() {
     # start one service; supply both defaults for this single command only. These
     # match the compose defaults and the `specs` below; an init'd volume ignores
     # them, so the container comes up on the volume's real (default) password.
-    if ! POSTGRES_PASSWORD=redamon_secret NEO4J_PASSWORD=changeme123 \
+    if ! POSTGRES_PASSWORD=whitehat_secret NEO4J_PASSWORD=changeme123 \
             docker compose up -d "${svcs[@]}" >/dev/null 2>&1; then
         warn "Could not start ${svcs[*]} for rotation; falling back to warn-only fail-safe."
         return 0
@@ -2150,7 +2150,7 @@ _start_dbs_for_rotation_if_needed() {
     for c in "${svcs[@]}"; do
         waited=0
         while [[ $waited -lt 60 ]]; do
-            [[ "$(docker inspect --format='{{.State.Health.Status}}' "redamon-$c" 2>/dev/null || echo x)" == "healthy" ]] && break
+            [[ "$(docker inspect --format='{{.State.Health.Status}}' "whitehat-$c" 2>/dev/null || echo x)" == "healthy" ]] && break
             sleep 2; waited=$((waited + 2))
         done
     done
@@ -2167,7 +2167,7 @@ ensure_db_secrets() {
 
     # (var, volume suffix, compose default, rotate-fn) tuples.
     local specs=(
-        "POSTGRES_PASSWORD:postgres_data:redamon_secret:_rotate_postgres_password"
+        "POSTGRES_PASSWORD:postgres_data:whitehat_secret:_rotate_postgres_password"
         "NEO4J_PASSWORD:neo4j_data:changeme123:_rotate_neo4j_password"
     )
 
@@ -2237,19 +2237,19 @@ ensure_db_secrets() {
         done
         error "Cannot configure the database password(s): ${var_names[*]}"
         error "A data volume already exists for each, but it was not initialised"
-        error "with RedAmon's default credentials, so the password could not be set"
-        error "automatically. RedAmon will not start without these (STRIDE S13)."
+        error "with WhiteHat's default credentials, so the password could not be set"
+        error "automatically. WhiteHat will not start without these (STRIDE S13)."
         echo "" >&2
         echo "  Leftover volume(s): ${vols[*]}" >&2
         echo "" >&2
         echo "  Choose ONE fix, then re-run the same command:" >&2
         echo "" >&2
         echo "  A) The data is disposable (fresh setup / leftover from a prior run)." >&2
-        echo "     Remove the stale volume(s) so RedAmon can re-initialise cleanly:" >&2
+        echo "     Remove the stale volume(s) so WhiteHat can re-initialise cleanly:" >&2
         echo "         docker volume rm ${vols[*]}" >&2
         echo "" >&2
         echo "  B) You need the data in those volumes: pin each volume's CURRENT" >&2
-        echo "     password explicitly in .env (RedAmon then respects it as-is):" >&2
+        echo "     password explicitly in .env (WhiteHat then respects it as-is):" >&2
         local vn
         for vn in "${var_names[@]}"; do
             echo "         echo '${vn}=<the volume's existing password>' >> .env" >&2
@@ -2300,10 +2300,10 @@ reconcile_gvm_admin_password() {
     # healthy gvmd is enough — no need to wait out the feeds.
     local waited=0 max=180
     while [[ $waited -lt $max ]]; do
-        [[ "$(docker inspect --format='{{.State.Health.Status}}' redamon-gvm-gvmd 2>/dev/null || echo x)" == "healthy" ]] && break
+        [[ "$(docker inspect --format='{{.State.Health.Status}}' whitehat-gvm-gvmd 2>/dev/null || echo x)" == "healthy" ]] && break
         sleep 2; waited=$((waited + 2))
     done
-    if [[ "$(docker inspect --format='{{.State.Health.Status}}' redamon-gvm-gvmd 2>/dev/null || echo x)" != "healthy" ]]; then
+    if [[ "$(docker inspect --format='{{.State.Health.Status}}' whitehat-gvm-gvmd 2>/dev/null || echo x)" != "healthy" ]]; then
         warn "gvmd not healthy yet; GVM admin password not applied from .env."
         warn "Apply later: docker compose exec -u gvmd gvmd gvmd --user=admin --new-password=\"\$(grep '^GVM_PASSWORD=' .env | cut -d= -f2-)\""
         return 0
@@ -2401,8 +2401,8 @@ ensure_admin() {
         # Do NOT dead-end: point the operator at the standalone recovery command
         # so a slow first boot never leaves them unable to log in (issue #156).
         warn "Webapp is not responding yet -- skipping the automatic admin setup."
-        warn "Once it is up (check './redamon.sh status'), create the admin with:"
-        warn "    ./redamon.sh create-admin"
+        warn "Once it is up (check './whitehat.sh status'), create the admin with:"
+        warn "    ./whitehat.sh create-admin"
         return
     fi
 
@@ -2422,7 +2422,7 @@ cmd_create_admin() {
     check_prerequisites
     if ! _wait_for_webapp 150; then   # ~5 min: this is an explicit, user-driven call
         error "Webapp is not responding at http://localhost:3000/api/health."
-        error "Start the stack first ('./redamon.sh up'), then re-run './redamon.sh create-admin'."
+        error "Start the stack first ('./whitehat.sh up'), then re-run './whitehat.sh create-admin'."
         exit 1
     fi
     if _admin_exists; then
@@ -2476,10 +2476,10 @@ remove_spawned_containers() {
     fi
 }
 
-remove_redamon_images() {
-    # Remove locally-built redamon images
+remove_whitehat_images() {
+    # Remove locally-built whitehat images
     docker images --format '{{.Repository}}:{{.Tag}}' \
-        | grep '^redamon-' \
+        | grep '^whitehat-' \
         | xargs -r docker rmi 2>/dev/null || true
 
     # Remove GVM / Greenbone images
@@ -2582,7 +2582,7 @@ pull_gvm_images() {
         echo ""
         echo -e "  ${YELLOW}This is often caused by a Docker+Go 1.24 bug (moby/moby#49513).${NC}"
         echo -e "  ${YELLOW}Try: echo '{\"max-concurrent-downloads\":1}' | sudo tee /etc/docker/daemon.json${NC}"
-        echo -e "  ${YELLOW}Then: sudo systemctl restart docker && ./redamon.sh up${NC}"
+        echo -e "  ${YELLOW}Then: sudo systemctl restart docker && ./whitehat.sh up${NC}"
         exit 1
     fi
     success "All GVM images pulled successfully."
@@ -2618,7 +2618,7 @@ gvm_up_or_diagnose() {
     error "  Raise it by adding this to .env ABOVE the '${_MEM_BLOCK_BEGIN}' line,"
     error "  which pins it so the governor stops recomputing it:"
     error "      GVM_DATA_MEM=1g"
-    error "  Then re-run: ./redamon.sh up"
+    error "  Then re-run: ./whitehat.sh up"
     return "$rc"
 }
 
@@ -2747,7 +2747,7 @@ _gpu_compose_overlay() {
     if ! gpu_runtime_available; then
         warn "Built for GPU (.torch-variant=gpu) but no NVIDIA container runtime is available now."
         warn "  Starting WITHOUT GPU access (the CUDA image falls back to CPU)."
-        warn "  Restore nvidia-container-toolkit, or rebuild for CPU: ./redamon.sh install --cpu"
+        warn "  Restore nvidia-container-toolkit, or rebuild for CPU: ./whitehat.sh install --cpu"
         return 0
     fi
 
@@ -2778,7 +2778,7 @@ _kb_export_env() {
 # Wait for the Neo4j container to become healthy. Starts it if not running.
 # Returns 0 on success, 1 on timeout.
 # Every Knowledge Base `make` goes through here so it inherits the REAL Neo4j
-# credentials from .env (redamon.sh does not source .env), instead of the Makefile's
+# credentials from .env (whitehat.sh does not source .env), instead of the Makefile's
 # insecure `changeme123` fallback which fails auth on any rotated/custom-password DB
 # (#160 / the `kb stats` failure). An env var (even empty) defeats the Makefile's
 # `?=` default, so this is authoritative.
@@ -2788,7 +2788,7 @@ _kb_make() {
 }
 
 _kb_wait_neo4j() {
-    if ! docker ps --format '{{.Names}}' | grep -q '^redamon-neo4j$'; then
+    if ! docker ps --format '{{.Names}}' | grep -q '^whitehat-neo4j$'; then
         info "Neo4j not running — starting it..."
         docker compose up -d neo4j
     fi
@@ -2799,7 +2799,7 @@ _kb_wait_neo4j() {
     while [[ $waited -lt $max_wait ]]; do
         local health
         health=$(docker inspect --format='{{.State.Health.Status}}' \
-                   redamon-neo4j 2>/dev/null || echo "unknown")
+                   whitehat-neo4j 2>/dev/null || echo "unknown")
         if [[ "$health" == "healthy" ]]; then
             success "Neo4j is healthy"
             return 0
@@ -2809,13 +2809,13 @@ _kb_wait_neo4j() {
     done
 
     error "Neo4j did not become healthy within ${max_wait}s"
-    error "Check: docker logs redamon-neo4j"
+    error "Check: docker logs whitehat-neo4j"
     return 1
 }
 
 # Check if the agent container has a CUDA-capable GPU available.
 _kb_has_gpu() {
-    docker exec redamon-agent python -c \
+    docker exec whitehat-agent python -c \
         "import torch; exit(0 if torch.cuda.is_available() else 1)" &>/dev/null
 }
 
@@ -2856,7 +2856,7 @@ _kb_choose_profile() {
     # CPU-only with existing FAISS data: skip the interactive prompt.
     # The manifest dedup will skip unchanged chunks anyway, so a re-run
     # finishes in seconds. To upgrade the profile, use:
-    #   ./redamon.sh kb build lite
+    #   ./whitehat.sh kb build lite
     #
     # Note: FAISS files are created by Docker (root-owned, mode 600), so
     # we cannot read their contents as a normal user. Use -s (non-zero size)
@@ -2927,7 +2927,7 @@ _kb_bootstrap() {
 
 # Status helpers: read KB and Tavily state directly from disk/env without
 # requiring Python deps, running containers, or Neo4j connections. These
-# should always succeed (or return a safe fallback) so `./redamon.sh status`
+# should always succeed (or return a safe fallback) so `./whitehat.sh status`
 # works in any state.
 
 # Count FAISS vectors by reading chunk_ids.json directly. No Python dep
@@ -2953,12 +2953,12 @@ except Exception:
 # Count Neo4j KBChunk nodes via cypher-shell inside the neo4j container.
 # Returns "0" if the container isn't running, "unknown" if the query fails.
 _kb_get_neo4j_count() {
-    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^redamon-neo4j$'; then
+    if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^whitehat-neo4j$'; then
         echo "0"
         return
     fi
     # S13: after rotation the live password is in .env, NOT changeme123 and NOT in
-    # this shell's env (redamon.sh does not source .env). Read .env first so the
+    # this shell's env (whitehat.sh does not source .env). Read .env first so the
     # `status` / `kb stats` KB count still authenticates on a rotated DB; fall back
     # to the env var, then the fresh-install default.
     local pass
@@ -2966,7 +2966,7 @@ _kb_get_neo4j_count() {
     pass="${pass:-${NEO4J_PASSWORD}}"
     local user="${NEO4J_USER:-neo4j}"
     local count
-    count=$(docker exec redamon-neo4j cypher-shell \
+    count=$(docker exec whitehat-neo4j cypher-shell \
         -u "$user" -p "$pass" --format plain \
         "MATCH (c:KBChunk) RETURN count(c) AS total" 2>/dev/null \
         | tail -n 1 | tr -d '[:space:]"' || true)
@@ -3001,7 +3001,7 @@ cmd_install() {
     print_banner
     check_prerequisites
     # A fresh install cannot pull, so this cannot block anything here - but a
-    # `sudo ./redamon.sh install` is exactly what creates the root-owned files
+    # `sudo ./whitehat.sh install` is exactly what creates the root-owned files
     # that break the NEXT update. Say so at the point the mistake is made.
     _warn_root_owned_runtime_files
 
@@ -3014,7 +3014,7 @@ cmd_install() {
 
     local version
     version="$(get_version)"
-    info "Installing RedAmon v${version}..."
+    info "Installing WhiteHat v${version}..."
     if [[ "$gvm_mode" == "true" ]]; then
         info "Mode: Full stack (with GVM/OpenVAS)"
         touch "$GVM_FLAG_FILE"
@@ -3073,7 +3073,7 @@ cmd_install() {
     # Build all images (tools + core services + the on-demand capture proxy).
     # The capture-proxy / traffic-ingest pair lives in the "capture" profile and is
     # spawned on demand by the orchestrator (never by `up`), but its image
-    # (redamon-capture-proxy:latest) must still EXIST or the first Settings toggle
+    # (whitehat-capture-proxy:latest) must still EXIST or the first Settings toggle
     # fails with an image-not-found pull error. Building it here — alongside tools —
     # guarantees a fresh install can start capture without any extra step.
     info "Building all images (this may take a while on first run)..."
@@ -3082,7 +3082,7 @@ cmd_install() {
     # Reap the images the build just orphaned. A rebuild does not replace an image
     # in place: it builds a new one and MOVES the tag, leaving the previous image
     # untagged and uncollected. On a genuinely fresh install this is a no-op (there
-    # is nothing to orphan), but `install` re-run on a host that already has RedAmon
+    # is nothing to orphan), but `install` re-run on a host that already has WhiteHat
     # images rebuilds the ENTIRE set in one shot -- a retry after a failed install, a
     # `--gvm`/`--kbase` mode switch, or an `install` used where `update` was meant.
     # That is the largest orphaning event the script can produce, and it was the only
@@ -3128,7 +3128,7 @@ cmd_install() {
     # is already usable (they can Ctrl+C the KB question and start working).
     echo ""
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
-    echo -e "  ${GREEN}${BOLD}  RedAmon v${version} is ready!${NC}"
+    echo -e "  ${GREEN}${BOLD}  WhiteHat v${version} is ready!${NC}"
     echo -e "  ${GREEN}${BOLD}  Open ${CYAN}http://localhost:3000${GREEN}${BOLD} in your browser${NC}"
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
     echo ""
@@ -3154,16 +3154,16 @@ cmd_install() {
             success "Knowledge Base ready (profile: ${kb_profile})"
         else
             warn "KB bootstrap failed -- agent will start with an empty KB"
-            warn "Retry with: ./redamon.sh kb build ${kb_profile}"
+            warn "Retry with: ./whitehat.sh kb build ${kb_profile}"
         fi
     else
         info "KB_ENABLED=false -- skipping Knowledge Base bootstrap"
     fi
 
     echo ""
-    echo -e "  ${CYAN}Status:${NC}  ./redamon.sh status"
+    echo -e "  ${CYAN}Status:${NC}  ./whitehat.sh status"
     echo ""
-    echo -e "  ${YELLOW}If RedAmon is useful to you, a GitHub star helps others find the project:${NC}"
+    echo -e "  ${YELLOW}If WhiteHat is useful to you, a GitHub star helps others find the project:${NC}"
     echo -e "  ${CYAN}https://github.com/samugit83/redamon${NC}"
     echo ""
     if [[ "$gvm_mode" == "true" ]]; then
@@ -3220,16 +3220,16 @@ cmd_update() {
 
     # Save current HEAD
     local old_head new_head
-    if [[ -n "${REDAMON_UPDATE_FROM:-}" ]]; then
+    if [[ -n "${WHITEHAT_UPDATE_FROM:-}" ]]; then
         # We were re-exec'd by our previous self after the pull (see below). Reuse
         # the recorded pre-pull HEAD and do NOT pull again — just run the rebuild
         # logic from the freshly-pulled (newer) script.
-        old_head="$REDAMON_UPDATE_FROM"
+        old_head="$WHITEHAT_UPDATE_FROM"
         new_head="$(git -C "$SCRIPT_DIR" rev-parse HEAD)"
     else
         old_head="$(git -C "$SCRIPT_DIR" rev-parse HEAD)"
 
-        # Drop RedAmon's own runtime scribbles first — they are the single most
+        # Drop WhiteHat's own runtime scribbles first — they are the single most
         # common reason this pull fails, and they are not the user's changes.
         _restore_runtime_tracked_files
 
@@ -3239,7 +3239,7 @@ cmd_update() {
 
         # A heal moved HEAD by reset, not by fast-forward. Diff from the real
         # pre-divergence base so the rebuild map, the up-to-date check and the
-        # REDAMON_UPDATE_FROM handed to the re-exec all see only what the RELEASE
+        # WHITEHAT_UPDATE_FROM handed to the re-exec all see only what the RELEASE
         # changed.
         if [[ -n "$UPDATE_BASE_HEAD" ]]; then
             old_head="$UPDATE_BASE_HEAD"
@@ -3255,10 +3255,10 @@ cmd_update() {
         # Self-heal across versions: re-exec the freshly-pulled script so the
         # update logic from the version being INSTALLED runs (it may know about
         # services or build rules this older copy does not — e.g. a new service
-        # added in the target release). Guarded by REDAMON_UPDATE_FROM so we do
+        # added in the target release). Guarded by WHITEHAT_UPDATE_FROM so we do
         # not pull or loop again.
-        export REDAMON_UPDATE_FROM="$old_head"
-        exec bash "$SCRIPT_DIR/redamon.sh" update ${update_args[@]+"${update_args[@]}"}
+        export WHITEHAT_UPDATE_FROM="$old_head"
+        exec bash "$SCRIPT_DIR/whitehat.sh" update ${update_args[@]+"${update_args[@]}"}
     fi
 
     local new_version
@@ -3374,7 +3374,7 @@ cmd_update() {
         rebuild_tools+=(supply-chain-analyzer)
     fi
     # capture-proxy / traffic-ingest (HTTP Traffic Capture): both share the
-    # redamon-capture-proxy:latest image, built from scanners/capture_proxy/. It is in the
+    # whitehat-capture-proxy:latest image, built from scanners/capture_proxy/. It is in the
     # "capture" profile — never started by `up`, but SPAWNED on demand by the
     # orchestrator, which just runs the image (no on-demand build; scanners/capture_proxy/ is
     # not mounted into the orchestrator). So `update` MUST rebuild it here or the
@@ -3459,7 +3459,7 @@ cmd_update() {
     # Rebuild the capture-proxy image if its source changed, then refresh a running
     # proxy onto it. Build-only + best-effort: a failure must not abort the update.
     if [[ "$rebuild_capture" == "true" ]]; then
-        info "Rebuilding capture proxy image (redamon-capture-proxy:latest)..."
+        info "Rebuilding capture proxy image (whitehat-capture-proxy:latest)..."
         if ! compose_build --profile capture build capture-proxy; then
             warn "capture-proxy image failed to build; the existing image keeps working. Re-run later: docker compose --profile capture build capture-proxy"
         else
@@ -3500,7 +3500,7 @@ cmd_update() {
     #
     # This runs on EVERY GVM-enabled update, not only when docker-compose.yml
     # changed. The per-service memory caps live in .env, which the governor
-    # rewrites on every run, so a release that only touches redamon.sh (e.g. the
+    # rewrites on every run, so a release that only touches whitehat.sh (e.g. the
     # GVM_DATA_MEM floor that fixes #176) would otherwise leave the old cap baked
     # into the running containers until some unrelated later `up`. A plain
     # `up -d` recreates exactly the containers whose config drifted and leaves
@@ -3587,7 +3587,7 @@ cmd_update() {
     if [[ "$stack_was_up" == "true" ]] && ! verify_core_running; then
         error "Update to v${new_version} completed its build, but the stack is NOT running."
         error "It was running before the update. Recover with:"
-        error "    ./redamon.sh up        (or ./redamon.sh install if images are missing)"
+        error "    ./whitehat.sh up        (or ./whitehat.sh install if images are missing)"
         exit 1
     fi
 
@@ -3635,16 +3635,16 @@ cmd_update() {
 # the analyzer image, writing into the read-only-everywhere-else osv_db volume.
 cmd_supply_chain_sync() {
     local ecos="${*:-npm}"
-    local analyzer_img="redamon-supply-chain-analyzer:latest"
+    local analyzer_img="whitehat-supply-chain-analyzer:latest"
     export_version
     if ! docker image inspect "$analyzer_img" &>/dev/null; then
         info "Supply-chain analyzer image not found, building it (first time only)..."
         if ! compose_build --profile tools build supply-chain-analyzer; then
-            error "Could not build $analyzer_img. Build the tool images first: ./redamon.sh update"
+            error "Could not build $analyzer_img. Build the tool images first: ./whitehat.sh update"
             exit 1
         fi
     fi
-    docker volume inspect redamon-osv-db &>/dev/null || docker volume create redamon-osv-db >/dev/null
+    docker volume inspect whitehat-osv-db &>/dev/null || docker volume create whitehat-osv-db >/dev/null
     info "Syncing offline OSV database (ecosystems: $ecos). First npm sync is ~208 MB."
     # Runs as root: the DB volume is root-owned and read-only to every scan
     # container; the sync is the one privileged writer.
@@ -3655,10 +3655,10 @@ cmd_supply_chain_sync() {
     # one did not. Without the mount the sync died with
     #   ModuleNotFoundError: No module named 'supply_chain_common'
     # which left the offline DB empty forever - and an empty DB makes every
-    # supply-chain scan fail with "run './redamon.sh supply-chain-sync' first",
+    # supply-chain scan fail with "run './whitehat.sh supply-chain-sync' first",
     # pointing at the command that could not work.
     if docker run --rm --user root \
-        -v redamon-osv-db:/osv-db \
+        -v whitehat-osv-db:/osv-db \
         -v "$SCRIPT_DIR/scanners/supply_chain_common:/app/supply_chain_common:ro" \
         -e OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY=/osv-db \
         -e PYTHONPATH=/app \
@@ -3673,7 +3673,7 @@ cmd_supply_chain_sync() {
 }
 
 cmd_sca_intel_sync() {
-    local analyzer_img="redamon-supply-chain-analyzer:latest"
+    local analyzer_img="whitehat-supply-chain-analyzer:latest"
     # --seed-only: install the bundled offline copy into an empty volume and never
     # contact the feed. Used by ensure_sca_intel when SCA_INTEL_AUTO_REFRESH=false.
     local mode="" net_args=()
@@ -3687,11 +3687,11 @@ cmd_sca_intel_sync() {
     if ! docker image inspect "$analyzer_img" &>/dev/null; then
         info "Supply-chain analyzer image not found, building it (first time only)..."
         if ! compose_build --profile tools build supply-chain-analyzer; then
-            error "Could not build $analyzer_img. Build the tool images first: ./redamon.sh update"
+            error "Could not build $analyzer_img. Build the tool images first: ./whitehat.sh update"
             exit 1
         fi
     fi
-    docker volume inspect redamon-sca-intel &>/dev/null || docker volume create redamon-sca-intel >/dev/null
+    docker volume inspect whitehat-sca-intel &>/dev/null || docker volume create whitehat-sca-intel >/dev/null
     if [[ "$mode" == "--seed-only" ]]; then
         info "Installing the bundled offline incident catalog if the volume is empty (no network)."
     else
@@ -3705,7 +3705,7 @@ cmd_sca_intel_sync() {
     # --network none in seed-only mode makes "never contacts the feed" a property
     # of the container, not just of the code path.
     if docker run --rm --user root ${net_args[@]+"${net_args[@]}"} \
-        -v redamon-sca-intel:/sca-intel \
+        -v whitehat-sca-intel:/sca-intel \
         -v "$SCRIPT_DIR/scanners/supply_chain_common:/app/supply_chain_common:ro" \
         -e PYTHONPATH=/app \
         --entrypoint python3 \
@@ -3716,9 +3716,9 @@ cmd_sca_intel_sync() {
         success "Supply-chain incident intel ready."
     else
         # warn, not error: the reason line above says whether a stored catalog was
-        # kept, and RedAmon runs normally either way. The exit code still says the
+        # kept, and WhiteHat runs normally either way. The exit code still says the
         # refresh did not happen.
-        warn "Supply-chain incident intel was not refreshed (reason above). RedAmon runs normally."
+        warn "Supply-chain incident intel was not refreshed (reason above). WhiteHat runs normally."
         exit 1
     fi
 }
@@ -3741,13 +3741,13 @@ ensure_tool_images() {
 
 # Image tags compose would use for the core buildable services. Resolved through
 # `docker compose config` rather than hardcoded, because compose derives untagged
-# image names from the project name — a clone in a directory not called "redamon",
+# image names from the project name — a clone in a directory not called "whitehat",
 # or a COMPOSE_PROJECT_NAME override, produces different tags. Empty output means
 # "could not resolve", and callers must then not block.
 #
 # Any leading args are passed to compose as file selectors (e.g. $DEV_COMPOSE),
 # so dev mode resolves ITS overrides: dev swaps webapp for a stock node image,
-# which the redamon- filter then correctly drops from the required set.
+# which the whitehat- filter then correctly drops from the required set.
 _core_image_names() {
     local files=("$@")
     # `|| true`: the script runs with pipefail, and both a compose failure and a
@@ -3755,7 +3755,7 @@ _core_image_names() {
     # errors to abort on. The caller treats empty output as "do not block".
     # shellcheck disable=SC2086
     docker compose ${files[@]+"${files[@]}"} config --images $CORE_BUILD_SERVICES 2>/dev/null \
-        | grep '^redamon-' | sort -u || true
+        | grep '^whitehat-' | sort -u || true
 }
 
 # Refuse to "start" a stack that has no images to start. Without this, `up` on a
@@ -3774,12 +3774,12 @@ ensure_core_images() {
 
     [[ ${#missing[@]} -eq 0 ]] && return 0
 
-    error "Cannot start RedAmon: ${#missing[@]} core image(s) are missing."
+    error "Cannot start WhiteHat: ${#missing[@]} core image(s) are missing."
     for img in "${missing[@]}"; do
         error "    ${img}"
     done
     error "Build them with:"
-    error "    ./redamon.sh install"
+    error "    ./whitehat.sh install"
     error "This is normal after a failed update or a 'docker system prune'."
     return 1
 }
@@ -3800,7 +3800,7 @@ _service_running() {
 # Confirm the stack is actually serving before anything announces that it is.
 # `docker compose up -d` exits 0 once containers are CREATED, so a container that
 # dies a second later (bad env, unwritable volume, OOM) still leaves a green exit
-# code. Printing "RedAmon is ready!" over that is how a broken host stays broken:
+# code. Printing "WhiteHat is ready!" over that is how a broken host stays broken:
 # the operator trusts the banner and only learns otherwise from a 502 served by
 # whatever proxy sits in front of :3000.
 verify_core_running() {
@@ -3810,7 +3810,7 @@ verify_core_running() {
     done
     [[ ${#failed[@]} -eq 0 ]] && return 0
 
-    error "RedAmon did not start: ${failed[*]} not running."
+    error "WhiteHat did not start: ${failed[*]} not running."
     error "Nothing is listening on port 3000. Diagnose with:"
     error "    docker compose ps -a"
     for svc in "${failed[@]}"; do
@@ -3843,7 +3843,7 @@ cmd_up_dev() {
     ensure_sca_intel
     ensure_db_secrets
 
-    info "Starting RedAmon in DEV mode (GVM: ${gvm_flag})..."
+    info "Starting WhiteHat in DEV mode (GVM: ${gvm_flag})..."
 
     if [[ "$gvm_flag" == "true" ]]; then
         pull_gvm_images
@@ -3863,7 +3863,7 @@ cmd_up_dev() {
     # is already usable (they can Ctrl+C the KB question and start working).
     echo ""
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
-    echo -e "  ${GREEN}${BOLD}  RedAmon DEV is ready!${NC}"
+    echo -e "  ${GREEN}${BOLD}  WhiteHat DEV is ready!${NC}"
     echo -e "  ${GREEN}${BOLD}  Open ${CYAN}http://localhost:3000${GREEN}${BOLD} in your browser (hot-reload)${NC}"
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
     echo ""
@@ -3887,7 +3887,7 @@ cmd_up_dev() {
             success "Knowledge Base ready (profile: ${kb_profile})"
         else
             warn "KB refresh failed -- agent will start with the existing KB state"
-            warn "Retry with: ./redamon.sh kb build ${kb_profile}"
+            warn "Retry with: ./whitehat.sh kb build ${kb_profile}"
         fi
     fi
 }
@@ -3935,7 +3935,7 @@ cmd_up() {
     fi
 
     export_resource_caps
-    setup_zram   # optional one-time compressed-swap cushion (REDAMON_ENABLE_ZRAM=1)
+    setup_zram   # optional one-time compressed-swap cushion (WHITEHAT_ENABLE_ZRAM=1)
 
     ensure_tool_images
     ensure_auth_secrets
@@ -3945,7 +3945,7 @@ cmd_up() {
     ensure_sca_intel
     ensure_db_secrets
 
-    info "Starting RedAmon (GVM: ${gvm_mode})..."
+    info "Starting WhiteHat (GVM: ${gvm_mode})..."
 
     # Pull GVM images with retry (large images, unreliable registry)
     if [[ "$gvm_mode" == "true" ]]; then
@@ -3968,7 +3968,7 @@ cmd_up() {
     # is already usable (they can Ctrl+C the KB question and start working).
     echo ""
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
-    echo -e "  ${GREEN}${BOLD}  RedAmon is ready!${NC}"
+    echo -e "  ${GREEN}${BOLD}  WhiteHat is ready!${NC}"
     echo -e "  ${GREEN}${BOLD}  Open ${CYAN}http://localhost:3000${GREEN}${BOLD} in your browser${NC}"
     echo -e "  ${GREEN}${BOLD}==========================================================${NC}"
     echo ""
@@ -3995,13 +3995,13 @@ cmd_up() {
             success "Knowledge Base ready (profile: ${kb_profile})"
         else
             warn "KB refresh failed -- agent will start with the existing KB state"
-            warn "Retry with: ./redamon.sh kb build ${kb_profile}"
+            warn "Retry with: ./whitehat.sh kb build ${kb_profile}"
         fi
     fi
 }
 
 cmd_down() {
-    info "Stopping RedAmon..."
+    info "Stopping WhiteHat..."
     # The on-demand LLM + any in-flight AI scan containers are orchestrator-spawned
     # (not compose-managed), so stop them too — otherwise the local LLM keeps
     # holding RAM after `down`.
@@ -4011,7 +4011,7 @@ cmd_down() {
 }
 
 cmd_clean() {
-    warn "This will remove all RedAmon containers and images."
+    warn "This will remove all WhiteHat containers and images."
     warn "Your data (databases, reports, scan results) will be preserved in Docker volumes."
     echo ""
     read -rp "Continue? [y/N] " confirm
@@ -4024,19 +4024,19 @@ cmd_clean() {
     remove_spawned_containers
     docker compose --profile tools down
 
-    info "Removing RedAmon images..."
-    remove_redamon_images
+    info "Removing WhiteHat images..."
+    remove_whitehat_images
     docker image prune -f >/dev/null 2>&1 || true
 
-    success "All RedAmon containers and images removed. Volumes preserved."
+    success "All WhiteHat containers and images removed. Volumes preserved."
     echo ""
-    info "To reinstall: ./redamon.sh install"
+    info "To reinstall: ./whitehat.sh install"
 }
 
 cmd_purge() {
     echo ""
     warn "This will PERMANENTLY DELETE:"
-    warn "  - All RedAmon containers and images"
+    warn "  - All WhiteHat containers and images"
     warn "  - ALL DATA: PostgreSQL, Neo4j, GVM feeds, reports, scan results"
     warn "  - Host-side KB index state (FAISS index, manifest, last-ingest marker)"
     warn "  - KB dedup state (.manifest.json, .file_hashes.json)"
@@ -4072,14 +4072,14 @@ cmd_purge() {
     docker volume rm "$LOCAL_LLM_VOLUME" >/dev/null 2>&1 || true
     # Networks created at RUNTIME by the orchestrator (no compose service is
     # attached to them), so `compose down` never removes them.
-    docker network rm redamon-codefix-net >/dev/null 2>&1 || true
-    docker network rm "${TRUFFLEHOG_NETWORK:-redamon-trufflehog-net}" >/dev/null 2>&1 || true
+    docker network rm whitehat-codefix-net >/dev/null 2>&1 || true
+    docker network rm "${TRUFFLEHOG_NETWORK:-whitehat-trufflehog-net}" >/dev/null 2>&1 || true
     # Per-run TruffleHog scratch dirs (job file + findings before publication).
     # One per project+source, so bounded — but `purge` claims to leave nothing.
-    rm -rf /tmp/redamon/trufflehog_* >/dev/null 2>&1 || true
+    rm -rf /tmp/whitehat/trufflehog_* >/dev/null 2>&1 || true
 
-    info "Removing RedAmon images..."
-    remove_redamon_images
+    info "Removing WhiteHat images..."
+    remove_whitehat_images
     docker image prune -f >/dev/null 2>&1 || true
 
     # Host-side KB state files that must be wiped in lockstep with the
@@ -4137,9 +4137,9 @@ cmd_purge() {
     rm -f "$KBASE_DISABLED_FLAG_FILE"
     rm -f "$LEGACY_SKIPKBASE_FLAG_FILE"
     rm -f "$GPU_ENABLED_FLAG_FILE" "$GPU_DISABLED_FLAG_FILE" "$TORCH_VARIANT_MARKER"
-    success "Full cleanup complete. All RedAmon data and images have been removed."
+    success "Full cleanup complete. All WhiteHat data and images have been removed."
     echo ""
-    info "To reinstall: ./redamon.sh install"
+    info "To reinstall: ./whitehat.sh install"
 }
 
 # Operational memory view for `status`.
@@ -4165,7 +4165,7 @@ _status_memory_report() {
         read -r mem restarts oomk <<< "$(docker inspect "$c" \
             --format '{{.HostConfig.Memory}} {{.RestartCount}} {{.State.OOMKilled}}' 2>/dev/null)"
         [[ -z "$mem" ]] && continue
-        name="${c#redamon-}"
+        name="${c#whitehat-}"
         drift=""
         # Drift: a running container whose cap differs from what we would compute
         # now. Usually means a bare `docker compose up` bypassed the governor --
@@ -4184,7 +4184,7 @@ _status_memory_report() {
             echo -e "    ${c}: $(( mem / 1048576 ))MB${drift}"
             any=1
         fi
-    done <<< "$(docker ps --format '{{.Names}}' 2>/dev/null | grep '^redamon-' || true)"
+    done <<< "$(docker ps --format '{{.Names}}' 2>/dev/null | grep '^whitehat-' || true)"
     [[ "$any" -eq 0 ]] && echo -e "    ${GREEN}no OOM kills, no restarts, no cap drift${NC}"
 
     # Disk: the incident had 187GB used against ~70GB of images, and nothing
@@ -4237,7 +4237,7 @@ _status_core_service_report() {
     # command - `up` cannot start images that were never built.
     if (( have_any == 0 )); then
         echo ""
-        echo -e "  ${YELLOW}No RedAmon services are installed yet.${NC} Run: ./redamon.sh install"
+        echo -e "  ${YELLOW}No WhiteHat services are installed yet.${NC} Run: ./whitehat.sh install"
         return 0
     fi
 
@@ -4250,7 +4250,7 @@ _status_core_service_report() {
         echo -e "  ${YELLOW}The webapp reaches these by container name, so while one is down the UI"
         echo -e "  fails with 'ENOTFOUND <name>'. Inspect with:${NC}"
         echo "    docker compose logs --tail=100 <service>"
-        echo -e "  ${YELLOW}then bring it back with:${NC} ./redamon.sh up"
+        echo -e "  ${YELLOW}then bring it back with:${NC} ./whitehat.sh up"
     fi
 }
 
@@ -4307,12 +4307,12 @@ cmd_status() {
 
     echo ""
 
-    # Container list — filter to redamon containers only. Keeps the header
-    # row and any container whose name starts with "redamon-".
+    # Container list — filter to whitehat containers only. Keeps the header
+    # row and any container whose name starts with "whitehat-".
     # `-a`, not a bare `ps`: without it an EXITED core service is simply absent
     # from the table, so a crashed agent looked like a clean stack while the UI
     # failed with "getaddrinfo ENOTFOUND agent" (issue #184).
-    docker compose ps -a | grep -E '^(NAME|redamon-)' || {
+    docker compose ps -a | grep -E '^(NAME|whitehat-)' || {
         # grep returns non-zero if no lines match (no containers at all).
         # Fall back to plain ps so the user still sees the "no services" message.
         docker compose ps -a
@@ -4344,7 +4344,7 @@ cmd_kb_build() {
         cpu-lite|lite|standard|full) ;;
         *)
             error "Unknown KB profile: $profile"
-            echo "Usage: ./redamon.sh kb build [lite|standard|full]"
+            echo "Usage: ./whitehat.sh kb build [lite|standard|full]"
             exit 1
             ;;
     esac
@@ -4415,7 +4415,7 @@ cmd_kb_rebuild() {
         cpu-lite|lite|standard|full) ;;
         *)
             error "Invalid profile '$profile'. Use cpu-lite, lite, standard, or full."
-            echo "Usage: ./redamon.sh kb rebuild [cpu-lite|lite|standard|full]"
+            echo "Usage: ./whitehat.sh kb rebuild [cpu-lite|lite|standard|full]"
             exit 1
             ;;
     esac
@@ -4448,7 +4448,7 @@ cmd_kb_stats() {
 }
 
 cmd_kb_help() {
-    echo -e "${BOLD}Usage:${NC} ./redamon.sh kb <command> [args]"
+    echo -e "${BOLD}Usage:${NC} ./whitehat.sh kb <command> [args]"
     echo ""
     echo -e "${BOLD}Commands:${NC}"
     echo -e "  ${GREEN}build [profile]${NC}    Build KB — profile: lite (default) | standard | full"
@@ -4460,27 +4460,27 @@ cmd_kb_help() {
     echo -e "${BOLD}Profiles:${NC}"
     echo "  lite      tool_docs + metasploit + gtfobins + lolbas + owasp + exploitdb + NVD (90 days)"
     echo "  standard  same sources as lite + NVD (2 years)"
-    echo "  full      standard + Nuclei (requires redamon-kali container running)"
+    echo "  full      standard + Nuclei (requires whitehat-kali container running)"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
-    echo "  ./redamon.sh kb build             # Build lite KB (default)"
-    echo "  ./redamon.sh kb build standard    # Build with 2 years of NVD"
-    echo "  ./redamon.sh kb rebuild           # Wipe + rebuild standard (default)"
-    echo "  ./redamon.sh kb rebuild lite      # Wipe + rebuild lite profile"
-    echo "  ./redamon.sh kb rebuild full      # Wipe + rebuild full profile (incl. nuclei)"
-    echo "  ./redamon.sh kb update nvd        # Incremental NVD refresh"
-    echo "  ./redamon.sh kb update            # Update all sources"
-    echo "  ./redamon.sh kb stats             # See what's in the KB"
+    echo "  ./whitehat.sh kb build             # Build lite KB (default)"
+    echo "  ./whitehat.sh kb build standard    # Build with 2 years of NVD"
+    echo "  ./whitehat.sh kb rebuild           # Wipe + rebuild standard (default)"
+    echo "  ./whitehat.sh kb rebuild lite      # Wipe + rebuild lite profile"
+    echo "  ./whitehat.sh kb rebuild full      # Wipe + rebuild full profile (incl. nuclei)"
+    echo "  ./whitehat.sh kb update nvd        # Incremental NVD refresh"
+    echo "  ./whitehat.sh kb update            # Update all sources"
+    echo "  ./whitehat.sh kb stats             # See what's in the KB"
     echo ""
 }
 
 cmd_help() {
     print_banner
-    echo -e "${BOLD}Usage:${NC} ./redamon.sh <command> [options]"
+    echo -e "${BOLD}Usage:${NC} ./whitehat.sh <command> [options]"
     echo ""
     echo -e "${BOLD}Commands:${NC}"
-    echo -e "  ${GREEN}install${NC}              Build and start RedAmon (no GVM, no Knowledge Base)"
-    echo -e "  ${GREEN}install --gvm${NC}        Build and start RedAmon (with GVM/OpenVAS)"
+    echo -e "  ${GREEN}install${NC}              Build and start WhiteHat (no GVM, no Knowledge Base)"
+    echo -e "  ${GREEN}install --gvm${NC}        Build and start WhiteHat (with GVM/OpenVAS)"
     echo -e "  ${GREEN}install --kbase${NC}      Build with Knowledge Base (~4.4 GB heavier, local KB enabled)"
     echo -e "  ${GREEN}install --gpu${NC}        Build the KB on CUDA PyTorch (~2.5 GB heavier; needs nvidia-container-toolkit)"
     echo -e "  ${GREEN}install --cpu${NC}        Force CPU-only PyTorch (default; auto-detected when neither flag is given)"
@@ -4501,19 +4501,19 @@ cmd_help() {
     echo -e "  ${GREEN}help${NC}             Show this help message"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
-    echo "  ./redamon.sh install               # First-time setup (lightweight: no GVM, no KB)"
-    echo "  ./redamon.sh install --kbase       # First-time setup with local Knowledge Base"
-    echo "  ./redamon.sh install --gvm         # First-time setup with GVM/OpenVAS"
-    echo "  ./redamon.sh install --gvm --kbase # First-time setup with everything"
-    echo "  ./redamon.sh install --kbase --gpu  # Knowledge Base on the GPU (CUDA PyTorch)"
-    echo "  ./redamon.sh update           # Update to latest version"
-    echo "  ./redamon.sh up               # Start after reboot"
-    echo "  ./redamon.sh up dev           # Dev mode with hot-reload (auto-detects GVM)"
-    echo "  ./redamon.sh create-admin     # Create the admin login (or reset it)"
-    echo "  ./redamon.sh reset-password   # Reset a user's password"
-    echo "  ./redamon.sh kb build lite    # Build Knowledge Base"
-    echo "  ./redamon.sh kb update        # Refresh all KB sources"
-    echo "  ./redamon.sh kb stats         # Show KB chunk counts"
+    echo "  ./whitehat.sh install               # First-time setup (lightweight: no GVM, no KB)"
+    echo "  ./whitehat.sh install --kbase       # First-time setup with local Knowledge Base"
+    echo "  ./whitehat.sh install --gvm         # First-time setup with GVM/OpenVAS"
+    echo "  ./whitehat.sh install --gvm --kbase # First-time setup with everything"
+    echo "  ./whitehat.sh install --kbase --gpu  # Knowledge Base on the GPU (CUDA PyTorch)"
+    echo "  ./whitehat.sh update           # Update to latest version"
+    echo "  ./whitehat.sh up               # Start after reboot"
+    echo "  ./whitehat.sh up dev           # Dev mode with hot-reload (auto-detects GVM)"
+    echo "  ./whitehat.sh create-admin     # Create the admin login (or reset it)"
+    echo "  ./whitehat.sh reset-password   # Reset a user's password"
+    echo "  ./whitehat.sh kb build lite    # Build Knowledge Base"
+    echo "  ./whitehat.sh kb update        # Refresh all KB sources"
+    echo "  ./whitehat.sh kb stats         # Show KB chunk counts"
     echo ""
 }
 
@@ -4527,8 +4527,8 @@ cmd_help() {
 # tooling/scripts/pytest_isolated.py (determinism — see docs/readmes/README.TESTING.md).
 # Sections whose image is absent are skipped cleanly.
 #
-#   ./redamon.sh test              # unit gate across all sections (canonical)
-#   ./redamon.sh test unit|integration|live|all|coverage
+#   ./whitehat.sh test              # unit gate across all sections (canonical)
+#   ./whitehat.sh test unit|integration|live|all|coverage
 #
 # The root `tests/` dir is a grab-bag: most files exercise the agent image, but a
 # set of them import recon enrichment modules (recon/main_recon_modules/*) and so
@@ -4537,14 +4537,14 @@ _ROOT_RECON_TESTS="test_censys_enrich.py,test_criminalip_enrich.py,test_fofa_enr
 
 # Section spec: name|image|workdir|PYTHONPATH|testpaths|covpkg|exclude
 _TEST_SECTIONS=(
-    "agent|redamon-agent|/repo/agentic|/repo/agentic:/repo:/repo/mcp/servers:/repo/recon_orchestrator:/repo/services|tests|.|"
-    "root-agent|redamon-agent|/repo|/repo:/repo/agentic:/repo/mcp/servers:/repo/services:/repo/scanners|tests scanners/supply_chain_common scanners/supply_chain_analyzer scanners/supply_chain_scan graph_db services/knowledge_base mcp|supply_chain_common|${_ROOT_RECON_TESTS}"
-    "root-recon|redamon-recon|/repo|/repo:/repo/recon:/repo/recon/main_recon_modules:/repo/scanners|tests|.|"
-    "recon|redamon-recon|/repo/recon|/repo/recon:/repo|tests|.|"
-    "recon_orchestrator|redamon-recon-orchestrator|/repo/recon_orchestrator|/repo/recon_orchestrator:/repo|.|.|"
-    "ai_attack_surface|redamon-ai-attack-surface|/repo/scanners/ai_attack_surface_scan|/repo/scanners/ai_attack_surface_scan:/repo|tests adapters|.|"
-    "capture_proxy|redamon-capture-proxy|/repo/scanners/capture_proxy|/repo/scanners/capture_proxy:/repo|tests|.|"
-    "docker_broker|redamon-docker-broker|/repo/services/docker_broker|/repo/services/docker_broker:/repo|.|.|"
+    "agent|whitehat-agent|/repo/agentic|/repo/agentic:/repo:/repo/mcp/servers:/repo/recon_orchestrator:/repo/services|tests|.|"
+    "root-agent|whitehat-agent|/repo|/repo:/repo/agentic:/repo/mcp/servers:/repo/services:/repo/scanners|tests scanners/supply_chain_common scanners/supply_chain_analyzer scanners/supply_chain_scan graph_db services/knowledge_base mcp|supply_chain_common|${_ROOT_RECON_TESTS}"
+    "root-recon|whitehat-recon|/repo|/repo:/repo/recon:/repo/recon/main_recon_modules:/repo/scanners|tests|.|"
+    "recon|whitehat-recon|/repo/recon|/repo/recon:/repo|tests|.|"
+    "recon_orchestrator|whitehat-recon-orchestrator|/repo/recon_orchestrator|/repo/recon_orchestrator:/repo|.|.|"
+    "ai_attack_surface|whitehat-ai-attack-surface|/repo/scanners/ai_attack_surface_scan|/repo/scanners/ai_attack_surface_scan:/repo|tests adapters|.|"
+    "capture_proxy|whitehat-capture-proxy|/repo/scanners/capture_proxy|/repo/scanners/capture_proxy:/repo|tests|.|"
+    "docker_broker|whitehat-docker-broker|/repo/services/docker_broker|/repo/services/docker_broker:/repo|.|.|"
 )
 
 # For the root-recon section we run ONLY the recon-oriented files, not the whole
@@ -4556,13 +4556,13 @@ for _f in ${_ROOT_RECON_TESTS//,/ }; do _ROOT_RECON_PATHS="$_ROOT_RECON_PATHS te
 # FAILURE, not a skip. A green run that never executed the tests is worse than a
 # red one: it reports that a control holds when nothing checked it.
 #
-# `REDAMON_TEST_ALLOW_MISSING` is the deliberate, named opt-out for a working
+# `WHITEHAT_TEST_ALLOW_MISSING` is the deliberate, named opt-out for a working
 # copy that genuinely lacks an input (comma-separated section names, or `all`).
 # It prints a line containing the word SKIPPED so the hole is visible in any log
 # rather than being inferable only from a count.
 _test_section_may_skip() {
     local name="$1"
-    local allow="${REDAMON_TEST_ALLOW_MISSING:-}"
+    local allow="${WHITEHAT_TEST_ALLOW_MISSING:-}"
     [[ -z "$allow" ]] && return 1
     [[ "$allow" == "all" ]] && return 0
     local entry
@@ -4581,13 +4581,13 @@ _test_missing_input() {
         return 0
     fi
     if _test_section_may_skip "$name"; then
-        error "SKIPPED section '$name' ($what) — allowed by REDAMON_TEST_ALLOW_MISSING"
+        error "SKIPPED section '$name' ($what) — allowed by WHITEHAT_TEST_ALLOW_MISSING"
         return 0
     fi
     error "section '$name' CANNOT RUN: $what"
     error "  This fails the gate rather than skipping: a suite that never ran proves nothing."
     error "  Fix: $fix"
-    error "  Or, deliberately: REDAMON_TEST_ALLOW_MISSING=$name ./redamon.sh test $tier"
+    error "  Or, deliberately: WHITEHAT_TEST_ALLOW_MISSING=$name ./whitehat.sh test $tier"
     return 1
 }
 
@@ -4596,7 +4596,7 @@ _test_run_section() {
     local tier="$8"
     if ! docker image inspect "$image" >/dev/null 2>&1; then
         _test_missing_input "$name" "$image is not built" \
-            "./redamon.sh install  (or: docker compose build ${image#redamon-})" "$tier"
+            "./whitehat.sh install  (or: docker compose build ${image#whitehat-})" "$tier"
         return $?
     fi
     # root-recon runs ONLY the recon-oriented files from tests/, in the recon image.
@@ -4606,7 +4606,7 @@ _test_run_section() {
     info "=== section: $name  (image: $image, tier: $tier) ==="
     local cov_args=""
     if [[ "$tier" == "coverage" ]]; then
-        cov_args="--cov $covpkg --cov-floor ${REDAMON_COV_FLOOR:-0}"
+        cov_args="--cov $covpkg --cov-floor ${WHITEHAT_COV_FLOOR:-0}"
         tier="all"
     fi
     [[ -n "$exclude" ]] && cov_args="$cov_args --exclude $exclude"
@@ -4617,9 +4617,9 @@ _test_run_section() {
         -v "$SCRIPT_DIR:/repo" \
         -w "$workdir" \
         -e PYTHONPATH="$pypath" \
-        -e COVERAGE_FILE=/tmp/redamon.coverage \
+        -e COVERAGE_FILE=/tmp/whitehat.coverage \
         -e HOME=/tmp \
-        -e REDAMON_TEST_PARALLEL="${REDAMON_TEST_PARALLEL:-8}" \
+        -e WHITEHAT_TEST_PARALLEL="${WHITEHAT_TEST_PARALLEL:-8}" \
         `# recon_orchestrator/api.py resolves host paths at import; satisfy the` \
         `# *_PATH lookups so its tests import outside docker-compose (harmless elsewhere).` \
         -e RECON_PATH=/repo/recon \
@@ -4655,7 +4655,7 @@ cmd_test() {
     else
         error "TEST FAILURES ABOVE (tier: $tier)"
     fi
-    # Shell (bash) — the redamon.sh/deploy logic the Python sections cannot reach.
+    # Shell (bash) — the whitehat.sh/deploy logic the Python sections cannot reach.
     # Same tiers as webapp: these suites are hermetic, so they belong in the gate.
     if [[ "$tier" == "all" || "$tier" == "coverage" || "$tier" == "unit" ]]; then
         _test_run_shell "$tier" || failed=1
@@ -4669,7 +4669,7 @@ cmd_test() {
 
 # Bash suites for the parts of the system written in shell: the memory allocator,
 # the preflight gates, secret/admin handling and the deploy driver. They exercise
-# redamon.sh itself (sourcing it — the BASH_SOURCE guard at the bottom stops the
+# whitehat.sh itself (sourcing it — the BASH_SOURCE guard at the bottom stops the
 # dispatch from firing), so they need no image and run on the host.
 #
 # Every suite here MUST be hermetic or self-skip: any that needs a live stack
@@ -4726,10 +4726,10 @@ _test_run_webapp() {
 # deletes those: it leaves them behind and prints "Found orphan containers" on every
 # single `up`. Removing them by name keeps an upgraded install as clean as a fresh
 # one. Only ever list containers that are inert by construction.
-#   redamon-gvm-postgres-init: its stale-lock cleanup moved INTO gvm-postgres'
+#   whitehat-gvm-postgres-init: its stale-lock cleanup moved INTO gvm-postgres'
 #   own entrypoint, because as a sibling one-shot it deleted the LIVE socket on
 #   every repeat `up` and left gvmd crash-looping (issue #174).
-_REMOVED_CONTAINERS=(redamon-gvm-postgres-init)
+_REMOVED_CONTAINERS=(whitehat-gvm-postgres-init)
 
 prune_removed_containers() {
     command -v docker >/dev/null 2>&1 || return 0
@@ -4750,7 +4750,7 @@ prune_removed_containers() {
 # ---------------------------------------------------------------------------
 
 # Dispatch only when executed directly. When the script is sourced (e.g. by the
-# test suite in tests/redamon_build_test.sh) this guard prevents the cd and the
+# test suite in tests/whitehat_build_test.sh) this guard prevents the cd and the
 # command dispatch from running, so the helper functions can be loaded and unit-
 # tested in isolation.
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

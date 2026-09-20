@@ -128,19 +128,19 @@ _EXECUTE_NUCLEI_DOC = f"""Execute nuclei vulnerability scanner with any valid CL
 
 
 @mcp.tool()
-def execute_nuclei(args: str, _redamon_ctx: str = "") -> str:
+def execute_nuclei(args: str, _whitehat_ctx: str = "") -> str:
     __doc__ = _EXECUTE_NUCLEI_DOC  # noqa: F841 — assigned for clarity; actual doc set below
     try:
         cmd_args = shlex.split(args)
         # HTTP traffic capture (Phase 1): route through the capture proxy when a
         # tag is present + the proxy is reachable. -proxy + -H added together, ONLY
-        # in this branch (§20.2 no-leak); the LLM never sees _redamon_ctx.
+        # in this branch (§20.2 no-leak); the LLM never sees _whitehat_ctx.
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
             # APPEND so a later user-supplied -proxy cannot override enforced
             # routing and exfiltrate the tag (nuclei -H is repeatable).
-            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_tok}"]
+            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_tok}"]
         result = subprocess.run(
             ["nuclei"] + cmd_args,
             capture_output=True,

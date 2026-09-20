@@ -14,7 +14,7 @@ Run:
   docker run --rm --network host -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://localhost:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_cert_free_wins_graph_live -v
+    whitehat-agent python -m unittest tests.test_cert_free_wins_graph_live -v
 """
 
 import os

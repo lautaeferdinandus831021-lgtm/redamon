@@ -1,4 +1,4 @@
-# RedAmon Agent Dependencies
+# WhiteHat Agent Dependencies
 
 # LangChain core
 langchain>=0.3.0
@@ -64,7 +64,7 @@ networkx>=3.0
 langgraph-checkpoint-postgres>=2.0.0
 psycopg[binary,pool]>=3.2.0
 
-# Test toolchain (baked so `run_tests.sh` / `redamon.sh test` need no runtime
+# Test toolchain (baked so `run_tests.sh` / `whitehat.sh test` need no runtime
 # install). Kept in sync with the root requirements-test.txt. See
 # docs/readmes/README.TESTING.md.
 pytest>=8

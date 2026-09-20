@@ -20,7 +20,7 @@ from dataclasses import dataclass
 # Default DB location. /workspace is the one writable volume mount the agent
 # image has (./agentic/agent-workspace:/workspace); the built-in fallback keeps
 # the subsystem usable in a bare checkout and in tests.
-_DEFAULT_DB_DIRS = ("/workspace/.memory", "~/.redamon/memory")
+_DEFAULT_DB_DIRS = ("/workspace/.memory", "~/.whitehat/memory")
 
 _TRUE = {"1", "true", "yes", "on"}
 
@@ -54,7 +54,7 @@ def _default_db_path() -> str:
             return path
         except OSError:
             continue
-    return os.path.join(os.path.expanduser("~"), "redamon-memory.db")
+    return os.path.join(os.path.expanduser("~"), "whitehat-memory.db")
 
 
 @dataclass(frozen=True)

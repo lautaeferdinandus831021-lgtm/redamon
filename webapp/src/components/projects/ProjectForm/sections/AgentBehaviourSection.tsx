@@ -819,7 +819,7 @@ export function AgentBehaviourSection({ data, updateField, detectedHostIp }: Age
               <div>
                 <span className={styles.toggleLabel}>Allow MCP Sandbox Commands</span>
                 <p className={styles.toggleDescription}>
-                  Give an external agent connected over the MCP Server a SHELL in RedAmon&apos;s
+                  Give an external agent connected over the MCP Server a SHELL in WhiteHat&apos;s
                   Kali sandbox: <code>bash -c</code> with the full toolset, the same access the
                   in-app agent has. There is no allowlist and, unlike a scan, <strong>no check
                   on what it is aimed at</strong> &mdash; it can reach any host the sandbox can,

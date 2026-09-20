@@ -1,5 +1,5 @@
 """
-RedAmon Stealth Mode Rules
+WhiteHat Stealth Mode Rules
 
 Comprehensive stealth constraints injected into the agent system prompt
 when STEALTH_MODE is enabled. Prepended BEFORE the main REACT_SYSTEM_PROMPT
@@ -61,10 +61,10 @@ stop and inform the user honestly — do NOT proceed with noisy techniques.
   downloads. Use execute_osv_scanner (fully offline) for bulk checks instead.
 
 ### proxy_brain — RESTRICTED
-- The read/decode side of `redamon` (search/get/sitemap/params/grep/diff/query/decode/jwt) is passive — use freely.
-- FORBIDDEN in stealth: `redamon.fuzz(...)` and `redamon.batch(...)`, and any loop that calls `redamon.replay(...)` more than once — a payload sweep or rapid-fire replay is inherently noisy.
-- ALLOWED: a SINGLE targeted `redamon.replay(...)` (one request) to confirm one finding.
-- `redamon.browser(...)` renders a full page (many sub-requests): FORBIDDEN in stealth except a SINGLE `.goto` + read to confirm one client-side finding. No click/eval loops, no crawling multiple routes.
+- The read/decode side of `whitehat` (search/get/sitemap/params/grep/diff/query/decode/jwt) is passive — use freely.
+- FORBIDDEN in stealth: `whitehat.fuzz(...)` and `whitehat.batch(...)`, and any loop that calls `whitehat.replay(...)` more than once — a payload sweep or rapid-fire replay is inherently noisy.
+- ALLOWED: a SINGLE targeted `whitehat.replay(...)` (one request) to confirm one finding.
+- `whitehat.browser(...)` renders a full page (many sub-requests): FORBIDDEN in stealth except a SINGLE `.goto` + read to confirm one client-side finding. No click/eval loops, no crawling multiple routes.
 - The per-session send budget still applies and the server will refuse once it is exhausted; stay far below it in stealth.
 
 ### execute_curl — RESTRICTED

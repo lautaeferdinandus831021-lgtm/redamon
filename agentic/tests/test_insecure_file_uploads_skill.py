@@ -49,11 +49,11 @@ CANONICAL_TOOLS = {
 }
 
 # Banned strings -- Shannon / Strix isms that must never leak into a black-box
-# RedAmon community skill.
+# WhiteHat community skill.
 BANNED_SHANNONISMS = [
     "save-deliverable",
     ".shannon/",
-    "TodoWrite",   # Shannon's task-tracking tool, not exposed to RedAmon agent
+    "TodoWrite",   # Shannon's task-tracking tool, not exposed to WhiteHat agent
     "Task Agent",
     "@include",
     "{{WEB_URL}}", "{{TARGET_URL}}", "{{LOGIN_INSTRUCTIONS}}",
@@ -461,9 +461,9 @@ class TestRegression(unittest.TestCase):
                       "README index does not list the new skill")
 
     def test_wiki_table_includes_new_skill(self):
-        wiki = _AGENTIC_DIR.parent / "redamon.wiki" / "Agent-Skills.md"
+        wiki = _AGENTIC_DIR.parent / "whitehat.wiki" / "Agent-Skills.md"
         if not wiki.exists():
-            self.skipTest("redamon.wiki not present in this checkout")
+            self.skipTest("whitehat.wiki not present in this checkout")
         text = wiki.read_text(encoding="utf-8")
         self.assertIn("insecure_file_uploads.md", text,
                       "Wiki Community Skills table does not list the new skill")

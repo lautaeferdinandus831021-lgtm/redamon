@@ -1,7 +1,7 @@
 """
 Replay-lineage tag tests + the three-copy sync regression guard.
 
-The X-Redamon-Ctx tag carries `is_replay` / `origin_id` for proxy_replay /
+The X-WhiteHat-Ctx tag carries `is_replay` / `origin_id` for proxy_replay /
 proxy_fuzz. The signing primitive is DUPLICATED verbatim in three places
 (capture_proxy/, agentic/, recon/helpers/). If they drift, a replay tag signed by
 one side fails to verify on the ingest side (the re-canonicalization check in
@@ -28,13 +28,13 @@ REPO = Path(__file__).resolve().parents[3]           # repo root
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import redamon_ctx  # noqa: E402  (capture_proxy copy)
+import whitehat_ctx  # noqa: E402  (capture_proxy copy)
 from ingest_worker import build_row  # noqa: E402
 
 _COPIES = {
-    "capture": REPO / "scanners" / "capture_proxy" / "redamon_ctx.py",
-    "agent": REPO / "agentic" / "redamon_ctx.py",
-    "recon": REPO / "recon" / "helpers" / "redamon_ctx.py",
+    "capture": REPO / "scanners" / "capture_proxy" / "whitehat_ctx.py",
+    "agent": REPO / "agentic" / "whitehat_ctx.py",
+    "recon": REPO / "recon" / "helpers" / "whitehat_ctx.py",
 }
 
 
@@ -54,18 +54,18 @@ class TestReplayTagRoundTrip(unittest.TestCase):
             "tool": "proxy_replay", "phase": "exploitation",
             "is_replay": True, "origin_id": "txn-abc-123",
         }
-        token = redamon_ctx.sign_tag(payload, self.KEY)
-        out = redamon_ctx.verify_tag(token, {"agent": self.KEY})
+        token = whitehat_ctx.sign_tag(payload, self.KEY)
+        out = whitehat_ctx.verify_tag(token, {"agent": self.KEY})
         self.assertIsNotNone(out)
         self.assertIs(out["is_replay"], True)
         self.assertEqual(out["origin_id"], "txn-abc-123")
 
     def test_non_replay_tag_has_no_replay_fields(self):
         # None-valued fields are dropped by _canonical, so a normal tag stays lean.
-        token = redamon_ctx.sign_tag(
+        token = whitehat_ctx.sign_tag(
             {"source": "recon", "project_id": "p", "user_id": "u", "tool": "nuclei"},
             self.KEY)
-        out = redamon_ctx.verify_tag(token, {"recon": self.KEY})
+        out = whitehat_ctx.verify_tag(token, {"recon": self.KEY})
         self.assertIsNotNone(out)
         self.assertNotIn("is_replay", out)
         self.assertNotIn("origin_id", out)
@@ -96,7 +96,7 @@ class TestThreeCopySync(unittest.TestCase):
         }
         self.assertEqual(
             len(set(digests.values())), 1,
-            f"redamon_ctx.py copies have drifted: {digests}. "
+            f"whitehat_ctx.py copies have drifted: {digests}. "
             f"They MUST stay byte-identical or replay tags get rejected.")
 
 

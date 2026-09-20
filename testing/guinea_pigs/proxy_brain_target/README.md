@@ -1,7 +1,7 @@
 # proxy_brain guinea pig
 
 A deliberately vulnerable Flask app for **end-to-end validation of the agent's
-`proxy_brain` / `redamon.*` capabilities** against realistic behaviour.
+`proxy_brain` / `whitehat.*` capabilities** against realistic behaviour.
 
 > ⚠️ Intentionally insecure. Local/trusted Docker host only. Never expose it.
 
@@ -12,7 +12,7 @@ cd testing/guinea_pigs/proxy_brain_target
 docker compose up -d --build
 ```
 
-It joins `redamon_pentest-net`, so the kali-sandbox (agent tools) and the capture
+It joins `whitehat_pentest-net`, so the kali-sandbox (agent tools) and the capture
 proxy reach it at **`http://pbtarget:5000/`**. It is also on the host at
 `http://127.0.0.1:9009/` for manual curling.
 
@@ -45,7 +45,7 @@ proxy**, so before the prompts:
 2. **Relax the egress guard for the lab** — the target sits on a private Docker IP,
    which the guard blocks by default. Set **Global Settings → TrafficMind → Egress
    guard → block private = OFF** (`captureEgressBlockPrivate = false`). The other
-   guards stay on; RedAmon's own service IPs remain blocked regardless.
+   guards stay on; WhiteHat's own service IPs remain blocked regardless.
 3. **Project target scope** includes `pbtarget:5000` (or `pbtarget`).
 4. **Agent phase = exploitation** (active `proxy_brain` sends are exploitation-only).
 

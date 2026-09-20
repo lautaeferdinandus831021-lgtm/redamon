@@ -42,7 +42,7 @@ docker exec ai-lab-ollama ollama pull tinydolphin
 
 The lab binds all three services to **host loopback (127.0.0.1)** with `network_mode: host`, so the recon container — also running `network_mode: host` — reaches them via `127.0.0.1`. To scan:
 
-1. Create a RedAmon project. **`targetIps`**: `127.0.0.1`. **`ipMode`**: `true`. Enable Naabu + httpx (Nmap is optional but helpful for `ai_runtime_version`).
+1. Create a WhiteHat project. **`targetIps`**: `127.0.0.1`. **`ipMode`**: `true`. Enable Naabu + httpx (Nmap is optional but helpful for `ai_runtime_version`).
 2. Either disable the **hard guardrail** for loopback or use a public-DNS shim domain that points at `127.0.0.1`. The hard guardrail at [recon_orchestrator/hard_guardrail.py](../../../recon_orchestrator/hard_guardrail.py) is intentionally strict — make sure the lab target is allowed before triggering a full scan.
 3. Trigger the scan via the webapp UI or:
    ```bash

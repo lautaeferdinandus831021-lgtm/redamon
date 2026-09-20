@@ -7,7 +7,7 @@ export const GRAPHQL_RECON: ReconPreset = {
   image: '/preset-graphql.svg',
   shortDescription: 'Laser-focused on GraphQL endpoints. Native scanner + graphql-cop (12 checks), JsRecon for JS-extracted endpoints, introspection + mutation + DoS probes.',
   fullDescription: `### Pipeline Goal
-Find every GraphQL endpoint exposed by the target, extract its schema, and test it end-to-end for the full GraphQL-specific attack surface: introspection exposure, sensitive field disclosure, alias / batch / directive / circular DoS, GraphiQL IDE exposure, GET-method CSRF, field suggestion leaks, and unhandled error disclosure. Pairs the native RedAmon GraphQL scanner with graphql-cop's 12 external checks for defense-in-depth cross-validation.
+Find every GraphQL endpoint exposed by the target, extract its schema, and test it end-to-end for the full GraphQL-specific attack surface: introspection exposure, sensitive field disclosure, alias / batch / directive / circular DoS, GraphiQL IDE exposure, GET-method CSRF, field suggestion leaks, and unhandled error disclosure. Pairs the native WhiteHat GraphQL scanner with graphql-cop's 12 external checks for defense-in-depth cross-validation.
 
 ### Who is this for?
 Pentesters and security engineers whose target is a GraphQL API (standalone or embedded in a web/mobile backend). Apollo / Hasura / graphql-yoga / Ruby-graphql / Python-graphene / any framework where GraphQL is the primary attack surface. Works equally well for:

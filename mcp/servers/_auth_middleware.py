@@ -12,7 +12,7 @@ Behaviour:
 - ``MCP_AUTH_TOKEN`` unset  -> FAIL CLOSED: reject every http/websocket request
   or empty                    (401 / close 1008). Auth is not opportunistic; an
                                absent token means "refuse", not "serve everyone".
-                               Fresh installs always get a token from redamon.sh
+                               Fresh installs always get a token from whitehat.sh
                                ``ensure_auth_secrets`` (STRIDE S9). The ASGI
                                ``lifespan`` scope still passes through so the
                                server can boot.
@@ -74,7 +74,7 @@ class BearerAuthASGI:
             if not _warned_failopen:
                 logger.warning(
                     "MCP_AUTH_TOKEN is not set - MCP servers are REJECTING all "
-                    "requests (fail-closed). Set MCP_AUTH_TOKEN (redamon.sh does "
+                    "requests (fail-closed). Set MCP_AUTH_TOKEN (whitehat.sh does "
                     "this automatically) to enable tool serving."
                 )
                 _warned_failopen = True

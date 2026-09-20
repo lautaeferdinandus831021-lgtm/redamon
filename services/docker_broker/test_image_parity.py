@@ -20,9 +20,9 @@ from recon.project_settings import ALLOWED_TOOL_IMAGES  # noqa: E402
 
 
 def test_every_recon_tool_image_is_broker_allowlisted():
-    # redamon-* images are locally built and spawned outside the broker path;
+    # whitehat-* images are locally built and spawned outside the broker path;
     # the broker only gates registry pulls/creates, so exclude them.
-    shipped = {img for img in ALLOWED_TOOL_IMAGES if not img.startswith("redamon-")}
+    shipped = {img for img in ALLOWED_TOOL_IMAGES if not img.startswith("whitehat-")}
     missing = sorted(img for img in shipped if img not in broker.ALLOWED_IMAGES)
     assert not missing, f"images allowed recon-side but rejected by the broker: {missing}"
 

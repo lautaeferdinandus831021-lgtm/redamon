@@ -34,7 +34,7 @@ ROOTS = ("graph_db", "scanners", "agentic", "recon", "recon_orchestrator",
 
 # Bookkeeping marker for the schema migrations, never rendered as an entity and
 # deliberately exempt - it records WHEN it was applied via `applied_at`.
-EXEMPT_LABELS = frozenset({"RedamonSchemaMigration"})
+EXEMPT_LABELS = frozenset({"WhiteHatSchemaMigration"})
 
 NODE_WRITE = re.compile(r'(?:MERGE|CREATE)\s*\(\s*(\w+)\s*:\s*(\w+)')
 

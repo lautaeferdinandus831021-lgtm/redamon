@@ -1,4 +1,4 @@
-# RedAmon recon settings registry.
+# WhiteHat recon settings registry.
 #
 # The one hand-maintained description of every recon parameter. See README.md
 # beside this file for what belongs here and what stays in Prisma.
@@ -51,7 +51,7 @@ tools:
     phase: vuln_scan
     traffic: active
     enabled_key: "BADDNS_ENABLED"
-    image: "redamon-baddns:latest"
+    image: "whitehat-baddns:latest"
     module: "recon.main_recon_modules.subdomain_takeover"
     partial_recon_module: "vulnerability_scanning"
     form_section: "TakeoverSection"
@@ -603,7 +603,7 @@ tools:
     phase: standalone
     traffic: active
     enabled_key: "WEB_CACHE_POISON_ENABLED"
-    image: "redamon-wcvs:latest"
+    image: "whitehat-wcvs:latest"
     partial_recon_module: "cache_scanning"
     form_section: "WebCachePoisonSection"
     produces: ["Vulnerability"]
@@ -1486,7 +1486,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   amassEnabled:
     tool: amass
     runtime_key: "AMASS_ENABLED"
@@ -1704,7 +1704,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   baddnsEnabled:
     tool: baddns
     runtime_key: "BADDNS_ENABLED"
@@ -2685,7 +2685,7 @@ fields:
       The container image spawned for gau. Any value outside the shipped allowlist
       is silently pinned back to the default at scan start, with a [guardrail]
       line recording it, so the field is open and the runtime is the control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   gauEnabled:
     tool: gau
     runtime_key: "GAU_ENABLED"
@@ -2847,7 +2847,7 @@ fields:
       The container image spawned for gau. Any value outside the shipped allowlist
       is silently pinned back to the default at scan start, with a [guardrail]
       line recording it, so the field is open and the runtime is the control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   gauVerifyRateLimit:
     tool: gau
     runtime_key: "GAU_VERIFY_RATE_LIMIT"
@@ -3092,7 +3092,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   graphqlCopEnabled:
     tool: graphql_cop
     runtime_key: "GRAPHQL_COP_ENABLED"
@@ -3515,7 +3515,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   hakrawlerEnabled:
     tool: hakrawler
     runtime_key: "HAKRAWLER_ENABLED"
@@ -3694,7 +3694,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   httpxEnabled:
     tool: httpx
     runtime_key: "HTTPX_ENABLED"
@@ -4729,7 +4729,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   jsluiceVerifyRateLimit:
     tool: jsluice
     runtime_key: "JSLUICE_VERIFY_RATE_LIMIT"
@@ -4835,7 +4835,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   katanaEnabled:
     tool: katana
     runtime_key: "KATANA_ENABLED"
@@ -5461,7 +5461,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   naabuEnabled:
     tool: naabu
     runtime_key: "NAABU_ENABLED"
@@ -5856,7 +5856,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   nucleiEnabled:
     tool: nuclei
     runtime_key: "NUCLEI_ENABLED"
@@ -6454,7 +6454,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   purednsEnabled:
     tool: puredns
     runtime_key: "PUREDNS_ENABLED"
@@ -8113,7 +8113,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   subfinderEnabled:
     tool: subfinder
     runtime_key: "SUBFINDER_ENABLED"
@@ -8664,7 +8664,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   tlsxEnabled:
     tool: tlsx
     runtime_key: "TLSX_ENABLED"
@@ -9052,7 +9052,7 @@ fields:
       allowlist is silently pinned back to the default at scan start, with a
       [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   uncoverEnabled:
     tool: uncover
     runtime_key: "UNCOVER_ENABLED"
@@ -9614,7 +9614,7 @@ fields:
       shipped allowlist is silently pinned back to the default at scan start, with
       a [guardrail] line recording it, so the field is open and the runtime is the
       control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   webCachePoisonEnabled:
     tool: web_cache_poison
     runtime_key: "WEB_CACHE_POISON_ENABLED"
@@ -9793,7 +9793,7 @@ fields:
       The container image spawned for zap. Any value outside the shipped allowlist
       is silently pinned back to the default at scan start, with a [guardrail]
       line recording it, so the field is open and the runtime is the control.
-    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "redamon-baddns:latest", "redamon-wcvs:latest", "sxcurity/gau:latest"]
+    values: ["caffix/amass:latest", "dolevf/graphql-cop:1.14", "frost19k/puredns:latest", "ghcr.io/zaproxy/zaproxy:stable", "jauderho/hakrawler:latest", "projectdiscovery/httpx:latest", "projectdiscovery/katana:latest", "projectdiscovery/naabu:latest", "projectdiscovery/nuclei:latest", "projectdiscovery/subfinder:latest", "projectdiscovery/tlsx:latest", "projectdiscovery/uncover:latest", "whitehat-baddns:latest", "whitehat-wcvs:latest", "sxcurity/gau:latest"]
   zapAjaxSpiderEnabled:
     tool: zap
     runtime_key: "ZAP_AJAX_SPIDER_ENABLED"
@@ -10280,7 +10280,7 @@ runtime_only:
     roe_capped: false
     meaning: >-
       The OUTBOUND MCP servers the agent may connect to, configured on the user
-      account rather than the project. Not to be confused with RedAmon's own
+      account rather than the project. Not to be confused with WhiteHat's own
       inbound MCP server, which external agents connect to.
   VIEWDNS_API_KEY:
     source: user_account

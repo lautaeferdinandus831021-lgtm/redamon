@@ -1,11 +1,11 @@
 ---
 name: BloodHound Path-to-DA
-description: Reference for BloodHound + bhgraph (RedAmon NetworkX path-finder) covering collection, ownership marking, path-to-DA queries, edge-walk recipes per BloodHound edge type, and saturation strategy.
+description: Reference for BloodHound + bhgraph (WhiteHat NetworkX path-finder) covering collection, ownership marking, path-to-DA queries, edge-walk recipes per BloodHound edge type, and saturation strategy.
 ---
 
 # BloodHound Path-to-DA Playbook
 
-Reference for the RedAmon-specific `bhgraph` workflow: BloodHound JSON collection -> NetworkX in-memory graph -> path-to-DA queries -> edge-walk execution -> re-saturation. Pull this in when you have ANY valid domain credential and want a focused path-finder reference, separate from the broader `/skill ad_kill_chain`.
+Reference for the WhiteHat-specific `bhgraph` workflow: BloodHound JSON collection -> NetworkX in-memory graph -> path-to-DA queries -> edge-walk execution -> re-saturation. Pull this in when you have ANY valid domain credential and want a focused path-finder reference, separate from the broader `/skill ad_kill_chain`.
 
 > Black-box scope: probes drive the DC via `bloodhound-python` for collection and `bhgraph` for analysis (both pre-installed in `kali_shell`). No Neo4j required -- bhgraph runs in-memory over BloodHound's JSON output.
 
@@ -14,7 +14,7 @@ Reference for the RedAmon-specific `bhgraph` workflow: BloodHound JSON collectio
 | Action | Tool | Notes |
 |---|---|---|
 | BloodHound collection | `kali_shell bloodhound-python` | Generates ZIP files of BloodHound JSON. |
-| Graph load + state | `kali_shell bhgraph load` | RedAmon-specific NetworkX path-finder over BloodHound JSON. |
+| Graph load + state | `kali_shell bhgraph load` | WhiteHat-specific NetworkX path-finder over BloodHound JSON. |
 | Path-finding queries | `kali_shell bhgraph <subcommand>` | Stateful; `path-to-da`, `kerberoastable`, etc. |
 | Edge-walk execution | `kali_shell` (impacket / bloodyAD / certipy / nxc) | One tool per edge type (table below). |
 | Mark ownership | `kali_shell bhgraph own` | After every successful credential capture. |

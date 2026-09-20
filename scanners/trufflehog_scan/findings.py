@@ -1,4 +1,4 @@
-"""Normalise raw TruffleHog JSONL results into RedAmon's finding shape.
+"""Normalise raw TruffleHog JSONL results into WhiteHat's finding shape.
 
 Two jobs, both of which fail silently when wrong:
 
@@ -42,7 +42,7 @@ VALIDATION_STATUSES = (VALIDATED, UNVALIDATED, VERIFY_ERROR, UNVERIFIED)
 
 
 def validation_status(result: dict, verification_enabled: bool = True) -> str:
-    """Map one raw TruffleHog result to a RedAmon validation status.
+    """Map one raw TruffleHog result to a WhiteHat validation status.
 
     ``verification_enabled`` is the scan-level switch (Appendix C). When it is
     off, nothing was checked, so every finding is ``unverified`` regardless of

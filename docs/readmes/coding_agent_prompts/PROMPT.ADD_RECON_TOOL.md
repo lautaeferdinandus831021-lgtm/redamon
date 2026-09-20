@@ -1,6 +1,6 @@
 # NEW TOOL IN RECON PIPELINE
 
-Integrate **[TOOL_NAME]** into the RedAmon recon pipeline.
+Integrate **[TOOL_NAME]** into the WhiteHat recon pipeline.
 
 ### Critical Rules
 
@@ -145,7 +145,7 @@ Integrate **[TOOL_NAME]** into the RedAmon recon pipeline.
 - [ ] **If the tool writes a *finding* node** (something a person can mute), add its label to `MUTEABLE_FINDING_LABELS` in `webapp/src/lib/mcp/findingLabels.ts`, keeping it in sync with `MUTEABLE_LABELS` in `graph_db/mixins/recon/triage_mixin.py` and `MUTEABLE` in `webapp/src/lib/muteEnforcement.test.ts`. **Nothing fails if you skip this.** The label is simply absent from `list_findings`, `list_muted_findings` and the stale count in `graph_summary`, so an external agent is told a clean bill of health for findings that exist. On a security surface a silent false negative is worse than an error, which is why this one is called out despite having no test behind it.
 - [ ] Docker image added to `recon/entrypoint.sh` IMAGES array (if Docker-based)
 - [ ] Docker image setting (e.g. `TOOL_DOCKER_IMAGE`) in `DEFAULT_SETTINGS` (if Docker-based)
-- [ ] Temp files in `/tmp/redamon/`, cleaned up in `finally` block
+- [ ] Temp files in `/tmp/whitehat/`, cleaned up in `finally` block
 - [ ] Frontend section component in `webapp/src/components/projects/ProjectForm/sections/`
 - [ ] Section imported and rendered in `ProjectForm.tsx` under the correct tab
 - [ ] Section exported from `sections/index.ts`

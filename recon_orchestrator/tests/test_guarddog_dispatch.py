@@ -8,7 +8,7 @@ and the container spawned with the hardened, secret-free flags.
 These build a ContainerManager without __init__ (no docker.from_env) and stub
 self.client, so nothing real is spawned.
 
-Run: docker exec redamon-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_guarddog_dispatch -v'
+Run: docker exec whitehat-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_guarddog_dispatch -v'
 """
 
 import json
@@ -21,8 +21,8 @@ from container_manager import ContainerManager
 def _mgr(client):
     m = ContainerManager.__new__(ContainerManager)
     m.client = client
-    m.supply_chain_analyzer_image = "redamon-supply-chain-analyzer:latest"
-    m.supply_chain_analyzer_network = "redamon-supply-chain-net"
+    m.supply_chain_analyzer_image = "whitehat-supply-chain-analyzer:latest"
+    m.supply_chain_analyzer_network = "whitehat-supply-chain-net"
     m.supply_chain_analyzer_mem = "1500m"
     m.supply_chain_analyzer_nanocpus = 2_000_000_000
     m.supply_chain_analyzer_pids = 512

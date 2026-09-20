@@ -1,6 +1,6 @@
 """Unit tests for the supply-chain incident-intel sync (Step 0 writer).
 
-Section: root-agent. Runs inside the redamon-agent image, where
+Section: root-agent. Runs inside the whitehat-agent image, where
 /repo/scanners is on PYTHONPATH.
 
 No network: every test drives `sync_intel` through an injected fetcher.
@@ -546,7 +546,7 @@ class TestFetchLimits(unittest.TestCase):
 class TestConcurrentWriterCorruptionRegression(unittest.TestCase):
     """F1: two writers shared one temp path and could splice a table.
 
-    `redamon.sh sca-intel-sync --force` skips the TTL AND the retry floor, and
+    `whitehat.sh sca-intel-sync --force` skips the TTL AND the retry floor, and
     the orchestrator's serialising lock is per-process, so an operator sync can
     land on top of a scan-triggered refresh. With a fixed `<name>.tmp` both
     opened the same path, truncated it and interleaved writes. The surviving

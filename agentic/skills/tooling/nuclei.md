@@ -9,7 +9,7 @@ Reference for template selection, throughput limits, OAST handling, and structur
 
 Upstream: https://docs.projectdiscovery.io/opensource/nuclei/running
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|
@@ -107,7 +107,7 @@ execute_nuclei args: "-l /tmp/openapi.yaml -im openapi -as -j -o /tmp/nuclei_api
 
 ### Captured traffic (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, `-im burp` (alongside `-im openapi/swagger`) lets Nuclei consume captured traffic as input: build the target/URL list from redamon.sitemap (distinct observed endpoints) and redamon.search (filtered txns) rather than re-crawling. After a run, cross-check each finding's matched-at URL against what was actually captured with redamon.grep (substring over response bodies) and redamon.query, confirming the hit without re-running the tool.
+When HTTP Traffic Capture is enabled, `-im burp` (alongside `-im openapi/swagger`) lets Nuclei consume captured traffic as input: build the target/URL list from whitehat.sitemap (distinct observed endpoints) and whitehat.search (filtered txns) rather than re-crawling. After a run, cross-check each finding's matched-at URL against what was actually captured with whitehat.grep (substring over response bodies) and whitehat.query, confirming the hit without re-running the tool.
 
 ## Throughput tuning ladder
 

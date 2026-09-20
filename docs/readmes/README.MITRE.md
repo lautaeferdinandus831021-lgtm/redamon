@@ -1,10 +1,10 @@
-# RedAmon - MITRE CWE/CAPEC Enrichment Module
+# WhiteHat - MITRE CWE/CAPEC Enrichment Module
 
 ## Complete Technical Documentation
 
 > **Module:** `recon/add_mitre.py` (automatically called by `vuln_scan`)
 > **Purpose:** Enrich CVE data with CWE weaknesses and CAPEC attack patterns
-> **Author:** RedAmon Security Suite
+> **Author:** WhiteHat Security Suite
 
 **Note:** MITRE CWE/CAPEC enrichment is automatically integrated into the `vuln_scan` module.
 When you run `vuln_scan`, all discovered CVEs are automatically enriched with CWE weaknesses and CAPEC attack patterns.

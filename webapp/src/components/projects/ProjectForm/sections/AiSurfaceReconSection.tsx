@@ -98,7 +98,7 @@ export function AiSurfaceReconSection({ data, updateField, onRun }: AiSurfaceRec
                   <input
                     type="text"
                     className="textInput"
-                    value={data.aiSurfaceReconUserAgent ?? 'RedAmon-AISurfaceRecon/1.0'}
+                    value={data.aiSurfaceReconUserAgent ?? 'WhiteHat-AISurfaceRecon/1.0'}
                     onChange={(e) => updateField('aiSurfaceReconUserAgent', e.target.value)}
                   />
                   <span className={styles.fieldHint}>UA string sent on every probe</span>

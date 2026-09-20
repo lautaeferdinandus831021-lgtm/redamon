@@ -20,7 +20,7 @@ let mockCookieValue: string | undefined = undefined
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => ({
     get: (name: string) => {
-      if (name === 'redamon-auth' && mockCookieValue) {
+      if (name === 'whitehat-auth' && mockCookieValue) {
         return { value: mockCookieValue }
       }
       return undefined

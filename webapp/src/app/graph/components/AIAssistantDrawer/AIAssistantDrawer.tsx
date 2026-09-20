@@ -46,7 +46,7 @@ import { ApiKeyModal } from './ApiKeyModal'
 import type { AIAssistantDrawerProps } from './types'
 
 // Persisted drawer width (per-user via localStorage)
-const WIDTH_STORAGE_KEY = 'redamon-ai-assistant-drawer-width'
+const WIDTH_STORAGE_KEY = 'whitehat-ai-assistant-drawer-width'
 const DEFAULT_WIDTH_PX = 672
 const MIN_WIDTH_PX = 360
 const MAX_WIDTH_PX = 1400

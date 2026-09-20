@@ -77,7 +77,7 @@ describe('ProjectProvider impersonation wiring', () => {
   })
 
   test('admin restoring impersonation from localStorage: POSTs act-as + effective id = target', async () => {
-    localStorage.setItem('redamon-current-user', 'userX')
+    localStorage.setItem('whitehat-current-user', 'userX')
     mockAuth = { user: { id: 'admin' }, isLoading: false, isAdmin: true }
     render(<ProjectProvider><Consumer /></ProjectProvider>)
     await waitFor(() =>
@@ -94,7 +94,7 @@ describe('ProjectProvider impersonation wiring', () => {
   })
 
   test('GATE: the project fetch happens AFTER the act-as reconcile (no race)', async () => {
-    localStorage.setItem('redamon-current-user', 'userX')
+    localStorage.setItem('whitehat-current-user', 'userX')
     searchParamsStr = 'project=P1'
     mockAuth = { user: { id: 'admin' }, isLoading: false, isAdmin: true }
     render(<ProjectProvider><Consumer /></ProjectProvider>)
@@ -110,7 +110,7 @@ describe('ProjectProvider impersonation wiring', () => {
   // effective user. Reads then returned an empty list and the first WRITE died on
   // the user_id foreign key as an opaque 500 ("Failed to save provider").
   test('admin restoring a DELETED target: falls back to own id and forgets it', async () => {
-    localStorage.setItem('redamon-current-user', 'ghost')
+    localStorage.setItem('whitehat-current-user', 'ghost')
     mockAuth = { user: { id: 'admin' }, isLoading: false, isAdmin: true }
     vi.stubGlobal('fetch', vi.fn(async (url: unknown, opts?: RequestInit) => {
       const u = String(url)
@@ -124,7 +124,7 @@ describe('ProjectProvider impersonation wiring', () => {
     render(<ProjectProvider><Consumer /></ProjectProvider>)
 
     await waitFor(() => expect(screen.getByTestId('userId').textContent).toBe('admin'))
-    expect(localStorage.getItem('redamon-current-user')).toBeNull()
+    expect(localStorage.getItem('whitehat-current-user')).toBeNull()
     expect(actAsCalls().some(c => c.method === 'DELETE')).toBe(true)
   })
 
@@ -146,7 +146,7 @@ describe('ProjectProvider impersonation wiring', () => {
     await waitFor(() =>
       expect(actAsCalls().some(c => c.method === 'POST' && c.body.includes('userX'))).toBe(true),
     )
-    await waitFor(() => expect(localStorage.getItem('redamon-current-user')).toBeNull())
+    await waitFor(() => expect(localStorage.getItem('whitehat-current-user')).toBeNull())
     expect(screen.getByTestId('userId').textContent).toBe('admin')
   })
 

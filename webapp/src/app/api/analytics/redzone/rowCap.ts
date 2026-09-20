@@ -9,7 +9,7 @@
  * Read lazily rather than captured at module load so the value can be lowered
  * per-process (small hosts, tests) without an import-order dance:
  *
- *   REDAMON_REDZONE_ROW_CAP=5000 docker compose up -d webapp
+ *   WHITEHAT_REDZONE_ROW_CAP=5000 docker compose up -d webapp
  *
  * Sizing note: the webapp container is capped at 1g (docker-compose.yml,
  * `mem_limit: ${WEBAPP_MEM:-1g}`) and the Neo4j driver buffers a whole result
@@ -44,7 +44,7 @@ const MAX_ROW_CAP = 10_000_000
  * default rather than guessing.
  */
 export function rowCap(): number {
-  const parsed = Math.floor(Number(process.env.REDAMON_REDZONE_ROW_CAP))
+  const parsed = Math.floor(Number(process.env.WHITEHAT_REDZONE_ROW_CAP))
   if (!Number.isSafeInteger(parsed) || parsed < 1) return REDZONE_ROW_CAP
   return Math.min(parsed, MAX_ROW_CAP)
 }

@@ -87,7 +87,7 @@ logger = get_logger(__name__)
 # =========================================================================
 
 CACHE_ROOT_DEFAULT = "/app/tradecraft_cache"
-USER_AGENT = "RedAmon-Tradecraft/1.0"
+USER_AGENT = "WhiteHat-Tradecraft/1.0"
 
 DEFAULT_TTLS_BY_TYPE: Dict[str, int] = {
     "mkdocs-wiki": 7 * 86400,

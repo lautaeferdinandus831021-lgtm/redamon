@@ -1,5 +1,5 @@
 """
-RedAmon - MITRE CWE/CAPEC Enrichment Module
+WhiteHat - MITRE CWE/CAPEC Enrichment Module
 ===========================================
 Enriches CVE data with CWE weaknesses and CAPEC attack patterns.
 
@@ -1075,7 +1075,7 @@ def run_mitre_enrichment(recon_data: Dict = None, output_file: Path = None, sett
     auto_update = settings.get('MITRE_AUTO_UPDATE_DB', DEFAULT_MITRE_SETTINGS['MITRE_AUTO_UPDATE_DB'])
 
     print("\n" + "=" * 60)
-    print("[*][MITRE] RedAmon - CWE/CAPEC Enrichment")
+    print("[*][MITRE] WhiteHat - CWE/CAPEC Enrichment")
     print("=" * 60)
 
     from recon.helpers import print_effective_settings
@@ -1171,7 +1171,7 @@ def enrich_gvm_file(gvm_file: Path, settings: Optional[Dict] = None) -> Dict:
         return None
 
     print("\n" + "=" * 60)
-    print("[*][MITRE] RedAmon - CWE/CAPEC Enrichment (GVM)")
+    print("[*][MITRE] WhiteHat - CWE/CAPEC Enrichment (GVM)")
     print("=" * 60)
     print(f"[*][MITRE] File: {gvm_file}")
     print(f"[*][MITRE] Auto Update DB: {auto_update}")

@@ -28,8 +28,8 @@ excludes(){ if echo "$2" | grep -q "$3"; then bad "$1 (LEAKED '$3')"; else ok "$
 login(){ curl -s -o /dev/null -c "$2" -X POST "$BASE/api/auth/login" -H 'Content-Type: application/json' -d "{\"email\":\"$1\",\"password\":\"e2epass123\"}"; }
 gbody(){ curl -s -b "$1" "$BASE$2"; }
 gcode(){ curl -s -o /dev/null -w '%{http_code}' -b "$1" "$BASE$2"; }
-idx_count(){ $DC exec -T postgres psql -U redamon -d redamon -tAc "SELECT count(*) FROM pg_indexes WHERE tablename='captured_http_transactions' AND indexname LIKE 'idx_cht_%_trgm';" | tr -d '\r\n '; }
-wait_health(){ for i in $(seq 1 20); do sleep 3; [ "$(docker inspect -f '{{.State.Health.Status}}' redamon-webapp 2>/dev/null)" = healthy ] && return 0; done; return 1; }
+idx_count(){ $DC exec -T postgres psql -U whitehat -d whitehat -tAc "SELECT count(*) FROM pg_indexes WHERE tablename='captured_http_transactions' AND indexname LIKE 'idx_cht_%_trgm';" | tr -d '\r\n '; }
+wait_health(){ for i in $(seq 1 20); do sleep 3; [ "$(docker inspect -f '{{.State.Health.Status}}' whitehat-webapp 2>/dev/null)" = healthy ] && return 0; done; return 1; }
 
 echo "== Enable FTS: recreate webapp with CAPTURE_PROXY_FTS=true =="
 CAPTURE_PROXY_FTS=true $DC up -d webapp >/dev/null 2>&1
@@ -40,7 +40,7 @@ echo "== Seed + ingest bodies =="
 SEED="$($DC exec -T webapp node scripts/e2e-bola-seed.mjs)" || { echo "seed failed"; exit 1; }
 eval "$SEED"
 login bola-a@e2e.local "$TMP/a.jar"
-$DC exec -T postgres psql -U redamon -d redamon -tAc "UPDATE projects SET capture_proxy_enabled=true WHERE id='$PA_ID';" >/dev/null
+$DC exec -T postgres psql -U whitehat -d whitehat -tAc "UPDATE projects SET capture_proxy_enabled=true WHERE id='$PA_ID';" >/dev/null
 ING='{"source":"recon","runId":"ttest-fts","transactions":['
 ING+='{"tool":"httpx","host":"leak.test","scheme":"https","port":443,"path":"/a","method":"GET","statusCode":200,"respHeaders":{},"respBody":"config aws_key=AKIAIOSFODNN7EXAMPLE oops","respBodySize":30,"startedAt":"2026-07-19T10:00:00Z"},'
 ING+='{"tool":"httpx","host":"err.test","scheme":"https","port":443,"path":"/b","method":"GET","statusCode":500,"respHeaders":{},"respBody":"java.lang.NullPointerException at com.foo.Bar","respBodySize":40,"startedAt":"2026-07-19T10:00:00Z"},'

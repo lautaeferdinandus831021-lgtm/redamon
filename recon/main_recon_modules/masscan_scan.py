@@ -1,5 +1,5 @@
 """
-RedAmon - Masscan Port Scanner Module
+WhiteHat - Masscan Port Scanner Module
 
 High-speed SYN port scanning for large networks and IP ranges.
 Runs as a native binary (built into the recon container) for simplicity.
@@ -401,7 +401,7 @@ def run_masscan_scan(recon_data: dict, output_file: Path = None, settings: dict 
 
     print(f"[*][Masscan] Total IP targets: {len(all_targets)}")
 
-    scan_temp_dir = Path(tempfile.mkdtemp(prefix="redamon_masscan_"))
+    scan_temp_dir = Path(tempfile.mkdtemp(prefix="whitehat_masscan_"))
 
     try:
         # Write targets

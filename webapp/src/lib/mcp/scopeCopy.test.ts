@@ -139,11 +139,11 @@ describe('the grouping', () => {
 describe('wiki anchors resolve', () => {
   const WIKI_DIR =
     process.env.MCP_DOCS_WIKI_DIR ||
-    fileURLToPath(new URL('../../../../redamon.wiki/', import.meta.url))
+    fileURLToPath(new URL('../../../../whitehat.wiki/', import.meta.url))
 
   /**
    * A real checkout, not merely the directory: the main repo records the wiki as
-   * a submodule pointer, so a fresh clone leaves redamon.wiki/ EMPTY and every
+   * a submodule pointer, so a fresh clone leaves whitehat.wiki/ EMPTY and every
    * anchor would read as broken.
    */
   const hasWiki = () => existsSync(path.join(WIKI_DIR, 'Home.md'))

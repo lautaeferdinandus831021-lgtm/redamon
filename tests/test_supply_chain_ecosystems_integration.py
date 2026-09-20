@@ -5,7 +5,7 @@ languages, and every copy has to agree EXACTLY (recon compares the stored value
 to the harvested ecosystem with `in`, so casing is load-bearing):
 
   * webapp  SUPPLY_CHAIN_ECOSYSTEMS   - the multi-select the user clicks
-  * python  SEED_MANIFESTS            - what ./redamon.sh supply-chain-sync can
+  * python  SEED_MANIFESTS            - what ./whitehat.sh supply-chain-sync can
                                         actually populate offline
   * python  DEFAULT_SETTINGS          - the recon-side fallback
   * prisma  @default                  - what every new project gets

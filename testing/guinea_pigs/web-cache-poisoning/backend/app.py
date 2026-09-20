@@ -1,5 +1,5 @@
 """
-Guinea-pig backend for the RedAmon Web Cache Poisoning (WCP) module.
+Guinea-pig backend for the WhiteHat Web Cache Poisoning (WCP) module.
 
 A deliberately vulnerable origin server. It sits behind the nginx cache
 (see ../nginx/default.conf) and produces responses that exercise EVERY step of
@@ -98,7 +98,7 @@ def index() -> Response:
     html = (
         "<!doctype html><html><head><meta charset='utf-8'>"
         "<title>WCP Guinea Pig</title></head><body>"
-        "<h1>RedAmon Web Cache Poisoning Guinea Pig</h1>"
+        "<h1>WhiteHat Web Cache Poisoning Guinea Pig</h1>"
         "<p>Deliberately vulnerable targets for end-to-end validation of the WCP module. "
         "Every link below is a crawlable endpoint mapped to a pipeline step.</p>\n"
         f"{body}\n"
@@ -269,7 +269,7 @@ def o_silent() -> Response:
 
 # =========================================================================== #
 # STEP 4 (reflected) — REFLECTED POISONING.  The injected header value (the
-# module's benign canary, e.g. <token>.redamon-poc.invalid) is echoed into the
+# module's benign canary, e.g. <token>.whitehat-poc.invalid) is echoed into the
 # response.  Cacheable -> the poisoned response is stored for the next visitor.
 # =========================================================================== #
 @page("/poison/xfh-redirect", "4 · Reflected -> open_redirect", "X-Forwarded-Host reflected into Location (302)")

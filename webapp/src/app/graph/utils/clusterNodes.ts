@@ -58,7 +58,7 @@ function linkEndpointId(endpoint: string | GraphNode): string {
 
 /**
  * Pick an adaptive clustering threshold that scales down as the graph grows.
- * Tuned on real RedAmon graphs where 700 Endpoints × 4 Headers each fail the
+ * Tuned on real WhiteHat graphs where 700 Endpoints × 4 Headers each fail the
  * default threshold of 30 but explode the node count.
  */
 function adaptiveThreshold(nodeCount: number): number {
@@ -270,7 +270,7 @@ function buildClusteredGraph(
 /**
  * Main entry: run the clustering pipeline.
  *
- * Strategy (calibrated on real RedAmon graphs):
+ * Strategy (calibrated on real WhiteHat graphs):
  *   1. Adaptive-threshold leaf clustering, cascaded until stable. Catches
  *      Headers-per-Endpoint, Parameters-per-Endpoint, DNS records, etc.
  *      Cascading matters: after Headers cluster, their parent Endpoints lose

@@ -1,6 +1,6 @@
 """
 proxy_brain guinea pig — a deliberately vulnerable web app for end-to-end
-validation of the agent's proxy_brain / redamon.* capabilities.
+validation of the agent's proxy_brain / whitehat.* capabilities.
 
 Each route maps to a technique in mcp/servers/proxy_brain_manual.md:
   IDOR/BOLA        GET  /api/invoice/<id>       (no owner check)

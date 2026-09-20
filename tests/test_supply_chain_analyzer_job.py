@@ -322,7 +322,7 @@ class TestAnalyzerArgvHardening(unittest.TestCase):
     flags that make the DIRTY zone safe."""
 
     def argv(self, **kw):
-        return ad.analyzer_docker_argv("/tmp/redamon/j", "/host/sc_common", **kw)
+        return ad.analyzer_docker_argv("/tmp/whitehat/j", "/host/sc_common", **kw)
 
     def test_drops_all_capabilities(self):
         a = self.argv()
@@ -395,9 +395,9 @@ class TestAnalyzerArgvHardening(unittest.TestCase):
     def test_regression_never_falls_back_to_dockers_shared_default_bridge(self):
         """REGRESSION: with no --network, docker puts the container on its
         DEFAULT bridge - shared by every container that does not ask for one, so
-        the analyzer could reach RedAmon peers. The whole point of the dedicated
+        the analyzer could reach WhiteHat peers. The whole point of the dedicated
         network (README.TM.SYSTEM_OVERVIEW.md, CodeFix-sandbox pattern) is that
-        NO RedAmon service is attached to it."""
+        NO WhiteHat service is attached to it."""
         for kw in ({}, {"allow_registry_egress": True}):
             a = self.argv(**kw)
             self.assertIn("--network", a)
@@ -454,8 +454,8 @@ class TestNetworkCreationAgreesWithTheOrchestrator(unittest.TestCase):
     def test_network_name_matches_the_orchestrator_default(self):
         src = open(os.path.join(_REPO, "recon_orchestrator",
                                 "container_manager.py")).read()
-        self.assertIn('"SUPPLY_CHAIN_ANALYZER_NETWORK", "redamon-supply-chain-net"', src)
-        self.assertEqual(ad.ANALYZER_NETWORK, "redamon-supply-chain-net")
+        self.assertIn('"SUPPLY_CHAIN_ANALYZER_NETWORK", "whitehat-supply-chain-net"', src)
+        self.assertEqual(ad.ANALYZER_NETWORK, "whitehat-supply-chain-net")
 
     def test_existing_network_is_not_recreated(self):
         calls = []

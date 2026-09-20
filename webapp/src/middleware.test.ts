@@ -36,7 +36,7 @@ function makeRequest(
   const url = `http://localhost:3000${path}`
   const headers = new Headers(options.headers || {})
   if (options.cookie) {
-    headers.set('cookie', `redamon-auth=${options.cookie}`)
+    headers.set('cookie', `whitehat-auth=${options.cookie}`)
   }
   return new NextRequest(url, { headers })
 }

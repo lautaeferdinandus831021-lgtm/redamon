@@ -1,5 +1,5 @@
 """
-RedAmon Attack Skill Classification Prompt
+WhiteHat Attack Skill Classification Prompt
 
 LLM-based classification of user intent to select the appropriate attack skill and phase.
 Determines both the attack methodology AND the required phase (informational/exploitation).

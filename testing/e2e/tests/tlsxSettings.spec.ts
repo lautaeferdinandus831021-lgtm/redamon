@@ -5,7 +5,7 @@ import { mintToken, signIn } from './auth'
  * Every tlsx setting, driven through the real settings UI and verified twice:
  * in the PUT the form actually sends, and by reading the row back.
  *
- * Why a browser test for a settings form: a RedAmon setting spans five layers
+ * Why a browser test for a settings form: a WhiteHat setting spans five layers
  * (Prisma column, the Python defaults dict, the fetch mapping, /defaults, and
  * the form's onChange). A mismatch in any one leaves the control visibly
  * working while the value never reaches the database, and no unit test in
@@ -19,8 +19,8 @@ import { mintToken, signIn } from './auth'
  *   cd testing/e2e && npx playwright test tlsxSettings
  */
 
-const PROJECT = process.env.REDAMON_PROJECT || '3a2435862fc24f2eaf71062fc'
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROJECT = process.env.WHITEHAT_PROJECT || '3a2435862fc24f2eaf71062fc'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 
 /** Label text -> Prisma field, for the "Deeper probes (louder OPSEC)" block. */
 const PROBES: Record<string, string> = {
@@ -45,15 +45,15 @@ const NON_DEFAULT: Record<string, unknown> = {
   tlsxRevPtrSni: true,
 }
 
-const cookie = () => ({ cookie: `redamon-auth=${mintToken(USER)}` })
+const cookie = () => ({ cookie: `whitehat-auth=${mintToken(USER)}` })
 
 test.beforeEach(async ({ context, baseURL }) => {
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
 })
 

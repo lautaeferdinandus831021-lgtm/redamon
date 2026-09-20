@@ -289,7 +289,7 @@ class TestRunUncoverExpansionIsolated(unittest.TestCase):
 
     @patch('uncover_enrich.subprocess.run')
     @patch('uncover_enrich.os.path.isfile', return_value=True)
-    @patch('uncover_enrich.tempfile.mkdtemp', return_value='/tmp/redamon/test_iso')
+    @patch('uncover_enrich.tempfile.mkdtemp', return_value='/tmp/whitehat/test_iso')
     @patch('uncover_enrich.os.makedirs')
     @patch('uncover_enrich.shutil.rmtree')
     def test_returns_uncover_data(self, mock_rmtree, mock_makedirs,
@@ -327,7 +327,7 @@ class TestRunUncoverExpansionReturnFields(unittest.TestCase):
 
     @patch('uncover_enrich.subprocess.run')
     @patch('uncover_enrich.os.path.isfile', return_value=True)
-    @patch('uncover_enrich.tempfile.mkdtemp', return_value='/tmp/redamon/test_fields')
+    @patch('uncover_enrich.tempfile.mkdtemp', return_value='/tmp/whitehat/test_fields')
     @patch('uncover_enrich.os.makedirs')
     @patch('uncover_enrich.shutil.rmtree')
     def test_result_contains_all_expected_keys(self, mock_rmtree, mock_makedirs,

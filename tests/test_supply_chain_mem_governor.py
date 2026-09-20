@@ -5,7 +5,7 @@ the DIRTY analyzer (retire.js / GuardDog / osv over hostile bytes). That sibling
 is created from three different processes, and only one of them (the
 orchestrator) can import container_manager. The result was a security-sensitive
 sandbox whose memory ceiling was a hardcoded "1500m" on two of the three paths -
-the one container in RedAmon that never shrank on a starved host.
+the one container in WhiteHat that never shrank on a starved host.
 
 These tests pin the pieces that keep the three paths honest:
   * the analyzer's ceiling comes from ONE governed source, not a literal
@@ -82,7 +82,7 @@ def _memory_flag(argv):
 
 
 class SupplyChainGovBase(unittest.TestCase):
-    ENV = ("REDAMON_MEM_GOVERNOR", "SUPPLY_CHAIN_ANALYZER_MEM",
+    ENV = ("WHITEHAT_MEM_GOVERNOR", "SUPPLY_CHAIN_ANALYZER_MEM",
            "CONTAINER_CAP_HEADROOM", "PER_CONTAINER_MAX",
            "RESOURCE_PROFILE_PATH", "MEM_BUDGET_FRACTION")
 
@@ -97,7 +97,7 @@ class SupplyChainGovBase(unittest.TestCase):
         _reset_governors()
 
     def _argv(self, **kw):
-        return ad.analyzer_docker_argv("/tmp/redamon/job", "/host/sc_common", **kw)
+        return ad.analyzer_docker_argv("/tmp/whitehat/job", "/host/sc_common", **kw)
 
 
 class TestAnalyzerMemoryIsGoverned(SupplyChainGovBase):
@@ -108,7 +108,7 @@ class TestAnalyzerMemoryIsGoverned(SupplyChainGovBase):
 
     def test_shrinks_on_a_starved_host(self):
         """The regression this closes: the literal stayed at 1500m no matter how
-        little RAM the host had, while every other RedAmon container shrank."""
+        little RAM the host had, while every other WhiteHat container shrank."""
         _set_mem(2 * GB, 256 * 1024 ** 2)
         starved = int(_memory_flag(self._argv()))
         _set_mem(64 * GB, 32 * GB)
@@ -167,7 +167,7 @@ class TestAnalyzerMemoryIsGoverned(SupplyChainGovBase):
         self.assertEqual(_memory_flag(self._argv(mem="256m")), "256m")
 
     def test_governor_disabled_falls_back_to_the_legacy_literal(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "off"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "off"
         _set_mem(64 * GB, 32 * GB)
         self.assertEqual(_memory_flag(self._argv()), ad._DEFAULT_MEM)
 
@@ -352,8 +352,8 @@ class TestBlankEnvIsUnset(unittest.TestCase):
             reimported = importlib.reload(ad)
             try:
                 self.assertEqual(reimported.ANALYZER_IMAGE,
-                                 "redamon-supply-chain-analyzer:latest")
-                self.assertEqual(reimported.ANALYZER_NETWORK, "redamon-supply-chain-net")
+                                 "whitehat-supply-chain-analyzer:latest")
+                self.assertEqual(reimported.ANALYZER_NETWORK, "whitehat-supply-chain-net")
                 self.assertEqual(reimported._DEFAULT_PIDS, "512")
             finally:
                 importlib.reload(ad)  # restore the shared module for other tests

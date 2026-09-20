@@ -73,7 +73,7 @@ import { GlobalHeader } from './GlobalHeader'
 /* ------------------------------------------------------------------ */
 
 function getLogoLink() {
-  const imgs = screen.getAllByAltText('RedAmon')
+  const imgs = screen.getAllByAltText('WhiteHat')
   expect(imgs).toHaveLength(1)
   const anchor = imgs[0].closest('a')
   if (!anchor) throw new Error('Logo image is not wrapped in an anchor')
@@ -107,17 +107,17 @@ describe('GlobalHeader – logo link', () => {
 
   test('logo contains the brand image with correct src and alt', () => {
     render(<GlobalHeader />)
-    const img = screen.getByAltText('RedAmon')
+    const img = screen.getByAltText('WhiteHat')
     expect(img.getAttribute('src')).toBe('/logo.png')
     expect(img.getAttribute('width')).toBe('28')
     expect(img.getAttribute('height')).toBe('28')
   })
 
-  test('logo contains the "Red" accent and "Amon" text', () => {
+  test('logo contains the "White" accent and "Hat" text', () => {
     render(<GlobalHeader />)
     const logoLink = getLogoLink()
-    expect(logoLink.textContent).toContain('Red')
-    expect(logoLink.textContent).toContain('Amon')
+    expect(logoLink.textContent).toContain('White')
+    expect(logoLink.textContent).toContain('Hat')
   })
 
   test('logo link has the logo CSS class applied', () => {
@@ -154,7 +154,7 @@ describe('GlobalHeader – logo href is /graph on every route', () => {
 describe('GlobalHeader – structure', () => {
   test('exactly one logo image exists in the header', () => {
     render(<GlobalHeader />)
-    const imgs = screen.getAllByAltText('RedAmon')
+    const imgs = screen.getAllByAltText('WhiteHat')
     expect(imgs).toHaveLength(1)
   })
 

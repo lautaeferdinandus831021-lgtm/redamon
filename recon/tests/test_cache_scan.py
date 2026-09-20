@@ -243,12 +243,12 @@ class TestWcvsParser(unittest.TestCase):
 
     def test_command_isolation_flags(self):
         cmd = wcvs_runner.build_wcvs_command(
-            "/tmp/redamon/x/targets.txt", "/tmp/redamon/x", "redamon-wcvs:latest",
+            "/tmp/whitehat/x/targets.txt", "/tmp/whitehat/x", "whitehat-wcvs:latest",
             threads=8, skip_timebased=True, skip_tests=["dos"])
         self.assertIn("--net=host", cmd)
         self.assertIn("-gr", cmd)
         self.assertIn("-stime", cmd)
-        self.assertIn("redamon-wcvs:latest", cmd)
+        self.assertIn("whitehat-wcvs:latest", cmd)
         self.assertIn("-st", cmd)
 
     def test_command_rate_and_cache_header_flags(self):
@@ -461,8 +461,8 @@ class TestHypotheses(unittest.TestCase):
         self.assertEqual(confirm._payload_value("port", "tok"), "443")
         self.assertEqual(confirm._payload_value("ip", "tok"), "127.0.0.1")
         # Host stays a benign non-resolving canary, never CacheX's evil.com.
-        self.assertTrue(confirm._payload_value("host", "tok").endswith(".redamon-poc.invalid"))
-        self.assertIn(".redamon-poc.invalid", confirm._payload_value("forwarded", "tok"))
+        self.assertTrue(confirm._payload_value("host", "tok").endswith(".whitehat-poc.invalid"))
+        self.assertIn(".whitehat-poc.invalid", confirm._payload_value("forwarded", "tok"))
 
 
 class TestBuster(unittest.TestCase):
@@ -1001,7 +1001,7 @@ class TestScannerTargets(unittest.TestCase):
     def test_retry_session_config(self):
         s = scanner._build_retry_session()
         try:
-            self.assertEqual(s.headers["User-Agent"], "RedAmon-CachePoison/1.0")
+            self.assertEqual(s.headers["User-Agent"], "WhiteHat-CachePoison/1.0")
             adapter = s.get_adapter("https://x/")
             self.assertIn(429, adapter.max_retries.status_forcelist)
         finally:

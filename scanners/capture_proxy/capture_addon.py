@@ -1,11 +1,11 @@
 """
-redamon-capture-proxy — mitmdump addon (plan §11.1, §11.2).
+whitehat-capture-proxy — mitmdump addon (plan §11.1, §11.2).
 
 The target-facing, CREDENTIAL-FREE capture component. It runs `mitmdump -s
 capture_addon.py` on pentest-net. Responsibilities:
 
   request hook:
-    - lift the opaque `X-Redamon-Ctx` tag off the request and DELETE the header
+    - lift the opaque `X-WhiteHat-Ctx` tag off the request and DELETE the header
       so it never leaks to the target (§7.2). The proxy carries it verbatim; it
       holds NO signing key and never decodes/verifies it (that's traffic-ingest).
     - enforce the egress guard (§15.3, §20.5): resolve the host, refuse internal
@@ -97,7 +97,7 @@ def _recording_expired(expires_at) -> bool:
 
 def _num_env(name: str, default, cast):
     """Parse a numeric env var, falling back to `default` on missing/empty/garbage.
-    Kept fail-safe because this runs in RedamonCapture.__init__, which is OUTSIDE
+    Kept fail-safe because this runs in WhiteHatCapture.__init__, which is OUTSIDE
     the response-hook exception guard: a bad value here would crash-load the addon
     and silently kill all capture."""
     raw = os.environ.get(name)
@@ -109,8 +109,8 @@ def _num_env(name: str, default, cast):
         return default
 
 
-class RedamonCapture:
-    CTX_HEADER = "X-Redamon-Ctx"
+class WhiteHatCapture:
+    CTX_HEADER = "X-WhiteHat-Ctx"
 
     def __init__(self) -> None:
         self.spool_dir = os.environ.get("CAPTURE_SPOOL_DIR", "/spool")
@@ -220,7 +220,7 @@ class RedamonCapture:
             body_rules = parse_body_rules(os.environ.get("CAPTURE_BODY_RULES", ""))
             bsrc = "env"
 
-        # The RedAmon-service IP denylist is a SECURITY invariant, NOT a DB-tunable
+        # The WhiteHat-service IP denylist is a SECURITY invariant, NOT a DB-tunable
         # knob: it is ALWAYS sourced from env CAPTURE_BLOCKED_IPS and can never be
         # relaxed by the config file (egress.is_internal_ip enforces it un-gated).
         extra_blocked = [ip for ip in os.environ.get("CAPTURE_BLOCKED_IPS", "").split(",") if ip.strip()]
@@ -285,8 +285,8 @@ class RedamonCapture:
                     and _host_in_recording_scope(flow.request.pretty_host, ar.get("scope_hosts") or []):
                 token = ar["tag"]
 
-        flow.metadata["redamon_ctx"] = token
-        flow.metadata["redamon_started"] = time.time()
+        flow.metadata["whitehat_ctx"] = token
+        flow.metadata["whitehat_started"] = time.time()
 
         try:
             allowed, pinned_ip, reason = check_egress(
@@ -307,15 +307,15 @@ class RedamonCapture:
         if not allowed:
             # Refuse: do not forward. Record the attempt for the scope audit.
             print(f"[capture] BLOCKED {flow.request.pretty_host} ({reason})", flush=True)
-            flow.metadata["redamon_blocked"] = reason
+            flow.metadata["whitehat_blocked"] = reason
             flow.response = http.Response.make(
-                403, b"blocked by redamon capture proxy egress guard\n",
+                403, b"blocked by whitehat capture proxy egress guard\n",
                 {"Content-Type": "text/plain"},
             )
             self._emit_blocked(flow, reason)
             return
 
-        flow.metadata["redamon_pinned_ip"] = pinned_ip
+        flow.metadata["whitehat_pinned_ip"] = pinned_ip
         # Pin the upstream connection to the vetted IP so mitmproxy does NOT
         # re-resolve the hostname and get a rebound internal IP between the guard
         # check and the connection (DNS-rebinding TOCTOU, §20.5). We set the server
@@ -328,7 +328,7 @@ class RedamonCapture:
                 print(f"[capture] pin failed for {flow.request.pretty_host}: {e}", flush=True)
 
     def response(self, flow: http.HTTPFlow) -> None:
-        if flow.metadata.get("redamon_blocked"):
+        if flow.metadata.get("whitehat_blocked"):
             return  # already emitted in request hook
         try:
             self._emit(flow)
@@ -339,7 +339,7 @@ class RedamonCapture:
     def _emit_blocked(self, flow: http.HTTPFlow, reason: str) -> None:
         req_headers = normalize_headers(flow.request.headers.items(multi=True))
         rec = build_record(
-            ctx_token=flow.metadata.get("redamon_ctx"),
+            ctx_token=flow.metadata.get("whitehat_ctx"),
             method=flow.request.method, scheme=flow.request.scheme,
             host=flow.request.pretty_host, port=flow.request.port,
             path=flow.request.path.split("?", 1)[0],
@@ -382,13 +382,13 @@ class RedamonCapture:
         if sb_ref and resp_raw is not None:
             self._offload(sb_ref, resp_raw)
 
-        started = flow.metadata.get("redamon_started")
+        started = flow.metadata.get("whitehat_started")
         rt_ms = int((time.time() - started) * 1000) if started else None
         path = req.path.split("?", 1)[0]
         query = req.path.split("?", 1)[1] if "?" in req.path else ""
 
         rec = build_record(
-            ctx_token=flow.metadata.get("redamon_ctx"),
+            ctx_token=flow.metadata.get("whitehat_ctx"),
             method=req.method, scheme=req.scheme, host=req.pretty_host, port=req.port,
             path=path, query=query, req_headers=req_headers, resp_headers=resp_headers,
             status_code=resp.status_code if resp else None,
@@ -396,7 +396,7 @@ class RedamonCapture:
             resp_body_inline=sb_inline, resp_body_ref=sb_ref, resp_body_size=sb_size, resp_body_sha=sb_sha,
             http_version=getattr(resp, "http_version", None) if resp else None,
             is_tls=req.scheme == "https", tls_version=None,
-            target_ip=flow.metadata.get("redamon_pinned_ip"),
+            target_ip=flow.metadata.get("whitehat_pinned_ip"),
             response_time_ms=rt_ms, started_at=datetime.now(timezone.utc).isoformat(),
         )
         self._enqueue(rec)
@@ -449,4 +449,4 @@ class RedamonCapture:
         os.replace(tmp, final)  # atomic publish; ingest only ever sees complete files
 
 
-addons = [RedamonCapture()]
+addons = [WhiteHatCapture()]

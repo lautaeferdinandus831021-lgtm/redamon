@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for _status_core_service_report in redamon.sh (issue #184).
+# Test suite for _status_core_service_report in whitehat.sh (issue #184).
 #
 # Why this exists: `docker compose ps` without -a omits a container that has
-# EXITED, so a crashed core service simply vanished from `redamon.sh status`
+# EXITED, so a crashed core service simply vanished from `whitehat.sh status`
 # and the stack looked clean. Meanwhile the webapp, which reaches those
 # services by container name, failed with "getaddrinfo ENOTFOUND agent" and the
 # operator read that as a fault in the LLM endpoint they had just configured.
 #
 # Pure unit test: `docker` is stubbed as a bash function, so it runs anywhere
-# with no Docker daemon.  Run:  bash tests/redamon_status_core_test.sh
+# with no Docker daemon.  Run:  bash tests/whitehat_status_core_test.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"   # BASH_SOURCE guard blocks command dispatch
+source "$REPO_ROOT/whitehat.sh"   # BASH_SOURCE guard blocks command dispatch
 set +e
 
 PASS=0; FAIL=0
@@ -73,7 +73,7 @@ assert_contains "names the dead service"            "$OUT" "agent"
 assert_contains "reports its actual state"          "$OUT" "exited"
 assert_contains "explains the ENOTFOUND symptom"    "$OUT" "ENOTFOUND"
 assert_contains "gives the logs command"            "$OUT" "docker compose logs"
-assert_contains "gives the recovery command"        "$OUT" "./redamon.sh up"
+assert_contains "gives the recovery command"        "$OUT" "./whitehat.sh up"
 assert_not_contains "does not name healthy services" "$OUT" "postgres"
 
 # ---------------------------------------------------------------------------
@@ -111,14 +111,14 @@ assert_contains "CORE_SERVICES includes webapp" " $CORE_SERVICES " " webapp "
 # ---------------------------------------------------------------------------
 section "regression: a never-installed clone is told to install, not to 'up'"
 # Before install NOTHING has a container, so every service reads "not created".
-# Telling that user to run `./redamon.sh up` is wrong advice - there are no
+# Telling that user to run `./whitehat.sh up` is wrong advice - there are no
 # images to start. This is a fresh clone, not an outage.
 
 STATES=()
 OUT="$(_status_core_service_report 2>&1)"
 assert_contains "points a fresh clone at install" "$OUT" "install"
 assert_not_contains "does not call a fresh clone an outage" "$OUT" "Core services NOT running"
-assert_not_contains "does not tell a fresh clone to run up" "$OUT" "./redamon.sh up"
+assert_not_contains "does not tell a fresh clone to run up" "$OUT" "./whitehat.sh up"
 
 # One container existing is enough to prove the stack WAS installed, so a
 # missing service there is a real outage again.
@@ -131,7 +131,7 @@ assert_contains "and it names the missing agent" "$OUT" "agent"
 
 # ---------------------------------------------------------------------------
 section "regression: the report must survive set -e"
-# redamon.sh runs under `set -euo pipefail`. A helper whose last evaluated
+# whitehat.sh runs under `set -euo pipefail`. A helper whose last evaluated
 # command is a false test returns non-zero, and a bare call to it would abort
 # `status` before the memory report ever prints.
 (

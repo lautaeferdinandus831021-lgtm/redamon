@@ -607,7 +607,7 @@ class SupplyChainMixin:
         against the 20,000-node read cap, and is never cleaned up. With the match
         first, no anchor means no row to carry forward and nothing is written.
 
-        REUSES ThreatPulse rather than adding a label: RedAmon already models
+        REUSES ThreatPulse rather than adding a label: WhiteHat already models
         "a named threat report listing indicators, attached to a discovered
         asset" (OTX enrichment writes exactly that). The 20,000-node graph read
         cap is another reason not to add a per-finding node here.

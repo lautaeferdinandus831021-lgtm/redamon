@@ -10,7 +10,7 @@ mkdir -p "$CERTS"
 #    so the SAN feedback path's apex allow-list can be proven on real data.
 openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
   -keyout "$CERTS/imaps.key" -out "$CERTS/imaps.crt" \
-  -subj "/CN=mail.tlslab.test/O=RedAmon TLS Lab" \
+  -subj "/CN=mail.tlslab.test/O=WhiteHat TLS Lab" \
   -addext "subjectAltName=DNS:mail.tlslab.test,DNS:imap.tlslab.test,DNS:outsider.example-evil.test" \
   >/dev/null 2>&1
 
@@ -19,7 +19,7 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
 openssl req -x509 -newkey rsa:2048 -nodes \
   -not_before 20240101000000Z -not_after 20240201000000Z \
   -keyout "$CERTS/ldaps.key" -out "$CERTS/ldaps.crt" \
-  -subj "/CN=ldap.tlslab.test/O=RedAmon TLS Lab" \
+  -subj "/CN=ldap.tlslab.test/O=WhiteHat TLS Lab" \
   -addext "subjectAltName=DNS:ldap.tlslab.test" \
   >/dev/null 2>&1
 
@@ -30,7 +30,7 @@ openssl req -x509 -newkey rsa:2048 -nodes \
 #    cannot be reached through tlsx at all.
 openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
   -keyout "$CERTS/pop3s.key" -out "$CERTS/pop3s.crt" \
-  -subj "/CN=legacy.tlslab.test/O=RedAmon TLS Lab" \
+  -subj "/CN=legacy.tlslab.test/O=WhiteHat TLS Lab" \
   -addext "subjectAltName=DNS:legacy.tlslab.test" \
   >/dev/null 2>&1
 
@@ -46,7 +46,7 @@ while [ "$i" -le 22 ]; do
 done
 openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
   -keyout "$CERTS/smtps.key" -out "$CERTS/smtps.crt" \
-  -subj "/CN=*.wild.tlslab.test/O=RedAmon TLS Lab" \
+  -subj "/CN=*.wild.tlslab.test/O=WhiteHat TLS Lab" \
   -addext "subjectAltName=$WILD" \
   >/dev/null 2>&1
 

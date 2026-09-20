@@ -1,11 +1,11 @@
 """
 Shared chromium-launch constants + capture-proxy wiring for the kali browser
 tools. Dependency-free (NO fastmcp) so both the long-running playwright_server
-and the in-process `redamon` SDK (proxy_brain's `redamon.browser`) can import it
+and the in-process `whitehat` SDK (proxy_brain's `whitehat.browser`) can import it
 without dragging the MCP framework into the agent's unit image.
 
 `playwright_server.py` renders Playwright *scripts* (string fragments); the
-`redamon` SDK drives Playwright *in-process* (real kwargs). This module gives the
+`whitehat` SDK drives Playwright *in-process* (real kwargs). This module gives the
 in-process path what it needs and shares the launch constants with both.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def capture_kwargs(ctx_token: str, header_tag: Optional[str] = None) -> Tuple[Op
     Returns ``(proxy, extra_http_headers)``:
       - ``proxy`` is ``{"server": <cap_url>}`` for ``chromium.launch(proxy=...)``,
         or ``None`` (launch direct, no capture).
-      - ``extra_http_headers`` carries the opaque ``X-Redamon-Ctx`` tag for
+      - ``extra_http_headers`` carries the opaque ``X-WhiteHat-Ctx`` tag for
         ``browser.new_context(extra_http_headers=...)``, or ``{}``.
 
     §20.2 tag-leak guard: the proxy flag and the header are emitted TOGETHER, only
@@ -52,4 +52,4 @@ def capture_kwargs(ctx_token: str, header_tag: Optional[str] = None) -> Tuple[Op
         cap_url, cap_tok = (None, None)
     if not (cap_url and cap_tok):
         return (None, {})
-    return ({"server": cap_url}, {"X-Redamon-Ctx": header_tag or cap_tok})
+    return ({"server": cap_url}, {"X-WhiteHat-Ctx": header_tag or cap_tok})

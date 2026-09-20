@@ -16,7 +16,7 @@ Tested layers:
 
 Run:
     docker run --rm --network host --entrypoint python3 \\
-        -v "$PWD:/work:ro" -w /work redamon-recon:latest \\
+        -v "$PWD:/work:ro" -w /work whitehat-recon:latest \\
         recon/tests/test_ai_text_to_cypher_prompt.py
 """
 from __future__ import annotations
@@ -173,7 +173,7 @@ def _agent_has_ai_block() -> tuple[bool, str]:
     if shutil.which("docker") is None:
         return (False, "docker CLI unavailable")
     proc = subprocess.run(
-        ["docker", "exec", "redamon-agent", "python3", "-c",
+        ["docker", "exec", "whitehat-agent", "python3", "-c",
          "import sys; sys.path.insert(0, '/app'); "
          "from prompts.base import TEXT_TO_CYPHER_SYSTEM; "
          "print(1 if '## AI Surface Annotations' in TEXT_TO_CYPHER_SYSTEM else 0)"],
@@ -221,7 +221,7 @@ flags = [
 print(','.join('1' if f else '0' for f in flags))
 """.strip()
     proc = subprocess.run(
-        ["docker", "exec", "redamon-agent", "python3", "-c", script],
+        ["docker", "exec", "whitehat-agent", "python3", "-c", script],
         capture_output=True, text=True, timeout=15,
     )
     if proc.returncode != 0:

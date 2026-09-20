@@ -1,5 +1,5 @@
 """
-RedAmon - Katana Crawler Helpers for Resource Enumeration
+WhiteHat - Katana Crawler Helpers for Resource Enumeration
 =========================================================
 Active URL discovery using Katana web crawler.
 """
@@ -90,12 +90,12 @@ def run_katana_crawler(
 
     print(f"[*][Katana] Target URLs: {len(valid_urls)}")
 
-    # Write target URLs to /tmp/redamon (bind-mounted same path host<->recon
+    # Write target URLs to /tmp/whitehat (bind-mounted same path host<->recon
     # container, see docker-compose.yml). Plain /tmp doesn't work under
     # Docker-in-Docker: the spawned katana container's -v /tmp:/tmp resolves
     # against the host daemon's /tmp, not the recon container's /tmp.
-    os.makedirs("/tmp/redamon", exist_ok=True)
-    url_file = f"/tmp/redamon/katana_targets_{uuid.uuid4().hex[:8]}.txt"
+    os.makedirs("/tmp/whitehat", exist_ok=True)
+    url_file = f"/tmp/whitehat/katana_targets_{uuid.uuid4().hex[:8]}.txt"
 
     try:
         with open(url_file, 'w') as f:
@@ -114,7 +114,7 @@ def run_katana_crawler(
         # so the flag is strictly an upgrade.
         cmd = ["docker", "run", "--rm", "--net=host"]
 
-        cmd.extend(["-v", "/tmp/redamon:/tmp/redamon"])
+        cmd.extend(["-v", "/tmp/whitehat:/tmp/whitehat"])
 
         cmd.extend([
             docker_image,
@@ -143,13 +143,13 @@ def run_katana_crawler(
                 cmd.extend(["-H", header])
 
         # HTTP traffic capture (Phase 1): route this crawl through the capture
-        # proxy when enabled + reachable. The X-Redamon-Ctx tag is added ONLY in
+        # proxy when enabled + reachable. The X-WhiteHat-Ctx tag is added ONLY in
         # this same branch as -proxy (§20.2), so it can never leak to the target
         # on the direct path.
         from helpers.proxy_routing import get_capture_routing
         _cap_url, _cap_token = get_capture_routing("katana")
         if _cap_url and _cap_token:
-            cmd.extend(["-proxy", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_token}"])
+            cmd.extend(["-proxy", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_token}"])
 
         try:
             # Stream output line-by-line so we can enforce max_urls and kill early

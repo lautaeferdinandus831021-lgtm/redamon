@@ -14,8 +14,8 @@ import { signIn } from './auth'
  * box shows real prefixes and account names, which must not be published.
  */
 
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
-const OUT = join(__dirname, '..', '..', '..', 'redamon.wiki', 'images')
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const OUT = join(__dirname, '..', '..', '..', 'whitehat.wiki', 'images')
 
 const day = 86_400_000
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * day).toISOString()
@@ -78,10 +78,10 @@ test.beforeEach(async ({ context, baseURL, page }) => {
   mkdirSync(OUT, { recursive: true })
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
   await page.setViewportSize({ width: 1400, height: 1400 })
   await stubTokenApi(page)

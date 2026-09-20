@@ -51,7 +51,7 @@ def resolve(row: dict) -> dict:
         "WEBAPP_API_URL": "http://mocked",
         # The governor is fail-open and reads live memory; a baseline that moved
         # with the host's free RAM would be worthless.
-        "REDAMON_MEM_GOVERNOR": "0",
+        "WHITEHAT_MEM_GOVERNOR": "0",
     }
     with patch.dict(os.environ, env, clear=False), patch("requests.get", return_value=_FakeResponse(payload)):
         settings = ps.fetch_project_settings("golden-project", "http://mocked")

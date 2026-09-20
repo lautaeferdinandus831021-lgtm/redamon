@@ -1,6 +1,6 @@
-"""Unit tests for the kali-side `redamon` SDK's response parser (Row 4).
+"""Unit tests for the kali-side `whitehat` SDK's response parser (Row 4).
 
-`redamon._parse_curl` turns the `curl -i` output of a proxied replay into the
+`whitehat._parse_curl` turns the `curl -i` output of a proxied replay into the
 Response the agent's proxy_brain code reads as an oracle (.status/.headers/.body).
 If it mis-reads the boundary, every replay-based finding is wrong. The SDK lives
 in mcp/servers (kali PYTHONPATH); it imports only `requests` + stdlib, so it is
@@ -18,12 +18,12 @@ _MCP_SERVERS = os.path.join(
 if _MCP_SERVERS not in sys.path:
     sys.path.insert(0, _MCP_SERVERS)
 
-import redamon  # noqa: E402
+import whitehat  # noqa: E402
 
 
 def test_parse_curl_extracts_status_headers_body():
     raw = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: a=b\r\n\r\n<html>hi</html>"
-    r = redamon._parse_curl(raw, None)
+    r = whitehat._parse_curl(raw, None)
     assert r.status == 200
     assert r.headers["content-type"] == "text/html"
     assert r.headers["set-cookie"] == "a=b"
@@ -32,7 +32,7 @@ def test_parse_curl_extracts_status_headers_body():
 
 
 def test_parse_curl_empty_body_status_only():
-    r = redamon._parse_curl("HTTP/1.1 204 No Content\r\n\r\n", None)
+    r = whitehat._parse_curl("HTTP/1.1 204 No Content\r\n\r\n", None)
     assert r.status == 204
     assert r.body == ""
     assert r.length == 0
@@ -40,43 +40,43 @@ def test_parse_curl_empty_body_status_only():
 
 def test_parse_curl_error_output_has_no_status():
     # A curl failure (no HTTP response) must not fabricate a status.
-    r = redamon._parse_curl("curl: (7) Failed to connect to host", "1001")
+    r = whitehat._parse_curl("curl: (7) Failed to connect to host", "1001")
     assert r.status is None
     assert "Failed to connect" in r.body
     assert r.payload == "1001"
 
 
 def test_parse_curl_carries_payload_label():
-    r = redamon._parse_curl("HTTP/1.1 500 Server Error\r\n\r\nSQL syntax error", "1001'")
+    r = whitehat._parse_curl("HTTP/1.1 500 Server Error\r\n\r\nSQL syntax error", "1001'")
     assert r.status == 500
     assert "SQL syntax error" in r.body
     assert r.payload == "1001'"
 
 
 def test_search_accepts_dict_and_kwargs():
-    # The skills call redamon.search({...}) (dict); code may also use kwargs. Both
+    # The skills call whitehat.search({...}) (dict); code may also use kwargs. Both
     # must reach the endpoint as endpoint-shaped (camelCase) filters.
     seen = {}
-    orig = redamon._read
-    redamon._read = lambda op, args=None: seen.update(args or {}) or ""
+    orig = whitehat._read
+    whitehat._read = lambda op, args=None: seen.update(args or {}) or ""
     try:
-        redamon.search({"hasAuth": True, "method": "POST"})
+        whitehat.search({"hasAuth": True, "method": "POST"})
         assert seen == {"hasAuth": True, "method": "POST"}
         seen.clear()
-        redamon.search(has_auth=True, host="x")           # snake_case kwargs -> aliased
+        whitehat.search(has_auth=True, host="x")           # snake_case kwargs -> aliased
         assert seen == {"hasAuth": True, "host": "x"}
         seen.clear()
-        redamon.search(**{"q": "admin"})
+        whitehat.search(**{"q": "admin"})
         assert seen == {"q": "admin"}
     finally:
-        redamon._read = orig
+        whitehat._read = orig
 
 
-# --- redamon.browser: client-side host-pin + fail-closed --------------------
+# --- whitehat.browser: client-side host-pin + fail-closed --------------------
 def _bare_browser(host="target.test", scheme="http", port=80):
     """A Browser with its pin state set but WITHOUT launching chromium, so the
     pure host-pin helpers can be unit-tested off the browser."""
-    b = object.__new__(redamon.Browser)
+    b = object.__new__(whitehat.Browser)
     b._host, b._scheme, b._port, b._origin_id = host, scheme, port, "t1"
     b._alerts, b._console = [], []
     return b
@@ -171,17 +171,17 @@ def test_browser_press_asserts_on_origin(monkeypatch):
 def test_browser_checkin_navigate_sends_url(monkeypatch):
     b = _bare_browser()
     calls = []
-    monkeypatch.setattr(redamon, "_post", lambda path, payload: calls.append((path, payload)) or {"ok": True})
+    monkeypatch.setattr(whitehat, "_post", lambda path, payload: calls.append((path, payload)) or {"ok": True})
     b._checkin("navigate", url="http://target.test/x")
     assert calls == [("/traffic/browser", {"action": "navigate", "origin_id": "t1", "url": "http://target.test/x"})]
 
 
 def test_browser_factory_fails_closed_without_ctx(monkeypatch):
-    # No REDAMON_CTX -> the open PREPARE cannot be tenant-tagged, so _post's _ctx()
+    # No WHITEHAT_CTX -> the open PREPARE cannot be tenant-tagged, so _post's _ctx()
     # fails closed before any network call.
-    monkeypatch.delenv("REDAMON_CTX", raising=False)
+    monkeypatch.delenv("WHITEHAT_CTX", raising=False)
     with pytest.raises(SystemExit):
-        redamon.browser("t1")
+        whitehat.browser("t1")
 
 
 def test_browser_concurrent_cap_refuses_before_launch(monkeypatch):
@@ -189,7 +189,7 @@ def test_browser_concurrent_cap_refuses_before_launch(monkeypatch):
     # calling the server (no chromium launched), bounding memory in the container.
     def _boom(*a, **k):
         raise AssertionError("_post must not be called once the browser cap is hit")
-    monkeypatch.setattr(redamon, "_post", _boom)
-    monkeypatch.setattr(redamon.Browser, "_live", redamon.Browser._MAX_LIVE)
+    monkeypatch.setattr(whitehat, "_post", _boom)
+    monkeypatch.setattr(whitehat.Browser, "_live", whitehat.Browser._MAX_LIVE)
     with pytest.raises(SystemExit):
-        redamon.browser("t1")
+        whitehat.browser("t1")

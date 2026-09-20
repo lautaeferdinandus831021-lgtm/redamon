@@ -61,7 +61,7 @@ export async function archiveProjectAuthorizations(
       // this exact project. `set_config(..., true)` is transaction-local, so the
       // exemption cannot outlive the transaction that needed it.
       await tx.$executeRawUnsafe(
-        `SELECT set_config('redamon.archiving_project', $1, true)`,
+        `SELECT set_config('whitehat.archiving_project', $1, true)`,
         projectId
       )
       const copied = await tx.$executeRawUnsafe(

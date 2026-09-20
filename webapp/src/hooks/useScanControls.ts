@@ -54,7 +54,7 @@ export function useScanControls({
   // so the button does not flash disabled on every mount.
   const [gvmAvailable, setGvmAvailable] = useState(true)
 
-  // The GVM stack is an optional install (./redamon.sh install --gvm). Without
+  // The GVM stack is an optional install (./whitehat.sh install --gvm). Without
   // this the button starts a scan that can only fail.
   useEffect(() => {
     if (!enabled) return

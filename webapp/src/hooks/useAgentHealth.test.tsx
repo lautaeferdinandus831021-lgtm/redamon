@@ -46,7 +46,7 @@ describe('useAgentHealth', () => {
   })
 
   test('surfaces the route message verbatim when the agent is unreachable', async () => {
-    const msg = 'Cannot reach the RedAmon agent service at http://agent:8080: the hostname does not resolve'
+    const msg = 'Cannot reach the WhiteHat agent service at http://agent:8080: the hostname does not resolve'
     fetchMock.mockResolvedValue(offline(msg))
 
     const { result } = renderHook(() => useAgentHealth())
@@ -68,7 +68,7 @@ describe('useAgentHealth', () => {
 
     const { result } = renderHook(() => useAgentHealth())
     await waitFor(() => expect(result.current.status).toBe('offline'))
-    expect(result.current.error).toContain('Could not reach the RedAmon webapp')
+    expect(result.current.error).toContain('Could not reach the WhiteHat webapp')
   })
 
   test('refresh re-probes and recovers once the agent is back', async () => {

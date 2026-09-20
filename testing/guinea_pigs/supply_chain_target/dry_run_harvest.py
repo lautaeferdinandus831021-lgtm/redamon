@@ -1,6 +1,6 @@
 """Dry-run the REAL L2 chain against the guinea pig, without the full app.
 
-Runs inside the redamon-recon image with recon/, supply_chain_common/ and the
+Runs inside the whitehat-recon image with recon/, supply_chain_common/ and the
 offline OSV DB mounted, exactly as recon_orchestrator mounts them for a real
 scan. Feeds a minimal combined_result through the production functions:
 

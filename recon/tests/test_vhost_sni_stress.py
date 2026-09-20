@@ -12,7 +12,7 @@ Uses an in-process HTTP server with a deliberately slow handler to
 force concurrent inflight requests.
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_stress.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_stress.py -v
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 """Memory auto-update: capture, compress, reinforce, decay, reflect.
 
-This is RedAmon's equivalent of agentmemory's auto hooks, wired to the one place
+This is WhiteHat's equivalent of agentmemory's auto hooks, wired to the one place
 every agent tool call already passes through (`PhaseAwareToolExecutor.execute`),
 so single-tool and parallel-plan execution both feed memory without touching
 either node.
@@ -15,7 +15,7 @@ bounded head/tail) and drops the bulk.
 
 WHAT IT DOES NOT CAPTURE
 ------------------------
-Nothing from inside a target. Memory is RedAmon's own operational record - what
+Nothing from inside a target. Memory is WhiteHat's own operational record - what
 this project's tooling did and what it learned - so it stays black-box: no
 inferred target internals, no white-box assumptions, no credentials.
 """
@@ -372,7 +372,7 @@ class MemoryAutoUpdater:
     def import_external(self, project_id: str, items: list[dict[str, Any]]) -> int:
         """Fold agentmemory search hits into the local store.
 
-        Anything already joined by `redamon_memory_id` is skipped: importing a
+        Anything already joined by `whitehat_memory_id` is skipped: importing a
         mirrored memory back over itself would inflate its use count on every
         recall and eventually pin it at confidence 1.0.
         """
@@ -385,7 +385,7 @@ class MemoryAutoUpdater:
             if not isinstance(text, str) or not text.strip():
                 continue
             meta = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
-            foreign_id = str(meta.get("redamon_memory_id") or "")
+            foreign_id = str(meta.get("whitehat_memory_id") or "")
             if foreign_id and store.by_external_id(project_id, foreign_id) is not None:
                 continue
             record, created = store.upsert(

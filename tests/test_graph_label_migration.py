@@ -7,7 +7,7 @@ part of the rename, and these tests pin the properties that make it safe to run
 on every connection.
 
 Run: docker run --rm -v "$PWD:/repo" -w /repo -e PYTHONPATH=/repo:/repo/graph_db \
-       redamon-agent python -m pytest tests/test_graph_label_migration.py -q
+       whitehat-agent python -m pytest tests/test_graph_label_migration.py -q
 """
 import sys
 import unittest
@@ -30,7 +30,7 @@ def fake_session(counts=None, applied=False):
 
     def run(query, **params):
         row = MagicMock()
-        if "RedamonSchemaMigration" in query and "MATCH" in query:
+        if "WhiteHatSchemaMigration" in query and "MATCH" in query:
             row.single.return_value = {"c": 1 if applied else 0}
             return row
         value = counts.pop(0) if counts else 0
@@ -56,7 +56,7 @@ class TestMigrationCost(unittest.TestCase):
         schema.migrate_legacy_labels(session)
         qs = queries(session)
         self.assertEqual(len(qs), 1, f"expected a single marker lookup, got {qs}")
-        self.assertIn("RedamonSchemaMigration", qs[0])
+        self.assertIn("WhiteHatSchemaMigration", qs[0])
         self.assertFalse([q for q in qs if "STARTS WITH" in q],
                          "an applied migration must not scan any label")
 
@@ -81,7 +81,7 @@ class TestMigrationBatching(unittest.TestCase):
         session = fake_session(applied=False)
         schema.migrate_legacy_labels(session)
         writes = [q for q in queries(session)
-                  if ("SET n" in q or "DELETE r" in q) and "RedamonSchemaMigration" not in q]
+                  if ("SET n" in q or "DELETE r" in q) and "WhiteHatSchemaMigration" not in q]
         self.assertTrue(writes, "no write statements ran")
         for q in writes:
             self.assertIn("LIMIT", q, f"unbatched write: {q[:90]}")
@@ -98,7 +98,7 @@ class TestMigrationMarker(unittest.TestCase):
         session = fake_session(applied=False)
         schema.migrate_legacy_labels(session)
         self.assertTrue([q for q in queries(session)
-                         if "MERGE" in q and "RedamonSchemaMigration" in q])
+                         if "MERGE" in q and "WhiteHatSchemaMigration" in q])
 
     def test_a_failed_step_leaves_no_marker_so_it_retries(self):
         """A half-migrated graph must be retried, not silently accepted."""
@@ -106,7 +106,7 @@ class TestMigrationMarker(unittest.TestCase):
 
         def run(query, **params):
             row = MagicMock()
-            if "RedamonSchemaMigration" in query and "MATCH" in query:
+            if "WhiteHatSchemaMigration" in query and "MATCH" in query:
                 row.single.return_value = {"c": 0}
                 return row
             if "`TrufflehogFinding`" in query:
@@ -117,7 +117,7 @@ class TestMigrationMarker(unittest.TestCase):
         session.run.side_effect = run
         schema.migrate_legacy_labels(session)
         self.assertFalse(
-            [q for q in queries(session) if "MERGE" in q and "RedamonSchemaMigration" in q],
+            [q for q in queries(session) if "MERGE" in q and "WhiteHatSchemaMigration" in q],
             "a failed migration must NOT record the marker")
 
     def test_running_twice_is_a_no_op_the_second_time(self):
@@ -185,7 +185,7 @@ class TestMigrationTenantSafety(unittest.TestCase):
         session = fake_session(applied=False)
         schema.migrate_legacy_labels(session)
         for q in queries(session):
-            if "RedamonSchemaMigration" in q:
+            if "WhiteHatSchemaMigration" in q:
                 continue
             self.assertNotIn("n.user_id =", q, f"migration writes user_id: {q[:90]}")
             self.assertNotIn("n.project_id =", q, f"migration writes project_id: {q[:90]}")
@@ -196,7 +196,7 @@ class TestMigrationTenantSafety(unittest.TestCase):
         session = fake_session(applied=False)
         schema.migrate_legacy_labels(session)
         for q in queries(session):
-            if "RedamonSchemaMigration" in q:
+            if "WhiteHatSchemaMigration" in q:
                 continue
             self.assertNotIn("user_id:", q, f"migration is tenant-scoped: {q[:90]}")
 
@@ -207,7 +207,7 @@ class TestMigrationTenantSafety(unittest.TestCase):
         session = fake_session(applied=False)
         schema.migrate_legacy_labels(session)
         merge = [q for q in queries(session)
-                 if "MERGE" in q and "RedamonSchemaMigration" in q]
+                 if "MERGE" in q and "WhiteHatSchemaMigration" in q]
         self.assertTrue(merge)
         self.assertNotIn("user_id", merge[0])
         self.assertNotIn("project_id", merge[0])

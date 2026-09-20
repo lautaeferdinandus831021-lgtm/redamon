@@ -27,7 +27,7 @@ Run (inside agent container):
         -v "/path/agentic:/app" \\
         -v "/path/graph_db:/app/graph_db:ro" \\
         -v "/path/knowledge_base:/app/knowledge_base:ro" \\
-        -w /app redamon-agent python -m unittest \\
+        -w /app whitehat-agent python -m unittest \\
         tests.test_root_think_and_guardrail_retry -v
 """
 

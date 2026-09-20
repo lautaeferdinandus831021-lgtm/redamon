@@ -310,7 +310,7 @@ class TestCryptoAttackFairnessAndStyle(unittest.TestCase):
 
 
 class TestCryptoAttackToolRegistryAlignment(unittest.TestCase):
-    """Every RedAmon tool the skill names must be a REAL registry tool, and the
+    """Every WhiteHat tool the skill names must be a REAL registry tool, and the
     skill must steer to the useful ones (scripting, recon, capture replay)."""
 
     import re as _re
@@ -327,7 +327,7 @@ class TestCryptoAttackToolRegistryAlignment(unittest.TestCase):
 
     def test_steers_to_key_tools(self):
         for tool in ("query_graph", "execute_code", "kali_shell", "execute_curl",
-                     "fs_write", "job_spawn", "redamon."):
+                     "fs_write", "job_spawn", "whitehat."):
             self.assertIn(tool, CRYPTO_ATTACK_TOOLS, f"skill should reference {tool}")
 
     def test_names_only_installed_cli_crypto_tools(self):

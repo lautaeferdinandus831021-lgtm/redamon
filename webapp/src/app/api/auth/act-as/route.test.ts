@@ -55,7 +55,7 @@ describe('POST /api/auth/act-as', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ actingAs: 'user-X' })
     const setCookie = res.headers.get('set-cookie') || ''
-    expect(setCookie).toContain('redamon-act-as=')
+    expect(setCookie).toContain('whitehat-act-as=')
     expect(setCookie).toMatch(/HttpOnly/i)
   })
 

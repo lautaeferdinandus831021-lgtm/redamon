@@ -105,7 +105,7 @@ export function RecordingModal({ isOpen, onClose, projectId, onSaved }: {
     <Modal isOpen={isOpen} onClose={handleClose} size="large" title="Record a login">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxHeight: '75vh', overflowY: 'auto', paddingRight: 6 }}>
         <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>
-          Point your browser at the capture proxy and log in to the target once. RedAmon
+          Point your browser at the capture proxy and log in to the target once. WhiteHat
           extracts the session and offers to save it as this project&apos;s authenticated
           identity. The raw value is never shown back to you.
         </p>

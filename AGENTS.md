@@ -1,4 +1,4 @@
-# RedAmon - Agent Ruleset (Repository Root)
+# WhiteHat - Agent Ruleset (Repository Root)
 
 > **Skills**: on-demand rulesets live in [`skills/`](skills/). The full list is
 > the **SKILLS CATALOGUE** at the bottom of this file. The table directly below
@@ -14,10 +14,10 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Action | Skill |
 | ------ | ----- |
 | Adding a node label, relationship, or property to the graph schema | `graph-db-writes` |
-| Adding or editing a test file in any section | `redamon-testing` |
-| Changing test tiers, conftest.py, pytest.ini, or the runner in redamon.sh | `redamon-testing` |
-| Checking or ratcheting a coverage floor | `redamon-testing` |
-| Investigating a red, skipped or xfailed test | `redamon-testing` |
+| Adding or editing a test file in any section | `whitehat-testing` |
+| Changing test tiers, conftest.py, pytest.ini, or the runner in whitehat.sh | `whitehat-testing` |
+| Checking or ratcheting a coverage floor | `whitehat-testing` |
+| Investigating a red, skipped or xfailed test | `whitehat-testing` |
 | Writing to the Neo4j graph or editing a graph_db mixin | `graph-db-writes` |
 
 ---
@@ -32,8 +32,8 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
   recon results, captured traffic, or credentials - in code, fixtures, tests,
   issues, or PRs. See `CONTRIBUTING.md` -> "Legal and Ethical Responsibilities".
 - **NEVER** validate a change by running `pytest` on the host. The Python gate
-  runs each section INSIDE its Docker image (`redamon-agent`, `redamon-recon`,
-  ...) via `./redamon.sh test` / `./agentic/run_tests.sh`; host pytest sees the
+  runs each section INSIDE its Docker image (`whitehat-agent`, `whitehat-recon`,
+  ...) via `./whitehat.sh test` / `./agentic/run_tests.sh`; host pytest sees the
   wrong dependency set and mis-collects. The unit tier must stay 100% green.
 
 ---
@@ -67,7 +67,7 @@ runtime are content, not code comments - size them for the model, not this rule.
 
 Polyglot monorepo orchestrated by Docker Compose. Python 3.11 services (the
 agent, recon pipeline, recon orchestrator, MCP/kali-sandbox, scan tools) + a
-Next.js 16 / React 19 / TypeScript / Prisma webapp + Neo4j graph DB + Postgres. `redamon.sh`
+Next.js 16 / React 19 / TypeScript / Prisma webapp + Neo4j graph DB + Postgres. `whitehat.sh`
 (bash) is the control plane for build/run/test.
 
 ## PROJECT STRUCTURE
@@ -76,7 +76,7 @@ Only the roots an agent needs to place a file. Each component root carries its
 own `AGENTS.md`.
 
 ```
-agentic/              Python - the LangGraph agent (baked into redamon-agent image)
+agentic/              Python - the LangGraph agent (baked into whitehat-agent image)
 recon/                Python - the recon pipeline (spawned per scan job)
 recon_orchestrator/   Python - orchestrates scan containers (volume-mounted)
 mcp/                  Python - MCP servers incl. kali-sandbox
@@ -100,7 +100,7 @@ A scanner's container-side paths stay `/app/<scanner>`; only host-side paths
 carry the `scanners/` prefix.
 
 Prose docs live in `docs/readmes/` (architecture, `README.<SUBSYSTEM>.md`, and
-`docs/readmes/coding_agent_prompts/` "how to add X" guides) and `redamon.wiki/`
+`docs/readmes/coding_agent_prompts/` "how to add X" guides) and `whitehat.wiki/`
 (the published GitHub wiki). This ruleset system and its templates live in
 `docs/readmes/skills_management/`.
 
@@ -110,12 +110,12 @@ Prose docs live in `docs/readmes/` (architecture, `README.<SUBSYSTEM>.md`, and
 # Build & run the stack (always via Docker; never local npx/node/pip)
 # There is no `build` subcommand: building happens inside install/update, which
 # wrap it in the adaptive, memory-safe batching (compose_build).
-./redamon.sh install          # first run (add --gvm / --kbase)
-./redamon.sh update           # pull + smart-rebuild only what changed
-./redamon.sh up               # start what is already built
+./whitehat.sh install          # first run (add --gvm / --kbase)
+./whitehat.sh update           # pull + smart-rebuild only what changed
+./whitehat.sh up               # start what is already built
 
 # Test - runs each section inside its Docker image, per-file isolated
-./redamon.sh test unit        # the gate; must be 100% green
+./whitehat.sh test unit        # the gate; must be 100% green
 ./agentic/run_tests.sh        # agent-image unit gate (alias: focused)
 
 # Webapp (needs the webapp image or `npm ci` in webapp/)
@@ -125,7 +125,7 @@ cd webapp && npm run type-check && npm run lint
 
 ## QA CHECKLIST
 
-- [ ] `./redamon.sh test unit` is green (Docker gate, not host pytest).
+- [ ] `./whitehat.sh test unit` is green (Docker gate, not host pytest).
 - [ ] Changed a component? Its `AGENTS.md` QA checklist also satisfied.
 - [ ] Rebuilt/restarted the right container for the files you touched.
 - [ ] No real-world target data added anywhere.
@@ -139,7 +139,7 @@ Maintained by hand (not touched by `sync.sh`). One row per skill.
 
 | Skill | Description | URL |
 | --- | --- | --- |
-| `redamon-testing` | How tests run + how to author them: the per-file Docker gate, tiers, and green-run-that-lies failure modes | [SKILL.md](skills/redamon-testing/SKILL.md) |
+| `whitehat-testing` | How tests run + how to author them: the per-file Docker gate, tiers, and green-run-that-lies failure modes | [SKILL.md](skills/whitehat-testing/SKILL.md) |
 | `agentic-tool-integration` | Wiring a new tool the agent can call: registry, phase map, dispatch chokepoint, duplicated exec paths | [SKILL.md](skills/agentic-tool-integration/SKILL.md) |
 | `builtin-agent-skill` | Adding a built-in attack skill across its 9 layers (incl. the KNOWN_ATTACK_PATHS gate + silent drawer layers) | [SKILL.md](skills/builtin-agent-skill/SKILL.md) |
 | `project-settings-cascade` | Changing/adding a project default across Prisma + two Python modules + /defaults + frontend + existing rows | [SKILL.md](skills/project-settings-cascade/SKILL.md) |

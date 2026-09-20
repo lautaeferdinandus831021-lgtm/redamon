@@ -6,8 +6,8 @@ the targets list file was written to the recon container's local /tmp,
 while the spawned katana container's `-v /tmp:/tmp` resolved against the
 host daemon's /tmp (where the file did not exist).
 
-Fix: write targets to /tmp/redamon (same path host<->recon container per
-docker-compose.yml) and mount /tmp/redamon:/tmp/redamon into katana.
+Fix: write targets to /tmp/whitehat (same path host<->recon container per
+docker-compose.yml) and mount /tmp/whitehat:/tmp/whitehat into katana.
 
 Run with: python -m unittest recon.tests.test_katana_dind_paths -v
 """
@@ -77,21 +77,21 @@ class TestKatanaDinDPaths(unittest.TestCase):
 
         return captured, urls, meta
 
-    def test_url_file_written_under_tmp_redamon(self):
-        """Targets file must live under /tmp/redamon (host-shared), not /tmp."""
+    def test_url_file_written_under_tmp_whitehat(self):
+        """Targets file must live under /tmp/whitehat (host-shared), not /tmp."""
         captured, _, _ = self._run_with_fake_subprocess()
         self.assertIsNotNone(captured["url_file"], "url_file was never opened")
         self.assertTrue(
-            captured["url_file"].startswith("/tmp/redamon/"),
-            f"url_file must be under /tmp/redamon/ for DinD; got {captured['url_file']}",
+            captured["url_file"].startswith("/tmp/whitehat/"),
+            f"url_file must be under /tmp/whitehat/ for DinD; got {captured['url_file']}",
         )
         self.assertNotEqual(
             os.path.dirname(captured["url_file"]), "/tmp",
             "url_file must NOT be in plain /tmp (host/container /tmp diverge under DinD)",
         )
 
-    def test_docker_volume_mount_is_tmp_redamon(self):
-        """Spawned katana container must bind-mount /tmp/redamon, not /tmp."""
+    def test_docker_volume_mount_is_tmp_whitehat(self):
+        """Spawned katana container must bind-mount /tmp/whitehat, not /tmp."""
         captured, _, _ = self._run_with_fake_subprocess()
         cmd = captured["cmd"]
         self.assertIsNotNone(cmd, "docker command was never built")
@@ -100,8 +100,8 @@ class TestKatanaDinDPaths(unittest.TestCase):
         self.assertTrue(v_indices, "no -v flag in docker command")
         mounts = [cmd[i + 1] for i in v_indices]
         self.assertIn(
-            "/tmp/redamon:/tmp/redamon", mounts,
-            f"katana must mount /tmp/redamon:/tmp/redamon (DinD shared path); got mounts: {mounts}",
+            "/tmp/whitehat:/tmp/whitehat", mounts,
+            f"katana must mount /tmp/whitehat:/tmp/whitehat (DinD shared path); got mounts: {mounts}",
         )
         self.assertNotIn(
             "/tmp:/tmp", mounts,
@@ -110,7 +110,7 @@ class TestKatanaDinDPaths(unittest.TestCase):
 
     def test_list_arg_points_at_shared_path(self):
         """The -list argument passed to katana must point at the same path the
-        targets file was written to, and that path must be under /tmp/redamon."""
+        targets file was written to, and that path must be under /tmp/whitehat."""
         captured, _, _ = self._run_with_fake_subprocess()
         cmd = captured["cmd"]
         self.assertIn("-list", cmd, "-list flag missing from katana invocation")
@@ -120,8 +120,8 @@ class TestKatanaDinDPaths(unittest.TestCase):
             "-list path must match the actual file we wrote",
         )
         self.assertTrue(
-            list_path.startswith("/tmp/redamon/"),
-            f"-list path must be under /tmp/redamon/; got {list_path}",
+            list_path.startswith("/tmp/whitehat/"),
+            f"-list path must be under /tmp/whitehat/; got {list_path}",
         )
 
 

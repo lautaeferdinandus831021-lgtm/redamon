@@ -64,7 +64,7 @@ Run (inside agent container):
     docker run --rm \\
         -v "/path/agentic:/app" \\
         -v "/path/graph_db:/app/graph_db:ro" \\
-        -w /app redamon-agent python -m unittest \\
+        -w /app whitehat-agent python -m unittest \\
         tests.test_tool_complete_emission -v
 """
 

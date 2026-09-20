@@ -20,7 +20,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 os.environ.setdefault("ORCHESTRATOR_API_KEY", "test-key")
-os.environ["REDAMON_MEM_GOVERNOR"] = "0"  # deterministic admission (fail-open)
+os.environ["WHITEHAT_MEM_GOVERNOR"] = "0"  # deterministic admission (fail-open)
 
 import api  # noqa: E402  (env must be set before import)
 from container_manager import ContainerManager  # noqa: E402

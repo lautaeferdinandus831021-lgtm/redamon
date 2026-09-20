@@ -15,7 +15,7 @@ copy. These tests lock both halves in.
 ``_graph_db_mount`` touches no docker client, so we build a ContainerManager
 without running __init__ (same pattern as test_d1_resource_ceilings).
 
-Run:  docker exec redamon-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_graph_db_mount -v'
+Run:  docker exec whitehat-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_graph_db_mount -v'
 """
 
 import unittest
@@ -24,7 +24,7 @@ from container_manager import ContainerManager, parent_host_path, sibling_host_p
 
 BIND = "/app/graph_db"
 DERIVED = "/run/desktop/mnt/host/wsl/docker-desktop-bind-mounts/Ubuntu-24.04/graph_db"
-REAL = "/home/user/redamon/graph_db"
+REAL = "/home/user/whitehat/graph_db"
 
 
 def _mgr(graph_db_host_path=None) -> ContainerManager:
@@ -138,13 +138,13 @@ class TestDerivationStillCorrectWhereItIsUsed(unittest.TestCase):
     """The guess remains the last-resort fallback, so it must stay right."""
 
     def test_scanner_climbs_out_of_scanners_dir(self):
-        scanner = "/home/user/redamon/scanners/supply_chain_scan"
+        scanner = "/home/user/whitehat/scanners/supply_chain_scan"
         self.assertEqual(sibling_host_path(parent_host_path(scanner), "graph_db"),
-                         "/home/user/redamon/graph_db")
+                         "/home/user/whitehat/graph_db")
 
     def test_recon_sibling_is_repo_root_graph_db(self):
-        self.assertEqual(sibling_host_path("/home/user/redamon/recon", "graph_db"),
-                         "/home/user/redamon/graph_db")
+        self.assertEqual(sibling_host_path("/home/user/whitehat/recon", "graph_db"),
+                         "/home/user/whitehat/graph_db")
 
 
 if __name__ == "__main__":

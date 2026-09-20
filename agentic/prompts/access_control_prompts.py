@@ -1,5 +1,5 @@
 """
-RedAmon Broken Access Control / Authorization Bypass Prompts
+WhiteHat Broken Access Control / Authorization Bypass Prompts
 
 Black-box workflow for OWASP A01:2021 Broken Access Control, structured on the
 OWASP WSTG Authorization Testing categories (WSTG-ATHZ 4.5.1-4.5.5):
@@ -66,12 +66,12 @@ B's is the ground truth for horizontal escalation.
 
 **Prefer the captured-traffic (`proxy_brain`) tools as your native oracle when HTTP
 capture is on** (they are the built-in Burp-equivalent and remove hand-rolled
-diffing): `redamon.search` / `redamon.sitemap` / `redamon.params` to mine what has
-already been observed; **`redamon.replay`** to resend a real captured request with
+diffing): `whitehat.search` / `whitehat.sitemap` / `whitehat.params` to mine what has
+already been observed; **`whitehat.replay`** to resend a real captured request with
 ONE field changed (session cookie, object id, role field, method, header) - the
-core access-control primitive; **`redamon.diff`** to structurally compare the
+core access-control primitive; **`whitehat.diff`** to structurally compare the
 replayed response against its baseline (the differential, computed for you);
-**`redamon.fuzz`** to run a Burp-Intruder sweep over one captured request (id
+**`whitehat.fuzz`** to run a Burp-Intruder sweep over one captured request (id
 enumeration, header/verb sets). When capture is OFF, fall back to `execute_curl`
 / `execute_httpx` / `execute_ffuf` / `execute_code` for the same steps.
 
@@ -133,7 +133,7 @@ enumeration, header/verb sets). When capture is OFF, fall back to `execute_curl`
 
 ### Step 1: Inventory the surface (reuse recon; do not re-scan blindly)
 - `query_graph` for already-discovered endpoints, params, and auth state, and
-  `redamon.search` / `redamon.sitemap` / `redamon.params` to mine any already-captured
+  `whitehat.search` / `whitehat.sitemap` / `whitehat.params` to mine any already-captured
   traffic for authed endpoints, hidden routes, and tamperable parameters.
 - Crawl for hidden endpoints and admin functionality: `execute_katana` (or
   `execute_gau`) to collect URLs; `execute_jsluice` to pull endpoints, routes, and
@@ -182,8 +182,8 @@ menu and reading the differential, never a value you already know.
   CLASS of inputs - so "find the right password" is the wrong frame: enumerate the
   menu and the class member that satisfies the check falls out of the diff. Build the
   requests with `execute_code` (python `requests`) or `execute_curl` (fragile shell
-  quoting silently mangles typed/array params); with capture on, `redamon.replay` the
-  failed login changing one field/row at a time and let `redamon.diff` score it.
+  quoting silently mangles typed/array params); with capture on, `whitehat.replay` the
+  failed login changing one field/row at a time and let `whitehat.diff` score it.
 - Only once this full matrix is on record WITHOUT a success differential does the
   credential genuinely need to be discovered - then, and only then, hand off to
   credential guessing / brute force.
@@ -279,8 +279,8 @@ falsely read as "no bypass." Diff every response against the baseline:
   semicolon path parameters, matrix/`;` suffixes, single and double URL-encoding of
   `.` and `/`, and overlong/unicode encodings. Proxy-vs-back-end normalization
   mismatches are exactly what these exercise.
-- **Tooling.** With capture on, `redamon.replay` a denied request while changing
-  one axis at a time and let `redamon.diff` score each against the baseline. If
+- **Tooling.** With capture on, `whitehat.replay` a denied request while changing
+  one axis at a time and let `whitehat.diff` score each against the baseline. If
   `kali_shell` is available and a 403/401-bypass tool is installed (e.g. nomore403
   / gobypass403), run it: these operationalize the whole verb+header+path matrix
   with built-in baseline capture and false-positive calibration. Otherwise drive
@@ -296,14 +296,14 @@ falsely read as "no bypass." Diff every response against the baseline:
   request User B's object as User A. The oracle: a `200 OK` returning another
   principal's object (vs the `403/401` a secure app returns) confirms IDOR/BOLA.
 - Enumerate predictable refs with `execute_ffuf` (increment/decrement across
-  encodings: decimal, hex, timestamps), or `redamon.fuzz` a captured object request
+  encodings: decimal, hex, timestamps), or `whitehat.fuzz` a captured object request
   over the id set; `job_spawn` large ranges. Discover unpredictable GUIDs via
   cross-references elsewhere in the app (listings, messages, exports), not blind
   guessing.
 - Cover ALL operations, not just read: create / update / delete / export / and
   admin variants of the same object route. Script the two-principal differential
-  with `execute_code` (python), or with capture on `redamon.replay` an authorized
-  request under the other principal's session and `redamon.diff` the result.
+  with `execute_code` (python), or with capture on `whitehat.replay` an authorized
+  request under the other principal's session and `whitehat.diff` the result.
 
 ### Step 6: Parameter / client-side / hidden-field / mass-assignment escalation
 - When the role or entitlement is stored somewhere the client controls (hidden

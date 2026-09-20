@@ -256,7 +256,7 @@ describe('All-Nodes table exports', () => {
     await flush()
     expect(downloads).toHaveLength(1)
     const dl = downloads[0]
-    expect(dl.filename).toMatch(/^redamon-data-/)
+    expect(dl.filename).toMatch(/^whitehat-data-/)
     expect(dl.filename).toMatch(TS_SUFFIX_RE)
     expect(dl.mimeType).toBe('text/csv;charset=utf-8')
 
@@ -290,7 +290,7 @@ describe('All-Nodes table exports', () => {
     await flush()
     expect(downloads).toHaveLength(1)
     const dl = downloads[0]
-    expect(dl.filename).toMatch(/^redamon-data-/)
+    expect(dl.filename).toMatch(/^whitehat-data-/)
     expect(dl.filename.endsWith('.json')).toBe(true)
     const data = JSON.parse(dl.text)
     expect(Array.isArray(data)).toBe(true)
@@ -306,7 +306,7 @@ describe('All-Nodes table exports', () => {
     await flush()
     expect(downloads).toHaveLength(1)
     const dl = downloads[0]
-    expect(dl.filename).toMatch(/^redamon-data-/)
+    expect(dl.filename).toMatch(/^whitehat-data-/)
     expect(dl.filename.endsWith('.md')).toBe(true)
     const md = dl.text
     expect(md).toContain('# Nodes Export')

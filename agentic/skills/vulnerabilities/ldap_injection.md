@@ -77,10 +77,10 @@ Returned `namingContexts` reveal the search base DNs.
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history (proxy_brain only see traffic that crossed the capture proxy).
 
-- `redamon.params` flags the field that flows into the filter (a `q` / `username` / `group` search param).
-- For a GET search param, `redamon.fuzz id "q" ["*", "*)(uid=*", "alice)(description=A*", "alice)(description=B*"]` drives the auth-bypass and boolean-blind char-by-char set over one captured QUERY param, comparing per-payload length to find the "found / not found" oracle.
-- For body-param login flows (redamon.fuzz only iterates query params), `redamon.replay id mutate:{param:{"username":"alice)(&(1=1)"}}` mutates the username body param.
-- `redamon.diff id_legit id_injected` makes the boolean oracle explicit (legitimate N-result response versus an injected response of different length).
+- `whitehat.params` flags the field that flows into the filter (a `q` / `username` / `group` search param).
+- For a GET search param, `whitehat.fuzz id "q" ["*", "*)(uid=*", "alice)(description=A*", "alice)(description=B*"]` drives the auth-bypass and boolean-blind char-by-char set over one captured QUERY param, comparing per-payload length to find the "found / not found" oracle.
+- For body-param login flows (whitehat.fuzz only iterates query params), `whitehat.replay id mutate:{param:{"username":"alice)(&(1=1)"}}` mutates the username body param.
+- `whitehat.diff id_legit id_injected` makes the boolean oracle explicit (legitimate N-result response versus an injected response of different length).
 
 ## Attack matrix
 

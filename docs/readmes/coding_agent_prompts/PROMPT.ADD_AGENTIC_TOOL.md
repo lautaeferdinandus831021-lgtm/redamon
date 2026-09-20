@@ -1,6 +1,6 @@
 # NEW TOOL IN AGENTIC SYSTEM
 
-Integrate **[TOOL_NAME]** into the RedAmon agentic system.
+Integrate **[TOOL_NAME]** into the WhiteHat agentic system.
 
 > **Scope**: This prompt covers tools used by the AI agent during interactive pentesting sessions (chat-based). It does NOT cover the recon pipeline.
 
@@ -364,7 +364,7 @@ For MCP tools that accept an optional API key via CLI flag (tool works without i
 - [ ] **Update existing DB rows** — Existing projects won't have the new tool in their `agentToolPhaseMap`. The Prisma default only applies to NEW projects. Without this step, the agent will NOT see the tool in existing projects (it won't appear in the prompt's tool_name enum). Run:
 
 ```bash
-docker compose exec postgres psql -U redamon -d redamon -c "
+docker compose exec postgres psql -U whitehat -d whitehat -c "
 UPDATE projects
 SET agent_tool_phase_map = agent_tool_phase_map::jsonb || '{\"TOOL_NAME\": [\"PHASE1\", \"PHASE2\"]}'::jsonb
 WHERE NOT (agent_tool_phase_map::jsonb ? 'TOOL_NAME');

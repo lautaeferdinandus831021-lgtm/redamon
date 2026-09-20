@@ -24,7 +24,7 @@ BASE="${BASE_URL:-http://localhost:3000}"
 DC="docker compose"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"; \
-  $DC exec -T postgres psql -U redamon -d redamon -tAc "DELETE FROM captured_http_transactions WHERE run_id LIKE '"'"'ttest-live-%'"'"';" >/dev/null 2>&1 || true; \
+  $DC exec -T postgres psql -U whitehat -d whitehat -tAc "DELETE FROM captured_http_transactions WHERE run_id LIKE '"'"'ttest-live-%'"'"';" >/dev/null 2>&1 || true; \
   $DC exec -T webapp node scripts/e2e-bola-cleanup.mjs >/dev/null 2>&1 || true' EXIT
 
 PASS=0; FAIL=0
@@ -37,7 +37,7 @@ excludes(){ if echo "$2" | grep -q "$3"; then bad "$1 (LEAKED '$3')"; else ok "$
 login() { curl -s -o /dev/null -c "$2" -X POST "$BASE/api/auth/login" -H 'Content-Type: application/json' -d "{\"email\":\"$1\",\"password\":\"e2epass123\"}"; }
 gcode() { curl -s -o /dev/null -w '%{http_code}' -b "$1" "$BASE$2"; }
 gbody() { curl -s -b "$1" "$BASE$2"; }
-psql_() { $DC exec -T postgres psql -U redamon -d redamon -tAc "$1"; }
+psql_() { $DC exec -T postgres psql -U whitehat -d whitehat -tAc "$1"; }
 
 # scanner ingest POST (X-Internal-Key: SCANNER_API_KEY)
 ingest_code() { curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/traffic/$1/ingest" -H "X-Internal-Key: $KEY" -H 'Content-Type: application/json' -d "$2"; }

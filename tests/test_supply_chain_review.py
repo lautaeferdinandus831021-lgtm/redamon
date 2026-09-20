@@ -415,7 +415,7 @@ class TestValidateArtifactDeep(unittest.TestCase):
 # --------------------------------------------------------------------------
 class TestRunHelper(unittest.TestCase):
     def test_nonexistent_binary_returns_error_no_raise(self):
-        res = run_argv(["___redamon_no_such_binary___", "--x"])
+        res = run_argv(["___whitehat_no_such_binary___", "--x"])
         self.assertIsNone(res["exit_code"])
         self.assertIn("spawn failed", res["error"])
 

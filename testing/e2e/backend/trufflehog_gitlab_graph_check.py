@@ -39,7 +39,7 @@ What is checked, beyond the generic contract:
 Run:  python3 testing/e2e/backend/trufflehog_gitlab_graph_check.py
       python3 testing/e2e/backend/trufflehog_gitlab_graph_check.py --twice
       python3 testing/e2e/backend/trufflehog_gitlab_graph_check.py --no-scan
-Env:  REDAMON_PROJECT, REDAMON_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
+Env:  WHITEHAT_PROJECT, WHITEHAT_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
       GITLAB_FIXTURE_TOKEN (else _local/gitlab_fixture_token)
 """
 import json
@@ -50,8 +50,8 @@ import time
 import urllib.error
 import urllib.request
 
-PROJECT = os.environ.get("REDAMON_PROJECT", "e651f859c3114faf94196ab02")
-USER = os.environ.get("REDAMON_USER", "cmrzlj3xk0000ob3vo67o3igg")
+PROJECT = os.environ.get("WHITEHAT_PROJECT", "e651f859c3114faf94196ab02")
+USER = os.environ.get("WHITEHAT_USER", "cmrzlj3xk0000ob3vo67o3igg")
 ORCH = os.environ.get("ORCH_URL", "http://127.0.0.1:8010")
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 ARTIFACT = os.path.join(
@@ -67,7 +67,7 @@ VALIDATION_STATUSES = {"validated", "unvalidated", "verify_error", "unverified"}
 # to what it measures.
 COEXIST_SOURCE = "filesystem"
 COEXIST_DIR = os.path.join(REPO_ROOT, "scanners", "scan_targets", "filesystem")
-COEXIST_FILE = os.path.join(COEXIST_DIR, "redamon_th_coexist.env")
+COEXIST_FILE = os.path.join(COEXIST_DIR, "whitehat_th_coexist.env")
 # Synthetic, and deliberately a detector NO gitlab fixture carries, so "the
 # other source's findings survived" is a question about one detector name.
 COEXIST_CONTENT = "NPM_TOKEN=npm_iEDPP1TudBqvzVpBrIcHFJDVbrGwiC0dbfmL\n"

@@ -42,7 +42,7 @@ container_manager.py   spawns scan containers; sibling bind mounts + security ha
 resource_governor.py   memory-envelope admission control        mem_calibrate.py  calibration
 scan_scheduler.py      scheduled scans           admission_ledger.py  in-flight accounting
 hard_guardrail.py  auth.py  local_llm_manager.py
-tests/                 pytest (section recon_orchestrator, image redamon-recon-orchestrator)
+tests/                 pytest (section recon_orchestrator, image whitehat-recon-orchestrator)
 ```
 
 ## COMMANDS
@@ -50,13 +50,13 @@ tests/                 pytest (section recon_orchestrator, image redamon-recon-o
 ```bash
 docker compose restart recon-orchestrator     # apply a .py change (volume-mounted, no rebuild)
 docker compose build recon-orchestrator && docker compose up -d recon-orchestrator   # only for Dockerfile/requirements changes
-./redamon.sh test unit                        # includes the recon_orchestrator section
+./whitehat.sh test unit                        # includes the recon_orchestrator section
 ```
 
 ## QA CHECKLIST
 
-- [ ] `./redamon.sh test unit` green (recon_orchestrator section).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] `./whitehat.sh test unit` green (recon_orchestrator section).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] Added a new env knob? It is in the `environment:` block in `docker-compose.yml`, not only `.env`.
 - [ ] No new Python import unless it is already in the image (a missing one crash-loops the service).
 - [ ] Restarted (or rebuilt, for Dockerfile changes) `recon-orchestrator`.

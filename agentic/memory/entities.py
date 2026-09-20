@@ -1,7 +1,7 @@
 """Entity extraction: the nodes of the memory knowledge graph.
 
 agentmemory keeps a structural graph beside the text so a question can reach a
-memory that shares no words with it. RedAmon's equivalent node set is small and
+memory that shares no words with it. WhiteHat's equivalent node set is small and
 fact-shaped - hosts, IPs, ports, URLs, HTTP statuses, tool names, CVE ids - and
 is extracted with regexes rather than an NER model, because a model would mean a
 new dependency in a baked image and a per-call latency on the agent's path.

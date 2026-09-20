@@ -1,4 +1,4 @@
-# Knowledge Base heavy dependencies (installed only when ./redamon.sh install --kbase
+# Knowledge Base heavy dependencies (installed only when ./whitehat.sh install --kbase
 # is used; default install builds the agent image without these).
 # torch (~2-3 GB) is a transitive dep of sentence-transformers
 faiss-cpu>=1.7.0

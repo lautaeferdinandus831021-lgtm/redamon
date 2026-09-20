@@ -13,10 +13,10 @@ edge is actually written, to the right node, and to nothing else:
 
 Self-skips unless the neo4j driver imports AND a database answers. To run it:
 
-  docker run --rm --network redamon-network -v "$PWD:/repo" -w /repo \\
+  docker run --rm --network whitehat-network -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo:/repo/agentic -e NEO4J_URI=bolt://neo4j:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m pytest tests/test_chain_proof_graph_live.py -v
+    whitehat-agent python -m pytest tests/test_chain_proof_graph_live.py -v
 
 Everything is scoped to throwaway ids and DETACH DELETEd in teardown.
 """

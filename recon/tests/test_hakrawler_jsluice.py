@@ -1222,7 +1222,7 @@ def test_imports_resolve():
 
 def test_auth_header_stays_separate_from_ctx_tag_in_hakrawler_join():
     """Row 1: hakrawler packs ALL headers into ONE -h argument joined by ';;',
-    and the internal X-Redamon-Ctx tag is appended to that same list. An auth
+    and the internal X-WhiteHat-Ctx tag is appended to that same list. An auth
     value carrying ';;' (or ordered after the tag) could split or spoof the tag.
     The profile's lines must lead and stay their own element."""
     from recon.helpers.resource_enum.hakrawler_helpers import run_hakrawler_crawler
@@ -1261,10 +1261,10 @@ def test_auth_header_stays_separate_from_ctx_tag_in_hakrawler_join():
     joined = cmd[cmd.index("-h") + 1]
     parts = joined.split(";;")
     assert parts[0] == "Cookie: sid=abc123", parts
-    assert "X-Redamon-Ctx: signed-ctx-token" in parts, parts
+    assert "X-WhiteHat-Ctx: signed-ctx-token" in parts, parts
     # The auth element must not itself contain the delimiter or the tag.
     assert ";;" not in parts[0]
-    assert "X-Redamon-Ctx" not in parts[0]
+    assert "X-WhiteHat-Ctx" not in parts[0]
 
 
 if __name__ == "__main__":

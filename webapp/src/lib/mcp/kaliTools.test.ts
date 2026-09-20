@@ -329,7 +329,7 @@ describe('a finished job that FAILED', () => {
   test('an ordinary non-zero exit keeps the plain note', async () => {
     h.status.mockResolvedValue({ ...doneJob, status: 'failed', exitCode: 1 })
     const r = await readCommandOutput(ctx(), 'p1', 'j1') as Record<string, unknown>
-    expect(r.note).toMatch(/TOOL failing, not RedAmon refusing/)
+    expect(r.note).toMatch(/TOOL failing, not WhiteHat refusing/)
     expect(r.failure).toBeUndefined()
   })
 })

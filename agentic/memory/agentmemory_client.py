@@ -2,7 +2,7 @@
 
 WHY A MIRROR, NOT A DEPENDENCY
 ------------------------------
-RedAmon must keep working with no agentmemory server anywhere: the memory
+WhiteHat must keep working with no agentmemory server anywhere: the memory
 subsystem is useful on its own (local store, tools, timeline, self-improvement),
 and a hard dependency would make a scan fail because a Node service was down.
 So this client is a *mirror*:
@@ -27,7 +27,7 @@ plain HTTP JSON and the client speaks the same verbs as its tools:
 The paths are env-configurable (`AGENTMEMORY_SAVE_PATH`,
 `AGENTMEMORY_RECALL_PATH`) rather than hardcoded: agentmemory is an external,
 versioned service, and a path rename upstream should be a config change on the
-server host, not a RedAmon code change and redeploy of the agent image.
+server host, not a WhiteHat code change and redeploy of the agent image.
 """
 from __future__ import annotations
 
@@ -60,12 +60,12 @@ def _auth_headers() -> dict[str, str]:
 def encode_metadata(record) -> dict[str, Any]:
     """The subset of a memory agentmemory needs to store it as its own.
 
-    `redamon_memory_id` is the join key on the way back: a mirror round-trip
+    `whitehat_memory_id` is the join key on the way back: a mirror round-trip
     must update the SAME local memory, never create a duplicate beside it.
     """
     return {
-        "redamon_project_id": record.project_id,
-        "redamon_memory_id": record.memory_id,
+        "whitehat_project_id": record.project_id,
+        "whitehat_memory_id": record.memory_id,
         "kind": record.kind,
         "confidence": round(record.confidence, 4),
         "state": record.state,

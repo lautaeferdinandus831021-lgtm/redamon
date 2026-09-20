@@ -368,7 +368,7 @@ describe('/api/analytics/redzone/secrets', () => {
 
   // -- the three sources this table used to omit ----------------------------
   // Every one of them was graph-only: the operator had to open /graph to see a
-  // credential RedAmon had already found.
+  // credential WhiteHat had already found.
 
   test('GitHub Secret Hunt findings are queried', async () => {
     await secretsRoute.GET(makeRequest('p1'))

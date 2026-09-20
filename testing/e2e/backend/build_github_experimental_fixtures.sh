@@ -14,9 +14,9 @@
 # a file - it has to be manufactured by pushing a commit and then force-pushing
 # it out of the branch, leaving the object dangling on GitHub's servers.
 #
-#   redamon-thx-dangling   live tree CLEAN; SentryToken ONLY in an unreachable
+#   whitehat-thx-dangling   live tree CLEAN; SentryToken ONLY in an unreachable
 #                          commit, recorded in the manifest as `danglingSha`
-#   redamon-thx-live       an RSA PrivateKey in the live tree, nothing dangling
+#   whitehat-thx-live       an RSA PrivateKey in the live tree, nothing dangling
 #
 # That contrast is the proof: scanning the dangling repo with the ordinary
 # `github` source finds NOTHING, and with `github_experimental` finds
@@ -63,8 +63,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 WORK="$ROOT/_local/ghx_fixture_build"
 MANIFEST="$ROOT/_local/github_experimental_fixtures.json"
-PREFIX="${REDAMON_FIXTURE_PREFIX:-redamon-thx}"
-TH_IMAGE="${REDAMON_TRUFFLEHOG_IMAGE:-redamon-trufflehog:latest}"
+PREFIX="${WHITEHAT_FIXTURE_PREFIX:-whitehat-thx}"
+TH_IMAGE="${WHITEHAT_TRUFFLEHOG_IMAGE:-whitehat-trufflehog:latest}"
 
 TOKEN="${GITHUB_FIXTURE_TOKEN:-}"
 if [[ -z "$TOKEN" && -f "$ROOT/_local/gh_fixture_token" ]]; then
@@ -116,7 +116,7 @@ mkdir -p "$WORK"
 
 # --- synthetic values ------------------------------------------------------
 # Split from their prefixes so THIS FILE can itself be pushed to GitHub: push
-# protection scans every commit of the RedAmon repository too, and a whole
+# protection scans every commit of the WhiteHat repository too, and a whole
 # SendGrid-shaped string sitting in a committed script is rejected with a
 # message that reads nothing like a fixture problem.
 SENTRY="a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
@@ -207,7 +207,7 @@ ensure_repo() {
   fi
   api POST /user/repos "$(jq -nc --arg n "$name" --argjson p "$private" \
     '{name:$n, private:$p, has_wiki:false, has_issues:false, auto_init:false,
-      description:"RedAmon Secret Multiscanner test fixture. Synthetic secrets only."}')" \
+      description:"WhiteHat Secret Multiscanner test fixture. Synthetic secrets only."}')" \
     | jq -r '"  + created " + (.full_name // .message)'
   relax_push_protection "$name"
   return 0
@@ -226,7 +226,7 @@ if ensure_repo "$DANGLING" false; then
   cat > "$D/README.md" <<EOF
 # $DANGLING
 
-RedAmon Secret Multiscanner fixture for the \`github_experimental\` source.
+WhiteHat Secret Multiscanner fixture for the \`github_experimental\` source.
 
 This repository's live tree contains NO credential any detector fires on, on
 purpose. A synthetic Sentry token exists only in a commit that was force-pushed
@@ -300,7 +300,7 @@ if ensure_repo "$LIVE" false; then
   cat > "$D/README.md" <<EOF
 # $LIVE
 
-RedAmon Secret Multiscanner fixture. A synthetic RSA deploy key sits in the LIVE
+WhiteHat Secret Multiscanner fixture. A synthetic RSA deploy key sits in the LIVE
 tree and nothing has ever been force-pushed here, so \`--object-discovery\` has
 no hidden object to find.
 EOF

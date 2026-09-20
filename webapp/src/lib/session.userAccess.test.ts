@@ -15,7 +15,7 @@ let authCookie: string | undefined
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => ({
-    get: (name: string) => (name === 'redamon-auth' && authCookie ? { value: authCookie } : undefined),
+    get: (name: string) => (name === 'whitehat-auth' && authCookie ? { value: authCookie } : undefined),
   })),
 }))
 

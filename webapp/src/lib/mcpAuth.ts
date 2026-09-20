@@ -1,7 +1,7 @@
 /**
  * Personal access tokens for the INBOUND MCP server (/api/mcp-server).
  *
- * RedAmon is the *server* here and the caller is untrusted, so the one thing
+ * WhiteHat is the *server* here and the caller is untrusted, so the one thing
  * this file exists to establish is WHICH USER a request is. Everything else -
  * ownership, scopes, budgets - hangs off that single resolved id.
  *
@@ -388,7 +388,7 @@ export function bucketSpec(bucket: McpBucketName): BucketSpec {
     // retention slot, so a looping agent must not be able to churn the timeline.
     case 'start':
       return { limit: envInt('MCP_RATE_START_PER_WINDOW', 1), windowMs: envInt('MCP_RATE_START_WINDOW_MS', 300_000) }
-    // Each call reaches a live third-party target from RedAmon's own address,
+    // Each call reaches a live third-party target from WhiteHat's own address,
     // so this is tighter than the read bucket. Polling a running command uses
     // the cheap `read` bucket instead, so a slow tool does not have to spend
     // this one to be watched.

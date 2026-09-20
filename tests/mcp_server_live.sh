@@ -9,7 +9,7 @@
 #   ROW 2  MCP_SERVER_ENABLED must actually REACH the webapp container. The
 #          webapp has NO env_file, so a value set in .env alone is inert
 #          (CHANGELOG 6.2.7 records this exact class of bug on the
-#          orchestrator). tests/redamon_mcp_env_test.sh asserts the compose TEXT
+#          orchestrator). tests/whitehat_mcp_env_test.sh asserts the compose TEXT
 #          lists it; only this asserts the running process honours it.
 #
 #   ROW 10 MCP_DISABLED_TOOLS must actually WITHDRAW a tool from the running
@@ -31,14 +31,14 @@
 #          only this proves a real request lands in the right block.
 #
 # This test MUTATES state (it toggles the flag and restarts the webapp) and
-# RESTORES it on exit. It is live-tier: not part of `redamon.sh test unit`.
+# RESTORES it on exit. It is live-tier: not part of `whitehat.sh test unit`.
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 ENV_FILE="$REPO_ROOT/.env"
-WEBAPP_URL="${REDAMON_TEST_WEBAPP_URL:-http://localhost:3000}"
+WEBAPP_URL="${WHITEHAT_TEST_WEBAPP_URL:-http://localhost:3000}"
 RPC='{"jsonrpc":"2.0","method":"tools/list","id":1}'
 # The SDK enforces the MCP spec's Accept header even in JSON mode.
 ACCEPT='Accept: application/json, text/event-stream'
@@ -60,7 +60,7 @@ fi
 # --- restore whatever we change, however we exit -------------------------------
 ORIGINAL_FLAG="$(grep '^MCP_SERVER_ENABLED=' "$ENV_FILE" 2>/dev/null || true)"
 ORIGINAL_DISABLED="$(grep '^MCP_DISABLED_TOOLS=' "$ENV_FILE" 2>/dev/null || true)"
-NGINX_NAME="redamon-mcp-live-nginx-$$"
+NGINX_NAME="whitehat-mcp-live-nginx-$$"
 WORK="$REPO_ROOT/.mcp-live-check.$$"
 
 cleanup() {
@@ -70,8 +70,8 @@ cleanup() {
     if [[ -n "$ORIGINAL_DISABLED" ]]; then
         printf '%s\n' "$ORIGINAL_DISABLED" >> "$ENV_FILE"
     fi
-    docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" \
-        -d "${POSTGRES_DB:-redamon}" -qtAc \
+    docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" \
+        -d "${POSTGRES_DB:-whitehat}" -qtAc \
         "delete from mcp_access_tokens where id='mcp-live-check'" >/dev/null 2>&1 || true
     if [[ -n "$ORIGINAL_FLAG" ]]; then
         sed -i "s|^MCP_SERVER_ENABLED=.*|${ORIGINAL_FLAG}|" "$ENV_FILE"
@@ -176,20 +176,20 @@ else
     # deleted below, so the test creates no lasting credential.
     TOKEN="rdmn_mcp_$(openssl rand -hex 24)"
     HASH="$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)"
-    UID_ROW="$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" \
-        -d "${POSTGRES_DB:-redamon}" -qtAc 'select id from users order by created_at limit 1' 2>/dev/null | tr -d '\r')"
+    UID_ROW="$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" \
+        -d "${POSTGRES_DB:-whitehat}" -qtAc 'select id from users order by created_at limit 1' 2>/dev/null | tr -d '\r')"
     if [[ -z "$UID_ROW" ]]; then
         skip "enabled -> 200 with a valid token" "no user row to attach a token to"
     else
-        docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" -d "${POSTGRES_DB:-redamon}" -qtAc \
+        docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" -d "${POSTGRES_DB:-whitehat}" -qtAc \
           "insert into mcp_access_tokens (id,user_id,name,token_prefix,token_hash,scopes,created_at)
            values ('mcp-live-check','$UID_ROW','live check','${TOKEN:0:17}','$HASH',ARRAY['recon:read'],now())
            on conflict (id) do update set token_hash='$HASH', revoked_at=null, expires_at=null" >/dev/null 2>&1
         eq "enabled -> 200 with a valid token" \
            "$(mcp_status -H "Authorization: Bearer $TOKEN")" "200"
-        docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" -d "${POSTGRES_DB:-redamon}" \
+        docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" -d "${POSTGRES_DB:-whitehat}" \
           -qtAc "delete from mcp_access_tokens where id='mcp-live-check'" >/dev/null 2>&1
-        docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" -d "${POSTGRES_DB:-redamon}" \
+        docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" -d "${POSTGRES_DB:-whitehat}" \
           -qtAc "delete from audit_log where source='mcp'" >/dev/null 2>&1
     fi
 fi
@@ -204,15 +204,15 @@ MCP_TOOL_COUNT_EXPECTED=30
 
 TOKEN="rdmn_mcp_$(openssl rand -hex 24)"
 HASH="$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)"
-UID_ROW="$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" \
-    -d "${POSTGRES_DB:-redamon}" -qtAc 'select id from users order by created_at limit 1' 2>/dev/null | tr -d '\r')"
+UID_ROW="$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" \
+    -d "${POSTGRES_DB:-whitehat}" -qtAc 'select id from users order by created_at limit 1' 2>/dev/null | tr -d '\r')"
 
 if [[ -z "$UID_ROW" ]]; then
     skip "rows 10+11" "no user row to attach a token to"
 elif ! set_disabled ""; then
     bad "webapp came back with MCP_DISABLED_TOOLS empty" "unhealthy" "healthy"
 else
-    docker compose exec -T postgres psql -U "${POSTGRES_USER:-redamon}" -d "${POSTGRES_DB:-redamon}" -qtAc \
+    docker compose exec -T postgres psql -U "${POSTGRES_USER:-whitehat}" -d "${POSTGRES_DB:-whitehat}" -qtAc \
       "insert into mcp_access_tokens (id,user_id,name,token_prefix,token_hash,scopes,created_at)
        values ('mcp-live-check','$UID_ROW','live check','${TOKEN:0:17}','$HASH',ARRAY['recon:read'],now())
        on conflict (id) do update set token_hash='$HASH', revoked_at=null, expires_at=null" >/dev/null 2>&1
@@ -283,7 +283,7 @@ render() {   # render <GATE_MODE> [MCP_EDGE_ALLOW_BEARER]
       CSP_CONNECT="'self'" CSP_HEADER_NAME=Content-Security-Policy \
       WS_AUTH_REQUEST="" REDIRECT_HOST=localhost TLS_MODE=selfsigned \
       HTTP_PORT=8081 HTTPS_PORT=8443 \
-      _NGINX_MOD="$DEPLOY/modules/nginx.sh" _TMPL="$DEPLOY/nginx/redamon.conf.tmpl" \
+      _NGINX_MOD="$DEPLOY/modules/nginx.sh" _TMPL="$DEPLOY/nginx/whitehat.conf.tmpl" \
       bash -c '
         set -uo pipefail
         is_true() { [[ "$(printf "%s" "${1:-}" | tr "[:upper:]" "[:lower:]")" == "true" || "${1:-}" == "1" ]]; }
@@ -294,14 +294,14 @@ render() {   # render <GATE_MODE> [MCP_EDGE_ALLOW_BEARER]
 
 start_nginx() {   # start_nginx <conf-file>
     docker rm -f "$NGINX_NAME" >/dev/null 2>&1 || true
-    cp "$1" "$WORK/redamon.conf"
+    cp "$1" "$WORK/whitehat.conf"
     # --network host so the config's proxy_pass 127.0.0.1:3000 reaches the
     # host-published webapp, exactly as it does on a single-host deploy.
     docker run -d --name "$NGINX_NAME" --network host \
-        -v "$WORK/redamon.conf:/etc/nginx/conf.d/redamon.conf:ro" \
+        -v "$WORK/whitehat.conf:/etc/nginx/conf.d/whitehat.conf:ro" \
         -v "$WORK/snip:/etc/nginx/snippets:ro" \
         -v "$WORK/c.pem:/c.pem:ro" -v "$WORK/k.pem:/k.pem:ro" \
-        -v "$WORK/htpasswd:/etc/nginx/.redamon_htpasswd:ro" \
+        -v "$WORK/htpasswd:/etc/nginx/.whitehat_htpasswd:ro" \
         nginx:alpine >/dev/null 2>&1 || return 1
     for _ in $(seq 1 25); do
         curl -sk -o /dev/null "https://localhost:8443/api/health" 2>/dev/null && return 0
@@ -320,8 +320,8 @@ code() {  # code <path> [method]
 }
 
 mkdir -p "$WORK/snip"
-cp "$DEPLOY/nginx/snippets/security-headers.conf" "$WORK/snip/redamon-security-headers.conf" 2>/dev/null
-cp "$DEPLOY/nginx/snippets/proxy-common.conf"     "$WORK/snip/redamon-proxy-common.conf"     2>/dev/null
+cp "$DEPLOY/nginx/snippets/security-headers.conf" "$WORK/snip/whitehat-security-headers.conf" 2>/dev/null
+cp "$DEPLOY/nginx/snippets/proxy-common.conf"     "$WORK/snip/whitehat-proxy-common.conf"     2>/dev/null
 openssl req -x509 -newkey rsa:2048 -nodes -keyout "$WORK/k.pem" -out "$WORK/c.pem" \
     -days 1 -subj "/CN=localhost" >/dev/null 2>&1
 # htpasswd: user "op", password "op" (apr1 hash), for the basic_auth pass below.

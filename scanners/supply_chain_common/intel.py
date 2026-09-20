@@ -265,7 +265,7 @@ def enrich_findings(artifact, intel=None):
         if isinstance(errors, list):
             errors.append(
                 "sca-intel: incident catalog unavailable, findings were NOT "
-                "annotated with incident context - run './redamon.sh sca-intel-sync'")
+                "annotated with incident context - run './whitehat.sh sca-intel-sync'")
         return artifact
 
     for bucket in ("malicious", "vulnerable", "suspicious"):

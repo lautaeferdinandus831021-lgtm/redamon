@@ -10,7 +10,7 @@ description: >
   single-phase re-run.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [recon]
   auto_invoke:
@@ -61,7 +61,7 @@ graph-sourced inputs, the modal, and the single-phase re-run.
 
 ```bash
 # recon/*.py is spawned fresh per job (volume-mounted) - no rebuild
-./redamon.sh test unit                    # recon + root-recon sections
+./whitehat.sh test unit                    # recon + root-recon sections
 ```
 
 ## Resources

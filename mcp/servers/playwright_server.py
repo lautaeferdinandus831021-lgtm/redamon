@@ -16,7 +16,7 @@ import re
 import os
 
 # Chromium launch constants live in browser_launch so this server and the
-# in-process `redamon` SDK cannot drift on the root/Docker flags.
+# in-process `whitehat` SDK cannot drift on the root/Docker flags.
 from browser_launch import BROWSER_ARGS, CHROME_UA
 
 # Strip ANSI escape codes (terminal colors) from output
@@ -74,7 +74,7 @@ def _run_playwright_script(script: str, timeout: int = 45) -> str:
 
 
 @mcp.tool()
-def execute_playwright(url: str = "", script: str = "", selector: str = "", format: str = "text", _redamon_ctx: str = "") -> str:
+def execute_playwright(url: str = "", script: str = "", selector: str = "", format: str = "text", _whitehat_ctx: str = "") -> str:
     """
     Browser automation tool with two modes: content extraction or custom scripting.
 
@@ -111,9 +111,9 @@ def execute_playwright(url: str = "", script: str = "", selector: str = "", form
         - script="page.goto('http://10.0.0.5/search')\\npage.fill('input[name=q]', '<script>alert(1)</script>')\\npage.click('button[type=submit]')\\npage.wait_for_load_state('networkidle')\\nprint(page.content()[:5000])"
     """
     if script.strip():
-        return _execute_script_mode(script, _redamon_ctx)
+        return _execute_script_mode(script, _whitehat_ctx)
     elif url.strip():
-        return _execute_content_mode(url, selector, format, _redamon_ctx)
+        return _execute_content_mode(url, selector, format, _whitehat_ctx)
     else:
         return "[ERROR] Provide either 'url' (content extraction) or 'script' (custom automation)."
 
@@ -135,7 +135,7 @@ def _capture_playwright_args(ctx_token: str):
     # Only emitted when capture is on, so non-capture playwright keeps strict TLS.
     return (
         f'proxy={{"server": {cap_url!r}}},',
-        f'extra_http_headers={{"X-Redamon-Ctx": {cap_tok!r}}}, ignore_https_errors=True,',
+        f'extra_http_headers={{"X-WhiteHat-Ctx": {cap_tok!r}}}, ignore_https_errors=True,',
     )
 
 
@@ -143,7 +143,7 @@ def _capture_launch_patch(ctx_token: str) -> str:
     """Monkeypatch fragment for SELF-CONTAINED scripts (they bring their own
     `sync_playwright()`, so the wrapper's proxy=/extra_http_headers kwargs never
     apply). Forces every browser launch through the capture proxy and stamps the
-    X-Redamon-Ctx header on every context (new_context also backs Browser.new_page
+    X-WhiteHat-Ctx header on every context (new_context also backs Browser.new_page
     in playwright-python) and persistent context. Empty when not routing (§20.2:
     proxy + header added together, only when reachable)."""
     try:
@@ -156,7 +156,7 @@ def _capture_launch_patch(ctx_token: str) -> str:
     return textwrap.dedent(f"""\
         import playwright.sync_api as _pw_cap
         _pw_cap_url = {cap_url!r}
-        _pw_cap_hdr = {{"X-Redamon-Ctx": {cap_tok!r}}}
+        _pw_cap_hdr = {{"X-WhiteHat-Ctx": {cap_tok!r}}}
         _pw_cap_L = _pw_cap.BrowserType.launch
         def _pw_cap_launch(self, **kw):
             kw["proxy"] = {{"server": _pw_cap_url}}
@@ -295,7 +295,7 @@ def _execute_script_mode(user_script: str, ctx_token: str = "") -> str:
 
     # Self-contained script (brings its own `sync_playwright()` context): run it raw
     # so we don't nest two sync contexts. Inject browser args via a launch monkeypatch,
-    # and (when capture is on) force the proxy + X-Redamon-Ctx via _capture_launch_patch
+    # and (when capture is on) force the proxy + X-WhiteHat-Ctx via _capture_launch_patch
     # so self-contained scripts are captured like the wrapped path.
     if _SELF_CONTAINED_RE.search(user_script):
         return _run_playwright_script(

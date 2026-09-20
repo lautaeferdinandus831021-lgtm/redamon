@@ -20,9 +20,9 @@ query_graph: "Return IPs where a port in (88, 135, 389, 445, 464, 636, 3268, 326
 - Zero results → **abort**. You need a foothold first (external→internal pivot chain, or an operator-supplied `chisel` tunnel).
 - At least one Windows host with 445 or 88 → continue. Pick one DC candidate, call it `$DC_IP`, remember its domain `$DOMAIN`.
 
-## Tool palette — which RedAmon tool for which job
+## Tool palette — which WhiteHat tool for which job
 
-| Task                           | RedAmon tool          | Notes |
+| Task                           | WhiteHat tool          | Notes |
 |--------------------------------|-----------------------|-------|
 | Any AD command                 | `kali_shell`          | impacket-*, certipy-ad, nxc, bloodhound-python, john, hashcat, kerbrute, gMSADumper, bloodyAD, gpp-decrypt all pre-installed |
 | Graph path-finding             | `kali_shell bhgraph …`| NetworkX over BloodHound JSON; state in `/tmp/adkc/bhgraph.pkl` |

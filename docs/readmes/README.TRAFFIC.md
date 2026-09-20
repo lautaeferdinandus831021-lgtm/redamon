@@ -1,6 +1,6 @@
 # HTTP Traffic Capture
 
-RedAmon's built-in, engagement-scoped **proxy history**: a man-in-the-middle proxy
+WhiteHat's built-in, engagement-scoped **proxy history**: a man-in-the-middle proxy
 that sits between every offensive tool and its target, records the full
 request/response of each HTTP transaction, tags it with *who* produced it
 (project / user / run / tool), stores it in Postgres, and exposes it to both the
@@ -55,7 +55,7 @@ INSERT-only database role, inert body rendering, the constrained query builder)
 is that single principle applied at one more layer.
 
 Identity is carried across the untrusted zone as an opaque **signed capability**
-(the `X-Redamon-Ctx` tag). The first component that can be trusted (the ingest
+(the `X-WhiteHat-Ctx` tag). The first component that can be trusted (the ingest
 worker) verifies that signature and only then does `user_id` / `project_id`
 become authoritative. Nothing a target ever touched is trusted to name a tenant.
 
@@ -65,17 +65,17 @@ become authoritative. Nothing a target ever touched is trusted to name a tenant.
 
 | Component | Container | Network | Holds secret? | Source |
 |---|---|---|---|---|
-| Capture proxy | `redamon-capture-proxy` | `pentest-net` only | No | [`scanners/capture_proxy/capture_addon.py`](../../scanners/capture_proxy/capture_addon.py) |
-| Ingest worker | `redamon-traffic-ingest` | `redamon` only | Yes (scoped DB role) | [`scanners/capture_proxy/ingest_worker.py`](../../scanners/capture_proxy/ingest_worker.py) |
-| Tag primitive | (library, 3 copies) | n/a | key held by minters only | [`scanners/capture_proxy/redamon_ctx.py`](../../scanners/capture_proxy/redamon_ctx.py) |
+| Capture proxy | `whitehat-capture-proxy` | `pentest-net` only | No | [`scanners/capture_proxy/capture_addon.py`](../../scanners/capture_proxy/capture_addon.py) |
+| Ingest worker | `whitehat-traffic-ingest` | `whitehat` only | Yes (scoped DB role) | [`scanners/capture_proxy/ingest_worker.py`](../../scanners/capture_proxy/ingest_worker.py) |
+| Tag primitive | (library, 3 copies) | n/a | key held by minters only | [`scanners/capture_proxy/whitehat_ctx.py`](../../scanners/capture_proxy/whitehat_ctx.py) |
 | Egress guard | (library, in proxy) | n/a | No | [`scanners/capture_proxy/egress.py`](../../scanners/capture_proxy/egress.py) |
 | Record shaping | (library, in proxy) | n/a | No | [`scanners/capture_proxy/capture_lib.py`](../../scanners/capture_proxy/capture_lib.py) |
-| Orchestrator control | `recon-orchestrator` | `redamon` + `pentest-net` | Yes | [`recon_orchestrator/container_manager.py:968`](../../recon_orchestrator/container_manager.py#L968) |
-| UI + API | `webapp` | `redamon` | Yes (full DSN) | [`webapp/src/app/traffic/`](../../webapp/src/app/traffic/) |
-| Agent tools | `agent` | `redamon` | Yes (full DSN) | [`agentic/traffic_tools.py`](../../agentic/traffic_tools.py) |
+| Orchestrator control | `recon-orchestrator` | `whitehat` + `pentest-net` | Yes | [`recon_orchestrator/container_manager.py:968`](../../recon_orchestrator/container_manager.py#L968) |
+| UI + API | `webapp` | `whitehat` | Yes (full DSN) | [`webapp/src/app/traffic/`](../../webapp/src/app/traffic/) |
+| Agent tools | `agent` | `whitehat` | Yes (full DSN) | [`agentic/traffic_tools.py`](../../agentic/traffic_tools.py) |
 
 **One image, two roles.** The proxy and the ingest worker are the *same*
-`redamon-capture-proxy:latest` image ([`scanners/capture_proxy/Dockerfile`](../../scanners/capture_proxy/Dockerfile)).
+`whitehat-capture-proxy:latest` image ([`scanners/capture_proxy/Dockerfile`](../../scanners/capture_proxy/Dockerfile)).
 The role is chosen at runtime by `command` + `network` + `env`, not by the image.
 Isolation therefore comes entirely from *placement*: the proxy is put on the
 target-facing network with no credentials; the ingest worker is put on the
@@ -89,9 +89,9 @@ is Python stdlib.
 
 **Persistent volumes:**
 
-- `redamon_capture_spool` -> `/spool` : the append-only handoff between proxy and ingest.
-- `redamon_capture_bodies` -> `/bodies` : content-addressed body blob store (shared with the webapp for read + GC).
-- `redamon_capture_ca` -> `/ca` : the mitmproxy CA (a forge-anything private key, isolated to the proxy).
+- `whitehat_capture_spool` -> `/spool` : the append-only handoff between proxy and ingest.
+- `whitehat_capture_bodies` -> `/bodies` : content-addressed body blob store (shared with the webapp for read + GC).
+- `whitehat_capture_ca` -> `/ca` : the mitmproxy CA (a forge-anything private key, isolated to the proxy).
 
 ---
 
@@ -101,7 +101,7 @@ is Python stdlib.
 flowchart LR
     subgraph untrusted["pentest-net (untrusted, no secrets)"]
         TOOL["offensive tool<br/>(katana, nuclei, curl,<br/>httpx, playwright...)"]
-        PROXY["redamon-capture-proxy<br/>mitmdump + addon"]
+        PROXY["whitehat-capture-proxy<br/>mitmdump + addon"]
         TARGET["target host<br/>(attacker-controlled)"]
     end
 
@@ -110,14 +110,14 @@ flowchart LR
         BODIES[("/bodies<br/>sha256 blobs")]
     end
 
-    subgraph trusted["redamon-net (trusted)"]
-        INGEST["redamon-traffic-ingest<br/>verify + stamp + insert"]
+    subgraph trusted["whitehat-net (trusted)"]
+        INGEST["whitehat-traffic-ingest<br/>verify + stamp + insert"]
         PG[("Postgres<br/>captured_http_transactions")]
         WEBAPP["webapp /traffic UI"]
         AGENT["agent proxy_* tools"]
     end
 
-    TOOL -->|"proxy flag +<br/>X-Redamon-Ctx tag"| PROXY
+    TOOL -->|"proxy flag +<br/>X-WhiteHat-Ctx tag"| PROXY
     PROXY -->|"tag stripped,<br/>IP-pinned"| TARGET
     TARGET -->|response| PROXY
     PROXY -->|metadata JSON| SPOOL
@@ -159,8 +159,8 @@ When capture is active, two independent minters attach the tag, each holding a
 
 ### The tag
 
-`X-Redamon-Ctx` is a compact, URL-safe, HMAC-SHA256 signed token
-([`redamon_ctx.py:60`](../../scanners/capture_proxy/redamon_ctx.py#L60)). Format:
+`X-WhiteHat-Ctx` is a compact, URL-safe, HMAC-SHA256 signed token
+([`whitehat_ctx.py:60`](../../scanners/capture_proxy/whitehat_ctx.py#L60)). Format:
 `<b64url(canonical-json)>.<b64url(hmac)>`. The JSON is canonical (sorted keys,
 compact separators) so signer and verifier agree byte-for-byte, and only a
 whitelist of fields is carried so a caller cannot smuggle extra fields past the
@@ -186,9 +186,9 @@ sequenceDiagram
     Note over Proxy: holds NO key
 
     Recon->>Recon: sign_tag(source=recon, ...) with SCANNER_API_KEY
-    Recon->>Proxy: request + X-Redamon-Ctx + proxy flag
+    Recon->>Proxy: request + X-WhiteHat-Ctx + proxy flag
     Agent->>Agent: sign_tag(source=agent, ...) with INTERNAL_API_KEY
-    Agent->>Proxy: request + X-Redamon-Ctx + proxy flag
+    Agent->>Proxy: request + X-WhiteHat-Ctx + proxy flag
 
     Proxy->>Proxy: carry tag verbatim (cannot decode/forge)
     Proxy->>Ingest: (via spool) opaque tag + record
@@ -209,13 +209,13 @@ carrying project/user/run IDs, tool, phase. Initialized once per run via
 `proxy_routing.configure(settings)`.
 
 **Agent minter** ([`agentic/tools.py:1780`](../../agentic/tools.py#L1780)):
-`_build_redamon_ctx(tool_name)` signs with `INTERNAL_API_KEY`, `source="agent"`,
+`_build_whitehat_ctx(tool_name)` signs with `INTERNAL_API_KEY`, `source="agent"`,
 pulling project / user / session from ContextVars (never from LLM arguments). The
-tag is injected as a stripped `_redamon_ctx` kwarg the model never sees.
+tag is injected as a stripped `_whitehat_ctx` kwarg the model never sees.
 
 ### How each tool is pointed at the proxy
 
-The proxy flag and the `-H X-Redamon-Ctx` header are always added **in the same
+The proxy flag and the `-H X-WhiteHat-Ctx` header are always added **in the same
 branch of code**. This is a deliberate leak-guard: the tag can never be attached
 on the direct (non-proxy) path, so internal identifiers cannot leak to a target.
 
@@ -227,7 +227,7 @@ on the direct (non-proxy) path, so internal identifiers cannot leak to a target.
 | hakrawler | `-proxy` + `-H` | same |
 | kiterunner | `--proxy` + `-H` | same |
 | arjun | `HTTP_PROXY` env + `--headers` | same |
-| agent curl | `-x` + `-H` | `redamon-capture-proxy:8888` (DNS) |
+| agent curl | `-x` + `-H` | `whitehat-capture-proxy:8888` (DNS) |
 | agent httpx | `-proxy` + `-H` | same |
 | agent playwright | launch `proxy={server}` + `extra_http_headers` (both wrapped and self-contained scripts) | same |
 | agent nuclei | `-proxy` + `-H` | same |
@@ -263,7 +263,7 @@ POSTs full transactions straight to the webapp ingest endpoint
 `POST /api/traffic/{project_id}/ingest` with an `X-Internal-Key` header, and the
 webapp stamps the tenant. This is the original Phase-0 path that retained httpx
 bodies (otherwise discarded after fingerprinting) before the proxy existed. It
-mints no `X-Redamon-Ctx` tag. So there are two ingest routes into the same table:
+mints no `X-WhiteHat-Ctx` tag. So there are two ingest routes into the same table:
 the proxy/spool path and this direct-POST path.
 
 ### The `operator` source (authenticated-session recording)
@@ -294,7 +294,7 @@ request hook, which is what makes the IP pin below effective) and
 
 ```mermaid
 flowchart TD
-    START["request arrives"] --> LIFT["lift X-Redamon-Ctx onto flow metadata<br/>DELETE the header"]
+    START["request arrives"] --> LIFT["lift X-WhiteHat-Ctx onto flow metadata<br/>DELETE the header"]
     LIFT --> GUARD{"egress guard:<br/>resolve host,<br/>any internal IP?"}
     GUARD -->|"blocked or error"| B403["synthesize 403<br/>emit blocked=true record<br/>do NOT forward"]
     GUARD -->|allowed| PIN["pin server_conn.address<br/>to the vetted IP"]
@@ -309,11 +309,11 @@ flowchart TD
 
 ### Request hook
 
-1. **Strip the tag.** `headers.pop("X-Redamon-Ctx")` lifts the tag onto flow
+1. **Strip the tag.** `headers.pop("X-WhiteHat-Ctx")` lifts the tag onto flow
    metadata and deletes the header so it never reaches the target
    ([`capture_addon.py:92`](../../scanners/capture_proxy/capture_addon.py#L92)).
 2. **Egress guard** ([`egress.py`](../../scanners/capture_proxy/egress.py)). A new proxy is a
-   new egress path, so it must not become an SSRF pivot into RedAmon's internal
+   new egress path, so it must not become an SSRF pivot into WhiteHat's internal
    network. The guard resolves the hostname and refuses if *any* resolved A/AAAA
    address is internal: RFC1918, loopback, link-local, CGNAT `100.64.0.0/10`,
    reserved, multicast, unspecified, IPv4-mapped IPv6, or a configured blocked IP.
@@ -332,8 +332,8 @@ flowchart TD
    its own independent check (relaxing RFC1918 does not un-block `127.0.0.1`, which
    is still caught by `block_loopback`). Two safety invariants hold regardless of
    the toggles: (a) the explicit `extra_blocked` IP denylist (`CAPTURE_BLOCKED_IPS`,
-   RedAmon's own service IPs) is **never** policy-gated, so unblocking private
-   targets cannot pivot into RedAmon itself; and (b) `check_egress` returns
+   WhiteHat's own service IPs) is **never** policy-gated, so unblocking private
+   targets cannot pivot into WhiteHat itself; and (b) `check_egress` returns
    `allowed=True` only with a concrete pinned IP, so an empty / unresolvable host
    is never forwarded even if its toggle is off (the toggle only relabels the
    refusal). The `fail_closed_on_error` toggle governs the guard-internal-error
@@ -432,7 +432,7 @@ with the same tmp-then-`os.replace` pattern and an existence check for dedup.
 
 ## 7. Stage 4: The ingest worker
 
-[`ingest_worker.py`](../../scanners/capture_proxy/ingest_worker.py), on `redamon` only (no
+[`ingest_worker.py`](../../scanners/capture_proxy/ingest_worker.py), on `whitehat` only (no
 target egress at all). It is the *only* capture component that holds a database
 credential, and that credential is a role which can do exactly one thing: INSERT
 into one table.
@@ -453,7 +453,7 @@ flowchart TD
 
 Key properties:
 
-- **Verification** ([`redamon_ctx.py:74`](../../scanners/capture_proxy/redamon_ctx.py#L74)):
+- **Verification** ([`whitehat_ctx.py:74`](../../scanners/capture_proxy/whitehat_ctx.py#L74)):
   read `source` from the unverified body only to *select* the key, then
   `hmac.compare_digest` over the whole body (constant-time), then re-canonicalize
   and compare to reject any smuggled extra fields.
@@ -565,7 +565,7 @@ the link is scheme-checked at render because the feed is third-party). Filters: 
 range, source, tool, host, method, status class, run, URL search (`q`), body
 search (`bodyq`), set-cookie, 5xx-only. A detail drawer shows full request /
 response with a client-side "Copy as curl" (`toCurl` in the page, distinct from
-the agent SDK's `redamon.to_curl`). **Response bodies are rendered as inert text,
+the agent SDK's `whitehat.to_curl`). **Response bodies are rendered as inert text,
 never HTML**, because they are attacker-controlled.
 
 ### API routes
@@ -676,8 +676,8 @@ sequenceDiagram
     participant Docker as Docker API
 
     UI->>Orch: POST /capture-proxy/start {port, maxBodyKb, storeBodies, redactSecrets, scope}
-    Orch->>Docker: run redamon-capture-proxy (redamon_pentest-net, 127.0.0.1:port, no creds)
-    Orch->>Docker: run redamon-traffic-ingest (redamon-network, scoped DSN + verify keys)
+    Orch->>Docker: run whitehat-capture-proxy (whitehat_pentest-net, 127.0.0.1:port, no creds)
+    Orch->>Docker: run whitehat-traffic-ingest (whitehat-network, scoped DSN + verify keys)
     Orch-->>UI: capture_proxy_status()
     Note over UI,Orch: switch off -> POST /capture-proxy/stop -> stop + remove both
 ```
@@ -692,8 +692,8 @@ containers reach it; the ingest worker gets the scoped `TRAFFIC_INGEST_DATABASE_
 plus both verification keys. The settings write is best-effort (wrapped in
 try/catch) so a save never fails just because the orchestrator is down.
 
-Exact networks: the proxy joins `redamon_pentest-net` only
-(`_CAPTURE_PROXY_NETWORK`), the ingest worker joins `redamon-network` only
+Exact networks: the proxy joins `whitehat_pentest-net` only
+(`_CAPTURE_PROXY_NETWORK`), the ingest worker joins `whitehat-network` only
 (`_CAPTURE_INGEST_NETWORK`,
 [`container_manager.py:942-943`](../../recon_orchestrator/container_manager.py#L942-L943)).
 
@@ -762,7 +762,7 @@ The eleven `captureEgress*` fields are pushed to the orchestrator on save (as th
 | Variable | Default | Applies to | Purpose |
 |---|---|---|---|
 | `CAPTURE_PROXY_ENABLED` | false | producers | routing gate (derived from `Project.captureProxyEnabled`) |
-| `CAPTURE_PROXY_IMAGE` | `redamon-capture-proxy:latest` | orchestrator | image (trusted env only) |
+| `CAPTURE_PROXY_IMAGE` | `whitehat-capture-proxy:latest` | orchestrator | image (trusted env only) |
 | `CAPTURE_PROXY_MAX_BODY_KB` | 64 | proxy | inline (DB-vs-disk) text routing threshold |
 | `CAPTURE_PROXY_STORE_BODIES` | true | proxy | master switch: store bodies at all |
 | `CAPTURE_STORE_REQ_BODIES` | true | proxy | store request bodies (direction gate) |
@@ -770,7 +770,7 @@ The eleven `captureEgress*` fields are pushed to the orchestrator on save (as th
 | `CAPTURE_MAX_STORE_MB` | 5 | proxy | hard drop ceiling in MB (0 = unlimited) |
 | `CAPTURE_BODY_RULES` | (empty) | proxy | JSON family->policy map; empty = Recommended defaults |
 | `CAPTURE_PROXY_REDACT_SECRETS` | true | ingest | redact sensitive headers |
-| `CAPTURE_REDACT_SALT` | `redamon-capture` | ingest | salt for redaction hash |
+| `CAPTURE_REDACT_SALT` | `whitehat-capture` | ingest | salt for redaction hash |
 | `CAPTURE_BLOCKED_IPS` | (empty) | proxy | extra egress denylist (**always enforced**, never policy-gated) |
 | `CAPTURE_EGRESS_BLOCK_EMPTY_HOST` | true | proxy | egress guard: block empty Host |
 | `CAPTURE_EGRESS_BLOCK_HARD_GUARDRAIL` | true | proxy | egress guard: block `.gov/.mil/.edu/.int` + denylist |
@@ -798,8 +798,8 @@ retention and scope are the database fields above.
 
 1. `docker compose exec webapp npx prisma db push` to create the table.
 2. Apply the scoped role once:
-   `docker compose exec -T postgres psql -U redamon -d redamon -v role_password="'<secret>'" -f - < scanners/capture_proxy/sql/001_traffic_ingest_role.sql`
-3. Set `TRAFFIC_INGEST_DATABASE_URL=postgresql://traffic_ingest:<secret>@postgres:5432/redamon`.
+   `docker compose exec -T postgres psql -U whitehat -d whitehat -v role_password="'<secret>'" -f - < scanners/capture_proxy/sql/001_traffic_ingest_role.sql`
+3. Set `TRAFFIC_INGEST_DATABASE_URL=postgresql://traffic_ingest:<secret>@postgres:5432/whitehat`.
 4. Build the image: `docker compose --profile capture build capture-proxy`.
 5. Enable the per-project toggle.
 
@@ -819,7 +819,7 @@ retention and scope are the database fields above.
 - **Transient DB error:** ingest leaves the spool file and retries; no capture is
   lost.
 - **Permanent constraint error:** ingest rejects that one record and continues.
-- **Body offloaded but not readable agent-side:** `redamon.get` returns
+- **Body offloaded but not readable agent-side:** `whitehat.get` returns
   `[offloaded to disk - not available agent-side]` rather than failing.
 
 ---
@@ -829,7 +829,7 @@ retention and scope are the database fields above.
 The agent works the capture corpus through a **single code-native tool,
 `proxy_brain`**. Instead of a fixed menu of narrow commands, `proxy_brain` runs a
 block of the agent's own Python inside the Kali sandbox, with a pre-imported SDK
-called `redamon` as its only door to the traffic. Anything an interactive web proxy does, the
+called `whitehat` as its only door to the traffic. Anything an interactive web proxy does, the
 agent scripts here: Repeater, Intruder, Comparer, Sequencer, Decoder, JWT Editor,
 Autorize, Turbo Intruder, all composed in a few lines over the captured history. A
 vulnerability is usually an *algorithm* (an oracle queried in a loop, a value
@@ -839,11 +839,11 @@ expresses and a fixed vocabulary cannot.
 This **replaces the ten former `proxy_*` tools** (`proxy_search`, `proxy_get`,
 `proxy_sitemap`, `proxy_params`, `proxy_grep`, `proxy_diff`, `proxy_to_curl`,
 `proxy_query`, `proxy_replay`, `proxy_fuzz`). Everything those tools did is now one
-line of `redamon.*`, and the agent can chain them with loops, conditionals, math
+line of `whitehat.*`, and the agent can chain them with loops, conditionals, math
 and crypto to build real exploit oracles. The MCP tool
 (`proxy_brain`, [`mcp/servers/network_recon_server.py`](../../mcp/servers/network_recon_server.py))
 pre-imports the SDK, runs the code, and returns its `print(...)` output; the SDK is
-[`mcp/servers/redamon.py`](../../mcp/servers/redamon.py). Every response the SDK
+[`mcp/servers/whitehat.py`](../../mcp/servers/whitehat.py). Every response the SDK
 hands back is attacker-controlled, so the tool output is wrapped as untrusted before
 it reaches the LLM.
 
@@ -854,7 +854,7 @@ sections that follow re-tell the same story with the exact endpoints, line numbe
 and enforcement code.
 
 **The one idea.** `proxy_brain` lets the agent write a little Python program and run
-it, with a ready-made toolbox called `redamon` already imported. That toolbox is not
+it, with a ready-made toolbox called `whitehat` already imported. That toolbox is not
 a database client and holds no real credential: it is a thin phone line back to the
 trusted agent. The agent is the only side that knows *who* the traffic belongs to and
 is the only side allowed to say *where* a live request may go. The sandbox does the
@@ -863,22 +863,22 @@ security design.
 
 #### Which container runs the SDK, and who it talks to
 
-The SDK runs inside **`redamon-kali`** (the kali sandbox), the least-trusted box,
+The SDK runs inside **`whitehat-kali`** (the kali sandbox), the least-trusted box,
 because that is where attacker-facing traffic and LLM-written code execute. From
-there it talks to two other containers: the **`redamon-agent`** for every decision
-and every piece of data, and the **`redamon-capture-proxy`** whenever it actually
+there it talks to two other containers: the **`whitehat-agent`** for every decision
+and every piece of data, and the **`whitehat-capture-proxy`** whenever it actually
 sends live traffic to a target.
 
 ```mermaid
 flowchart LR
-    subgraph kali["redamon-kali (kali-sandbox) — least trusted"]
-      PB["proxy_brain tool<br/>runs the agent's Python"] --> RS["redamon SDK<br/>(pre-imported)"]
+    subgraph kali["whitehat-kali (kali-sandbox) — least trusted"]
+      PB["proxy_brain tool<br/>runs the agent's Python"] --> RS["whitehat SDK<br/>(pre-imported)"]
     end
-    subgraph agentc["redamon-agent — trusted brain"]
+    subgraph agentc["whitehat-agent — trusted brain"]
       EP["/traffic/exec · /traffic/replay · /traffic/browser"]
       SEC["holds INTERNAL_API_KEY<br/>+ DATABASE_URL"]
     end
-    CP["redamon-capture-proxy<br/>egress guard + re-capture"]
+    CP["whitehat-capture-proxy<br/>egress guard + re-capture"]
     TGT["target host"]
     RS -->|"HTTP: signed ctx tag + SCANNER_API_KEY header"| EP
     EP -->|"data / curl recipe / allow-or-deny"| RS
@@ -898,10 +898,10 @@ the request in the diagrams. The reason is that there are **two separate hops**,
 the code runs in kali, not in the agent.
 
 - **Hop 1 (agent -> kali):** the agent invokes the `proxy_brain` MCP tool, handing it
-  the Python code and a freshly minted `REDAMON_CTX` tag. This is the trigger. The
+  the Python code and a freshly minted `WHITEHAT_CTX` tag. This is the trigger. The
   agent now steps back and waits.
 - **Hop 2 (kali -> agent):** kali is now *executing that code*. Every time a line like
-  `redamon.replay(...)` runs, the SDK needs something it does not have locally, so it
+  `whitehat.replay(...)` runs, the SDK needs something it does not have locally, so it
   opens a **new** request back to the agent, using the tag as its ID badge.
 
 Think of the agent as a manager who hands a worker a sealed task sheet and an ID
@@ -911,14 +911,14 @@ there fetching files; the worker asks, and the clerk checks the badge first.
 
 ```mermaid
 sequenceDiagram
-    participant A as redamon-agent (brain)
-    participant K as redamon-kali (SDK runs here)
+    participant A as whitehat-agent (brain)
+    participant K as whitehat-kali (SDK runs here)
     participant T as target
-    A->>K: HOP 1 — run this Python + your REDAMON_CTX tag
+    A->>K: HOP 1 — run this Python + your WHITEHAT_CTX tag
     Note over K: the code executes INSIDE kali
-    K->>A: HOP 2 — redamon.search(...)  {op, args, ctx}
+    K->>A: HOP 2 — whitehat.search(...)  {op, args, ctx}
     A-->>K: tenant-scoped rows (agent did the query)
-    K->>A: HOP 2 — redamon.replay(...) {op, id, mutate, ctx}
+    K->>A: HOP 2 — whitehat.replay(...) {op, id, mutate, ctx}
     A-->>K: host-pinned curl_args + signed replay tag
     K->>T: kali runs the curl (through the capture proxy)
     T-->>K: the real response (the agent never sees it)
@@ -953,24 +953,24 @@ cross-tenant leak.
 | active (`replay`, `fuzz`, `batch`) | a host-pinned `curl_args` + signed tag | **kali**, via the capture proxy |
 | browser (`goto`, `click`, `eval`, …) | pin info + per-step allow/deny | **kali's** Chromium, via the capture proxy |
 
-#### The auth tag: how `REDAMON_CTX` is made and checked
+#### The auth tag: how `WHITEHAT_CTX` is made and checked
 
 Identity travels as a small **signed JSON token** — the same idea as a JWT, but
-home-rolled in pure stdlib ([`redamon_ctx.py`](../../agentic/redamon_ctx.py)). The
+home-rolled in pure stdlib ([`whitehat_ctx.py`](../../agentic/whitehat_ctx.py)). The
 agent mints it fresh on every `proxy_brain` call and the `/traffic/*` endpoint
 verifies it. The token is **not secret** (anyone can base64-decode the claims); it is
 **tamper-proof** (nobody without `INTERNAL_API_KEY` can forge or alter it).
 
 ```mermaid
 flowchart TD
-    subgraph mint["MINT — agent side, per proxy_brain call (_build_redamon_ctx)"]
+    subgraph mint["MINT — agent side, per proxy_brain call (_build_whitehat_ctx)"]
       C1["gather claims from TRUSTED ContextVars:<br/>source=agent, user_id, project_id, session, phase, tool"]
       C2["canonical JSON<br/>(whitelisted fields, sorted keys, compact)"]
       C3["HMAC-SHA256 over the bytes, keyed with INTERNAL_API_KEY"]
       C4["token = b64url(claims) + '.' + b64url(sig)"]
       C1 --> C2 --> C3 --> C4
     end
-    C4 -->|"injected as REDAMON_CTX on the CHILD process only"| K["kali runs the code"]
+    C4 -->|"injected as WHITEHAT_CTX on the CHILD process only"| K["kali runs the code"]
     K -->|"every /traffic/* call carries the tag verbatim"| V1
     subgraph verify["VERIFY — agent side, on each call (_verify_traffic_ctx)"]
       V1["read 'source' only to PICK the key<br/>(agent -> INTERNAL_API_KEY, recon -> SCANNER_API_KEY)"]
@@ -1003,7 +1003,7 @@ a target never has a direct line to the store.
 ```mermaid
 flowchart LR
     subgraph kali["kali sandbox (UNTRUSTED, no DB cred, no signing key)"]
-      CODE["proxy_brain<br/>(agent's Python)"] --> SDK["redamon SDK"]
+      CODE["proxy_brain<br/>(agent's Python)"] --> SDK["whitehat SDK"]
     end
     subgraph agent["agent (TRUSTED, holds INTERNAL_API_KEY + DATABASE_URL)"]
       EXEC["/traffic/exec<br/>read, tenant-scoped"]
@@ -1025,9 +1025,9 @@ flowchart LR
   ([`api.py:3022`](../../agentic/api.py#L3022)), which is a **PREPARE**: it reads the
   origin (tenant-scoped), builds the host-pinned curl, signs a replay lineage tag,
   and returns `curl_args` + `ctx`. The SDK's `_run` then executes the curl **from
-  inside kali, through the capture proxy** ([`redamon.py:329`](../../mcp/servers/redamon.py#L329)),
+  inside kali, through the capture proxy** ([`whitehat.py:329`](../../mcp/servers/whitehat.py#L329)),
   so the send is egress-guarded and re-captured exactly like `execute_curl`.
-- **Browser ops** (`redamon.browser(id)` and its `.goto` / `.click` / `.eval` / … )
+- **Browser ops** (`whitehat.browser(id)` and its `.goto` / `.click` / `.eval` / … )
   POST to `/traffic/browser` ([`api.py:3122`](../../agentic/api.py#L3122)), a **PREPARE**
   that verifies the tag, gates the exploitation phase, re-reads the origin
   (tenant-scoped) to pin the navigation host/port/scheme, and enforces a per-session
@@ -1073,32 +1073,32 @@ reaching another tenant's traffic:
    ([`api.py:2965`](../../agentic/api.py#L2965)) binds the verified tenant into
    ContextVars per FastAPI request task, so concurrent requests never leak scope.
 
-### The `redamon` SDK surface
+### The `whitehat` SDK surface
 
 **Read ops** (no traffic, tenant-scoped, any phase):
 
 | Call | What it returns |
 |---|---|
-| `redamon.search(filters)` | HTTP history rows (`.id`, `.method`, `.status`, `.url`, `.host`, `.path`); summaries only, never bodies. Filters: host, method, status, statusClass, tool, source, session, run, hasAuth, reflected, only5xx, `q`, `bodyq`, limit. |
-| `redamon.get(id, part)` | Full request or response (headers + body) for one transaction (`request` / `response` / `both`); the way to pull a body into scope. |
-| `redamon.sitemap()` | Distinct endpoints observed, with hit counts and statuses. |
-| `redamon.params()` | Distinct request parameters + an injectability guess (seq-id / uuid / jwt / base64). |
-| `redamon.grep(pattern)` | Substring search across response bodies, with a snippet. |
-| `redamon.diff(a, b)` | Structural diff of two responses (status / length / headers / body). |
-| `redamon.to_curl(id)` | A captured request rendered as a reproducible curl (for the report). |
-| `redamon.query(spec)` | Constrained analytical query builder over allowlisted columns / aggregations (no raw SQL). |
+| `whitehat.search(filters)` | HTTP history rows (`.id`, `.method`, `.status`, `.url`, `.host`, `.path`); summaries only, never bodies. Filters: host, method, status, statusClass, tool, source, session, run, hasAuth, reflected, only5xx, `q`, `bodyq`, limit. |
+| `whitehat.get(id, part)` | Full request or response (headers + body) for one transaction (`request` / `response` / `both`); the way to pull a body into scope. |
+| `whitehat.sitemap()` | Distinct endpoints observed, with hit counts and statuses. |
+| `whitehat.params()` | Distinct request parameters + an injectability guess (seq-id / uuid / jwt / base64). |
+| `whitehat.grep(pattern)` | Substring search across response bodies, with a snippet. |
+| `whitehat.diff(a, b)` | Structural diff of two responses (status / length / headers / body). |
+| `whitehat.to_curl(id)` | A captured request rendered as a reproducible curl (for the report). |
+| `whitehat.query(spec)` | Constrained analytical query builder over allowlisted columns / aggregations (no raw SQL). |
 
-**Decode / crypto** (pure, no traffic): `redamon.decode(v)` peels
-base64 / url / hex / gzip layers; `redamon.jwt(tok)` parses a JWT and forges variants
+**Decode / crypto** (pure, no traffic): `whitehat.decode(v)` peels
+base64 / url / hex / gzip layers; `whitehat.jwt(tok)` parses a JWT and forges variants
 (`.forge(alg_none=True | secret=".." | claims={..})`).
 
 **Active ops** (live traffic, exploitation phases only):
 
 | Call | What it does |
 |---|---|
-| `redamon.replay(id, mutate)` | Resend a captured request with fields changed (`method`, `path`, `query`, `param`, `headers`, `dropHeaders`, `cookie`, `body`). **Host / scheme / port pinned to the origin.** Returns a `Response` (`.status`, `.headers`, `.body`, `.length`). |
-| `redamon.batch(id, muts, parallel=True)` | One replay per mutation; `parallel=True` fires them **concurrently** (a real race-condition window: limit overrun, double-spend, coupon reuse). |
-| `redamon.fuzz(id, insertion_point, payloads)` | An automated payload sweep over one query parameter; one `Response` per payload. |
+| `whitehat.replay(id, mutate)` | Resend a captured request with fields changed (`method`, `path`, `query`, `param`, `headers`, `dropHeaders`, `cookie`, `body`). **Host / scheme / port pinned to the origin.** Returns a `Response` (`.status`, `.headers`, `.body`, `.length`). |
+| `whitehat.batch(id, muts, parallel=True)` | One replay per mutation; `parallel=True` fires them **concurrently** (a real race-condition window: limit overrun, double-spend, coupon reuse). |
+| `whitehat.fuzz(id, insertion_point, payloads)` | An automated payload sweep over one query parameter; one `Response` per payload. |
 
 **Browser ops** (live traffic, exploitation phases only — the rendered-DOM oracle
 for bugs that only surface after JavaScript runs, e.g. DOM-based XSS, SPA-only routes,
@@ -1106,20 +1106,20 @@ JS-minted CSRF):
 
 | Call | What it does |
 |---|---|
-| `redamon.browser(id)` | Open a real Chromium **pinned to txn `id`'s host / port / scheme**; find the id with `search` first. Costs one action. |
+| `whitehat.browser(id)` | Open a real Chromium **pinned to txn `id`'s host / port / scheme**; find the id with `search` first. Costs one action. |
 | `.goto(path)` `.click(sel)` `.fill(sel, v)` `.submit(sel)` `.press(sel, key)` `.eval(js)` | **Budgeted** actions; an off-origin navigation is refused and a redirect that crosses off the origin aborts the run. |
 | `.dom()` `.text(sel)` `.html(sel)` `.console()` `.alerts()` `.url()` | **Free** reads (no budget). `.alerts()` returns any fired `alert/confirm/prompt` — the in-band DOM-XSS oracle. |
 | `.close()` | Tear the browser down; at most 3 open at once. |
 
-**Result:** `redamon.finding(kind, txn_id, evidence, severity)` records a finding;
-`redamon.manual(section=None)` returns the on-demand cookbook (core map, or one of
+**Result:** `whitehat.finding(kind, txn_id, evidence, severity)` records a finding;
+`whitehat.manual(section=None)` returns the on-demand cookbook (core map, or one of
 twenty-one technique sections — including `browser`) so the recipes never bloat the prompt.
 
 ### How an active send actually runs (host pin + budget)
 
 ```mermaid
 flowchart TD
-    SDK["redamon.replay/batch/fuzz(id, ...)"] --> PREP["POST /traffic/replay (PREPARE)"]
+    SDK["whitehat.replay/batch/fuzz(id, ...)"] --> PREP["POST /traffic/replay (PREPARE)"]
     PREP --> PHASE{"tag phase in<br/>exploitation / post_exploitation?"}
     PHASE -->|no| B403["403 (fail closed)"]
     PHASE -->|yes| ORI["fetch_transaction(id)<br/>TENANT-SCOPED read of the origin"]
@@ -1174,11 +1174,11 @@ them by editing its own script):
 ```mermaid
 flowchart LR
     RECON["recon + agent tools<br/>generate traffic"] --> CORPUS[("captured_http_transactions")]
-    CORPUS --> BRAIN["proxy_brain<br/>(writes Python over the redamon SDK)"]
+    CORPUS --> BRAIN["proxy_brain<br/>(writes Python over the whitehat SDK)"]
     BRAIN -- "read: search/sitemap/params/grep/diff/get/query" --> BRAIN
     BRAIN -- "crypto: decode / jwt().forge()" --> BRAIN
     BRAIN -- "active: replay / batch / fuzz" --> CORPUS
-    BRAIN --> FIND["redamon.finding(...)"]
+    BRAIN --> FIND["whitehat.finding(...)"]
 ```
 
 A typical flow lives in one code block: map the surface with `sitemap` / `params`,
@@ -1187,7 +1187,7 @@ or an ad-hoc `query`, build the oracle in Python (a regex over `.body`, a `.stat
 or `.length` flip, a timing delta), then `replay` / `batch` / `fuzz` to actively
 confirm, and record it with `finding`. The active sends feed straight back into the
 corpus as `isReplay` rows, so the agent's own attack traffic is searchable and
-auditable. The agent reads the relevant `redamon.manual("<technique>")` section right
+auditable. The agent reads the relevant `whitehat.manual("<technique>")` section right
 before it writes that code.
 
 ### Result bounding

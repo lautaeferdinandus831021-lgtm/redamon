@@ -1,10 +1,10 @@
-# RedAmon single-host production overlay
+# WhiteHat single-host production overlay
 # ----------------------------------------
 # Layered on top of the base docker-compose.yml so the public host exposes NOTHING
 # off-loopback except what nginx (443/80) proxies. deploy.sh activates it by exporting
 #   COMPOSE_FILE=docker-compose.yml:deploy/single-host/compose/docker-compose.prod.yml
-# before every redamon.sh call, so redamon.sh's bare `docker compose ...` invocations
-# inherit it (redamon.sh is never edited).
+# before every whitehat.sh call, so whitehat.sh's bare `docker compose ...` invocations
+# inherit it (whitehat.sh is never edited).
 #
 # The `!override` tag REPLACES the base service's `ports:` list instead of merging it,
 # which is how we move 0.0.0.0 publishes onto 127.0.0.1 and close 4444 by default.
@@ -13,12 +13,12 @@
 #   NEXT_PUBLIC_AGENT_WS_URL  wss://<domain>/ws/agent | wss://<ip>/ws/agent | ws://.../ws/agent
 #   AGENT_CORS_ORIGINS        https://<domain> | https://<ip> | http://<host>   (never '*')
 #   WEBAPP_NODE_ENV           production   (enables the Secure-cookie patch)
-#   REDAMON_VERSION           image/version stamp (redamon.sh default when blank)
+#   WHITEHAT_VERSION           image/version stamp (whitehat.sh default when blank)
 #
 # WARNING (footgun): these loopback re-binds hold ONLY while this overlay is active.
 # A hand-run bare `docker compose up -d` reloads the base file and republishes
 # 3000/8090/4444 on 0.0.0.0 (and starts the profile-less GVM stack). Never run raw
-# `docker compose up` on the host -- always go through redamon.sh (COMPOSE_FILE sticky).
+# `docker compose up` on the host -- always go through whitehat.sh (COMPOSE_FILE sticky).
 
 services:
   webapp:
@@ -31,7 +31,7 @@ services:
         # lives in the base webapp/Dockerfile (no deploy-time patch), so every build
         # bakes this correctly.
         NEXT_PUBLIC_AGENT_WS_URL: "${NEXT_PUBLIC_AGENT_WS_URL:-}"
-        REDAMON_VERSION: "${REDAMON_VERSION:-0.0.0}"
+        WHITEHAT_VERSION: "${WHITEHAT_VERSION:-0.0.0}"
     environment:
       NODE_ENV: "${WEBAPP_NODE_ENV:-production}"      # enables the Secure-cookie patch
       # THIS is the behind-nginx deploy requestMeta.ts documents. nginx pins

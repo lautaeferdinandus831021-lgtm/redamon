@@ -27,9 +27,9 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MODE="${1:-unit}"
 shift || true
 
-IMAGE="redamon-agent:latest"
-COV_FLOOR="${REDAMON_COV_FLOOR:-79}"     # agentic ratchet floor: measured 81% (unit+integration), floor = total-2. See README.
-PARALLEL="${REDAMON_TEST_PARALLEL:-8}"
+IMAGE="whitehat-agent:latest"
+COV_FLOOR="${WHITEHAT_COV_FLOOR:-79}"     # agentic ratchet floor: measured 81% (unit+integration), floor = total-2. See README.
+PARALLEL="${WHITEHAT_TEST_PARALLEL:-8}"
 
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
     echo ">> SKIP agent tests ($IMAGE not built)"
@@ -41,7 +41,7 @@ fi
 PREP='python -c "import pytest" 2>/dev/null || pip install -q -r /repo/requirements-test.txt >/dev/null 2>&1;
       git config --global --add safe.directory "*" 2>/dev/null || true;'
 
-# PYTHONPATH must match the `agent` section spec in redamon.sh, /repo/services
+# PYTHONPATH must match the `agent` section spec in whitehat.sh, /repo/services
 # included. Without it `knowledge_base` resolves as an empty namespace package
 # and test_kb_isolation.py dies at collection, so this runner reported a failure
 # the real gate never saw, on a test that is not broken.
@@ -50,9 +50,9 @@ run_in_image() {
         -v "$REPO_ROOT:/repo" \
         -w /repo/agentic \
         -e PYTHONPATH=/repo/agentic:/repo:/repo/mcp/servers:/repo/recon_orchestrator:/repo/services \
-        -e COVERAGE_FILE=/tmp/redamon.coverage \
+        -e COVERAGE_FILE=/tmp/whitehat.coverage \
         -e HOME=/tmp \
-        -e REDAMON_TEST_PARALLEL="$PARALLEL" \
+        -e WHITEHAT_TEST_PARALLEL="$PARALLEL" \
         --entrypoint sh \
         "$IMAGE" -c "$PREP $*"
 }

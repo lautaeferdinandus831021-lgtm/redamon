@@ -50,9 +50,9 @@ def _make_manager(rec, osv=None, sca=None):
     mgr.client.containers = _Containers()
     mgr.client.images = mock.Mock()
     mgr._docker_op_executor = ThreadPoolExecutor(max_workers=2)
-    mgr.supply_chain_osv_db_volume = "redamon-osv-db"
-    mgr.sca_intel_volume = "redamon-sca-intel"
-    mgr.recon_image = "redamon-recon:latest"
+    mgr.supply_chain_osv_db_volume = "whitehat-osv-db"
+    mgr.sca_intel_volume = "whitehat-sca-intel"
+    mgr.recon_image = "whitehat-recon:latest"
     mgr.running_states = {}
     mgr.partial_recon_states = {}
 
@@ -83,7 +83,7 @@ def _make_manager(rec, osv=None, sca=None):
     mgr.ensure_osv_db_fresh_async = osv or _default_osv
     mgr.ensure_sca_intel_fresh_async = sca or _default_sca
 
-    mgr._get_container_name = lambda pid: f"redamon-recon-{pid}"
+    mgr._get_container_name = lambda pid: f"whitehat-recon-{pid}"
     mgr._scanner_env = lambda: {}
     mgr._scanner_hardening = lambda drop_caps=True: {}
     mgr._container_mem_limit = lambda kind: None

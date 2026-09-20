@@ -4,7 +4,7 @@
  * The two properties worth pinning here are both negative:
  *
  *  - it is SESSION-authed, not bearer-authed. A leaked MCP token must not be
- *    able to ask RedAmon to describe a permission set it does not hold.
+ *    able to ask WhiteHat to describe a permission set it does not hold.
  *  - it GRANTS NOTHING. The scopes in the body describe a document; no token is
  *    read and no row is written. A route that quietly persisted them would turn
  *    a preview into a privilege escalation.
@@ -37,7 +37,7 @@ const req = (body?: unknown) =>
 const valid = (over: Record<string, unknown> = {}) => ({
   profile: 'bug_bounty',
   scopes: ['recon:read', 'triage:read'],
-  serverUrl: 'https://redamon.example',
+  serverUrl: 'https://whitehat.example',
   style: 'mcp',
   ...over,
 })
@@ -112,11 +112,11 @@ describe('the server URL is the only caller-controlled text in the output', () =
 
   test('only the ORIGIN survives, so a pasted deep link still works', async () => {
     const res = await POST(
-      req(valid({ serverUrl: 'https://redamon.example/settings?tab=mcp#token' })),
+      req(valid({ serverUrl: 'https://whitehat.example/settings?tab=mcp#token' })),
       params()
     )
     const data = await res.json()
-    expect(data.files[0].content).toContain('https://redamon.example/api/mcp-server')
+    expect(data.files[0].content).toContain('https://whitehat.example/api/mcp-server')
     expect(data.files[0].content).not.toContain('tab=mcp')
   })
 
@@ -134,7 +134,7 @@ describe('the server URL is the only caller-controlled text in the output', () =
   test('an omitted URL falls back to a placeholder rather than failing', async () => {
     const res = await POST(req(valid({ serverUrl: undefined })), params())
     expect(res.status).toBe(200)
-    expect((await res.json()).files[0].content).toContain('your-redamon-host')
+    expect((await res.json()).files[0].content).toContain('your-whitehat-host')
   })
 })
 

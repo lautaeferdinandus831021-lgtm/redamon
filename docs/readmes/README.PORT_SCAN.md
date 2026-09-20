@@ -1,10 +1,10 @@
-# RedAmon - Port Scanning (Masscan + Naabu)
+# WhiteHat - Port Scanning (Masscan + Naabu)
 
 ## Complete Technical Documentation
 
 > **Modules:** `recon/masscan_scan.py`, `recon/port_scan.py`
 > **Purpose:** High-speed port scanning using Masscan and Naabu in parallel
-> **Author:** RedAmon Security Suite
+> **Author:** WhiteHat Security Suite
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Overview
 
-The `naabu_scan.py` module integrates ProjectDiscovery's Naabu scanner into RedAmon's reconnaissance pipeline. Naabu is optimized for fast, reliable port scanning at scale.
+The `naabu_scan.py` module integrates ProjectDiscovery's Naabu scanner into WhiteHat's reconnaissance pipeline. Naabu is optimized for fast, reliable port scanning at scale.
 
 **⚠️ Important:** Naabu runs exclusively via Docker. No native installation is supported.
 
@@ -294,7 +294,7 @@ WITHOUT Host Discovery (NAABU_SKIP_HOST_DISCOVERY = True):
 | `True` (default) | Skip ping, assume all hosts UP | Firewalls block ICMP, hosts from DNS |
 | `False` | Ping first, skip "dead" hosts | Large IP ranges, internal networks |
 
-**Why default is `True`:** RedAmon already confirmed hosts exist via DNS resolution. Many firewalls block ICMP ping, causing false negatives.
+**Why default is `True`:** WhiteHat already confirmed hosts exist via DNS resolution. Many firewalls block ICMP ping, causing false negatives.
 
 ---
 
@@ -726,7 +726,7 @@ NAABU_EXCLUDE_CDN = True
 
 ## Overview
 
-The `masscan_scan.py` module integrates Robert David Graham's Masscan — the fastest Internet port scanner — into RedAmon's reconnaissance pipeline. Masscan runs as a native binary built from source inside the recon container (not Docker-in-Docker). Both Masscan and Naabu are enabled by default and run in parallel; results are merged and deduplicated automatically.
+The `masscan_scan.py` module integrates Robert David Graham's Masscan — the fastest Internet port scanner — into WhiteHat's reconnaissance pipeline. Masscan runs as a native binary built from source inside the recon container (not Docker-in-Docker). Both Masscan and Naabu are enabled by default and run in parallel; results are merged and deduplicated automatically.
 
 ### Masscan vs Naabu
 
@@ -807,5 +807,5 @@ In stealth mode, Masscan is **disabled** (active SYN scanning generates signific
 
 ---
 
-*Documentation updated for RedAmon v3.1 - Port Scanning Module (Masscan + Naabu)*
+*Documentation updated for WhiteHat v3.1 - Port Scanning Module (Masscan + Naabu)*
 

@@ -1,9 +1,9 @@
 import { createHmac } from 'crypto'
 
 /**
- * TypeScript minter for the X-Redamon-Ctx capture tag.
+ * TypeScript minter for the X-WhiteHat-Ctx capture tag.
  *
- * Byte-for-byte compatible with `redamon_ctx.py` (verified by the ingest worker):
+ * Byte-for-byte compatible with `whitehat_ctx.py` (verified by the ingest worker):
  * canonical JSON = only the allowlisted fields, nulls dropped, keys sorted,
  * compact separators; token = base64url(json).base64url(hmac_sha256), no '='.
  *
@@ -11,7 +11,7 @@ import { createHmac } from 'crypto'
  * the ONLY TS minter; recon/agent mint in Python with their own keys.
  */
 
-// Must match _ALLOWED_FIELDS in redamon_ctx.py exactly (order irrelevant; sorted below).
+// Must match _ALLOWED_FIELDS in whitehat_ctx.py exactly (order irrelevant; sorted below).
 const ALLOWED_FIELDS = [
   'source', 'project_id', 'user_id', 'run_id', 'session_id',
   'tool', 'phase', 'step', 'member_id', 'is_replay', 'origin_id',

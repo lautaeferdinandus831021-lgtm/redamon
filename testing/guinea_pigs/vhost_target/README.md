@@ -26,11 +26,11 @@ cd testing/guinea_pigs/vhost_target
 docker compose up -d --build
 ```
 
-The lab sits on the `redamon-vhostlab` bridge. Its address:
+The lab sits on the `whitehat-vhostlab` bridge. Its address:
 
 ```bash
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
-  redamon-vhost-target
+  whitehat-vhost-target
 ```
 
 ## What it validates
@@ -50,7 +50,7 @@ what the graph ended up saying:
 - nothing the run produced is left without an owner, and a second run changes
   nothing.
 
-Run it from a container attached to `redamon-vhostlab`, with `VHOST_LAB_IP` and
+Run it from a container attached to `whitehat-vhostlab`, with `VHOST_LAB_IP` and
 the `NEO4J_*` variables set. It skips cleanly when either is missing.
 
 > ⚠️ Local Docker host only. Never expose these ports to an untrusted network.

@@ -15,7 +15,7 @@ Five things are pinned, each of which fails SILENTLY when it breaks:
 5. The three reporting skills are discoverable through the real skill loader -
    a skill file whose frontmatter does not parse is invisible to the catalog.
 
-Runs with the agent's real dependency set (redamon-agent image), per the repo
+Runs with the agent's real dependency set (whitehat-agent image), per the repo
 testing rules - not on the host.
 """
 import asyncio
@@ -178,7 +178,7 @@ class HookTests(unittest.TestCase):
     def test_the_discipline_block_is_injected_and_switched_by_env(self):
         from report_hook import report_discipline_block
         self.assertIn("EVIDENCE DISCIPLINE", report_discipline_block())
-        with mock.patch.dict(os.environ, {"REDAMON_REPORT_DISCIPLINE": "false"}):
+        with mock.patch.dict(os.environ, {"WHITEHAT_REPORT_DISCIPLINE": "false"}):
             self.assertEqual(report_discipline_block(), "")
 
     def test_the_report_block_carries_the_class_gotchas(self):
@@ -197,7 +197,7 @@ class HookTests(unittest.TestCase):
     def test_self_check_is_switched_off_by_env(self):
         from report_hook import self_check_appendix
         with mock.patch.dict(os.environ,
-                             {"REDAMON_REPORT_DISCIPLINE_AUTOCHECK": "false"}):
+                             {"WHITEHAT_REPORT_DISCIPLINE_AUTOCHECK": "false"}):
             self.assertEqual(
                 self_check_appendix("This could lead to full compromise."), "")
 

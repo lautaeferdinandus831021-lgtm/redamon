@@ -161,7 +161,7 @@ describe('LlmProviderForm save errors', () => {
 })
 
 // Issue #184: the Test button proxies through the agent container. When that
-// container is down the call dies inside RedAmon, and the resulting error was
+// container is down the call dies inside WhiteHat, and the resulting error was
 // rendered under the Base URL field - so an infrastructure outage read as "your
 // endpoint is wrong". The form must say so BEFORE the operator clicks.
 describe('LlmProviderForm agent preflight', () => {
@@ -185,7 +185,7 @@ describe('LlmProviderForm agent preflight', () => {
   test('warns and disables Test when the agent is unreachable', async () => {
     mockFetch({
       agentOnline: false,
-      agentError: 'Cannot reach the RedAmon agent service at http://agent:8080: the agent container is not running.',
+      agentError: 'Cannot reach the WhiteHat agent service at http://agent:8080: the agent container is not running.',
     })
     render(<LlmProviderForm userId="user-1" provider={PROVIDER} onSave={vi.fn()} onCancel={vi.fn()} />)
 

@@ -45,7 +45,7 @@ class WorkspaceFSTestBase(unittest.IsolatedAsyncioTestCase):
     """Shared scaffolding: per-test WORKSPACE_ROOT + project scope."""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-ws-test-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-ws-test-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
         # Reset module-level caches so tests don't leak state into each other.

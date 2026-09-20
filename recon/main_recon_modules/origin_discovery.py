@@ -1,5 +1,5 @@
 """
-RedAmon - Origin-IP Discovery (behind CDN/WAF)
+WhiteHat - Origin-IP Discovery (behind CDN/WAF)
 ==============================================
 Unmask the real origin server hiding behind a CDN/WAF by gathering candidate
 origin IPs from many fingerprint sources, then confirming each with a
@@ -77,7 +77,7 @@ _TLS_PORTS = {443, 8443, 9443}
 _MX_SKIP_VENDORS = ("google", "outlook", "microsoft", "mimecast", "proofpoint", "barracuda", "pphosted")
 
 # Known CDN/WAF IP ranges — a candidate inside one is the edge, not the origin
-# (ported from unwaf waf.go wafCIDRs; broader than RedAmon's Cloudflare-only
+# (ported from unwaf waf.go wafCIDRs; broader than WhiteHat's Cloudflare-only
 # prefix layer, so used in addition to the combined_result is_cdn flags).
 _WAF_CDN_CIDRS = [
     # Cloudflare
@@ -474,7 +474,7 @@ def _discover_via_email_records(domain: str, ctx: _RunCtx) -> List[str]:
 
 
 def _discover_via_crtsh(domain: str, ctx: _RunCtx) -> List[str]:
-    """crt.sh SAN subdomains, resolved to off-CDN IPs (reuses RedAmon query_crtsh)."""
+    """crt.sh SAN subdomains, resolved to off-CDN IPs (reuses WhiteHat query_crtsh)."""
     try:
         from recon.main_recon_modules.domain_recon import query_crtsh
         subs = query_crtsh(domain, ctx.settings) or {}
@@ -495,7 +495,7 @@ def _discover_via_crtsh(domain: str, ctx: _RunCtx) -> List[str]:
 
 
 # ---------------------------------------------------------------------------
-# Keyed scanner sources (reuse RedAmon clients/keys)
+# Keyed scanner sources (reuse WhiteHat clients/keys)
 # ---------------------------------------------------------------------------
 
 def _discover_via_shodan(host: str, favicon_hash: Optional[int], ctx: _RunCtx) -> List[str]:
@@ -578,7 +578,7 @@ def _discover_via_censys(host: str, ctx: _RunCtx) -> List[str]:
 
 
 def _discover_via_fofa(host: str, favicon_hash: Optional[int], ctx: _RunCtx) -> List[str]:
-    """FOFA cert + favicon search (RedAmon addition; reuses the fofa client)."""
+    """FOFA cert + favicon search (WhiteHat addition; reuses the fofa client)."""
     key = (ctx.settings.get("FOFA_API_KEY") or "").strip()
     rotator = ctx.settings.get("FOFA_KEY_ROTATOR")
     if not key and not (rotator and getattr(rotator, "has_keys", False)):
@@ -616,7 +616,7 @@ def _discover_via_fofa(host: str, favicon_hash: Optional[int], ctx: _RunCtx) -> 
 
 
 def _discover_via_zoomeye(host: str, favicon_hash: Optional[int], ctx: _RunCtx) -> List[str]:
-    """ZoomEye cert + favicon search (RedAmon addition; reuses the zoomeye client)."""
+    """ZoomEye cert + favicon search (WhiteHat addition; reuses the zoomeye client)."""
     key = (ctx.settings.get("ZOOMEYE_API_KEY") or "").strip()
     rotator = ctx.settings.get("ZOOMEYE_KEY_ROTATOR")
     if not key and not (rotator and getattr(rotator, "has_keys", False)):
@@ -676,7 +676,7 @@ def _discover_via_otx(domain: str, ctx: _RunCtx) -> List[str]:
 
 
 def _discover_via_virustotal(domain: str, ctx: _RunCtx) -> List[str]:
-    """VirusTotal passive DNS (RedAmon addition; reuses the VT resolutions client)."""
+    """VirusTotal passive DNS (WhiteHat addition; reuses the VT resolutions client)."""
     from recon.main_recon_modules.virustotal_enrich import _effective_key, _vt_get
     key = _effective_key(ctx.settings.get("VIRUSTOTAL_API_KEY", ""), ctx.settings.get("VIRUSTOTAL_KEY_ROTATOR"))
     if not key:

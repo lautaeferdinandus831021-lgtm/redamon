@@ -40,7 +40,7 @@ _F = g._FALLBACK_PROFILE
 class GovernorTestBase(unittest.TestCase):
     def setUp(self):
         # Clean, deterministic env for every test.
-        for k in ("REDAMON_MEM_GOVERNOR", "MEM_SCALE_HIGH", "MEM_SCALE_LOW",
+        for k in ("WHITEHAT_MEM_GOVERNOR", "MEM_SCALE_HIGH", "MEM_SCALE_LOW",
                   "MEM_SCALE_FLOOR", "MEM_BUDGET_FRACTION", "MEM_SAFETY_TOLERANCE",
                   "MEM_READ_TTL_S", "RESOURCE_PROFILE_PATH",
                   "RESOURCE_PROFILE_DEFAULT_PATH"):
@@ -79,7 +79,7 @@ class TestScale(GovernorTestBase):
             prev = s
 
     def test_disabled_is_full(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "false"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "false"
         g.set_mem_override(32 * GB, 1 * GB)
         self.assertEqual(g.scale(), 1.0)
 
@@ -119,7 +119,7 @@ class TestScaled(GovernorTestBase):
         self.assertEqual(g.scaled(0), 0)
 
     def test_disabled_passthrough(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "0"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "0"
         g.set_mem_override(32 * GB, 1 * GB)
         self.assertEqual(g.scaled(50, floor=1), 50)
 
@@ -149,7 +149,7 @@ class TestScaledCap(GovernorTestBase):
         self.assertEqual(g.scaled_cap(300000, -5, 0.10, 1000), 300000)
 
     def test_disabled_returns_env(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "false"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "false"
         g.set_mem_override(32 * GB, 512 * 1024 * 1024)
         self.assertEqual(g.scaled_cap(300000, 500, 0.10, 1000), 300000)
 
@@ -480,7 +480,7 @@ class TestContainerCap(GovernorTestBase):
         self.assertEqual(g.container_cap(1024), 512 * 1024 ** 2)
 
     def test_fails_open_when_governor_disabled(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "off"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "off"
         self.assertIsNone(g.container_cap(1 * GB))
 
     def test_none_for_unusable_envelope(self):

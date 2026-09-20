@@ -866,7 +866,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'redamon-api-keys-template.json'
+    a.download = 'whitehat-api-keys-template.json'
     a.click()
     URL.revokeObjectURL(url)
     toast.success('Template downloaded')
@@ -2140,7 +2140,7 @@ function SystemSection() {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set())
 
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText('./redamon.sh update').then(() => {
+    navigator.clipboard.writeText('./whitehat.sh update').then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
@@ -2206,7 +2206,7 @@ function SystemSection() {
               fontFamily: 'var(--font-mono)',
             }}>
               <code style={{ flex: 1, fontSize: '13px', color: 'var(--color-success)' }}>
-                ./redamon.sh update
+                ./whitehat.sh update
               </code>
               <button
                 onClick={handleCopy}

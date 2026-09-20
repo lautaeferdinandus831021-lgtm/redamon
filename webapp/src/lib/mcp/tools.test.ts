@@ -253,7 +253,7 @@ describe('get_recon_status', () => {
         status: 'error',
         container_id: 'a1b2c3d4e5f6',
         error: 'invalid mount config for type "bind": bind source path does not '
-             + 'exist: /home/operator/deploy/redamon/recon',
+             + 'exist: /home/operator/deploy/whitehat/recon',
       }),
     })
     const r = await getReconStatus(ctx(), 'p1')

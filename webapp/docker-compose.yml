@@ -1,4 +1,4 @@
-# RedAmon Webapp Docker Compose (standalone)
+# WhiteHat Webapp Docker Compose (standalone)
 # For full stack, use the root docker-compose.yml instead.
 
 services:
@@ -6,17 +6,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: redamon-webapp
+    container_name: whitehat-webapp
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       # PostgreSQL (Prisma)
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-redamon}:${POSTGRES_PASSWORD:-redamon_secret}@host.docker.internal:5432/${POSTGRES_DB:-redamon}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-whitehat}:${POSTGRES_PASSWORD:-whitehat_secret}@host.docker.internal:5432/${POSTGRES_DB:-whitehat}"
       # Neo4j (server-side graph queries)
       NEO4J_URI: bolt://host.docker.internal:7687
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       # Backend services (via host network)
       RECON_ORCHESTRATOR_URL: http://host.docker.internal:8010
       AGENT_API_URL: http://host.docker.internal:8090

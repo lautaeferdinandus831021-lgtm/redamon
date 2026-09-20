@@ -1,4 +1,4 @@
-# RedAmon Agent Memory
+# WhiteHat Agent Memory
 
 Persistent, project-scoped memory for the agent, with an automatic capture
 pipeline, a self-improvement pass, and an auditable timeline.
@@ -6,7 +6,7 @@ pipeline, a self-improvement pass, and an auditable timeline.
 It follows the model of [agentmemory](https://github.com/rohitg00/agentmemory)
 — observations with confidence scoring and a lifecycle, a knowledge graph of
 entities, hybrid recall, auto-capture hooks — implemented agent-side so it needs
-no new dependency in the baked `redamon-agent` image and no external service to
+no new dependency in the baked `whitehat-agent` image and no external service to
 work.
 
 ```
@@ -28,7 +28,7 @@ agentic/
 
 ## Why it lives agent-side
 
-Memory is RedAmon's own operational record. Routing it through the target-facing
+Memory is WhiteHat's own operational record. Routing it through the target-facing
 Kali worker would put it in the least-trusted zone for no benefit, and a Prisma
 project setting would be invisible on every EXISTING project (`fetch_agent_settings`
 replaces the stored settings blob rather than merging it). So: an in-process
@@ -133,7 +133,7 @@ drops the oldest entries and says how many — a silent truncation would read as
 The local store is always the source of truth. Set `AGENTMEMORY_URL` to also
 write memories to a running agentmemory server (REST, default port 3111) and, on
 `memory_recall(include_mirror=true)`, import anything it has that this project
-does not. Imported hits are joined by `redamon_memory_id` so a mirror round-trip
+does not. Imported hits are joined by `whitehat_memory_id` so a mirror round-trip
 cannot inflate a memory's use count.
 
 Every mirror call is best-effort and never raises: an unreachable second memory
@@ -149,7 +149,7 @@ Read from the environment at call time (no rebuild-time coupling):
 | `MEMORY_AUTO_UPDATE` | `true` | Auto-capture tool outcomes |
 | `MEMORY_SELF_IMPROVE` | `true` | Run reflection passes |
 | `MEMORY_SELF_IMPROVE_EVERY` | `10` | Observations between periodic passes (0 turns the periodic pass off; the session-end pass still runs) |
-| `MEMORY_DB_PATH` | `/workspace/.memory/memory.db` | Store location (falls back to `~/.redamon/memory/`) |
+| `MEMORY_DB_PATH` | `/workspace/.memory/memory.db` | Store location (falls back to `~/.whitehat/memory/`) |
 | `MEMORY_RECALL_LIMIT` | `8` | Default recall size |
 | `MEMORY_DECAY_HALF_LIFE_DAYS` | `30` | Idle half-life |
 | `MEMORY_REINFORCE_BOOST` | `0.15` | Confidence gained per reuse |
@@ -166,7 +166,7 @@ Read from the environment at call time (no rebuild-time coupling):
 ## Testing
 
 ```bash
-./agentic/run_tests.sh              # the gate, inside redamon-agent
+./agentic/run_tests.sh              # the gate, inside whitehat-agent
 ```
 
 * `tests/test_memory_core.py` — store, dedup/reinforcement, tenant isolation,

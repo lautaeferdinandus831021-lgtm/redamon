@@ -1,6 +1,6 @@
 /**
  * Create or update admin user.
- * Called from redamon.sh ensure_admin() via:
+ * Called from whitehat.sh ensure_admin() via:
  *   docker compose exec -T -e ADMIN_NAME=... -e ADMIN_EMAIL=... -e ADMIN_PASSWORD=... webapp node scripts/create-admin.mjs
  */
 

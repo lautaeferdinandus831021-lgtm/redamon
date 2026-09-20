@@ -1,7 +1,7 @@
 """
 Comprehensive unit tests for JS Recon Scanner modules.
 
-Run: cd /Users/ritesh.gohil/opensource/redamon && python3 recon/tests/test_js_recon.py
+Run: cd /Users/ritesh.gohil/opensource/whitehat && python3 recon/tests/test_js_recon.py
 Or:  python3 -m pytest recon/tests/test_js_recon.py -v
 """
 
@@ -944,7 +944,7 @@ class TestEndpointValidationHelpers(unittest.TestCase):
 
         self.assertEqual(headers['Cookie'], 'session=abc123')
         self.assertEqual(headers['Authorization'], 'Bearer token')
-        self.assertEqual(headers['User-Agent'], 'Mozilla/5.0 (compatible; RedAmon-JsRecon/1.0)')
+        self.assertEqual(headers['User-Agent'], 'Mozilla/5.0 (compatible; WhiteHat-JsRecon/1.0)')
         self.assertNotIn('X-Blank', headers)
         self.assertNotIn('malformed', headers)
 
@@ -1054,7 +1054,7 @@ class TestEndpointValidationHelpers(unittest.TestCase):
         headers = calls[0][2]['headers']
         self.assertNotIn('Cookie', headers)
         self.assertNotIn('Authorization', headers)
-        self.assertEqual(headers['User-Agent'], 'Mozilla/5.0 (compatible; RedAmon-JsRecon/1.0)')
+        self.assertEqual(headers['User-Agent'], 'Mozilla/5.0 (compatible; WhiteHat-JsRecon/1.0)')
 
     @pytest.mark.xfail(strict=True, reason="Part H triage (bucket-3): behavior/mapping/shape drifted from this assertion post-refactor; correctness unconfirmed - see green-up report")
     def test_validate_extracted_endpoints_keeps_404_as_not_hittable(self):

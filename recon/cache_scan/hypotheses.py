@@ -16,7 +16,7 @@ The actual payload value (a benign canary) is injected at confirmation time.
 #
 # (name, payload_kind, impact_hint). payload_kind drives how confirm.py builds the
 # benign payload:
-#   host     -> <token>.redamon-poc.invalid     (reflected host spoof / open redirect)
+#   host     -> <token>.whitehat-poc.invalid     (reflected host spoof / open redirect)
 #   path     -> /<token>                         (path override, often reflected)
 #   value    -> <token>                          (generic reflection marker)
 #   scheme   -> "https"   (FIXED, benign)        (proto/scheme confusion, non-reflective)

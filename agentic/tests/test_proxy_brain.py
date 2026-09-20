@@ -1,14 +1,14 @@
 """Unit tests for the proxy_brain traffic broker's security contract.
 
 The /traffic/exec + /traffic/replay endpoints derive tenant identity from a
-signed `X-Redamon-Ctx` tag (source=agent), NOT from the request body. The whole
+signed `X-WhiteHat-Ctx` tag (source=agent), NOT from the request body. The whole
 isolation guarantee rests on: only a holder of INTERNAL_API_KEY can mint a tag
 for a given tenant, and the kali worker does not hold that key. These tests pin
 that contract at the primitive the endpoint's `_verify_traffic_ctx` wraps.
 """
 import pytest
 
-from redamon_ctx import sign_tag, verify_tag
+from whitehat_ctx import sign_tag, verify_tag
 
 AGENT_KEY = "agent-internal-key-abc123"
 SCANNER_KEY = "scanner-scoped-key-xyz789"

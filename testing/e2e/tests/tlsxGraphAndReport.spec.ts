@@ -14,18 +14,18 @@ import { mintToken, signIn } from './auth'
  *   cd testing/e2e && npx playwright test tlsxGraphAndReport
  */
 
-const PROJECT = process.env.REDAMON_PROJECT || '3a2435862fc24f2eaf71062fc'
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROJECT = process.env.WHITEHAT_PROJECT || '3a2435862fc24f2eaf71062fc'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 
-const cookie = () => ({ cookie: `redamon-auth=${mintToken(USER)}` })
+const cookie = () => ({ cookie: `whitehat-auth=${mintToken(USER)}` })
 
 test.beforeEach(async ({ context, baseURL }) => {
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
 })
 

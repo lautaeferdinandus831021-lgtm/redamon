@@ -19,7 +19,7 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.."
 
-PSQL=(docker compose exec -T postgres psql -U redamon -d redamon -qtAX)
+PSQL=(docker compose exec -T postgres psql -U whitehat -d whitehat -qtAX)
 
 pass=0
 fail=0

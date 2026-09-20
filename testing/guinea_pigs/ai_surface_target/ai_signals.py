@@ -142,7 +142,7 @@ ZAP_AJAX_TEST_ENDPOINTS: list[dict] = [
         "discovery": "Auth-aware fetch on load (always called)",
         "katana_finds": False,
         "zap_finds": True,
-        "note": "Server returns header 'x-redamon-authed: true' when Authorization header is injected.",
+        "note": "Server returns header 'x-whitehat-authed: true' when Authorization header is injected.",
     },
     {
         "path": "/api/admin/users",
@@ -250,7 +250,7 @@ PORT_LISTENERS: list[dict] = [
     # ─── Disambiguate ports (2) — port_scan MUST skip; one still fires
     #     via http_probe title regex for :8080 ────────────────────────────
     #
-    # Three catalog disambiguate ports CANNOT be bound here because Redamon
+    # Three catalog disambiguate ports CANNOT be bound here because WhiteHat
     # services publish them on the host:
     #   - 8000: kali-sandbox MCP network-recon
     #   - 8002: kali-sandbox MCP nuclei

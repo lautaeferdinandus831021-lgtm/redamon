@@ -5,7 +5,7 @@ must live in the AGENT (a compromised kali worker cannot bypass it).
 
 Covers strategy rows: 9 (fail-closed on missing tag), 8 (off-phase refused),
 10 (fail-closed on changeme/unset key), 7 (per-session send budget), 5 (reads
-scoped to the tag's tenant). Run in the redamon-agent image with the repo mount
+scoped to the tag's tenant). Run in the whitehat-agent image with the repo mount
 so `import api` (and its graph_db dep) resolve.
 """
 import asyncio
@@ -24,7 +24,7 @@ import pytest
 KEY = "test-internal-key-proxybrain"
 os.environ["INTERNAL_API_KEY"] = KEY
 
-from redamon_ctx import sign_tag  # noqa: E402
+from whitehat_ctx import sign_tag  # noqa: E402
 
 
 def _tag(user_id="u1", project_id="p1", phase="exploitation", key=None):

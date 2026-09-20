@@ -6,7 +6,7 @@ that override on EVERY return path (both DEFAULT fallbacks AND the successful
 project fetch), forcing github input mode + the batch repo, so an item never scans
 the project's default target.
 
-Run under the root-agent section (image redamon-agent).
+Run under the root-agent section (image whitehat-agent).
 """
 import importlib.util
 import os

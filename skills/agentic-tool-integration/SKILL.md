@@ -12,7 +12,7 @@ description: >
   server in mcp/servers/.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [agentic]
   auto_invoke:
@@ -36,7 +36,7 @@ new attack *skill* (not a tool), use `builtin-agent-skill`.
 ## Critical Rules
 
 - **NEVER `import` a package not already in the agent image.** `agentic/` is
-  baked into the `redamon-agent` image; a missing import **crash-loops** the
+  baked into the `whitehat-agent` image; a missing import **crash-loops** the
   container. Confirm it is in [agentic/requirements.txt](../../agentic/requirements.txt)
   or the [Dockerfile](../../agentic/Dockerfile) first.
 - **NEVER add a tool without a `TOOL_REGISTRY` entry** in

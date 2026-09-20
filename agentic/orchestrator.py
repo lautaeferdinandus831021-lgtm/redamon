@@ -1,5 +1,5 @@
 """
-RedAmon Agent Orchestrator
+WhiteHat Agent Orchestrator
 
 ReAct-style agent orchestrator with iterative Thought-Tool-Output pattern.
 Supports phase tracking, LLM-managed todo lists, and checkpoint-based approval.

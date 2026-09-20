@@ -1,8 +1,8 @@
 services:
   vhost-target:
     build: .
-    image: redamon-vhost-target:latest
-    container_name: redamon-vhost-target
+    image: whitehat-vhost-target:latest
+    container_name: whitehat-vhost-target
     networks:
       - vhostlab
     healthcheck:
@@ -17,4 +17,4 @@ networks:
   # Named so the scanner container can be attached to the same bridge and reach
   # the lab by its container IP, the way the recon pipeline addresses a target.
   vhostlab:
-    name: redamon-vhostlab
+    name: whitehat-vhostlab

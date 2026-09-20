@@ -6,7 +6,7 @@ verify_js_scope.py. Signs in the way testing/e2e/tests/auth.ts does: an HS256
 session cookie minted from AUTH_SECRET in the repo .env, so no password is held.
 
     docker run --rm --network host -v "$PWD:/repo:ro" -w /repo --entrypoint python \\
-        redamon-agent:latest testing/guinea_pigs/js_scope_target/e2e_js_scope.py \\
+        whitehat-agent:latest testing/guinea_pigs/js_scope_target/e2e_js_scope.py \\
         --user-id <admin user id>
 """
 import argparse
@@ -140,7 +140,7 @@ def main() -> int:
     s = requests.Session()
     # A header, not the cookie jar: the jar silently withholds a cookie set for
     # a bare 'localhost' domain, and every call then answers 401.
-    s.headers["Cookie"] = f"redamon-auth={mint_cookie(args.user_id)}"
+    s.headers["Cookie"] = f"whitehat-auth={mint_cookie(args.user_id)}"
 
     if args.partial:
         return run_partial(s, args.webapp, args.partial, args.timeout)

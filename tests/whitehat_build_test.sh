@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the adaptive memory-safe Docker build logic in redamon.sh
+# Test suite for the adaptive memory-safe Docker build logic in whitehat.sh
 # (compose_build / detect_build_resources / pick_parallelism / maybe_warn_low_memory).
 #
 # Suites: unit, integration (stubbed docker), smoke (real docker/compose),
-#         regression. Run:  bash tests/redamon_build_test.sh
+#         regression. Run:  bash tests/whitehat_build_test.sh
 # Smoke tests that need a running Docker daemon are skipped (not failed) when
 # Docker is unavailable, so the suite is CI-friendly.
 # =============================================================================
@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # info/warn/error, etc. It also turns on `set -euo pipefail`; we relax -e in the
 # harness so a failing assertion does not abort the whole run.
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -32,7 +32,7 @@ assert_not_contains() { if [[ "$2" != *"$3"* ]]; then pass "$1"; else fail "$1 (
 section() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 
 # Silence info/warn during tests unless a test opts in (they write to stdout and
-# would pollute captured output). Re-defined AFTER source, overriding redamon's.
+# would pollute captured output). Re-defined AFTER source, overriding whitehat's.
 info() { :; }
 warn() { :; }
 
@@ -63,7 +63,7 @@ docker() {
 }
 reset_calls() {
     CALLS="$(mktemp)"; DOCKER_RC=0; FAIL_MATCH=""; PRUNE_RC=0; PRUNE_OUT=""
-    unset COMPOSE_PARALLEL_LIMIT REDAMON_NO_AUTO_PRUNE
+    unset COMPOSE_PARALLEL_LIMIT WHITEHAT_NO_AUTO_PRUNE
 }
 
 # Fix detected resources deterministically for integration tests.
@@ -80,7 +80,7 @@ svc_count_of() { local rest="${1##*build }"; printf '%s\n' $rest | wc -l | tr -d
 # =============================================================================
 section "UNIT: pick_parallelism tiers"
 # formula: usable=mem-2560; bound=usable/2048 (1 if usable<2048); min(bound,cpu) clamp[1,6]
-unset REDAMON_BUILD_PARALLEL
+unset WHITEHAT_BUILD_PARALLEL
 u_pp() { BUILD_MEM_MB="$1"; BUILD_NCPU="$2"; pick_parallelism; }
 assert_eq "mem=0 undetected -> serial"      "$(u_pp 0 8)"      "1"
 assert_eq "mem=2GB -> 1"                     "$(u_pp 2048 8)"   "1"
@@ -96,12 +96,12 @@ section "UNIT: pick_parallelism override"
 BUILD_MEM_MB=8192; BUILD_NCPU=8
 # Set the env var IN the same subshell that runs pick_parallelism (a `VAR=x cmd`
 # prefix would not reach the command substitution).
-_ov() { ( export REDAMON_BUILD_PARALLEL="$1"; pick_parallelism ); }
+_ov() { ( export WHITEHAT_BUILD_PARALLEL="$1"; pick_parallelism ); }
 assert_eq "override 0 -> unbounded"    "$(_ov 0)"  "0"
 assert_eq "override 1"                 "$(_ov 1)"  "1"
 assert_eq "override 5 beats detection" "$(_ov 5)"  "5"
 assert_eq "override non-numeric -> 1"  "$(_ov xx)" "1"
-unset REDAMON_BUILD_PARALLEL
+unset WHITEHAT_BUILD_PARALLEL
 assert_eq "no override -> detection (8GB->2)" "$(pick_parallelism)" "2"
 
 section "UNIT: detect_build_resources sources"
@@ -182,14 +182,14 @@ assert_not_contains "I4 tools-only: no webapp build" "$(cat "$CALLS")" "compose 
 assert_contains     "I4 tools built capped"          "$(cat "$CALLS")" "LIMIT=2|compose --profile tools build recon vuln-scanner"
 
 # I5: override=0 still isolates webapp; the rest goes out unbatched and unbounded
-reset_calls; REDAMON_BUILD_PARALLEL=0 compose_build build agent webapp
+reset_calls; WHITEHAT_BUILD_PARALLEL=0 compose_build build agent webapp
 c1="$(sed -n 1p "$CALLS")"; c2="$(sed -n 2p "$CALLS")"
 assert_contains "I5 override0 still isolates webapp" "$c1" "LIMIT=unset|compose build webapp"
 assert_contains "I5 override0 second call unbounded" "$c2" "LIMIT=unset|compose build agent webapp"
 assert_eq       "I5 override0 does not batch" "$(wc -l < "$CALLS")" "3"
 
 # I6: override=3 -> limit 3
-reset_calls; REDAMON_BUILD_PARALLEL=3 compose_build build agent
+reset_calls; WHITEHAT_BUILD_PARALLEL=3 compose_build build agent
 assert_contains "I6 override3 applied" "$(cat "$CALLS")" "LIMIT=3|compose build agent"
 
 # I7: build flags must be repeated on EVERY batch, not just the first
@@ -249,7 +249,7 @@ assert_contains "B4 flag value stays a flag value" "$(sed -n 1p "$CALLS")" "buil
 assert_contains "B4 remainder batch keeps the flag" "$(sed -n 2p "$CALLS")" "build --build-arg FOO=bar baddns-scanner"
 
 # B5: parallelism 1 (a low-memory host) means strictly one image per call.
-reset_calls; REDAMON_BUILD_PARALLEL=1 compose_build build agent recon webapp
+reset_calls; WHITEHAT_BUILD_PARALLEL=1 compose_build build agent recon webapp
 assert_eq       "B5 serial: 5 calls (webapp + 3 batches + prune)" "$(wc -l < "$CALLS")" "5"
 assert_contains "B5 one service per call" "$(sed -n 2p "$CALLS")" "LIMIT=1|compose build agent"
 assert_contains "B5 one service per call" "$(sed -n 4p "$CALLS")" "LIMIT=1|compose build webapp"
@@ -295,9 +295,9 @@ reset_calls; PRUNE_RC=1
 assert_eq "P4 prune failure keeps build rc 0" "$rc" "0"
 PRUNE_RC=0
 
-# P5: REDAMON_NO_AUTO_PRUNE=1 opts out. The builder cache is per-DAEMON, not
+# P5: WHITEHAT_NO_AUTO_PRUNE=1 opts out. The builder cache is per-DAEMON, not
 # per-project, so on a shared workstation this evicts other projects' cache too.
-reset_calls; REDAMON_NO_AUTO_PRUNE=1 compose_build build agent
+reset_calls; WHITEHAT_NO_AUTO_PRUNE=1 compose_build build agent
 assert_not_contains "P5 opt-out skips the prune" "$(cat "$CALLS")" "builder prune"
 
 # P6: reclaimed space is reported only when non-zero (the no-op case must stay
@@ -313,9 +313,9 @@ reset_calls
 # =============================================================================
 section "SMOKE: real script + docker/compose"
 # S1: syntax
-if bash -n "$REPO_ROOT/redamon.sh"; then pass "S1 bash -n clean"; else fail "S1 syntax"; fi
+if bash -n "$REPO_ROOT/whitehat.sh"; then pass "S1 bash -n clean"; else fail "S1 syntax"; fi
 # S2: help dispatch runs when executed directly
-if bash "$REPO_ROOT/redamon.sh" help >/dev/null 2>&1; then pass "S2 direct 'help' dispatch ok"; else fail "S2 help dispatch"; fi
+if bash "$REPO_ROOT/whitehat.sh" help >/dev/null 2>&1; then pass "S2 direct 'help' dispatch ok"; else fail "S2 help dispatch"; fi
 # S3/S4 need a docker daemon. Probe with `command docker` so the integration
 # `docker()` stub (which always returns 0) cannot make an absent daemon look up.
 if command -v docker >/dev/null 2>&1 && command docker info >/dev/null 2>&1; then
@@ -325,7 +325,7 @@ if command -v docker >/dev/null 2>&1 && command docker info >/dev/null 2>&1; the
     assert_contains "S3 agent is a compose service"  "$svcs" "agent"
     # S4: real detection returns sane values via docker info
     unset -f detect_build_resources 2>/dev/null || true
-    source "$REPO_ROOT/redamon.sh"; set +e   # restore real detect_build_resources
+    source "$REPO_ROOT/whitehat.sh"; set +e   # restore real detect_build_resources
     info() { :; }; warn() { :; }
     detect_build_resources
     if [[ "$BUILD_MEM_MB" -gt 0 ]]; then pass "S4 real mem>0 ($BUILD_MEM_MB MB, $BUILD_RES_SOURCE)"; else fail "S4 real mem=0"; fi
@@ -349,7 +349,7 @@ fi
 
 # =============================================================================
 section "REGRESSION: call-site wiring"
-rd="$REPO_ROOT/redamon.sh"
+rd="$REPO_ROOT/whitehat.sh"
 # R1: no raw `docker compose ... build` invocations remain outside compose_build's own body.
 #     compose_build contains exactly one intentional `docker compose build webapp` (Layer 1)
 #     and one `docker compose "$@"` (Layer 2). Everything else must go through compose_build.

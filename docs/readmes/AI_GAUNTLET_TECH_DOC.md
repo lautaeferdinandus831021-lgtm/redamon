@@ -1,11 +1,11 @@
 # AI Gauntlet — Technical Documentation
 
-> *AI Gauntlet* is RedAmon's AI attack-surface testing module — the offensive
+> *AI Gauntlet* is WhiteHat's AI attack-surface testing module — the offensive
 > follow-up that runs discovered LLM endpoints through a gauntlet of adversarial tools.
 
 
 > Deterministic, zero-egress offensive scanner that attacks the LLM endpoints
-> RedAmon's recon already discovered, and writes the results back into the same
+> WhiteHat's recon already discovered, and writes the results back into the same
 > Neo4j graph as `Vulnerability` nodes.
 
 This document describes how the `scanners/ai_attack_surface_scan/` subsystem is built, how
@@ -35,7 +35,7 @@ and surfaced as reports.
 
 ## 1. What it is and where it sits
 
-RedAmon's recon pipeline crawls a target, discovers HTTP endpoints, and (when the
+WhiteHat's recon pipeline crawls a target, discovers HTTP endpoints, and (when the
 AI classifier is enabled) stamps every `Endpoint` node with AI metadata:
 `ai_interface_type`, `ai_model_family_guess`, `ai_model_ids`, `ai_supports_tools`,
 `ai_supports_streaming`. See `recon/main_recon_modules/resource_enum.py`
@@ -269,7 +269,7 @@ disabled via `PROMPTFOO_DISABLE_*` env. `PYTHONUNBUFFERED=1` so logs stream live
 ```mermaid
 graph TD
     BASE["Base interpreter<br/>neo4j driver + spine"]
-    subgraph Image["redamon-ai-attack-surface:latest"]
+    subgraph Image["whitehat-ai-attack-surface:latest"]
         BASE
         VG["/opt/venv-garak<br/>garak 0.15.x"]
         VP["/opt/venv-pyrit<br/>pyrit 0.14.x"]
@@ -523,7 +523,7 @@ If `generate` produces nothing, `eval` is skipped (graceful).
 
 **Provider config** (`provider_config.py`): an `https` provider points at the target
 with a family-specific body template (`{{prompt}}`) and a `transformResponse`
-JSONPath. The auth header carries `{{env.REDAMON_TARGET_KEY}}`, injected at runtime.
+JSONPath. The auth header carries `{{env.WHITEHAT_TARGET_KEY}}`, injected at runtime.
 The grader is `openai:chat:<judge_model>` with `apiBaseUrl` = local Ollama and a
 dummy key (`sk-noop`). `numTests` defaults to 5 (env `AI_ATTACK_PROMPTFOO_NUMTESTS`).
 
@@ -740,7 +740,7 @@ sequenceDiagram
     CM->>CM: ensure image (build on demand)
     CM->>LLM: ensure_up(judge_model)  [ref-counted lease]
     LLM-->>CM: base_url (http://localhost:11434)
-    CM->>CM: write /tmp/redamon/ai_attack_<safe_pid>_<run>.json
+    CM->>CM: write /tmp/whitehat/ai_attack_<safe_pid>_<run>.json
     CM->>C: containers.run(image, network_mode=host, env, volumes)
     C->>N: Phase 2 read targets
     C->>C: Phase 3 attack (stdout -> docker logs)
@@ -755,7 +755,7 @@ sequenceDiagram
 
 Spawn specifics (`container_manager.py`):
 
-- **Image:** `redamon-ai-attack-surface:latest`, built on demand if missing.
+- **Image:** `whitehat-ai-attack-surface:latest`, built on demand if missing.
 - **Concurrency gate:** `MAX_PARALLEL_AI_ATTACK = 6` per project (a backstop; the UI
   itself enforces one scan at a time).
 - **Network:** `network_mode="host"` so the container reaches the judge at
@@ -763,9 +763,9 @@ Spawn specifics (`container_manager.py`):
 - **Env passed in:** `PROJECT_ID`, `USER_ID`, `WEBAPP_API_URL`, `AI_ATTACK_TOOL`,
   `AI_ATTACK_RUN_ID`, `AI_ATTACK_CONFIG` (the config path),
   `NEO4J_URI/USER/PASSWORD`, `INTERNAL_API_KEY`, `PYTHONUNBUFFERED=1`.
-- **Config file:** `/tmp/redamon/ai_attack_<safe_pid>_<run_id>.json` (project_id
+- **Config file:** `/tmp/whitehat/ai_attack_<safe_pid>_<run_id>.json` (project_id
   sanitized), bind-mounted in.
-- **Volumes:** `/tmp/redamon` (config) + the `scanners/ai_attack_surface_scan/` source bind
+- **Volumes:** `/tmp/whitehat` (config) + the `scanners/ai_attack_surface_scan/` source bind
   (so output artifacts land back on the host, and code edits need no rebuild).
 - **One container per tool per launch.** On a failed spawn the judge lease is
   released and the config file unlinked, so nothing leaks.
@@ -773,13 +773,13 @@ Spawn specifics (`container_manager.py`):
 ### The local Ollama judge (zero-egress)
 
 `LocalLlmManager` brings up a ref-counted `ollama/ollama:latest` container
-(`redamon-local-llm`) on demand:
+(`whitehat-local-llm`) on demand:
 
-- Orchestrator reaches it via container DNS (`http://redamon-local-llm:11434`); the
+- Orchestrator reaches it via container DNS (`http://whitehat-local-llm:11434`); the
   **scan container** reaches it via the published port (`http://localhost:11434`,
   passed in as `judge_base_url`).
 - Model weights (default `qwen2.5:7b`) are pulled once and cached in the
-  `redamon_llm_models` volume, surviving container removal.
+  `whitehat_llm_models` volume, surviving container removal.
 - Leases are ref-counted; the Ollama container is stopped/removed when the last scan
   releases it. A background reaper (~30s) refreshes orphaned runs so a closed UI tab
   still releases the lease.

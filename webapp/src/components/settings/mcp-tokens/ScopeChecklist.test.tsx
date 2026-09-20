@@ -66,7 +66,7 @@ describe('kali:exec is presented as a different KIND of permission', () => {
     render(<ScopeChecklist selected={[]} onToggle={vi.fn()} />)
     // The decision the operator is actually making, which is the framing the
     // short blurb cannot carry.
-    expect(screen.getByText(/borrow\s+RedAmon's\?/)).toBeDefined()
+    expect(screen.getByText(/borrow\s+WhiteHat's\?/)).toBeDefined()
     expect(screen.getByText(/not sufficient on its own/)).toBeDefined()
   })
 

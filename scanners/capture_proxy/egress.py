@@ -2,14 +2,14 @@
 Capture-proxy egress guard (plan §15.3, §20.5).
 
 A new proxy is a new egress path, so it must not become an SSRF pivot into
-RedAmon's internal network or a hard-guardrail bypass. This module is the pure,
+WhiteHat's internal network or a hard-guardrail bypass. This module is the pure,
 testable core of that guard; the mitmdump addon calls it in the `request` hook
 and blocks anything it refuses.
 
 Two layers:
   1. Internal denylist on the RESOLVED IP (not just the hostname) — RFC1918,
      loopback, link-local, CGNAT, reserved, multicast, unspecified, plus any
-     explicitly configured RedAmon service IPs. Checking the resolved IP defeats
+     explicitly configured WhiteHat service IPs. Checking the resolved IP defeats
      DNS-rebinding (an in-scope name pointing at 169.254.169.254 / 10.x). That
      classification lives in the dual-shipped ``ip_denylist`` module, shared
      verbatim with the orchestrator's TruffleHog start guard so the two can
@@ -23,9 +23,9 @@ Global Settings > TrafficMind). Every toggle defaults to BLOCK, so the out-of-th
 box posture is identical to the original always-on guard; an operator can relax a
 specific check (e.g. allow RFC1918 to reach an internal / lab target on a private
 Docker network) without weakening the others. The explicit `extra_blocked` IP
-denylist (RedAmon's own service IPs) is NOT toggleable; it stays enforced even
+denylist (WhiteHat's own service IPs) is NOT toggleable; it stays enforced even
 when the private-IP category is allowed, so unblocking private targets can never
-turn the proxy into an SSRF pivot into RedAmon itself.
+turn the proxy into an SSRF pivot into WhiteHat itself.
 
 Pure stdlib. The addon is responsible for pinning the resolved IP it gets back
 here for the actual upstream connection so a TOCTOU re-resolve can't slip past.
@@ -60,7 +60,7 @@ class EgressPolicy:
     class of destination through the capture proxy.
 
     Security note: relaxing `block_private` (or loopback/link-local/…) opens the
-    proxy to that address class. Keep RedAmon's own service IPs in the always-on
+    proxy to that address class. Keep WhiteHat's own service IPs in the always-on
     `extra_blocked` denylist (env `CAPTURE_BLOCKED_IPS`) so they stay refused
     regardless of these toggles.
     """

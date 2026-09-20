@@ -171,7 +171,7 @@ const TOOL_DESCRIPTIONS: Record<string, string> = {
     'and the verdict makes zero network calls. ' +
     'Targets are loaded from the graph (BaseURLs + Endpoints); you can also provide custom URLs below. ' +
     'Creates Package and MalPackageFinding nodes (MAL- = malicious, e.g. a typosquat; CVE/GHSA = known-vulnerable) ' +
-    'and links them to the serving BaseURL. Requires the offline OSV database: ./redamon.sh supply-chain-sync npm',
+    'and links them to the serving BaseURL. Requires the offline OSV database: ./whitehat.sh supply-chain-sync npm',
   Nuclei:
     'Template-based vulnerability scanner detecting CVEs, misconfigurations, exposed panels, and web application vulnerabilities (SQLi, XSS, RCE). ' +
     'Targets are built as the UNION of every available source in the graph (deduplicated): Endpoints with parameters from resource_enum, BaseURLs verified by httpx, and http(s)://<sub> for any Subdomain whose host is not already covered by the first two sources - so newly discovered subdomains get scanned even before httpx has probed them. IPs are excluded by default (toggle "Scan All IPs" to include). ' +

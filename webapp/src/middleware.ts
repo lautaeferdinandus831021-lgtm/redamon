@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 import { constantTimeEqual } from './lib/constantTimeEqual'
 
-const AUTH_COOKIE_NAME = 'redamon-auth'
+const AUTH_COOKIE_NAME = 'whitehat-auth'
 
 // '/api/mcp-server' follows the /api/auth/login precedent: public at the
 // middleware layer, with the handler performing its own credential check and

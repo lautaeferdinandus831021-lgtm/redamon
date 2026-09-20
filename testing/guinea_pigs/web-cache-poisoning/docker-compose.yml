@@ -1,11 +1,11 @@
-# Self-contained vulnerable target for end-to-end validation of the RedAmon WCP
+# Self-contained vulnerable target for end-to-end validation of the WhiteHat WCP
 # module. Brings up a real nginx shared cache in front of a deliberately
 # vulnerable Flask origin.
 #
 #   docker compose up -d --build
 #   open http://localhost:9090/        (landing page links every test endpoint)
 #
-# The cache is reachable on the host at http://localhost:9090. Point a RedAmon
+# The cache is reachable on the host at http://localhost:9090. Point a WhiteHat
 # recon project at the host's Docker-bridge IP on port 9090 (see README) so the
 # scan containers can reach it.
 

@@ -1,4 +1,4 @@
-# `js_scope_target`: RedAmon guinea pig for JS recon endpoint scope
+# `js_scope_target`: WhiteHat guinea pig for JS recon endpoint scope
 
 Proves, against a real full recon and a real partial run, how JS recon writes
 the endpoints it extracts from JavaScript:
@@ -14,8 +14,8 @@ the endpoints it extracts from JavaScript:
 
 | Container | Address | Role |
 |---|---|---|
-| `redamon-js-scope-target` | `192.88.97.10` ports 80 and 8080 | the project's only target |
-| `redamon-js-scope-outsider` | `192.88.97.20` port 80 | reachable, never a target; logs every request |
+| `whitehat-js-scope-target` | `192.88.97.10` ports 80 and 8080 | the project's only target |
+| `whitehat-js-scope-outsider` | `192.88.97.20` port 80 | reachable, never a target; logs every request |
 
 `192.88.97.0/24` is in the deprecated 6to4 relay prefix, for the same reason as
 [`supply_chain_target`](../supply_chain_target/README.md#why-this-target-is-not-on-127001):
@@ -72,17 +72,17 @@ repo path can contain a space, which an unquoted variable splits.
 ```bash
 (cd testing/guinea_pigs/js_scope_target && docker compose up -d --build)
 lab() { docker run --rm --network host -v "$PWD:/repo:ro" -w /repo --entrypoint python \
-          redamon-agent:latest "testing/guinea_pigs/js_scope_target/$@"; }
+          whitehat-agent:latest "testing/guinea_pigs/js_scope_target/$@"; }
 SINCE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Phase 1: full recon (about a minute)
 lab e2e_js_scope.py --user-id <admin user id>          # prints PROJECT_ID=<id>
 lab verify_js_scope.py --project-id <id>
-docker logs --since "$SINCE" redamon-js-scope-outsider  # only the "listening" line
+docker logs --since "$SINCE" whitehat-js-scope-outsider  # only the "listening" line
 
 # Phase 2: legacy data + partial run
 NEO4J_PASSWORD=$(grep '^NEO4J_PASSWORD=' .env | cut -d= -f2- | tr -d "\"'")
-docker exec -i redamon-neo4j cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
+docker exec -i whitehat-neo4j cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
   -P "uid => '<user id>'" -P "pid => '<id>'" < testing/guinea_pigs/js_scope_target/seed_legacy_endpoint.cypher
 lab e2e_js_scope.py --user-id <admin user id> --partial <id>
 lab verify_js_scope.py --project-id <id> --expect-partial --expect-legacy
@@ -90,7 +90,7 @@ lab verify_js_scope.py --project-id <id> --expect-partial --expect-legacy
 
 The partial container is removed seconds after it finishes; to read its log
 (`Dropped N out-of-scope graph URL(s)`, the `endpoints_out_of_scope` stat),
-`docker logs -f` the `redamon-partial-recon-<id>-*` container while it runs.
+`docker logs -f` the `whitehat-partial-recon-<id>-*` container while it runs.
 
 `e2e_js_scope.py` signs in with a session cookie minted from `AUTH_SECRET` in
 the repo `.env` (the same way `testing/e2e/tests/auth.ts` does) and drives only

@@ -9,7 +9,7 @@ Reference for fast TCP port discovery with naabu: scan-type selection, rate/work
 
 Upstream: https://docs.projectdiscovery.io/opensource/naabu/usage
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|

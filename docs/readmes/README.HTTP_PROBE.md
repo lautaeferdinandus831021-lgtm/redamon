@@ -1,10 +1,10 @@
-# RedAmon - httpx HTTP Prober + Banner Grabbing
+# WhiteHat - httpx HTTP Prober + Banner Grabbing
 
 ## Complete Technical Documentation
 
 > **Module:** `recon/httpx_scan.py`  
 > **Purpose:** HTTP probing, technology detection, and non-HTTP service detection  
-> **Author:** RedAmon Security Suite
+> **Author:** WhiteHat Security Suite
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Overview
 
-The `httpx_scan.py` module integrates ProjectDiscovery's httpx toolkit into RedAmon's reconnaissance pipeline. httpx is a multi-purpose HTTP toolkit designed for probing, technology detection, and web service analysis.
+The `httpx_scan.py` module integrates ProjectDiscovery's httpx toolkit into WhiteHat's reconnaissance pipeline. httpx is a multi-purpose HTTP toolkit designed for probing, technology detection, and web service analysis.
 
 **This module also includes integrated banner grabbing** for non-HTTP services (SSH, FTP, SMTP, MySQL, etc.) to provide complete service detection across all open ports.
 
@@ -1196,5 +1196,5 @@ HTTPX_CUSTOM_HEADERS = [
 
 ---
 
-*Documentation generated for RedAmon v1.0 - httpx HTTP Prober Module*
+*Documentation generated for WhiteHat v1.0 - httpx HTTP Prober Module*
 

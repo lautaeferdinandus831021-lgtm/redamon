@@ -16,7 +16,7 @@ reaper's _active_scan_keys must agree on the key FORMAT. If admission books
 "partial_recon:pid:run", reconcile() sees an unknown committed key and frees a
 live scan's reservation within 30 s.
 
-Run: docker exec redamon-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_supply_chain_admission -v'
+Run: docker exec whitehat-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_supply_chain_admission -v'
 """
 
 import asyncio
@@ -199,7 +199,7 @@ class TestGuarddogAdmission(unittest.TestCase):
         self.assertIn("detail", payload)
 
     def test_fails_open_when_the_governor_is_disabled(self):
-        with mock.patch.dict("os.environ", {"REDAMON_MEM_GOVERNOR": "false"}):
+        with mock.patch.dict("os.environ", {"WHITEHAT_MEM_GOVERNOR": "false"}):
             out = self._run()
         self.assertEqual(out["issues"], 0)
         self.assertEqual(self.m.ledger.committed_bytes(), 0)
@@ -420,7 +420,7 @@ class TestAnalyzerCapSource(unittest.TestCase):
 
     def test_fails_open_when_governor_disabled(self):
         m = _mgr()
-        with mock.patch.dict("os.environ", {"REDAMON_MEM_GOVERNOR": "false"}):
+        with mock.patch.dict("os.environ", {"WHITEHAT_MEM_GOVERNOR": "false"}):
             self.assertIsNone(m._tool_container_mem_limit("supply_chain_analyzer"))
             self.assertIsNone(m._container_mem_limit("supply_chain"))
 
@@ -466,7 +466,7 @@ class TestAnalyzerOverridePrecedence(unittest.TestCase):
             self.assertEqual(self.m._analyzer_mem_limit(), "333m")
 
     def test_governor_disabled_falls_back_to_the_constructor_value(self):
-        with mock.patch.dict("os.environ", {"REDAMON_MEM_GOVERNOR": "false"}):
+        with mock.patch.dict("os.environ", {"WHITEHAT_MEM_GOVERNOR": "false"}):
             os.environ.pop("SUPPLY_CHAIN_ANALYZER_MEM", None)
             self.assertEqual(self.m._analyzer_mem_limit(), "1500m")
 

@@ -9,7 +9,7 @@ a single natural-language question, and prints a structured trace of:
   - tool output (truncated)
   - final response
 
-Designed to run INSIDE the redamon-agent container (which already has the
+Designed to run INSIDE the whitehat-agent container (which already has the
 `websockets` library) via:
 
   docker compose exec -T agent python3 /app/tests/cve_intel_chat_probe.py "QUESTION"

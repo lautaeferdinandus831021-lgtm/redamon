@@ -3,7 +3,7 @@
 /**
  * MCP Server - access tokens for the INBOUND direction.
  *
- * The sibling "MCP Tool Plugins" tab is OUTBOUND (RedAmon connecting out to
+ * The sibling "MCP Tool Plugins" tab is OUTBOUND (WhiteHat connecting out to
  * servers the operator registers). This one mints credentials that let other
  * agents connect IN. Two tabs, opposite directions, so the subtitle says so
  * explicitly rather than relying on the reader to infer it from the name.
@@ -110,9 +110,9 @@ function tokenState(t: TokenRow): 'active' | 'revoked' | 'expired' {
 }
 
 function clientSnippet(token: string): string {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://<redamon-host>'
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://<whitehat-host>'
   return JSON.stringify(
-    { mcpServers: { redamon: { url: `${origin}/api/mcp-server`, headers: { Authorization: `Bearer ${token}` } } } },
+    { mcpServers: { whitehat: { url: `${origin}/api/mcp-server`, headers: { Authorization: `Bearer ${token}` } } } },
     null,
     2
   )
@@ -434,9 +434,9 @@ export default function McpTokensTab({ userId, onDirtyChange }: Props) {
             />
           </h3>
           <p className={styles.sectionDescription}>
-            <strong>Inbound:</strong> let an external AI agent connect to RedAmon and act as you,
+            <strong>Inbound:</strong> let an external AI agent connect to WhiteHat and act as you,
             within your own projects. (The <em>MCP Tool Plugins</em> tab is the opposite
-            direction: RedAmon connecting out to other servers.)
+            direction: WhiteHat connecting out to other servers.)
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -516,7 +516,7 @@ export default function McpTokensTab({ userId, onDirtyChange }: Props) {
           {mintedShape && (
             <>
               <p className={styles.muted}>
-                Now teach your agent how to use RedAmon. This is a second, separate install from the
+                Now teach your agent how to use WhiteHat. This is a second, separate install from the
                 config above.
               </p>
               <button

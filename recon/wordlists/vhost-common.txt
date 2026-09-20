@@ -1,4 +1,4 @@
-# RedAmon vhost-common.txt
+# WhiteHat vhost-common.txt
 # Curated hostname prefixes for VHost & SNI enumeration.
 # Each entry is a label that the module expands as {prefix}.{target_apex}
 # Lines starting with # and blank lines are ignored.

@@ -277,19 +277,19 @@ describe('the profile layer', () => {
     // Every token minted before this feature has no profile.
     const pack = renderOnboardingPack(tools, ALL, null, { version: 'test' })
     expect(pack.files[0].content).toContain('## Your job: Custom')
-    expect(pack.files[0].content).toContain('name: redamon-mcp')
+    expect(pack.files[0].content).toContain('name: whitehat-mcp')
   })
 
   test('a profile names the skill after itself, so two can coexist', () => {
     const asm = renderOnboardingPack(tools, ALL, 'asm', { version: 'test' })
     const triage = renderOnboardingPack(tools, ALL, 'triage', { version: 'test' })
-    expect(asm.files[0].content).toContain('name: redamon-asm')
-    expect(triage.files[0].content).toContain('name: redamon-triage')
+    expect(asm.files[0].content).toContain('name: whitehat-asm')
+    expect(triage.files[0].content).toContain('name: whitehat-triage')
   })
 
   test('an underscored profile id becomes a valid skill name', () => {
     const pack = renderOnboardingPack(tools, ALL, 'bug_bounty', { version: 'test' })
-    expect(pack.files[0].content).toContain('name: redamon-bug-bounty')
+    expect(pack.files[0].content).toContain('name: whitehat-bug-bounty')
   })
 
   test('the frontmatter description names the profile\'s job', () => {
@@ -314,11 +314,11 @@ describe('the profile layer', () => {
 // --- the shared core -----------------------------------------------------------
 
 describe('the shared core is always full', () => {
-  test('every pack opens with the operating model, then RedAmon, then the graph', () => {
+  test('every pack opens with the operating model, then WhiteHat, then the graph', () => {
     for (const scopes of [READ_ONLY, ALL]) {
       const skill = renderOnboardingPack(tools, scopes, 'soc', { version: 'test' }).files[0].content
       const model = skill.indexOf('Read this first: what you are working with')
-      const what = skill.indexOf('What RedAmon is, and what its recon pipeline does')
+      const what = skill.indexOf('What WhiteHat is, and what its recon pipeline does')
       const graph = skill.indexOf('The graph\'s shape')
       const surface = skill.indexOf('What the MCP surface can do')
       const job = skill.indexOf('Your job:')
@@ -423,7 +423,7 @@ describe('nothing user-specific ever reaches the output', () => {
       for (const scopes of EVERY_COMBINATION) {
         const text = renderOnboardingPack(tools, scopes, id, {
           version: 'test',
-          serverUrl: 'https://redamon.example',
+          serverUrl: 'https://whitehat.example',
         }).files.map(f => f.content).join('\n')
         // The placeholder `rdmn_mcp_...` is fine; a real 40+ hex token is not.
         expect(text, `${id}/${scopes.join('+')} embedded a token`)
@@ -460,12 +460,12 @@ describe('nothing user-specific ever reaches the output', () => {
   test('the server URL is the only thing the caller can inject, and it is bounded', () => {
     const pack = renderOnboardingPack(tools, ALL, 'asm', {
       version: 'test',
-      serverUrl: 'https://redamon.example/',
+      serverUrl: 'https://whitehat.example/',
     })
     const text = pack.files[0].content
-    expect(text).toContain('https://redamon.example/api/mcp-server')
+    expect(text).toContain('https://whitehat.example/api/mcp-server')
     // A trailing slash must not produce a double slash in the endpoint.
-    expect(text).not.toContain('https://redamon.example//api')
+    expect(text).not.toContain('https://whitehat.example//api')
   })
 })
 
@@ -549,7 +549,7 @@ describe('the inline onboarding (the MCP instructions string)', () => {
     expect(text).toContain('graph_summary')
     expect(text).toContain('written by the TARGET')
     expect(text).toContain('NEVER SCANNED')
-    expect(text).toContain('cannot change what RedAmon points at')
+    expect(text).toContain('cannot change what WhiteHat points at')
   })
 
   test('it names the token\'s real permissions and its profile', () => {
@@ -704,7 +704,7 @@ describe('the profile table reaches the output', () => {
 // --- ROW 2: the documentation this feature added references real files --------
 
 const WIKI_DIR = process.env.MCP_DOCS_WIKI_DIR
-  || fileURLToPath(new URL('../../../../redamon.wiki/', import.meta.url))
+  || fileURLToPath(new URL('../../../../whitehat.wiki/', import.meta.url))
 /** A real checkout: a fresh clone leaves the submodule directory empty. */
 const hasWikiCheckout = () => existsSync(path.join(WIKI_DIR, 'Home.md'))
 

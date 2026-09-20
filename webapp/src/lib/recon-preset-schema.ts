@@ -959,7 +959,7 @@ export const RECON_PARAMETER_CATALOG = `
 - takeoverCertValidationEnabled: boolean - Use certificate evidence (issuer/SAN/name-match) to score takeovers, incl. hosts with no CNAME. Reads httpx 443 certs (tlsx off) or more (tlsx on). Default true.
 - takeoverAiClassifier: boolean - Use AI to disambiguate takeover findings from WAF "no host" block pages that match the same static fingerprint (requires aiInPipeline=true). For each finding the scanner probes the host, short-circuits on third-party vendor tokens, and otherwise asks the LLM to classify the body. AI-flagged collisions get score -40 (lands in manual_review). Default false.
 - baddnsEnabled: boolean - Run the BadDNS sidecar (AGPL-3.0, isolated Docker container). Requires "docker compose --profile tools build baddns-scanner". Default false.
-- baddnsDockerImage: string - BadDNS image name. Default "redamon-baddns:latest" (built locally from baddns_scan/Dockerfile)
+- baddnsDockerImage: string - BadDNS image name. Default "whitehat-baddns:latest" (built locally from baddns_scan/Dockerfile)
 - baddnsModules: string[] - Subset of BadDNS modules to run. Valid: cname, ns, mx, txt, spf, dmarc, wildcard, nsec, references, zonetransfer. (MTA-STS exists in baddns 2.1.0 but is not CLI-addressable due to an upstream validator regex bug -- omit.) Default: ["cname","ns","mx","txt","spf"]
 - baddnsNameservers: string[] - Optional custom DNS resolvers (e.g. ["1.1.1.1","8.8.8.8"]). Empty = system resolvers.
 - baddnsRunTimeout: integer - Hard wall clock for the BadDNS pass in seconds. Default 1800.
@@ -996,7 +996,7 @@ export const RECON_PARAMETER_CATALOG = `
 
 ## Web Cache Poisoning (WCVS breadth engine + native 5-phase confirmation)
 - webCachePoisonEnabled: boolean - Master switch. Active scan: detects web cache poisoning + web cache deception on live BaseURLs/Endpoints. Sends header/param mutation probes plus repeated baseline/poison/clean fetches per URL. Default false.
-- webCachePoisonDockerImage: string - Docker image for the WCVS breadth engine (Hackmanit Web Cache Vulnerability Scanner), built locally. Default "redamon-wcvs:latest".
+- webCachePoisonDockerImage: string - Docker image for the WCVS breadth engine (Hackmanit Web Cache Vulnerability Scanner), built locally. Default "whitehat-wcvs:latest".
 - webCachePoisonScanProfile: string - "safe-confirm" (production, benign canaries, always isolated), "extended" (owned test targets), or "research" (lab only, enables CPDoS if allowed). Default "safe-confirm".
 - webCachePoisonTimeout: integer - WCVS subprocess timeout in seconds. Default 1800.
 - webCachePoisonTimeoutPerReq: integer - Native confirmation per-request timeout in seconds. Default 10.

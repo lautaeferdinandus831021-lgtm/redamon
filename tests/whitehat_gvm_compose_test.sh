@@ -140,14 +140,14 @@ echo "== the removed service leaves no orphan warning behind =="
 
 # Compose keeps a container whose service was deleted and warns about an "orphan"
 # on EVERY `up`. An upgraded install must end up as clean as a fresh one.
-if grep -q '^_REMOVED_CONTAINERS=(redamon-gvm-postgres-init)' "$REPO_ROOT/redamon.sh"; then
+if grep -q '^_REMOVED_CONTAINERS=(whitehat-gvm-postgres-init)' "$REPO_ROOT/whitehat.sh"; then
     ok "the obsolete gvm-postgres-init container is listed for removal"
 else
     bad "the obsolete gvm-postgres-init container is listed for removal" "not listed" "listed"
 fi
 
 # It has to run on every command that can reach `docker compose up`, not just one.
-dispatch="$(grep -E '^\s+install\|update\|up\)' "$REPO_ROOT/redamon.sh" | head -1)"
+dispatch="$(grep -E '^\s+install\|update\|up\)' "$REPO_ROOT/whitehat.sh" | head -1)"
 case "$dispatch" in
     *prune_removed_containers*) ok "cleanup runs for install, update and up" ;;
     *) bad "cleanup runs for install, update and up" "${dispatch:-<no dispatch line>}" "calls prune_removed_containers" ;;
@@ -155,7 +155,7 @@ esac
 
 # Defined ABOVE the BASH_SOURCE guard, or sourcing the script (this suite) cannot
 # see it and neither can any future test.
-if (set -uo pipefail; source "$REPO_ROOT/redamon.sh" >/dev/null 2>&1; declare -f prune_removed_containers >/dev/null); then
+if (set -uo pipefail; source "$REPO_ROOT/whitehat.sh" >/dev/null 2>&1; declare -f prune_removed_containers >/dev/null); then
     ok "prune_removed_containers survives sourcing (defined outside the dispatch guard)"
 else
     bad "prune_removed_containers survives sourcing" "undefined" "defined"
@@ -211,9 +211,9 @@ fi
 
 echo "== the governor's loader count matches the compose file =="
 
-# GVM_DATA_MEM caps N containers from ONE variable, so redamon.sh divides the
+# GVM_DATA_MEM caps N containers from ONE variable, so whitehat.sh divides the
 # group share by that count. If the two drift, every loader is mis-sized.
-declared="$(grep -E '^_GVM_DATA_CONTAINERS=' "$REPO_ROOT/redamon.sh" | head -1 | cut -d= -f2)"
+declared="$(grep -E '^_GVM_DATA_CONTAINERS=' "$REPO_ROOT/whitehat.sh" | head -1 | cut -d= -f2)"
 eq "_GVM_DATA_CONTAINERS matches the capped services" "$declared" "$(run_py loader-count)"
 
 echo

@@ -3,7 +3,7 @@ Tier A capture-proxy routing tests for the agent-side (kali-sandbox) MCP tools.
 
 Covers the wiring that routes execute_nuclei / execute_katana / execute_ffuf /
 execute_wpscan / execute_arjun through the capture proxy (plan §20.2 no-leak):
-when a signed X-Redamon-Ctx tag is present AND the proxy is reachable, the tool
+when a signed X-WhiteHat-Ctx tag is present AND the proxy is reachable, the tool
 appends the proxy flag + the tag header (or env + merged --headers); on the
 direct path NEITHER is present so the tag can never leak to the target.
 
@@ -59,7 +59,7 @@ import capture_routing  # noqa: E402
 import network_recon_server as nrs  # noqa: E402
 import nuclei_server as ns  # noqa: E402
 
-_TEST_URL = "http://redamon-capture-proxy:8888"
+_TEST_URL = "http://whitehat-capture-proxy:8888"
 _TAG = "eyJhIjoxfQ.c2ln"  # opaque, header-safe (no spaces)
 
 
@@ -112,7 +112,7 @@ class _RoutingTestBase(unittest.TestCase):
 
     def assert_no_leak(self, cmd, env=None):
         joined = " ".join(cmd)
-        self.assertNotIn("X-Redamon-Ctx", joined,
+        self.assertNotIn("X-WhiteHat-Ctx", joined,
                          f"tag leaked on direct path: {cmd}")
         self.assertNotIn(_TEST_URL, joined,
                          f"proxy url leaked on direct path: {cmd}")
@@ -150,94 +150,94 @@ class TestAgentCaptureRoutingGate(unittest.TestCase):
 class TestNucleiRouting(_RoutingTestBase):
     def test_routed_appends_proxy_and_header(self):
         spy = self._spy(ns)
-        ns.execute_nuclei("-u http://t/ -jsonl", _redamon_ctx=_TAG)
+        ns.execute_nuclei("-u http://t/ -jsonl", _whitehat_ctx=_TAG)
         self.assertIn(("-proxy", _TEST_URL), self._pairs(spy.cmd))
-        self.assertIn(("-H", f"X-Redamon-Ctx: {_TAG}"), self._pairs(spy.cmd))
+        self.assertIn(("-H", f"X-WhiteHat-Ctx: {_TAG}"), self._pairs(spy.cmd))
         self.assertEqual(spy.cmd[0], "nuclei")
 
     def test_direct_path_no_leak(self):
         spy = self._spy(ns)
-        ns.execute_nuclei("-u http://t/ -jsonl", _redamon_ctx="")
+        ns.execute_nuclei("-u http://t/ -jsonl", _whitehat_ctx="")
         self.assert_no_leak(spy.cmd)
 
 
 class TestKatanaRouting(_RoutingTestBase):
     def test_routed_appends_proxy_and_header_and_keeps_silent(self):
         spy = self._spy(nrs)
-        nrs.execute_katana("-u https://t/ -d 2", _redamon_ctx=_TAG)
+        nrs.execute_katana("-u https://t/ -d 2", _whitehat_ctx=_TAG)
         self.assertIn(("-proxy", _TEST_URL), self._pairs(spy.cmd))
-        self.assertIn(("-H", f"X-Redamon-Ctx: {_TAG}"), self._pairs(spy.cmd))
+        self.assertIn(("-H", f"X-WhiteHat-Ctx: {_TAG}"), self._pairs(spy.cmd))
         self.assertIn("-silent", spy.cmd)  # auto-injected, still present
 
     def test_direct_path_no_leak(self):
         spy = self._spy(nrs)
-        nrs.execute_katana("-u https://t/ -d 2", _redamon_ctx="")
+        nrs.execute_katana("-u https://t/ -d 2", _whitehat_ctx="")
         self.assert_no_leak(spy.cmd)
 
 
 class TestFfufRouting(_RoutingTestBase):
     def test_routed_appends_x_and_header_and_keeps_noninteractive(self):
         spy = self._spy(nrs)
-        nrs.execute_ffuf("-w /tmp/w.txt -u http://t/FUZZ", _redamon_ctx=_TAG)
+        nrs.execute_ffuf("-w /tmp/w.txt -u http://t/FUZZ", _whitehat_ctx=_TAG)
         self.assertIn(("-x", _TEST_URL), self._pairs(spy.cmd))
-        self.assertIn(("-H", f"X-Redamon-Ctx: {_TAG}"), self._pairs(spy.cmd))
+        self.assertIn(("-H", f"X-WhiteHat-Ctx: {_TAG}"), self._pairs(spy.cmd))
         self.assertIn("-noninteractive", spy.cmd)
 
     def test_direct_path_no_leak(self):
         spy = self._spy(nrs)
-        nrs.execute_ffuf("-w /tmp/w.txt -u http://t/FUZZ", _redamon_ctx="")
+        nrs.execute_ffuf("-w /tmp/w.txt -u http://t/FUZZ", _whitehat_ctx="")
         self.assert_no_leak(spy.cmd)
 
 
 class TestWpscanRouting(_RoutingTestBase):
     def test_routed_adds_proxy_and_headers(self):
         spy = self._spy(nrs)
-        nrs.execute_wpscan("--url http://t/ --no-banner", _redamon_ctx=_TAG)
+        nrs.execute_wpscan("--url http://t/ --no-banner", _whitehat_ctx=_TAG)
         self.assertIn(("--proxy", _TEST_URL), self._pairs(spy.cmd))
         self.assertIn("--headers", spy.cmd)
         hv = spy.cmd[spy.cmd.index("--headers") + 1]
-        self.assertIn(f"X-Redamon-Ctx: {_TAG}", hv)
+        self.assertIn(f"X-WhiteHat-Ctx: {_TAG}", hv)
 
     def test_routed_merges_into_existing_headers(self):
         spy = self._spy(nrs)
         nrs.execute_wpscan(
             "--url http://t/ --headers 'Authorization: Bearer abc'",
-            _redamon_ctx=_TAG)
+            _whitehat_ctx=_TAG)
         # exactly one --headers, user header preserved, tag appended
         self.assertEqual(spy.cmd.count("--headers"), 1)
         hv = spy.cmd[spy.cmd.index("--headers") + 1]
         self.assertIn("Authorization: Bearer abc", hv)
-        self.assertIn(f"X-Redamon-Ctx: {_TAG}", hv)
+        self.assertIn(f"X-WhiteHat-Ctx: {_TAG}", hv)
 
     def test_direct_path_no_leak(self):
         spy = self._spy(nrs)
-        nrs.execute_wpscan("--url http://t/ --no-banner", _redamon_ctx="")
+        nrs.execute_wpscan("--url http://t/ --no-banner", _whitehat_ctx="")
         self.assert_no_leak(spy.cmd)
 
 
 class TestArjunRouting(_RoutingTestBase):
     def test_routed_sets_env_proxy_and_headers(self):
         spy = self._spy(nrs)
-        nrs.execute_arjun("-u http://t/api", _redamon_ctx=_TAG)
+        nrs.execute_arjun("-u http://t/api", _whitehat_ctx=_TAG)
         self.assertEqual(spy.kwargs.get("env", {}).get("HTTP_PROXY"), _TEST_URL)
         self.assertEqual(spy.kwargs.get("env", {}).get("HTTPS_PROXY"), _TEST_URL)
         self.assertIn("--headers", spy.cmd)
         hv = spy.cmd[spy.cmd.index("--headers") + 1]
-        self.assertIn(f"X-Redamon-Ctx: {_TAG}", hv)
+        self.assertIn(f"X-WhiteHat-Ctx: {_TAG}", hv)
 
     def test_routed_merges_into_existing_headers(self):
         spy = self._spy(nrs)
         nrs.execute_arjun(
             "-u http://t/api --headers 'Authorization: Bearer abc'",
-            _redamon_ctx=_TAG)
+            _whitehat_ctx=_TAG)
         self.assertEqual(spy.cmd.count("--headers"), 1)
         hv = spy.cmd[spy.cmd.index("--headers") + 1]
         self.assertIn("Authorization: Bearer abc", hv)
-        self.assertIn(f"X-Redamon-Ctx: {_TAG}", hv)
+        self.assertIn(f"X-WhiteHat-Ctx: {_TAG}", hv)
 
     def test_direct_path_no_leak(self):
         spy = self._spy(nrs)
-        nrs.execute_arjun("-u http://t/api", _redamon_ctx="")
+        nrs.execute_arjun("-u http://t/api", _whitehat_ctx="")
         self.assert_no_leak(spy.cmd, env=spy.kwargs.get("env", {}))
 
 

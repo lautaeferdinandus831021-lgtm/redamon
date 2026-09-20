@@ -1,7 +1,7 @@
 """
 Cache Poisoning Scanner — Behavioural confirmation (Phase 4 of the native engine).
 
-This is where RedAmon becomes more than a WCVS wrapper. A vector is only
+This is where WhiteHat becomes more than a WCVS wrapper. A vector is only
 "confirmed" after a POISON-FIRST behavioural sequence:
 
   1. baseline      : fetch the URL clean on TWO separate cache-busters (a clean

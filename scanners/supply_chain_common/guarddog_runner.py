@@ -30,7 +30,7 @@ __all__ = ["scan_package", "verify_lockfile", "parse_guarddog",
 GUARDDOG_ECOSYSTEMS = {"npm", "pypi", "go", "crates", "rubygems",
                        "github_action", "extension"}
 
-ANALYZER_IMAGE = "redamon-supply-chain-analyzer:latest"
+ANALYZER_IMAGE = "whitehat-supply-chain-analyzer:latest"
 
 # GuardDog 3.x tries to build its OWN kernel-level sandbox (user namespaces +
 # seccomp) around the extraction step, auto-detecting availability. Inside a

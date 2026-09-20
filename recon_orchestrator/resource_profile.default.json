@@ -8,7 +8,7 @@
       "_provenance": "partial_recon measured directly (_measured_scan_mb.job_envelope_peak); full_recon derived from the 1.5 GiB envelope right-sized in 6.0.2 at MEM_SAFETY_TOLERANCE 0.25"
     },
     "tool_envelope_note": "tool_container_envelope_bytes holds SIBLING containers spawned by a scan, not scan jobs themselves. supply_chain_analyzer is the DIRTY sandbox; its value is the expected PEAK, and container_cap() applies CONTAINER_CAP_HEADROOM (1.5x) on top to get the hard mem_limit.",
-    "how_to_replace": "bash tests/redamon_mem_calibrate.sh baseline && bash tests/redamon_mem_calibrate.sh scan <project_id>"
+    "how_to_replace": "bash tests/whitehat_mem_calibrate.sh baseline && bash tests/whitehat_mem_calibrate.sh scan <project_id>"
   },
   "tool_container_envelope_bytes": {
     "supply_chain_analyzer": 1073741824,

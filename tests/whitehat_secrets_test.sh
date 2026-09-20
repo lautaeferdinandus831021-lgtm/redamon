@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the secret-generation logic in redamon.sh
+# Test suite for the secret-generation logic in whitehat.sh
 #   - ensure_auth_secrets  -> now also emits MCP_AUTH_TOKEN (STRIDE S10)
 #   - ensure_db_secrets     -> fresh-install generation, live-DB rotation, and
 #                              (issue #155) a hard STOP with remediation when a
@@ -8,7 +8,7 @@
 #                              for POSTGRES_PASSWORD / NEO4J_PASSWORD (STRIDE S13)
 #
 # Pure unit tests: `docker` is stubbed, `.env` lives in a temp dir. No daemon
-# needed, CI-friendly. Run:  bash tests/redamon_secrets_test.sh
+# needed, CI-friendly. Run:  bash tests/whitehat_secrets_test.sh
 # =============================================================================
 set -uo pipefail
 
@@ -16,7 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Source the script (BASH_SOURCE guard prevents command dispatch).
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -53,7 +53,7 @@ rm -rf "$TMP"
 # test_ensure_auth_secrets_survives_set_e (issue #157)
 # The REAL script runs under `set -euo pipefail`; this harness relaxes it to
 # `set +e` (line ~20), so a `var="$(grep ... )"` that fails on a no-match was
-# invisible here while it silently killed `./redamon.sh install` on any FRESH
+# invisible here while it silently killed `./whitehat.sh install` on any FRESH
 # install right after the auth tokens (the new `.env` has no POSTGRES_DB line,
 # so the TRAFFIC_INGEST_DATABASE_URL grep exited 1 -> pipefail -> set -e abort,
 # before a single container was built). Re-enable `set -e` for this one call to
@@ -62,7 +62,7 @@ echo "== ensure_auth_secrets: fresh .env survives set -euo pipefail (#157) =="
 TMP=$(mktemp -d); SCRIPT_DIR="$TMP"; : > "$TMP/.env"   # fresh, no POSTGRES_DB
 ( set -euo pipefail; ensure_auth_secrets ) >/dev/null 2>&1; rc=$?
 assert_eq    "install path does NOT abort under set -e" "$rc" "0"
-assert_true  "TRAFFIC_INGEST_DATABASE_URL still emitted" "grep -qE '^TRAFFIC_INGEST_DATABASE_URL=postgresql://traffic_ingest:[0-9a-f]{64}@postgres:5432/redamon\$' '$TMP/.env'"
+assert_true  "TRAFFIC_INGEST_DATABASE_URL still emitted" "grep -qE '^TRAFFIC_INGEST_DATABASE_URL=postgresql://traffic_ingest:[0-9a-f]{64}@postgres:5432/whitehat\$' '$TMP/.env'"
 # _env_get must never return non-zero, even on a missing key / missing file.
 ( set -e; _env_get NOPE "$TMP/.env" ) >/dev/null 2>&1; assert_eq "_env_get exits 0 on missing key" "$?" "0"
 ( set -e; _env_get NOPE "$TMP/does-not-exist" ) >/dev/null 2>&1; assert_eq "_env_get exits 0 on missing file" "$?" "0"
@@ -85,7 +85,7 @@ TMP=$(mktemp -d); SCRIPT_DIR="$TMP"; : > "$TMP/.env"
 # Stub: `docker volume inspect ...` -> exists (0); `docker ps` reports the DBs
 # RUNNING (so the S13 rotation pre-step no-ops); `docker exec ...` (the ALTER)
 # -> success (0). So rotation should ALTER then write the new strong value.
-docker() { case "${1:-}" in volume) return 0;; ps) printf 'redamon-postgres\nredamon-neo4j\n'; return 0;; exec) return 0;; *) return 0;; esac; }
+docker() { case "${1:-}" in volume) return 0;; ps) printf 'whitehat-postgres\nwhitehat-neo4j\n'; return 0;; exec) return 0;; *) return 0;; esac; }
 out="$(ensure_db_secrets 2>&1)"
 assert_true  "POSTGRES_PASSWORD rotated + pinned (48 hex)" "grep -qE '^POSTGRES_PASSWORD=[0-9a-f]{48}\$' '$TMP/.env'"
 assert_true  "NEO4J_PASSWORD rotated + pinned (48 hex)"    "grep -qE '^NEO4J_PASSWORD=[0-9a-f]{48}\$' '$TMP/.env'"
@@ -101,7 +101,7 @@ unset -f docker; rm -rf "$TMP"
 echo "== ensure_db_secrets: EXISTING volume, ALTER fails -> HARD STOP (#155) =="
 TMP=$(mktemp -d); SCRIPT_DIR="$TMP"; : > "$TMP/.env"
 # Stub: volume exists (0), DBs running (ps), but the ALTER (docker exec) FAILS (1).
-docker() { case "${1:-}" in volume) return 0;; ps) printf 'redamon-postgres\nredamon-neo4j\n'; return 0;; exec) return 1;; *) return 0;; esac; }
+docker() { case "${1:-}" in volume) return 0;; ps) printf 'whitehat-postgres\nwhitehat-neo4j\n'; return 0;; exec) return 1;; *) return 0;; esac; }
 before=$(md5sum "$TMP/.env" | awk '{print $1}')
 # `exit 1` fires in the command-substitution subshell only, so the harness lives.
 out="$(ensure_db_secrets 2>&1)"; rc=$?
@@ -129,7 +129,7 @@ TMP=$(mktemp -d); SCRIPT_DIR="$TMP"; : > "$TMP/.env"
 docker() {
   case "${1:-}" in
     volume) [[ "${3:-}" == *postgres_data ]] && return 0 || return 1 ;;
-    ps) printf 'redamon-postgres\n'; return 0 ;;
+    ps) printf 'whitehat-postgres\n'; return 0 ;;
     exec) return 1 ;;   # postgres ALTER fails
     *) return 0 ;;
   esac
@@ -202,7 +202,7 @@ echo "== cmd_update: secrets generated BEFORE container recreate (S6/I19 stay en
 # before the container recreate. If it regresses, a first update onto a release
 # adding a new inbound secret would recreate containers with an empty value and
 # fail those protections open until the next recreate.
-SRC="$REPO_ROOT/redamon.sh"
+SRC="$REPO_ROOT/whitehat.sh"
 u_start=$(grep -n '^cmd_update()' "$SRC" | head -1 | cut -d: -f1)
 u_end=$(awk -v s="$u_start" 'NR>s && /^cmd_[a-z_]*\(\)/{print NR; exit}' "$SRC")
 sec_line=$(awk -v s="$u_start" -v e="$u_end" 'NR>s && NR<e && /ensure_auth_secrets/{print NR; exit}' "$SRC")
@@ -216,7 +216,7 @@ assert_true "secrets generated before recreate ($sec_line < $rec_line)" "[[ '$se
 # a stack cannot boot on the published constant.
 echo "== docker-compose DB creds fail closed (no :-default) =="
 COMPOSE="$REPO_ROOT/docker-compose.yml"
-assert_false "no POSTGRES_PASSWORD :-redamon_secret default" "grep -q 'POSTGRES_PASSWORD:-redamon_secret' '$COMPOSE'"
+assert_false "no POSTGRES_PASSWORD :-whitehat_secret default" "grep -q 'POSTGRES_PASSWORD:-whitehat_secret' '$COMPOSE'"
 assert_false "no NEO4J_PASSWORD :-changeme123 default"       "grep -q 'NEO4J_PASSWORD:-changeme123' '$COMPOSE'"
 assert_eq    "POSTGRES_PASSWORD uses :? fail-closed (x2 consumers + db)" "$(grep -c 'POSTGRES_PASSWORD:?' "$COMPOSE")" "3"
 assert_eq    "NEO4J_PASSWORD uses :? fail-closed (db + 4 consumers)"     "$(grep -c 'NEO4J_PASSWORD:?' "$COMPOSE")" "5"
@@ -233,23 +233,23 @@ for sub in graph_db recon_orchestrator recon webapp agentic; do
 done
 
 # test_kb_makefile_no_default_password (issue #160): the KB Makefile must not
-# ship a changeme123 default; redamon.sh passes the real password via _kb_make.
+# ship a changeme123 default; whitehat.sh passes the real password via _kb_make.
 echo "== KB Makefile has no insecure NEO4J_PASSWORD default =="
 KBMK="$REPO_ROOT/services/knowledge_base/Makefile"
 assert_false "KB Makefile: no 'NEO4J_PASSWORD ?= changeme123'" "grep -qE 'NEO4J_PASSWORD[[:space:]]*\?=[[:space:]]*changeme123' '$KBMK'"
 assert_true  "KB Makefile: NEO4J_PASSWORD default is empty"    "grep -qE 'NEO4J_PASSWORD[[:space:]]*\?=[[:space:]]*\$' '$KBMK'"
 assert_true  "KB Makefile: --neo4j-password value is quoted"   "[ \"\$(grep -c 'neo4j-password \"\$(NEO4J_PASSWORD)\"' '$KBMK')\" = 2 ]"
-assert_true  "redamon.sh: _kb_make exports NEO4J_PASSWORD"     "grep -qE '_kb_make\(\)' '$REPO_ROOT/redamon.sh'"
-assert_true  "redamon.sh: _kb_make sources NEO4J_PASSWORD from .env" "awk '/^_kb_make\\(\\)/{f=1} f&&/NEO4J_PASSWORD=.*_env_get NEO4J_PASSWORD/{print;exit}' '$REPO_ROOT/redamon.sh' | grep -q NEO4J_PASSWORD"
+assert_true  "whitehat.sh: _kb_make exports NEO4J_PASSWORD"     "grep -qE '_kb_make\(\)' '$REPO_ROOT/whitehat.sh'"
+assert_true  "whitehat.sh: _kb_make sources NEO4J_PASSWORD from .env" "awk '/^_kb_make\\(\\)/{f=1} f&&/NEO4J_PASSWORD=.*_env_get NEO4J_PASSWORD/{print;exit}' '$REPO_ROOT/whitehat.sh' | grep -q NEO4J_PASSWORD"
 
 # test_reconcile_neo4j_password_present (issue #160): the pinned-.env branch of
 # ensure_db_secrets must VERIFY the neo4j password against the live volume and
 # reconcile, not trust it blindly (the silent-mismatch that produced #160).
-echo "== redamon.sh neo4j reconcile preflight wired in =="
-assert_true "redamon.sh: _reconcile_neo4j_password defined" "grep -q '^_reconcile_neo4j_password()' '$REPO_ROOT/redamon.sh'"
-assert_true "redamon.sh: _neo4j_auth_ok defined"            "grep -q '^_neo4j_auth_ok()' '$REPO_ROOT/redamon.sh'"
+echo "== whitehat.sh neo4j reconcile preflight wired in =="
+assert_true "whitehat.sh: _reconcile_neo4j_password defined" "grep -q '^_reconcile_neo4j_password()' '$REPO_ROOT/whitehat.sh'"
+assert_true "whitehat.sh: _neo4j_auth_ok defined"            "grep -q '^_neo4j_auth_ok()' '$REPO_ROOT/whitehat.sh'"
 assert_true "ensure_db_secrets calls _reconcile_neo4j_password on pinned .env" \
-    "awk '/^ensure_db_secrets\\(\\)/{f=1} f&&/_reconcile_neo4j_password/{print;exit}' '$REPO_ROOT/redamon.sh' | grep -q _reconcile_neo4j_password"
+    "awk '/^ensure_db_secrets\\(\\)/{f=1} f&&/_reconcile_neo4j_password/{print;exit}' '$REPO_ROOT/whitehat.sh' | grep -q _reconcile_neo4j_password"
 
 # test_reconcile_neo4j_password_behaviour (issue #160): exercise the reconcile
 # function against a stubbed Neo4j. `cypher-shell` succeeds only for the volume's
@@ -269,12 +269,12 @@ GOODPW=""; LOCKED=""; NEO4J_RUNNING=1; COMPOSE_UP_RC=0; WAIT_RC=0; ROTATE_CALLS=
 docker() {
     DOCKER_CALLS=$((DOCKER_CALLS+1))
     case "$1" in
-        exec) # docker exec redamon-neo4j cypher-shell -u neo4j -p <PW> 'RETURN 1;'
+        exec) # docker exec whitehat-neo4j cypher-shell -u neo4j -p <PW> 'RETURN 1;'
             [[ -n "$LOCKED" ]] && return 1     # rate-limited: correct pw rejected too
             local pw="" prev="" a
             for a in "$@"; do [[ "$prev" == "-p" ]] && pw="$a"; prev="$a"; done
             [[ "$pw" == "$GOODPW" ]] && return 0 || return 1 ;;
-        ps)      [[ -n "$NEO4J_RUNNING" ]] && printf 'redamon-neo4j\n'; return 0 ;;
+        ps)      [[ -n "$NEO4J_RUNNING" ]] && printf 'whitehat-neo4j\n'; return 0 ;;
         restart) LOCKED=""; return "$RESTART_RC" ;;  # restart clears the rate-limit lock
         compose) return "$COMPOSE_UP_RC" ;;    # `docker compose up -d neo4j`
         *)       return 0 ;;
@@ -467,8 +467,8 @@ assert_true "reconcile: warns it could not set"      "grep -qi 'Could not set th
 rm -rf "$TMP"
 unset -f sleep docker _rotate_gvm_admin_password _env_get _reset_gvm; rm -f "$CAP"
 
-echo "== redamon.sh: GVM provisioning wired into install/update =="
-SRC="$REPO_ROOT/redamon.sh"
+echo "== whitehat.sh: GVM provisioning wired into install/update =="
+SRC="$REPO_ROOT/whitehat.sh"
 assert_true "ensure_gvm_secret defined"            "grep -q '^ensure_gvm_secret()' '$SRC'"
 assert_true "reconcile_gvm_admin_password defined" "grep -q '^reconcile_gvm_admin_password()' '$SRC'"
 assert_true "_rotate_gvm_admin_password defined"   "grep -q '^_rotate_gvm_admin_password()' '$SRC'"

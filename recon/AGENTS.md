@@ -31,7 +31,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 ## TECH STACK
 
-Python 3.11 recon pipeline. Runs in the `redamon-recon` image, **spawned fresh
+Python 3.11 recon pipeline. Runs in the `whitehat-recon` image, **spawned fresh
 per scan job** (source is volume-mounted at spawn - no rebuild needed for a
 `.py` change). Wraps external tools (nuclei, katana, ffuf, gau, ...).
 
@@ -45,20 +45,20 @@ partial_recon_modules/     per-tool modules for partial recon
 helpers/                   shared helpers (incl. helpers/ai_planner/ AI enrichment)
 graphql_scan/  cache_scan/ specialized probes
 wordlists/  data/          static assets
-tests/                     pytest (redamon-recon image; sections `recon` + `root-recon`)
+tests/                     pytest (whitehat-recon image; sections `recon` + `root-recon`)
 ```
 
 ## COMMANDS
 
 ```bash
-# recon runs inside the redamon-recon image; use the repo gate
-./redamon.sh test unit        # includes the `recon` and `root-recon` sections
+# recon runs inside the whitehat-recon image; use the repo gate
+./whitehat.sh test unit        # includes the `recon` and `root-recon` sections
 ```
 
 ## QA CHECKLIST
 
-- [ ] `./redamon.sh test unit` green (recon + root-recon sections).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] `./whitehat.sh test unit` green (recon + root-recon sections).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] New tool/feature works in BOTH the full pipeline AND partial recon.
 - [ ] Mirrored an existing module's pattern rather than inventing a new one.
 - [ ] AI-enrichment paths never raise (fall back to the user's current value).

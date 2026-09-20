@@ -4,7 +4,7 @@ Covers:
   - TITLE_TO_KEY mapping (verbatim from graphql-cop 1.14 source)
   - _build_excluded_tests (per-test toggle -> -e flag)
   - _extract_json_array (tolerates leading text before JSON output)
-  - _normalize_findings (graphql-cop JSON -> RedAmon Vulnerability dict)
+  - _normalize_findings (graphql-cop JSON -> WhiteHat Vulnerability dict)
   - _map_severity (HIGH/MEDIUM/LOW/INFO -> lowercase)
   - derive_endpoint_flags (raw findings -> Endpoint capability booleans)
   - run_graphql_cop (full subprocess wrapper with mocks)

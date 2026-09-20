@@ -88,7 +88,7 @@ function* lazyExportRows(rows: TableRow[]): Iterable<NodeExportRow> {
 
 export async function exportToCsv(rows: TableRow[], filename?: string): Promise<void> {
   const headers = collectDynamicHeaders(rows)
-  const slug = filename || 'redamon-data'
+  const slug = filename || 'whitehat-data'
   await downloadStreaming(
     `${slug}-${timestampSlug()}.csv`,
     CSV_MIME,
@@ -97,7 +97,7 @@ export async function exportToCsv(rows: TableRow[], filename?: string): Promise<
 }
 
 export async function exportToJson(rows: TableRow[], filename?: string): Promise<void> {
-  const slug = filename || 'redamon-data'
+  const slug = filename || 'whitehat-data'
   await downloadStreaming(
     `${slug}-${timestampSlug()}.json`,
     'application/json;charset=utf-8',
@@ -107,7 +107,7 @@ export async function exportToJson(rows: TableRow[], filename?: string): Promise
 
 export async function exportToMarkdown(rows: TableRow[], filename?: string): Promise<void> {
   const headers = collectDynamicHeaders(rows)
-  const slug = filename || 'redamon-data'
+  const slug = filename || 'whitehat-data'
 
   // Markdown export wraps the streaming table in a small preamble.
   const preamble = `# Nodes Export\n\nGenerated: ${new Date().toISOString()}\nRows: ${rows.length}\n\n`

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[*] Starting RedAmon MCP container..."
+echo "[*] Starting WhiteHat MCP container..."
 
 # V7: run from a WRITABLE working directory, not the now read-only
 # /opt/mcp_servers source mount. MCP processes (and the tools/agent terminal they

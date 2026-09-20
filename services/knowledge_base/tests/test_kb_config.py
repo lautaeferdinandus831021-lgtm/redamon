@@ -125,7 +125,7 @@ class TestYamlLoading:
     def test_kb_enabled_top_level_key_allowed(self, tmp_path):
         """KB_ENABLED is a top-level feature gate that must pass validation.
 
-        It's read by redamon.sh::is_kb_enabled via direct YAML parsing, not
+        It's read by whitehat.sh::is_kb_enabled via direct YAML parsing, not
         through the Python loader's typed dataclass. The only requirement on
         the Python side is that adding it to the YAML doesn't cause the
         validator to reject the whole file.

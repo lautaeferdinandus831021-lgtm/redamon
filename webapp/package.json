@@ -1,7 +1,7 @@
 {
-  "name": "redamon-webapp",
+  "name": "whitehat-webapp",
   "version": "1.0.0",
-  "description": "RedAmon - AI Red Team application",
+  "description": "WhiteHat - AI Red Team application",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

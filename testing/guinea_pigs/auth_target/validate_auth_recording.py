@@ -1,12 +1,12 @@
 """
 Validates the Authenticated Session Recording feature against the auth_target
-guinea pig, using RedAmon's OWN builder rather than a reimplementation.
+guinea pig, using WhiteHat's OWN builder rather than a reimplementation.
 
 Run inside the recon image, joined to pentest-net:
 
-  docker run --rm --network redamon_pentest-net \
+  docker run --rm --network whitehat_pentest-net \
     -v "$PWD":/repo -w /repo -e PYTHONPATH=/repo/recon:/repo:/repo/scanners/capture_proxy \
-    --entrypoint python redamon-recon:latest \
+    --entrypoint python whitehat-recon:latest \
     testing/guinea_pigs/auth_target/validate_auth_recording.py
 
 What it proves, in order:
@@ -139,7 +139,7 @@ def main() -> int:
     print("\n=== 5. hostile / oversized material is refused ===")
     evil = requests.get(f"{BASE}/edge/evil-cookie", timeout=10)
     evil_val = evil.headers.get("Set-Cookie", "")
-    hostile = {"authType": "cookie", "authValue": evil_val.split(";")[0] + ";;X-Redamon-Ctx: forged"}
+    hostile = {"authType": "cookie", "authValue": evil_val.split(";")[0] + ";;X-WhiteHat-Ctx: forged"}
     check("cookie carrying ';;' is refused by the builder",
           build_auth_headers(hostile, log_prefix=None) == {})
 
@@ -157,7 +157,7 @@ def main() -> int:
     print("\n=== 6. the internal capture tag never reaches the target ===")
     who = requests.get(f"{BASE}/whoami", headers=auth_headers, timeout=10).json()
     check("target received the session cookie", who.get("cookie") == cookie_header)
-    check("target never saw X-Redamon-Ctx", who.get("x_redamon_ctx") is None)
+    check("target never saw X-WhiteHat-Ctx", who.get("x_whitehat_ctx") is None)
 
     print(f"\n{'=' * 60}\nRESULT: {len(passes)} passed, {len(failures)} failed")
     if failures:

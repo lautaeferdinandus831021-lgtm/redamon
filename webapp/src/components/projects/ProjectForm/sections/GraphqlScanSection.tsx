@@ -340,7 +340,7 @@ function GraphqlCopSubSection({ data, updateField }: GraphqlCopSubSectionProps) 
                     ))}
                   </select>
                   <span className={styles.fieldHint}>
-                    Only images RedAmon ships. An operator can add a private-registry mirror
+                    Only images WhiteHat ships. An operator can add a private-registry mirror
                     with RECON_EXTRA_ALLOWED_IMAGES on the server.
                   </span>
                 </div>

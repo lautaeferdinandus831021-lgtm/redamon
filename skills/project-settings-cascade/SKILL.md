@@ -1,7 +1,7 @@
 ---
 name: project-settings-cascade
 description: >
-  Changing or adding a project setting / default value in RedAmon. A single
+  Changing or adding a project setting / default value in WhiteHat. A single
   setting is duplicated across Prisma, two separate Python settings modules, the
   orchestrator defaults endpoint, and the frontend fallback; miss a layer and the
   UI shows one value while the backend uses another, and existing projects keep
@@ -13,7 +13,7 @@ description: >
   changing a default toggle/number/string in a ProjectForm section.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [webapp, agentic, recon]
   auto_invoke:
@@ -142,7 +142,7 @@ docker compose exec webapp npx prisma db push                 # apply schema; NE
 docker compose build agent && docker compose up -d agent      # REQUIRED after ANY registry change (see below)
 docker compose restart recon-orchestrator                     # picks the registry up from its mount
 # existing projects (ask first - mutates every row):
-docker compose exec postgres psql -U redamon -d redamon -c "UPDATE projects SET katana_timeout = 3600 WHERE katana_timeout IS NULL;"
+docker compose exec postgres psql -U whitehat -d whitehat -c "UPDATE projects SET katana_timeout = 3600 WHERE katana_timeout IS NULL;"
 ```
 
 ## Resources

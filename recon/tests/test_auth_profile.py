@@ -73,10 +73,10 @@ class TestSanitizing:
         assert build_auth_headers(_profile(authValue='sid=a\r\nX-Injected: 1')) == {}
 
     def test_bare_lf_rejected_so_arjun_join_cannot_split(self):
-        assert build_auth_headers(_profile(authValue='sid=a\nX-Redamon-Ctx: forged')) == {}
+        assert build_auth_headers(_profile(authValue='sid=a\nX-WhiteHat-Ctx: forged')) == {}
 
     def test_hakrawler_join_delimiter_rejected(self):
-        assert build_auth_headers(_profile(authValue='sid=a;;X-Redamon-Ctx: forged')) == {}
+        assert build_auth_headers(_profile(authValue='sid=a;;X-WhiteHat-Ctx: forged')) == {}
 
     def test_nul_rejected_tab_allowed(self):
         assert build_auth_headers(_profile(authValue='sid=a\x00b')) == {}
@@ -91,8 +91,8 @@ class TestSanitizing:
             assert build_auth_headers(_profile(authType='header', authValue='v', authHeaderName=bad)) == {}
 
     def test_internal_ctx_header_cannot_be_spoofed(self):
-        assert build_auth_headers(_profile(authType='header', authValue='v', authHeaderName='x-redamon-ctx')) == {}
-        h = build_auth_headers(_profile(extraHeaders={'X-Redamon-Ctx': 'forged'}))
+        assert build_auth_headers(_profile(authType='header', authValue='v', authHeaderName='x-whitehat-ctx')) == {}
+        h = build_auth_headers(_profile(extraHeaders={'X-WhiteHat-Ctx': 'forged'}))
         assert h == {'Cookie': 'sid=abc123'}
 
     def test_bad_extra_dropped_good_extra_kept(self):

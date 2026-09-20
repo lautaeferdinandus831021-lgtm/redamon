@@ -107,7 +107,7 @@ Every AI signal is a property annotation on existing graph nodes (Endpoint, Tech
     aiSurfaceReconEnabled: true,
     aiSurfaceReconTimeout: 15,
     aiSurfaceReconMaxWorkers: 8,
-    aiSurfaceReconUserAgent: 'RedAmon-AISurfaceRecon/1.0',
+    aiSurfaceReconUserAgent: 'WhiteHat-AISurfaceRecon/1.0',
     aiSurfaceReconChatShapeProbeEnabled: true,
     aiSurfaceReconMcpHandshakeEnabled: true,
     aiSurfaceReconMcpListToolsEnabled: true,

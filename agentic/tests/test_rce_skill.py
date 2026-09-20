@@ -317,7 +317,7 @@ class TestRceToolsContent(unittest.TestCase):
     def test_no_white_box_methodology_leaks(self):
         """Memory / project rule: white-box (source code analysis, deliverable
         files, save-deliverable CLI, Task Agent for code review) must NOT
-        appear because RedAmon agents have no source-code access."""
+        appear because WhiteHat agents have no source-code access."""
         # Phrases that would indicate Shannon white-box bleed
         forbidden = [
             "save-deliverable",

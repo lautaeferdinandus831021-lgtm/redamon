@@ -1,4 +1,4 @@
-"""RedAmon AI Attack Surface scan container.
+"""WhiteHat AI Attack Surface scan container.
 
 The deterministic offensive-testing layer: reads the AI surface that recon
 discovered (Endpoint.ai_interface_type, injectable Parameters, MCP manifests),

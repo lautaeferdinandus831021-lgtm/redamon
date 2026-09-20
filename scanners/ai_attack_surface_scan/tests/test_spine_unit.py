@@ -3,7 +3,7 @@
 Stdlib unittest + mock; Neo4j sessions are faked, so these run with no daemon:
 
     docker run --rm -v "$PWD/ai_attack_surface_scan:/app/ai_attack_surface_scan" \
-      redamon-ai-attack-surface:latest \
+      whitehat-ai-attack-surface:latest \
       python -m unittest discover -s /app/ai_attack_surface_scan/tests -v
 
 Covers: config loading/precedence, safety invariants, target loader (selected +

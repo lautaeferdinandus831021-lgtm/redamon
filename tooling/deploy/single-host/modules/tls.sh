@@ -4,20 +4,20 @@
 #
 # Reads (exported by deploy.sh): ACCESS_MODE, TLS_MODE, DOMAIN, HOST_IP,
 #   LETSENCRYPT_EMAIL, LETSENCRYPT_STAGING, SSL_KEY_PASSWORD.
-# Provided-cert files (if any) are SCP'd by deploy.sh to /tmp/redamon-deploy/cert/.
+# Provided-cert files (if any) are SCP'd by deploy.sh to /tmp/whitehat-deploy/cert/.
 #
 # certbot's --nginx installer needs a working http-01 server block on port 80. deploy.sh
 # renders + installs the nginx config (with the ACME location) BEFORE calling this for
 # letsencrypt, so certbot can complete the challenge and wire the cert in.
 
-CERT_DIR=/etc/ssl/redamon
+CERT_DIR=/etc/ssl/whitehat
 SSL_CERT_REMOTE=""
 SSL_KEY_REMOTE=""
 
 _install_provided_cert() {
   # md5-idempotent install of an operator-provided cert/key.
-  local src_cert=/tmp/redamon-deploy/cert/fullchain.pem
-  local src_key=/tmp/redamon-deploy/cert/privkey.pem
+  local src_cert=/tmp/whitehat-deploy/cert/fullchain.pem
+  local src_key=/tmp/whitehat-deploy/cert/privkey.pem
   [[ -f "${src_cert}" ]] || { err "provided cert not found at ${src_cert}"; return 1; }
   [[ -f "${src_key}"  ]] || { err "provided key not found at ${src_key}"; return 1; }
 
@@ -28,8 +28,8 @@ _install_provided_cert() {
   # Decrypt the key if a passphrase was supplied
   local key_to_install="${src_key}"
   if [[ -n "${SSL_KEY_PASSWORD:-}" ]]; then
-    if openssl pkey -in "${src_key}" -out /tmp/redamon-deploy/cert/privkey.dec.pem -passin pass:"${SSL_KEY_PASSWORD}" 2>/dev/null; then
-      key_to_install=/tmp/redamon-deploy/cert/privkey.dec.pem
+    if openssl pkey -in "${src_key}" -out /tmp/whitehat-deploy/cert/privkey.dec.pem -passin pass:"${SSL_KEY_PASSWORD}" 2>/dev/null; then
+      key_to_install=/tmp/whitehat-deploy/cert/privkey.dec.pem
     else
       err "Could not decrypt provided key with SSL_KEY_PASSWORD -- nginx cannot load an encrypted key non-interactively"
       return 1
@@ -51,7 +51,7 @@ _install_provided_cert() {
     info "private key installed"
   else info "private key already up-to-date"; fi
 
-  rm -f /tmp/redamon-deploy/cert/privkey.dec.pem 2>/dev/null || true
+  rm -f /tmp/whitehat-deploy/cert/privkey.dec.pem 2>/dev/null || true
 }
 
 _make_self_signed() {
@@ -103,8 +103,8 @@ run_certbot() {
   # Auto-renew with an nginx reload hook (certbot's systemd timer runs renew)
   run_sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
   echo '#!/bin/sh
-systemctl reload nginx' | run_sudo_tee /etc/letsencrypt/renewal-hooks/deploy/redamon-reload.sh
-  run_sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/redamon-reload.sh
+systemctl reload nginx' | run_sudo_tee /etc/letsencrypt/renewal-hooks/deploy/whitehat-reload.sh
+  run_sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/whitehat-reload.sh
   success "Let's Encrypt certificate issued for ${DOMAIN}"
 }
 

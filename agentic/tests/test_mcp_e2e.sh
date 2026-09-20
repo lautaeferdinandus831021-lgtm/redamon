@@ -19,7 +19,7 @@ fail() { echo -e "\033[31m✗\033[0m $*"; exit 1; }
 # Resolve the internal API key from the webapp container so we don't need
 # the caller to know it.
 KEY=$(docker compose exec -T webapp printenv INTERNAL_API_KEY 2>/dev/null | tr -d '\r')
-USER=$(docker compose exec -T postgres psql -U redamon -d redamon -t -c "select id from users limit 1;" 2>/dev/null | xargs)
+USER=$(docker compose exec -T postgres psql -U whitehat -d whitehat -t -c "select id from users limit 1;" 2>/dev/null | xargs)
 [ -n "$KEY" ] || fail "INTERNAL_API_KEY missing in webapp"
 [ -n "$USER" ] || fail "no user found in DB"
 ok "bootstrap: KEY/USER resolved (user=$USER)"

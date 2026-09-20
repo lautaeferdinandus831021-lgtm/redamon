@@ -1,7 +1,7 @@
 """The always-on evidence/report discipline, and the report structure.
 
 Ported from YesWeHack's `always-on-rules.md` + `write` skill (claude-kit),
-retargeted at a RedAmon engagement: findings live in the graph, the PoC is
+retargeted at a WhiteHat engagement: findings live in the graph, the PoC is
 whatever the agent actually ran, and the audience is whoever reads the report
 afterwards.
 

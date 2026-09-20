@@ -5,7 +5,7 @@ description: Semgrep CLI reference for source-aware static analysis with rule-pa
 
 # Semgrep Playbook
 
-Reference for driving `semgrep` against source code. Pull this in when the operator hands you a repository URL, an uploaded archive, or a downloaded JS bundle and asks for static-analysis findings. RedAmon agents have no source access by default; the first half of this skill is the bridge that gets code into the sandbox, the second half is how to scan it.
+Reference for driving `semgrep` against source code. Pull this in when the operator hands you a repository URL, an uploaded archive, or a downloaded JS bundle and asks for static-analysis findings. WhiteHat agents have no source access by default; the first half of this skill is the bridge that gets code into the sandbox, the second half is how to scan it.
 
 Upstream: https://semgrep.dev/docs/cli-reference
 

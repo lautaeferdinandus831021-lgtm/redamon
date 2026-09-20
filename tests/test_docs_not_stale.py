@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-WIKI = REPO_ROOT / "redamon.wiki"
+WIKI = REPO_ROOT / "whitehat.wiki"
 PROMPTS = REPO_ROOT / "docs" / "readmes" / "coding_agent_prompts"
 SKILLS = REPO_ROOT / "skills"
 
@@ -30,7 +30,7 @@ def _wiki_pages() -> list[Path]:
     return sorted(WIKI.glob("*.md"))
 
 
-# A plain checkout leaves redamon.wiki/ EMPTY: it is pinned as a gitlink with no
+# A plain checkout leaves whitehat.wiki/ EMPTY: it is pinned as a gitlink with no
 # .gitmodules URL, so nothing fetches its pages. Skip on pages rather than on the
 # directory - an empty placeholder would otherwise fail every wiki assertion.
 pytestmark = pytest.mark.skipif(not _wiki_pages(), reason="the wiki checkout is not present")

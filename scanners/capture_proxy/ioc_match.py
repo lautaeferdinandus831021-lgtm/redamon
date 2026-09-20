@@ -73,5 +73,5 @@ def _log_unavailable_once():
         return
     _INTEL_UNAVAILABLE_LOGGED = True
     print("[ingest] supply-chain incident catalog unavailable; captured requests "
-          "will NOT be checked against it (run './redamon.sh sca-intel-sync')",
+          "will NOT be checked against it (run './whitehat.sh sca-intel-sync')",
           flush=True)

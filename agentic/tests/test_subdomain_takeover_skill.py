@@ -18,7 +18,7 @@ Run (host):
     cd agentic && python -m unittest tests.test_subdomain_takeover_skill -v
 
 Run (containerized, matches CI):
-    docker run --rm -v "$(pwd)/agentic:/app" -w /app redamon-agent \
+    docker run --rm -v "$(pwd)/agentic:/app" -w /app whitehat-agent \
         python -m unittest tests.test_subdomain_takeover_skill -v
 """
 

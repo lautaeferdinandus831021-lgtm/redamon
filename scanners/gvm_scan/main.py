@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RedAmon - Vulnerability Scanner Main Entry Point
+WhiteHat - Vulnerability Scanner Main Entry Point
 =================================================
 Orchestrates GVM/OpenVAS vulnerability scanning using recon data.
 
@@ -74,8 +74,8 @@ def check_failure_streak(result: dict, streak: int, target: str) -> int:
         raise ScanAborted(
             f"Aborting after {streak} consecutive failed targets (last: {target} - "
             f"{result.get('error', 'no detail')}). Failing on every target means the "
-            f"GVM stack is broken, not the targets: check that redamon-gvm-ospd is "
-            f"running and that its feed loader redamon-gvm-vt completed."
+            f"GVM stack is broken, not the targets: check that whitehat-gvm-ospd is "
+            f"running and that its feed loader whitehat-gvm-vt completed."
         )
     return streak
 
@@ -160,7 +160,7 @@ def run_vulnerability_scan(
     cleanup = get_setting('CLEANUP_AFTER_SCAN', True)
 
     print("\n" + "=" * 70)
-    print("           RedAmon - GVM Vulnerability Scanner")
+    print("           WhiteHat - GVM Vulnerability Scanner")
     print("=" * 70)
     print(f"  Target Domain: {domain}")
     print(f"  Scan Config:   {scan_config}")

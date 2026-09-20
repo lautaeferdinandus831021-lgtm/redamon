@@ -439,7 +439,7 @@ def _cleanup_js_work_dir(combined_result):
 
     js_recon skips its own rmtree when supply-chain recon is enabled, so this
     stage owns the bytes and must not leak them: they are attacker-served and
-    they sit in /tmp/redamon, which is shared with the host.
+    they sit in /tmp/whitehat, which is shared with the host.
     """
     js = (combined_result or {}).get("js_recon") or {}
     work_dir = js.get("work_dir")
@@ -489,7 +489,7 @@ def retire_js_harvest(combined_result, *, sc_common_path=None, timeout=_RETIRE_T
         return None, stats
     finally:
         # The job dir holds a COPY of attacker-served JS on host-shared
-        # /tmp/redamon. Leaving it behind leaks target bytes and grows without
+        # /tmp/whitehat. Leaving it behind leaks target bytes and grows without
         # bound across scans.
         shutil.rmtree(job_dir, ignore_errors=True)
 

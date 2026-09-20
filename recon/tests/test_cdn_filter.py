@@ -14,7 +14,7 @@ Test pyramid:
     Regression  - non-CDN paths still produce findings as before
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest \
+    docker exec whitehat-recon-orchestrator python -m pytest \
         /app/recon/tests/test_cdn_filter.py -v
 """
 

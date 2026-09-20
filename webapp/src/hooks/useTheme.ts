@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-const THEME_STORAGE_KEY = 'redamon-theme'
+const THEME_STORAGE_KEY = 'whitehat-theme'
 
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'dark'

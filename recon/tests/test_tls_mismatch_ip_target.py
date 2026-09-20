@@ -40,10 +40,10 @@ _ROW_993 = {
     "tls_version": "tls13", "cipher": "TLS_AES_128_GCM_SHA256",
     "self_signed": True, "mismatched": True,          # <- tlsx, because it dialled an IP
     "not_before": "2026-09-12T15:11:00Z", "not_after": "2027-09-12T15:11:00Z",
-    "subject_dn": "CN=mail.tlslab.test, O=RedAmon TLS Lab",
+    "subject_dn": "CN=mail.tlslab.test, O=WhiteHat TLS Lab",
     "subject_cn": "mail.tlslab.test",
     "subject_an": ["mail.tlslab.test", "imap.tlslab.test", "outsider.example-evil.test"],
-    "issuer_dn": "CN=mail.tlslab.test, O=RedAmon TLS Lab",
+    "issuer_dn": "CN=mail.tlslab.test, O=WhiteHat TLS Lab",
     "issuer_cn": "mail.tlslab.test",
     "serial": "4F:3B:41:E8", "fingerprint_hash": {"sha256": "7a7247"},
     "tls_connection": "ctls", "sni": _IP,

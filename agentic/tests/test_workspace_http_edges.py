@@ -36,7 +36,7 @@ import workspace_fs  # noqa: E402
 
 class HttpEdgeTestBase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-ws-edge-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-ws-edge-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
 

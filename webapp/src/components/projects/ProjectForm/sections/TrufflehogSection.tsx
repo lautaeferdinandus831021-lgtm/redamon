@@ -96,7 +96,7 @@ export function TrufflehogSection({ data, updateField, projectId, mode = 'edit',
 
   useEffect(() => { void loadProfiles() }, [loadProfiles])
 
-  // Verification is the headline control: it makes RedAmon send found
+  // Verification is the headline control: it makes WhiteHat send found
   // credentials to their owning services to test whether they are live. Default
   // ON (it is TruffleHog's whole value), but the badge has to tell the truth.
   const skipVerification = (get(data, 'trufflehogNoVerification') as boolean) ?? false
@@ -281,7 +281,7 @@ export function TrufflehogSection({ data, updateField, projectId, mode = 'edit',
                 whose consequence needs reading, and squeezed into the label
                 column it wrapped into a wall against the toggle. */}
             <p className={`${styles.toggleDescription} ${styles.toggleDescriptionBelow}`}>
-              When on, RedAmon sends found credentials to their owning services to test whether
+              When on, WhiteHat sends found credentials to their owning services to test whether
               they are live. This is the highest-value result in an authorised engagement, but it
               is an ACTIVE behaviour. Use the detector exclude list below to skip services you do
               not want contacted.
@@ -784,7 +784,7 @@ function ProfileEditor({
           {localFolder && (
             <p className={styles.localTargetNote}>
               Local target, no network needed. Put the files in{' '}
-              <code>{localFolder}</code> on the machine running RedAmon, then name
+              <code>{localFolder}</code> on the machine running WhiteHat, then name
               them below. The folder is mounted read-only into the scan; a name
               with a slash or <code>..</code> in it is refused.
             </p>

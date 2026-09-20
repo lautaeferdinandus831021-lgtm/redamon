@@ -387,7 +387,7 @@ class TestSubSectionContent(unittest.TestCase):
         self.assertIn("0x7f000001", SSRF_PAYLOAD_REFERENCE)
 
     def test_payload_reference_cites_real_world_precedents(self):
-        """RedAmon's HackerOne grounding is a key differentiator; keep it."""
+        """WhiteHat's HackerOne grounding is a key differentiator; keep it."""
         self.assertIn("Capital One", SSRF_PAYLOAD_REFERENCE)
         self.assertIn("HackerOne", SSRF_PAYLOAD_REFERENCE)
 

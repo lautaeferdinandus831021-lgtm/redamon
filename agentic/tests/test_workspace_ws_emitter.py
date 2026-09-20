@@ -80,7 +80,7 @@ class FakeWsManager:
 
 class WsEmitterTestBase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-ws-emit-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-ws-emit-")
         self._orig_root_jr = job_runner.WORKSPACE_ROOT
         self._orig_root_wf = workspace_fs.WORKSPACE_ROOT
         job_runner.WORKSPACE_ROOT = Path(self.tmp)

@@ -392,7 +392,7 @@ class TestSubSectionContent(unittest.TestCase):
                           f"missing high-value target {target}")
 
     def test_payload_reference_cites_real_world_precedents(self):
-        """RedAmon's CVE / HackerOne grounding is a key differentiator; keep it."""
+        """WhiteHat's CVE / HackerOne grounding is a key differentiator; keep it."""
         self.assertIn("CVE-2021-41773", PATH_TRAVERSAL_PAYLOAD_REFERENCE)
         self.assertIn("Zip Slip", PATH_TRAVERSAL_PAYLOAD_REFERENCE)
 

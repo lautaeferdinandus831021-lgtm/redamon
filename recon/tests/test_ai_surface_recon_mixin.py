@@ -6,7 +6,7 @@ params, so we can assert the graph transform without a live database.
 Run inside the recon image (graph_db is volume-mounted; neo4j driver present):
     docker run --rm --entrypoint python3 \
         -v "$PWD/recon:/app/recon:ro" -v "$PWD/graph_db:/app/graph_db:ro" -w /app \
-        redamon-recon:latest recon/tests/test_ai_surface_recon_mixin.py
+        whitehat-recon:latest recon/tests/test_ai_surface_recon_mixin.py
 """
 from __future__ import annotations
 import sys

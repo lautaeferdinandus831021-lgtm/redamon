@@ -9,7 +9,7 @@ Reference for HTTP/S liveness probing, fingerprinting, and stored-response captu
 
 Upstream: https://docs.projectdiscovery.io/opensource/httpx/usage
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|
@@ -132,7 +132,7 @@ The `httpx_store/` tree holds `<host>/req.txt` and `<host>/resp.txt` pairs. Usef
 
 ### Captured traffic (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled and httpx routes through the capture proxy (via `-proxy`), its probes fold into captured history. The `-sr -srd` plus grep-for-secrets move then has a direct in-platform analog: redamon.grep(pattern) runs the same substring search across captured response bodies, and the URL/status/tech inventory overlaps redamon.search (filter by host, method, statusClass) and redamon.sitemap (distinct observed endpoints). Query captured traffic with proxy_brain instead of re-probing, no re-run needed.
+When HTTP Traffic Capture is enabled and httpx routes through the capture proxy (via `-proxy`), its probes fold into captured history. The `-sr -srd` plus grep-for-secrets move then has a direct in-platform analog: whitehat.grep(pattern) runs the same substring search across captured response bodies, and the URL/status/tech inventory overlaps whitehat.search (filter by host, method, statusClass) and whitehat.sitemap (distinct observed endpoints). Query captured traffic with proxy_brain instead of re-probing, no re-run needed.
 
 ### Authenticated probing
 

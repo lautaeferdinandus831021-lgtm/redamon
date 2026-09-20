@@ -1,4 +1,4 @@
-"""Population of the supply-chain incident-intel volume (`redamon-sca-intel`).
+"""Population of the supply-chain incident-intel volume (`whitehat-sca-intel`).
 
 Fetches the supplychainattack.org incident catalog and normalizes it into three
 small lookup files plus a manifest. Mirrors `osv_db_sync.py`: the remote feed is
@@ -7,7 +7,7 @@ byte-capped, every value charset-gated, and the result is mounted read-only
 everywhere except here.
 
 Run two ways:
-  - the operator command `./redamon.sh sca-intel-sync`
+  - the operator command `./whitehat.sh sca-intel-sync`
   - the orchestrator's TTL-guarded refresh on the scan-spawn path
 
 stdlib only, so it runs inside the tiny analyzer image with no new deps. In
@@ -23,7 +23,7 @@ Output layout under --out:
     packages.json       {"<ecosystem>/<name>": rec}
     typosquats.json     {"<fake>": {"original": ..., "incident_id": ...}}
     manifest.json       feed revision, fetch time, accept/drop counts
-    .redamon_sca_intel_attempt   touched on EVERY attempt (retry floor)
+    .whitehat_sca_intel_attempt   touched on EVERY attempt (retry floor)
 """
 
 import ipaddress
@@ -61,7 +61,7 @@ DEFAULT_TTL_SECONDS = 24 * 3600
 DEFAULT_RETRY_SECONDS = 3600
 
 MANIFEST_NAME = "manifest.json"
-ATTEMPT_MARKER = ".redamon_sca_intel_attempt"
+ATTEMPT_MARKER = ".whitehat_sca_intel_attempt"
 
 # Entry caps. The feed is 3,595 incidents today; these bound a hostile feed.
 MAX_INCIDENTS = 50000
@@ -150,7 +150,7 @@ def fetch_feed(url=FEED_URL, *, timeout=DEFAULT_TIMEOUT, max_bytes=MAX_FEED_BYTE
         _assert_allowed(current)
         req = urllib.request.Request(
             current,
-            headers={"User-Agent": "RedAmon-sca-intel-sync",
+            headers={"User-Agent": "WhiteHat-sca-intel-sync",
                      "Accept": "application/json"},
         )
         try:
@@ -190,7 +190,7 @@ def fetch_feed(url=FEED_URL, *, timeout=DEFAULT_TIMEOUT, max_bytes=MAX_FEED_BYTE
     raise FeedError("too many redirects")
 
 
-# A bare "HTTP 402" reads as a RedAmon bug; these say whose outage it is.
+# A bare "HTTP 402" reads as a WhiteHat bug; these say whose outage it is.
 _HTTP_STATUS_REASONS = {
     402: "the feed's hosting is paused or disabled upstream",
     403: "the feed host refused the request",
@@ -837,13 +837,13 @@ def describe_result(result):
         return "sca-intel: nothing to do ({}).".format(detail)
     if status == "seeded" and result.get("seed_only"):
         return ("sca-intel: {}. Auto-refresh is off, so it stays until "
-                "'./redamon.sh sca-intel-sync' can reach the feed.".format(detail))
+                "'./whitehat.sh sca-intel-sync' can reach the feed.".format(detail))
     if status == "seeded":
         return ("sca-intel: {}. The live feed is retried automatically and "
                 "replaces it once it answers.".format(detail))
     if result.get("kept"):
         return ("sca-intel: the live incident feed could not be used: {}. This is "
-                "an upstream problem, not a RedAmon one; supply-chain findings keep "
+                "an upstream problem, not a WhiteHat one; supply-chain findings keep "
                 "using the stored catalog.".format(detail))
     return ("sca-intel: sync failed: {}. No incident catalog is available, so "
             "supply-chain findings carry no incident context.".format(detail))
@@ -901,7 +901,7 @@ def _write_json(out_path, name, payload):
     """Write one table, atomically, through a temp file UNIQUE to this writer.
 
     A fixed `<name>.tmp` was not safe: two writers can be in here at once (the
-    operator's `redamon.sh sca-intel-sync --force` skips both the TTL and the
+    operator's `whitehat.sh sca-intel-sync --force` skips both the TTL and the
     retry floor, so it can land on top of a scan-triggered refresh), and the
     orchestrator's lock is per-process. Both would open the SAME path, truncate
     it, and interleave their writes; the surviving file could be spliced from
@@ -955,7 +955,7 @@ def _make_world_readable(out_path):
 
 
 def _main(argv=None):
-    """CLI used by `redamon.sh sca-intel-sync` and the orchestrator sidecar."""
+    """CLI used by `whitehat.sh sca-intel-sync` and the orchestrator sidecar."""
     import argparse
 
     parser = argparse.ArgumentParser(

@@ -13,10 +13,10 @@
 Self-skips unless the neo4j driver imports AND a database answers. Everything
 it writes is under a random tenant and is deleted afterwards. To run it:
 
-  docker run --rm --network redamon-network -v "$PWD:/repo" -w /repo \\
+  docker run --rm --network whitehat-network -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://neo4j:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m pytest tests/test_resolves_to_identity_graph_live.py -v
+    whitehat-agent python -m pytest tests/test_resolves_to_identity_graph_live.py -v
 """
 
 import os

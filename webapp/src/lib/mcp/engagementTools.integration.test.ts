@@ -14,9 +14,9 @@
  * the second by firing concurrent calls at the real database.
  *
  * Auto-skips unless DATABASE_URL is set. To run it:
- *   docker run --rm --network redamon-network -v "$PWD/webapp:/app" -w /app \
- *     -e DATABASE_URL='postgresql://redamon:<pw>@postgres:5432/redamon' \
- *     --entrypoint sh redamon-webapp -c \
+ *   docker run --rm --network whitehat-network -v "$PWD/webapp:/app" -w /app \
+ *     -e DATABASE_URL='postgresql://whitehat:<pw>@postgres:5432/whitehat' \
+ *     --entrypoint sh whitehat-webapp -c \
  *     'node_modules/.bin/vitest run src/lib/mcp/engagementTools.integration.test.ts'
  */
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
@@ -75,10 +75,10 @@ afterAll(async () => {
   // The append-only trigger refuses an unguarded delete, and these rows are
   // test fixtures rather than evidence, so they go with the archive exemption.
   await prisma.$transaction(async tx => {
-    await tx.$executeRawUnsafe(`SELECT set_config('redamon.archiving_project', '', true)`)
+    await tx.$executeRawUnsafe(`SELECT set_config('whitehat.archiving_project', '', true)`)
     for (const p of await tx.project.findMany({ where: { userId }, select: { id: true } })) {
       await tx.$executeRawUnsafe(
-        `SELECT set_config('redamon.archiving_project', $1, true)`, p.id
+        `SELECT set_config('whitehat.archiving_project', $1, true)`, p.id
       )
       await tx.$executeRawUnsafe(
         `DELETE FROM engagement_authorizations WHERE project_id = $1`, p.id

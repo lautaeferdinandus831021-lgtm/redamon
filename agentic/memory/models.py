@@ -97,7 +97,7 @@ class MemoryRecord:
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
     last_used_at: float = 0.0
-    source: str = "redamon"
+    source: str = "whitehat"
     external_id: str = ""
 
     def with_confidence(self, confidence: float) -> "MemoryRecord":

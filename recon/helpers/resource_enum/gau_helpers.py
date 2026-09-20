@@ -1,5 +1,5 @@
 """
-RedAmon - GAU (GetAllUrls) Helpers
+WhiteHat - GAU (GetAllUrls) Helpers
 ==================================
 Passive URL discovery from web archives using GAU.
 """
@@ -25,8 +25,8 @@ def _is_arm64_host() -> bool:
 
 
 def _create_temp_dir(prefix: str = "gau") -> Path:
-    """Create a temp directory under /tmp/redamon for Docker-in-Docker compatibility."""
-    temp_dir = Path(f"/tmp/redamon/.{prefix}_{uuid.uuid4().hex[:8]}")
+    """Create a temp directory under /tmp/whitehat for Docker-in-Docker compatibility."""
+    temp_dir = Path(f"/tmp/whitehat/.{prefix}_{uuid.uuid4().hex[:8]}")
     temp_dir.mkdir(parents=True, exist_ok=True)
     return temp_dir
 

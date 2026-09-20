@@ -1,4 +1,4 @@
-# RedAmon Agent Dockerfile
+# WhiteHat Agent Dockerfile
 # Python-based LangGraph agent with MCP and Neo4j integration
 
 FROM python:3.11-slim
@@ -108,7 +108,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir uv
 
 # Build arg: set to "true" to skip heavy KB dependencies (~4.4 GB saved)
-# Use ./redamon.sh install --skipkbase to activate
+# Use ./whitehat.sh install --skipkbase to activate
 # Declared AFTER core pip install so changing SKIP_KB doesn't bust that cache layer.
 ARG SKIP_KB=false
 
@@ -117,7 +117,7 @@ ARG SKIP_KB=false
 # nvidia-* runtime libs this workload never uses (embeddings run on CPU via
 # faiss-cpu). A GPU host builds with
 #   --build-arg TORCH_INDEX_URL=https://download.pytorch.org/whl/cu124
-# which redamon.sh sets from the frozen build decision (`.gpu-enabled` marker).
+# which whitehat.sh sets from the frozen build decision (`.gpu-enabled` marker).
 # Pre-installing torch here means sentence-transformers below finds it already
 # satisfied and never reaches for the default CUDA wheel.
 ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cpu

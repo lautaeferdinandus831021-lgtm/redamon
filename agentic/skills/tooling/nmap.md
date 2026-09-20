@@ -9,7 +9,7 @@ Reference for scoped TCP/UDP scanning, NSE enrichment, and timing controls. Pull
 
 Upstream: https://nmap.org/book/man.html
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|

@@ -70,7 +70,7 @@ export function WebCachePoisonSection({ data, updateField, onRun }: WebCachePois
         <div className={styles.sectionContent}>
           <p className={styles.sectionDescription}>
             Detects <strong>web cache poisoning</strong> and <strong>web cache deception</strong> on live URLs.
-            Runs the <strong>WCVS</strong> breadth engine for wide technique coverage, then a RedAmon-native
+            Runs the <strong>WCVS</strong> breadth engine for wide technique coverage, then a WhiteHat-native
             <strong> 5-phase confirmation</strong> (cache oracle, isolated cache-buster, framework hypotheses,
             baseline&rarr;poison&rarr;clean persistence check, confidence scoring). Only findings at or above the
             confidence threshold become <code style={codeStyle}>Vulnerability</code> nodes with

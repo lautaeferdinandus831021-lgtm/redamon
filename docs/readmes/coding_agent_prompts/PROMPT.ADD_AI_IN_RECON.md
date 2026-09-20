@@ -104,7 +104,7 @@ once before the tool's main command is built, don't.
 8. **Tests**: copy the four Nuclei test files (`test_nuclei_ai_planner.py`,
    `test_nuclei_ai_pipeline_integration.py`, `test_nuclei_ai_vuln_scan_wiring.py`,
    `test_nuclei_ai_smoke.py`) and adapt names. Run inside the recon image.
-9. **Wiki**: extend `redamon.wiki/Recon-Pipeline-Workflow.md`, section **"AI
+9. **Wiki**: extend `whitehat.wiki/Recon-Pipeline-Workflow.md`, section **"AI
    in Pipeline"**:
    - Add a row to the "three current AI hooks" table (Tool / Pattern /
      Replaces).
@@ -112,7 +112,7 @@ once before the tool's main command is built, don't.
      Nuclei, and WAF entries: one paragraph on what it does, then a bullet
      list with helper path, agent endpoint, setting key, and typical impact.
    - Update the screenshot if the Target-tab AI panel layout changes (drop
-     a refreshed `ai-in-pipeline-target-tab.png` into `redamon.wiki/images/`).
+     a refreshed `ai-in-pipeline-target-tab.png` into `whitehat.wiki/images/`).
 
 ## Do NOT
 

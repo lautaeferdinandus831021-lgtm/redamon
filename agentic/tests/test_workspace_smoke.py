@@ -34,7 +34,7 @@ import job_runner  # noqa: E402
 
 class SmokeBase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-smoke-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-smoke-")
         # Point all three modules at the same root.
         self._orig_ws = workspace_fs.WORKSPACE_ROOT
         self._orig_off = output_offload.WORKSPACE_ROOT

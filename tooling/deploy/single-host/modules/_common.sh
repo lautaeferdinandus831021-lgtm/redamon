@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Common helpers shared by every RedAmon deploy module (sourced on the remote host).
+# Common helpers shared by every WhiteHat deploy module (sourced on the remote host).
 # Depends on: SUDO_PASSWORD (optional, exported by deploy.sh for password-auth sudo).
 
 # ---- logging (no colour: output is streamed over SSH and captured to logs) ----

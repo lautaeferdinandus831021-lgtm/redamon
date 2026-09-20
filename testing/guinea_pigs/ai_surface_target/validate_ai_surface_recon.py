@@ -15,7 +15,7 @@ few that aren't baked yet):
 
     docker run --rm --entrypoint sh \
       -v "$PWD/recon:/app/recon:ro" -v "$PWD/graph_db:/app/graph_db:ro" \
-      -v "$PWD/guinea_pigs:/app/guinea_pigs:ro" -w /app redamon-recon:latest -c '
+      -v "$PWD/guinea_pigs:/app/guinea_pigs:ro" -w /app whitehat-recon:latest -c '
       pip install -q pyyaml yara-python jq prance openapi-spec-validator "mcp>=1.27" uvicorn &&
       python3 guinea_pigs/ai_surface_target/validate_ai_surface_recon.py'
 
@@ -68,7 +68,7 @@ def _wait_port(host: str, port: int, timeout: float = 20.0) -> bool:
 
 def _session() -> requests.Session:
     s = requests.Session()
-    s.headers.update({"User-Agent": "RedAmon-AISurfaceRecon/1.0"})
+    s.headers.update({"User-Agent": "WhiteHat-AISurfaceRecon/1.0"})
     return s
 
 
@@ -109,7 +109,7 @@ def validate_chat(sess):
 
 def validate_openapi(sess):
     print("\n[2] OpenAPI / manifest / model-family (live, real prance + jq)")
-    specs = Path("/tmp/redamon_validate_specs")   # writable (HERE is mounted read-only)
+    specs = Path("/tmp/whitehat_validate_specs")   # writable (HERE is mounted read-only)
     oa = M._probe_openapi(HTTP_BASE, sess, 5.0, model_list_on=True, specs_dir=specs)
     check("openapi:supports_tools", oa.get("supports_tools") is True, str(oa.get("supports_tools")))
     check("openapi:supports_vision", oa.get("supports_vision") is True, str(oa.get("supports_vision")))
@@ -122,7 +122,7 @@ def validate_openapi(sess):
 
 def validate_julius(sess):
     print("\n[3] Julius fingerprint pack (live, real engine + vendored packs)")
-    jl = M._probe_julius(HTTP_BASE, 5.0, "RedAmon-AISurfaceRecon/1.0")
+    jl = M._probe_julius(HTTP_BASE, 5.0, "WhiteHat-AISurfaceRecon/1.0")
     check("julius:service detected", bool(jl.get("service")), str(jl.get("service")))
     check("julius:ollama wins by specificity", jl.get("service") == "ollama", str(jl.get("service")))
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # Inbound MCP server: env wiring + the enable preflight.
-# Run:  bash tests/redamon_mcp_env_test.sh
+# Run:  bash tests/whitehat_mcp_env_test.sh
 #
 # WHY THIS MATTERS, twice over:
 #
@@ -14,7 +14,7 @@
 # 2. THE AGENT'S AUTH FAILS OPEN with no INTERNAL_API_KEY (llm_guard `_key_ok`),
 #    and the base compose publishes the agent on 0.0.0.0:8090. Enabling an
 #    internet-reachable inbound surface in that state would rest the whole
-#    graph-isolation story on a check that is not running, so redamon.sh
+#    graph-isolation story on a check that is not running, so whitehat.sh
 #    refuses rather than warns.
 # =============================================================================
 set -uo pipefail
@@ -62,7 +62,7 @@ echo "== ensure_auth_secrets writes the switch explicitly =="
 D="$(mktemp -d)"
 ( cd "$REPO_ROOT" && ENVDIR="$D" bash -c '
     set -uo pipefail
-    source ./redamon.sh
+    source ./whitehat.sh
     set +e
     info(){ :; }; warn(){ :; }; error(){ :; }; success(){ :; }
     SCRIPT_DIR="$ENVDIR"
@@ -75,7 +75,7 @@ eq "written exactly once" "$(grep -c '^MCP_SERVER_ENABLED=' "$D/.env")" "1"
 sed -i 's/^MCP_SERVER_ENABLED=false/MCP_SERVER_ENABLED=true/' "$D/.env"
 ( cd "$REPO_ROOT" && ENVDIR="$D" bash -c '
     set -uo pipefail
-    source ./redamon.sh
+    source ./whitehat.sh
     set +e
     info(){ :; }; warn(){ :; }; error(){ :; }; success(){ :; }
     SCRIPT_DIR="$ENVDIR"
@@ -92,7 +92,7 @@ run_preflight() {   # run_preflight <enabled> <internal_key> -> exit code
     printf 'MCP_SERVER_ENABLED=%s\nINTERNAL_API_KEY=%s\n' "$1" "$2" > "$dir/.env"
     ( cd "$REPO_ROOT" && ENVDIR="$dir" bash -c '
         set -uo pipefail
-        source ./redamon.sh
+        source ./whitehat.sh
         set +e
         info(){ :; }; warn(){ :; }; error(){ :; }; success(){ :; }
         SCRIPT_DIR="$ENVDIR"

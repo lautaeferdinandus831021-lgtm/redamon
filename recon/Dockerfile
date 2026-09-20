@@ -1,4 +1,4 @@
-# RedAmon Reconnaissance Module - Dockerfile
+# WhiteHat Reconnaissance Module - Dockerfile
 # ============================================
 # Fully containerized OSINT reconnaissance framework
 # Supports Docker-in-Docker for ProjectDiscovery tools
@@ -31,7 +31,7 @@ RUN printf '#!/bin/sh\nmax=5; n=0; until "$@"; do n=$((n+1)); [ $n -ge $max ] &&
 RUN CGO_ENABLED=0 retry go install github.com/haccer/subjack@b53899ce6230767beb1c4a9f879c6ebba23a98fa
 
 # Stage 1e: Build osv-scanner (Go). Supply-Chain recon (L2) runs it OFFLINE
-# against the mounted redamon-osv-db to verdict harvested packages. Needs Go
+# against the mounted whitehat-osv-db to verdict harvested packages. Needs Go
 # >= 1.26.4 (v2.4.0), newer than the other builders, so use golang:1-bookworm.
 FROM golang:1-bookworm AS osv-builder
 RUN GOBIN=/out go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.4.0
@@ -52,8 +52,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Stage 2: Main recon image
 FROM python:3.11-slim-bookworm
 
-LABEL maintainer="RedAmon Team"
-LABEL description="RedAmon Reconnaissance Module - Automated OSINT Framework"
+LABEL maintainer="WhiteHat Team"
+LABEL description="WhiteHat Reconnaissance Module - Automated OSINT Framework"
 LABEL version="1.0"
 
 # Prevent interactive prompts during package installation
@@ -115,10 +115,10 @@ COPY --from=masscan-builder /masscan/bin/masscan /usr/local/bin/masscan
 
 # Create non-root user for security (but allow Docker access)
 RUN groupadd -f docker && \
-    groupadd -r redamon && \
-    useradd -r -g redamon -G docker redamon && \
-    mkdir -p /home/redamon && \
-    chown -R redamon:redamon /home/redamon
+    groupadd -r whitehat && \
+    useradd -r -g whitehat -G docker whitehat && \
+    mkdir -p /home/whitehat && \
+    chown -R whitehat:whitehat /home/whitehat
 
 # Create necessary directories
 RUN mkdir -p /app/recon/output \
@@ -126,7 +126,7 @@ RUN mkdir -p /app/recon/output \
              /app/utils \
              /data/output \
              /data/.env \
-    && chown -R redamon:redamon /app /data
+    && chown -R whitehat:whitehat /app /data
 
 # Copy requirements first (for better Docker layer caching)
 COPY recon/requirements.txt /app/recon/requirements.txt
@@ -143,7 +143,7 @@ RUN git config --system http.version HTTP/1.1 && \
 COPY --from=jsluice-builder /go/bin/jsluice /usr/local/bin/jsluice
 COPY --from=ffuf-builder /go/bin/ffuf /usr/local/bin/ffuf
 COPY --from=subjack-builder /go/bin/subjack /usr/local/bin/subjack
-# osv-scanner for Supply-Chain recon (L2); reads the mounted redamon-osv-db.
+# osv-scanner for Supply-Chain recon (L2); reads the mounted whitehat-osv-db.
 COPY --from=osv-builder /out/osv-scanner /usr/local/bin/osv-scanner
 
 # Install SecLists wordlists for FFuf directory fuzzing
@@ -195,7 +195,7 @@ ENV PROJECT_ID="default_project"
 
 # Use non-root user by default
 # Note: May need root for some operations (Naabu SYN scan)
-# USER redamon
+# USER whitehat
 
 # Health check - verify Docker socket and Python are working
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

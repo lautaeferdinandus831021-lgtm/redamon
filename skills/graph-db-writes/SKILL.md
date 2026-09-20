@@ -1,7 +1,7 @@
 ---
 name: graph-db-writes
 description: >
-  Writing to the Neo4j attack-surface graph in RedAmon: the tenant-isolation
+  Writing to the Neo4j attack-surface graph in WhiteHat: the tenant-isolation
   MERGE key every entity node must carry, where graph methods live (mixins, not
   the client), and the schema places that must be updated together. A MERGE
   missing the tenant key silently merges one project's data into another's.
@@ -10,7 +10,7 @@ description: >
   relationship or property; adding a new node label to the graph.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [root]
   auto_invoke:

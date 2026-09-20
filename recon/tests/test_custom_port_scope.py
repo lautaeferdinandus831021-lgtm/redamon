@@ -21,7 +21,7 @@ What this exercises (recon.main_recon_modules.http_probe):
 
 Run (inside the recon image, where dnspython/neo4j deps exist):
     docker run --rm --entrypoint python3 -v "$PWD:/work:ro" -w /work \\
-        redamon-recon:latest recon/tests/test_custom_port_scope.py
+        whitehat-recon:latest recon/tests/test_custom_port_scope.py
 or:
     python3 -m unittest recon.tests.test_custom_port_scope -v
 """
@@ -500,7 +500,7 @@ class TestRunHttpProbeIntegration(unittest.TestCase):
 
         def fake_popen(cmd, *a, **k):
             # targets file is written before Popen is invoked — read it now
-            tfile = Path("/tmp/redamon/.httpx_temp/targets.txt")
+            tfile = Path("/tmp/whitehat/.httpx_temp/targets.txt")
             captured["lines"] = tfile.read_text().splitlines() if tfile.exists() else []
             raise RuntimeError("stop-after-capture")  # caught by run_http_probe
 
@@ -528,7 +528,7 @@ class TestRunHttpProbeIntegration(unittest.TestCase):
         captured = {}
 
         def fake_popen(cmd, *a, **k):
-            tfile = Path("/tmp/redamon/.httpx_temp/targets.txt")
+            tfile = Path("/tmp/whitehat/.httpx_temp/targets.txt")
             captured["lines"] = tfile.read_text().splitlines() if tfile.exists() else []
             raise RuntimeError("stop-after-capture")
 

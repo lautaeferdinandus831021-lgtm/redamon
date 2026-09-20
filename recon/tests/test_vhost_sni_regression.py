@@ -1,6 +1,6 @@
 """
 Regression tests for the VHost & SNI feature integration into the broader
-RedAmon pipeline + settings flow.
+WhiteHat pipeline + settings flow.
 
 These tests catch silent breakage during refactors:
     - GROUP 6 Phase A in recon/main.py still imports + dispatches vhost_sni
@@ -14,7 +14,7 @@ These tests catch silent breakage during refactors:
     - vhost_sni Vulnerability source is documented in agent prompts
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_regression.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_regression.py -v
 """
 
 from __future__ import annotations

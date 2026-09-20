@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="docs/assets/logo.png" alt="RedAmon Logo" width="120"/>
+  <img src="docs/assets/logo.png" alt="WhiteHat Logo" width="120"/>
   <br/>
-  <img src="docs/assets/title.svg" alt="RedAmon" width="340"/>
+  <img src="docs/assets/title.svg" alt="WhiteHat" width="340"/>
   <br/>
   <b><i><big><big>Unmask the hidden before the world does</big></big></i></b>
 </p>
@@ -12,14 +12,14 @@
 <br/>
 
 <p align="center">
-  <a href="https://trendshift.io/repositories/21794?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-21794" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/21794/daily?language=Python" alt="samugit83%2Fredamon | Trendshift" width="250" height="55"/></a>
+  <a href="https://trendshift.io/repositories/21794?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-21794" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/21794/daily?language=Python" alt="samugit83%2Fwhitehat | Trendshift" width="250" height="55"/></a>
 </p>
 
 <p align="center">
-  <a href="https://www.redamon.org/"><img height="34" src="https://img.shields.io/badge/🌐_Website-redamon.org-A01025?style=for-the-badge&labelColor=000000" alt="RedAmon Website"/></a>
+  <a href="https://www.redamon.org/"><img height="34" src="https://img.shields.io/badge/🌐_Website-redamon.org-A01025?style=for-the-badge&labelColor=000000" alt="WhiteHat Website"/></a>
   <a href="https://discord.com/invite/dxSrH2gaC"><img height="34" src="https://img.shields.io/badge/Discord-Join_Community-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Discord Community"/></a>
   <a href="https://t.me/redamon_ai"><img height="34" src="https://img.shields.io/badge/Telegram-Join_Channel-26A5E4?style=for-the-badge&logo=telegram&logoColor=white&labelColor=000000" alt="Telegram Channel"/></a>
-  <a href="https://youtu.be/XJyQHa4RTbI"><img height="34" src="https://img.shields.io/badge/YouTube-Platform_Tour-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=000000" alt="RedAmon Platform Tour"/></a>
+  <a href="https://youtu.be/XJyQHa4RTbI"><img height="34" src="https://img.shields.io/badge/YouTube-Platform_Tour-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=000000" alt="WhiteHat Platform Tour"/></a>
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
   <img height="24" src="https://img.shields.io/badge/AI-AUTONOMOUS%20AGENT-6A5ACD?style=flat&logo=openai&logoColor=white" alt="AI Powered"/>
   <a href="https://github.com/samugit83/redamon/wiki/AI-Gauntlet"><img height="24" src="https://img.shields.io/badge/%F0%9F%86%95%20AI%20GAUNTLET-OFFENSIVE%20AI%20TESTING-FF6B35?style=flat" alt="AI Gauntlet — Offensive AI Testing"/></a>
   <a href="https://github.com/samugit83/redamon/wiki/Fireteam-Parallel-Specialists"><img height="24" src="https://img.shields.io/badge/%F0%9F%94%A5%20FIRETEAM-PARALLEL%20MULTI--AGENT-7C3AED?style=flat" alt="Fireteam Parallel Multi-Agent"/></a>
-  <a href="redamon.wiki/Deploying-to-a-Server.md"><img height="24" src="https://img.shields.io/badge/%F0%9F%9A%80%20ONE%20COMMAND-DEPLOY%20ON%20SERVER-CC7722?style=flat" alt="One Command Deploy on Server"/></a>
+  <a href="whitehat.wiki/Deploying-to-a-Server.md"><img height="24" src="https://img.shields.io/badge/%F0%9F%9A%80%20ONE%20COMMAND-DEPLOY%20ON%20SERVER-CC7722?style=flat" alt="One Command Deploy on Server"/></a>
   <a href="https://github.com/samugit83/redamon/wiki/TrafficMind"><img height="24" src="https://img.shields.io/badge/%F0%9F%95%B8%20TRAFFICMIND-mitmproxy%20CAPTURE-1F6FEB?style=flat" alt="TrafficMind mitmproxy HTTP Capture"/></a>
   <img height="24" src="https://img.shields.io/badge/100+-SECURITY%20TOOLS-CC8F00?style=flat&logo=hack-the-box&logoColor=white" alt="100+ Security Tools"/>
   <img height="24" src="https://img.shields.io/badge/185,000+-DETECTION%20RULES-8B1142?style=flat" alt="185,000+ Detection Rules"/>
@@ -43,10 +43,10 @@
 
 > **LEGAL DISCLAIMER**: This tool is intended for **authorized security testing**, **educational purposes**, and **research only**. Never use this system to scan, probe, or attack any system you do not own or have explicit written permission to test. Unauthorized access is **illegal** and punishable by law. By using this tool, you accept **full responsibility** for your actions. **[Read Full Disclaimer](DISCLAIMER.md)**
 
-> 🏆 **Flagship result:** RedAmon solves **101 / 104 (97.1%)** of the XBOW web-security benchmark **fully black-box**. Every solve ships a complete, unedited raw agent session **and** a reproducible, step-by-step walkthrough: open any row and read exactly how the flag fell, tool call by tool call. Auditable, line by line. See the **[XBOW Validation Benchmark scorecard](https://github.com/samugit83/redamon/wiki/XBOW-Validation-Benchmark)**.
+> 🏆 **Flagship result:** WhiteHat solves **101 / 104 (97.1%)** of the XBOW web-security benchmark **fully black-box**. Every solve ships a complete, unedited raw agent session **and** a reproducible, step-by-step walkthrough: open any row and read exactly how the flag fell, tool call by tool call. Auditable, line by line. See the **[XBOW Validation Benchmark scorecard](https://github.com/samugit83/redamon/wiki/XBOW-Validation-Benchmark)**.
 
 <p align="center">
-  <img src="docs/assets/agent.gif" alt="RedAmon Agent Demo" width="100%"/>
+  <img src="docs/assets/agent.gif" alt="WhiteHat Agent Demo" width="100%"/>
 </p>
 <p align="center">
   <a href="https://www.youtube.com/playlist?list=PLKBUWnoi9aaA"><img height="24" src="https://img.shields.io/badge/YouTube-Demos-FF0000?style=flat&logo=youtube&logoColor=white" alt="YouTube - Demos"/></a>
@@ -61,14 +61,14 @@
 <img src="docs/assets/recon-pipeline.gif" alt="Parallel recon pipeline in action" width="100%"/>
 </p>
 <p align="center">
-  <em>RedAmon launches multiple reconnaissance tools in parallel, each feeding results into a shared knowledge graph in real time. Tools spin up, adapt their scope based on live discoveries, and coordinate without manual intervention. The entire attack surface -- subdomains, ports, endpoints, parameters -- materializes in minutes, not hours.</em>
+  <em>WhiteHat launches multiple reconnaissance tools in parallel, each feeding results into a shared knowledge graph in real time. Tools spin up, adapt their scope based on live discoveries, and coordinate without manual intervention. The entire attack surface -- subdomains, ports, endpoints, parameters -- materializes in minutes, not hours.</em>
 </p>
 
 <br/>
 
 <h2 align="center">Recon as a Living Knowledge Graph</h2>
 <p align="center">
-<img src="docs/assets/redamon-graph.gif" alt="RedAmon Neo4j attack-surface graph rendered in 2D" width="100%"/>
+<img src="docs/assets/whitehat-graph.gif" alt="WhiteHat Neo4j attack-surface graph rendered in 2D" width="100%"/>
 </p>
 <p align="center">
   <em>Industry-standard scanners chained so each tool's output feeds the next, then merged into a single Neo4j knowledge graph. Findings are deduplicated, relationships are explicit, and the agent inherits a structured, fully connected attack surface ready to query in natural language.</em>
@@ -80,7 +80,7 @@
 <p align="center">
 <b><samp><big>Reconnaissance ➜ Exploitation ➜ Post-Exploitation ➜ AI Triage ➜ CodeFix Agent ➜ GitHub PR</big></samp></b>
 <br/><br/>
-RedAmon doesn't stop at finding vulnerabilities, it fixes them. The pipeline starts with a 6-phase reconnaissance engine that maps your target's entire attack surface, then hands control to an autonomous AI agent that validates CVE exploitability, tests credential policies, and maps lateral movement paths. Every finding is recorded in a Neo4j knowledge graph. When the offensive phase completes, CypherFix takes over: an AI triage agent correlates hundreds of findings, deduplicates them, and ranks them by exploitability. Then a CodeFix agent clones your repository, navigates the codebase with 11 code-aware tools, implements targeted fixes, and opens a GitHub pull request, ready for review and merge.
+WhiteHat doesn't stop at finding vulnerabilities, it fixes them. The pipeline starts with a 6-phase reconnaissance engine that maps your target's entire attack surface, then hands control to an autonomous AI agent that validates CVE exploitability, tests credential policies, and maps lateral movement paths. Every finding is recorded in a Neo4j knowledge graph. When the offensive phase completes, CypherFix takes over: an AI triage agent correlates hundreds of findings, deduplicates them, and ranks them by exploitability. Then a CodeFix agent clones your repository, navigates the codebase with 11 code-aware tools, implements targeted fixes, and opens a GitHub pull request, ready for review and merge.
 </p>
 
 <p align="center">
@@ -121,7 +121,7 @@ We maintain a public **[Project Board](https://github.com/users/samugit83/projec
 </tr>
 </table>
 
-> **Anthropic Cyber Verification Program:** the team behind RedAmon is approved under Anthropic's **[Cyber Verification Program](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude-opus-and-sonnet)**.
+> **Anthropic Cyber Verification Program:** the team behind WhiteHat is approved under Anthropic's **[Cyber Verification Program](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude-opus-and-sonnet)**.
 
 ---
 
@@ -153,20 +153,20 @@ That's it. No Node.js, Python, or security tools needed on your host.
 
 ```bash
 git clone https://github.com/samugit83/redamon.git
-cd redamon
+cd whitehat
 
 # Without GVM (lighter, faster startup):
-./redamon.sh install
+./whitehat.sh install
 
 # With GVM / OpenVAS (full stack, ~30 min first run):
-./redamon.sh install --gvm
+./whitehat.sh install --gvm
 ```
 
 The script builds all images and starts the services.
 
 ### 2. Create Admin Account
 
-At the end of the install (and on every `./redamon.sh up` or `./redamon.sh update` if no admin exists), you will be prompted in the terminal:
+At the end of the install (and on every `./whitehat.sh up` or `./whitehat.sh update` if no admin exists), you will be prompted in the terminal:
 
 ```
 [WARN] No admin user found. Let's create one.
@@ -186,7 +186,7 @@ After creation, open **http://localhost:3000** and sign in with the email and pa
 > **No prompt appeared?** On a heavy first boot (especially `--gvm`, or a small VM) the webapp can take a while to come up, so the automatic prompt may be skipped. Create the admin at any time with:
 >
 > ```bash
-> ./redamon.sh create-admin
+> ./whitehat.sh create-admin
 > ```
 >
 > It waits for the webapp, then prompts for the same details. It is safe to re-run: reusing an existing admin's email resets that password, a new email adds another admin.
@@ -203,8 +203,8 @@ After creation, open **http://localhost:3000** and sign in with the email and pa
 If you forget the admin password, reset it from the terminal:
 
 ```bash
-./redamon.sh reset-password   # reset an EXISTING user's password
-./redamon.sh create-admin     # create the first admin, or reset an admin by re-entering its email
+./whitehat.sh reset-password   # reset an EXISTING user's password
+./whitehat.sh create-admin     # create the first admin, or reset an admin by re-entering its email
 ```
 
 Use `create-admin` when no admin exists yet (it upserts on email); `reset-password` only updates a user that already exists.
@@ -235,24 +235,24 @@ All lifecycle management is handled by a single script:
 
 | Command | Description |
 |---------|-------------|
-| `./redamon.sh install` | Build + start lightweight (no GVM, no Knowledge Base, Tavily-only web search) |
-| `./redamon.sh install --kbase` | Build + start with the local Knowledge Base (~4.4 GB heavier) |
-| `./redamon.sh install --gvm` | Build + start with GVM/OpenVAS |
+| `./whitehat.sh install` | Build + start lightweight (no GVM, no Knowledge Base, Tavily-only web search) |
+| `./whitehat.sh install --kbase` | Build + start with the local Knowledge Base (~4.4 GB heavier) |
+| `./whitehat.sh install --gvm` | Build + start with GVM/OpenVAS |
 
-> Flags can be combined: `./redamon.sh install --gvm --kbase`
+> Flags can be combined: `./whitehat.sh install --gvm --kbase`
 
 | Command | Description |
 |---------|-------------|
-| **`./redamon.sh update`** | **Pull latest version, smart-rebuild only changed services (preserves your install-time GVM/KB choice)** |
-| `./redamon.sh up` | Start services (auto-detects GVM and KB mode from install) |
-| `./redamon.sh up dev` | Start in dev mode with hot-reload (auto-detects GVM and KB mode) |
-| `./redamon.sh down` | Stop services (preserves data) |
-| `./redamon.sh status` | Show running services, version, GVM mode, KB state |
-| `./redamon.sh clean` | Remove containers + images, keep data |
-| `./redamon.sh create-admin` | Create the admin login (or reset it) -- use if no prompt appeared at install |
-| `./redamon.sh reset-password` | Reset an existing user's password from the terminal |
-| `./redamon.sh supply-chain-sync [ecosystems]` | Populate the offline OSV database for the supply-chain feature (default: `npm`; e.g. `npm PyPI Go`) |
-| `./redamon.sh purge` | Remove everything including all data |
+| **`./whitehat.sh update`** | **Pull latest version, smart-rebuild only changed services (preserves your install-time GVM/KB choice)** |
+| `./whitehat.sh up` | Start services (auto-detects GVM and KB mode from install) |
+| `./whitehat.sh up dev` | Start in dev mode with hot-reload (auto-detects GVM and KB mode) |
+| `./whitehat.sh down` | Stop services (preserves data) |
+| `./whitehat.sh status` | Show running services, version, GVM mode, KB state |
+| `./whitehat.sh clean` | Remove containers + images, keep data |
+| `./whitehat.sh create-admin` | Create the admin login (or reset it) -- use if no prompt appeared at install |
+| `./whitehat.sh reset-password` | Reset an existing user's password from the terminal |
+| `./whitehat.sh supply-chain-sync [ecosystems]` | Populate the offline OSV database for the supply-chain feature (default: `npm`; e.g. `npm PyPI Go`) |
+| `./whitehat.sh purge` | Remove everything including all data |
 
 
 ### Updating to a New Version
@@ -260,30 +260,30 @@ All lifecycle management is handled by a single script:
 Just run:
 
 ```bash
-./redamon.sh update
+./whitehat.sh update
 ```
 
 The script pulls the latest code from GitHub, detects which Dockerfiles and source files changed, rebuilds only the affected images, and restarts the updated services. Your databases, scan results, and reports are preserved -- volumes are never deleted.
 
-> **One-time note when a release adds a new background service.** `update` re-execs the freshly-pulled script so new build/start rules apply automatically -- but only for the script version you are updating *from*. When updating *from a version that predates this self-heal* (i.e. your first update onto it), run `./redamon.sh up` once right after `update` so any newly added core service is started:
+> **One-time note when a release adds a new background service.** `update` re-execs the freshly-pulled script so new build/start rules apply automatically -- but only for the script version you are updating *from*. When updating *from a version that predates this self-heal* (i.e. your first update onto it), run `./whitehat.sh up` once right after `update` so any newly added core service is started:
 >
 > ```bash
-> ./redamon.sh update && ./redamon.sh up
+> ./whitehat.sh update && ./whitehat.sh up
 > ```
 >
-> `up` is idempotent -- it starts only what is missing and leaves running containers untouched. After this one-time step, plain `./redamon.sh update` handles everything on its own.
+> `up` is idempotent -- it starts only what is missing and leaves running containers untouched. After this one-time step, plain `./whitehat.sh update` handles everything on its own.
 
 > **Upgrading across 6.9 (repository reorganization).** 6.9 grouped the top-level directories under `scanners/`, `services/`, `testing/`, `tooling/` and `docs/`. `git pull` moves only tracked files, so data that git does not track -- the knowledge-base index, past scan outputs, and the single-host deploy `.env` and TLS material -- would otherwise be left behind at the old paths. `update` (and `up`/`status`) migrate it for you automatically and print what moved. If any file was written by a container as root and could not be moved, finish it with:
 >
 > ```bash
-> sudo ./redamon.sh migrate-layout
+> sudo ./whitehat.sh migrate-layout
 > ```
 
 The webapp also checks for updates automatically and shows a notification in the UI when a new version is available.
 
 ### Deploy to a Server (Production)
 
-The Quick Start above runs RedAmon locally on `localhost`. To run a shared, internet-reachable instance on a Linux server (EC2, DigitalOcean, Hetzner, or bare metal), use the **single-host deploy** in [`tooling/deploy/single-host/`](tooling/deploy/single-host/). It drives `redamon.sh` over SSH from your laptop and wraps the stack in the internet-facing security layer RedAmon omits by default: nginx + TLS (Let's Encrypt), a host firewall, SSH hardening, and fail2ban, with a single public HTTPS origin so only the login page is reachable and everything else stays bound to loopback.
+The Quick Start above runs WhiteHat locally on `localhost`. To run a shared, internet-reachable instance on a Linux server (EC2, DigitalOcean, Hetzner, or bare metal), use the **single-host deploy** in [`tooling/deploy/single-host/`](tooling/deploy/single-host/). It drives `whitehat.sh` over SSH from your laptop and wraps the stack in the internet-facing security layer WhiteHat omits by default: nginx + TLS (Let's Encrypt), a host firewall, SSH hardening, and fail2ban, with a single public HTTPS origin so only the login page is reachable and everything else stays bound to loopback.
 
 ```bash
 cd tooling/deploy/single-host
@@ -299,7 +299,7 @@ Full walkthrough: [Wiki: Deploying to a Server](https://github.com/samugit83/red
 For contributors and active development with **Next.js fast refresh**:
 
 ```bash
-./redamon.sh up dev           # auto-detects GVM mode from install
+./whitehat.sh up dev           # auto-detects GVM mode from install
 ```
 
 Tool images are built automatically on first run if they don't exist yet. The dev override swaps the production webapp image for a dev container with your source code volume-mounted. Every file save triggers instant hot-reload in the browser.
@@ -345,8 +345,8 @@ docker compose --profile tools down --rmi local --volumes --remove-orphans  # Fu
 **Reclaim disk space:**
 ```bash
 docker system df                                  # Show Docker disk usage (add -v for per-image breakdown)
-docker image prune -f                             # Remove dangling images (auto-run by `./redamon.sh install` and `update`)
-docker builder prune -f                           # Drop unused build cache (auto-run after every successful build; opt out with REDAMON_NO_AUTO_PRUNE=1)
+docker image prune -f                             # Remove dangling images (auto-run by `./whitehat.sh install` and `update`)
+docker builder prune -f                           # Drop unused build cache (auto-run after every successful build; opt out with WHITEHAT_NO_AUTO_PRUNE=1)
 docker builder prune -af                          # Drop ALL build cache, including what the current images reuse -- frees no extra disk and makes the next rebuild cold
 docker container prune -f                         # Remove stopped containers
 ```
@@ -361,13 +361,13 @@ The agent's `web_search` tool includes a local **Knowledge Base** -- a RAG pipel
 
 **How it works:** When the KB is enabled, `install` / `up` / `update` builds a lightweight KB index (~1,200 chunks in 10-15 min on CPU). At query time, the agent runs a hybrid retrieval pipeline (FAISS vector search + Neo4j fulltext), reranks with a cross-encoder, and checks a confidence threshold. If the score is high enough, results come from the local KB. Otherwise, it falls back to Tavily or merges both.
 
-**Default behavior:** The KB is **opt-in**. `./redamon.sh install` produces a lightweight install (~4.4 GB lighter, Tavily-only web search). To enable the local KB, pass `--kbase`:
+**Default behavior:** The KB is **opt-in**. `./whitehat.sh install` produces a lightweight install (~4.4 GB lighter, Tavily-only web search). To enable the local KB, pass `--kbase`:
 
 ```bash
-./redamon.sh install --kbase
+./whitehat.sh install --kbase
 ```
 
-On first install with `--kbase`, RedAmon detects your hardware (GPU / CPU / API) and offers a quick-start profile. The choice is persisted, so subsequent `update` / `up` commands respect it without re-passing the flag.
+On first install with `--kbase`, WhiteHat detects your hardware (GPU / CPU / API) and offers a quick-start profile. The choice is persisted, so subsequent `update` / `up` commands respect it without re-passing the flag.
 
 **Speed up ingestion with API embeddings:** By default, embeddings run locally on CPU/GPU. On CPU-only machines, large datasets (ExploitDB, NVD) can take hours. You can offload embedding to an external API by creating a `.env` file from the template:
 
@@ -399,11 +399,11 @@ KB_EMBEDDING_API_MODEL=nomic-embed-text
 **Manage the KB:**
 
 ```bash
-./redamon.sh kb build lite          # Build with lite profile (~30-60s with API)
-./redamon.sh kb build standard      # Add NVD CVEs
-./redamon.sh kb update nvd          # Incremental NVD refresh
-./redamon.sh kb stats               # Show index statistics
-./redamon.sh kb rebuild lite        # Wipe and rebuild from scratch
+./whitehat.sh kb build lite          # Build with lite profile (~30-60s with API)
+./whitehat.sh kb build standard      # Add NVD CVEs
+./whitehat.sh kb update nvd          # Incremental NVD refresh
+./whitehat.sh kb stats               # Show index statistics
+./whitehat.sh kb rebuild lite        # Wipe and rebuild from scratch
 ```
 
 > For full technical documentation -- query pipeline, data sources, ingestion profiles, scoring, security model -- see the **[Knowledge Base Technical Reference](docs/readmes/README.KBASE.md)** or the **[Wiki: Knowledge Base & Web Search](https://github.com/samugit83/redamon/wiki/Knowledge-Base-Web-Search)**.
@@ -421,7 +421,7 @@ KB_EMBEDDING_API_MODEL=nomic-embed-text
 - [Components](#components)
 - [Documentation](#documentation)
 - [Troubleshooting](#troubleshooting)
-- [RedAmon HackLab](#redamon-hacklab)
+- [WhiteHat HackLab](#whitehat-hacklab)
 - [Community Showcase](#community-showcase)
 - [Legal](#legal)
 
@@ -429,7 +429,7 @@ KB_EMBEDDING_API_MODEL=nomic-embed-text
 
 ## Overview
 
-RedAmon is a modular, containerized penetration testing framework that chains automated reconnaissance, AI-driven exploitation, and graph-powered intelligence into a single, end-to-end offensive security pipeline. Every component runs inside Docker (no tools installed on your host) and communicates through well-defined APIs so each layer can evolve independently.
+WhiteHat is a modular, containerized penetration testing framework that chains automated reconnaissance, AI-driven exploitation, and graph-powered intelligence into a single, end-to-end offensive security pipeline. Every component runs inside Docker (no tools installed on your host) and communicates through well-defined APIs so each layer can evolve independently.
 
 The platform is built around six pillars:
 
@@ -446,13 +446,13 @@ The platform is built around six pillars:
 
 ## Built for Enterprise, Secure by Design
 
-RedAmon is engineered to drop into a real security organization, not just a researcher's laptop.
+WhiteHat is engineered to drop into a real security organization, not just a researcher's laptop.
 
 - **Secure by design, STRIDE threat-modeled.** The whole platform is assessed end to end under STRIDE and hardened in independently verified waves: code-level privilege separation, a filtering Docker broker in front of the host socket, fail-closed auth, SSRF egress guards, secret redaction, append-only audit trails, and a non-disableable guardrail that blocks government, military, and intergovernmental targets. See the [Security Posture](docs/readmes/README.SECURITY_POSTURE.md) and [Threat Model](docs/readmes/README.TM.SYSTEM_OVERVIEW.md).
 - **Fully isolated and containerized.** Every tool, scanner, and agent runs in its own container with no host-level execution. Scan jobs are spawned as ephemeral sibling containers with their own filesystem and network namespace, then torn down on completion, keeping the host clean and containing the blast radius of any exploit.
 - **Governed and multi-tenant.** Multi-user / multi-project tenancy with admin and standard roles, DB-level `user_id + project_id` scoping on every node, Rules-of-Engagement enforcement, human-in-the-loop approval gates, and 500+ per-project settings give teams the control an enterprise engagement requires.
 
-**Deploy to a server in one command.** Beyond local `localhost`, RedAmon ships a hardened [single-host deploy](tooling/deploy/single-host/) that stands up a shared, internet-reachable instance and wraps the stack in nginx + TLS (Let's Encrypt), a host firewall, SSH hardening, and fail2ban, exposing a single public HTTPS origin:
+**Deploy to a server in one command.** Beyond local `localhost`, WhiteHat ships a hardened [single-host deploy](tooling/deploy/single-host/) that stands up a shared, internet-reachable instance and wraps the stack in nginx + TLS (Let's Encrypt), a host firewall, SSH hardening, and fail2ban, exposing a single public HTTPS origin:
 
 ```bash
 cd tooling/deploy/single-host
@@ -466,7 +466,7 @@ Full walkthrough: [Wiki: Deploying to a Server](https://github.com/samugit83/red
 
 ## Security & Threat Model
 
-RedAmon is offensive software, so we hold it to the standard it tests others by. It is engineered **secure by design** and has been assessed end to end under the **STRIDE** methodology (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege), with findings remediated in sequenced, independently verified waves.
+WhiteHat is offensive software, so we hold it to the standard it tests others by. It is engineered **secure by design** and has been assessed end to end under the **STRIDE** methodology (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege), with findings remediated in sequenced, independently verified waves.
 
 This is not a marketing claim. It is grounded in a published, evidence-based analysis you can read:
 
@@ -497,7 +497,7 @@ Everything runs on a **fan-out / fan-in** architecture: each phase fires as many
 > **[Wiki: Running Reconnaissance](https://github.com/samugit83/redamon/wiki/Running-Reconnaissance)** | **[Technical: README.RECON.md](docs/readmes/README.RECON.md)**
 
 <p align="center">
-  <img src="docs/assets/recon.gif" alt="RedAmon Reconnaissance Pipeline" width="100%"/>
+  <img src="docs/assets/recon.gif" alt="WhiteHat Reconnaissance Pipeline" width="100%"/>
 </p>
 
 #### Recon Pipeline Tool Matrix
@@ -543,7 +543,7 @@ Everything runs on a **fan-out / fan-in** architecture: each phase fires as many
 | **GraphQL Security** | **GraphQL Security Testing** | Endpoint discovery, introspection test, schema extraction, sensitive-field detection, graphql-cop (12 misconfig checks: alias/batch/directive DoS, GraphiQL, trace mode, GET/POST CSRF, field suggestions) | Active / Passive | Parallel with Nuclei + Subdomain Takeover + VHost & SNI + Web Cache Poisoning + Origin Discovery (GROUP 6 Phase A) |
 | **Subdomain Takeover** | **Subdomain Takeover Detection** | Subjack (Apache-2.0 DNS-first fingerprints) + Nuclei takeover templates (`http/takeovers/` + `dns/`) + BadDNS (AGPL-3.0 isolated sidecar: CNAME, NS, MX, TXT, SPF, DMARC, wildcard, NSEC, references, zonetransfer). Cross-tool dedup, 12+ auto-exploitable providers, confidence-scored `confirmed` / `likely` / `manual_review` verdicts | Active / Passive | Parallel with Nuclei + GraphQL Scan + VHost & SNI + Web Cache Poisoning + Origin Discovery (GROUP 6 Phase A) |
 | **VHost & SNI Enumeration** | **Hidden Virtual Host Discovery** | Curl-only dual-layer probing: L7 Host-header overrides + L4 TLS SNI swaps via `--resolve`, baseline-comparison anomaly detection, 4-tier severity ladder (`high` for L7/L4 routing inconsistency, `medium` for internal-keyword matches, `low`/`info` for status/size deltas), 2,471-entry default wordlist + custom + graph-derived candidates, discovery feedback loop into httpx | Active | Parallel with Nuclei + GraphQL Scan + Subdomain Takeover + Web Cache Poisoning + Origin Discovery (GROUP 6 Phase A) |
-| **Web Cache Poisoning** | **Web Cache Poisoning & Deception** | Two-engine detection: WCVS (Hackmanit, Docker-in-Docker) breadth sweep across 10+ technique classes (unkeyed-header poisoning, parameter cloaking, path/cache-key normalization, cache-key injection, web cache deception) then a RedAmon-native 5-phase confirmation (cache oracle with silent-cache frozen-Date fallback, isolated cache-buster, fingerprint-gated framework packs for Next.js/Nuxt/Remix, baseline→poison→clean persistence check, reflected + non-reflective differential detection). Confidence-scored `Confirmed`/`Strong`/`Tentative` tiers, min-confidence gate; benign `.invalid` canaries + isolated cache buckets so the real cache is never poisoned. Disabled by default | Active | Parallel with Nuclei + GraphQL Scan + Subdomain Takeover + VHost & SNI + Origin Discovery (GROUP 6 Phase A) |
+| **Web Cache Poisoning** | **Web Cache Poisoning & Deception** | Two-engine detection: WCVS (Hackmanit, Docker-in-Docker) breadth sweep across 10+ technique classes (unkeyed-header poisoning, parameter cloaking, path/cache-key normalization, cache-key injection, web cache deception) then a WhiteHat-native 5-phase confirmation (cache oracle with silent-cache frozen-Date fallback, isolated cache-buster, fingerprint-gated framework packs for Next.js/Nuxt/Remix, baseline→poison→clean persistence check, reflected + non-reflective differential detection). Confidence-scored `Confirmed`/`Strong`/`Tentative` tiers, min-confidence gate; benign `.invalid` canaries + isolated cache buckets so the real cache is never poisoned. Disabled by default | Active | Parallel with Nuclei + GraphQL Scan + Subdomain Takeover + VHost & SNI + Origin Discovery (GROUP 6 Phase A) |
 | **Origin Discovery** | **Origin-IP Discovery (CDN/WAF unmasking)** | Finds the real origin server hidden behind a CDN/WAF by pivoting on the fingerprints the origin leaks: 44 non-CDN subdomain names, SPF/MX record IPs, crt.sh SANs, the favicon hash (mmh3), internet-wide scanners (Shodan/Censys/FOFA/ZoomEye/OTX/VirusTotal), and passive-DNS history (SecurityTrails/ViewDNS). It then confirms each candidate by fetching it directly and with a forged `Host:` header, scoring HTML 60% + TLS cert 25% + headers 15% (± status) against the fronted site. Fail-closed SSRF / CDN-range / current-resolution / RoE filters before any probe; per-scan keyed-search budget; per-target cache; never-raise; converges with the WAF-bypass finding via a tenant-scoped id. Disabled by default | Active / Passive | Parallel with Nuclei + GraphQL Scan + Subdomain Takeover + VHost & SNI + Web Cache Poisoning (GROUP 6 Phase A) |
 | **Security Checks** | **Security Checks** | WAF bypass, direct IP access, TLS expiry, missing headers, cache-control | Active | Parallel workers |
 | **CVE & MITRE** | **CVE Enrichment** | NVD API, Vulners API | Passive | Sequential |
@@ -584,7 +584,7 @@ A **LangGraph-based autonomous agent** implementing the ReAct pattern. It progre
 > **[Wiki: AI Agent Guide](https://github.com/samugit83/redamon/wiki/AI-Agent-Guide)** | **[Technical: README.AGENTIC_SYSTEM.md](docs/readmes/README.AGENTIC_SYSTEM.md)**
 
 <p align="center">
-  <img src="docs/assets/exploit.gif" alt="RedAmon Exploitation Demo" width="100%"/>
+  <img src="docs/assets/exploit.gif" alt="WhiteHat Exploitation Demo" width="100%"/>
 </p>
 
 #### Agent Tool Arsenal
@@ -618,7 +618,7 @@ A **LangGraph-based autonomous agent** implementing the ReAct pattern. It progre
 | | **execute_code** | Write and run code files (Python, bash, Ruby, Perl, C, C++) -- no shell escaping | Exploit, Post | network_recon :8000 |
 | **Supply Chain** | **execute_osv_scanner** | Offline OSV verdict -- is a package known-malicious (`MAL-`) or known-vulnerable (`CVE`/`GHSA`)? Passive, zero network (reads the local OSV DB). Accepts a purl, lockfile, or SBOM | All | network_recon :8000 |
 | | **execute_guarddog** | Behavioural malware analysis of one package (install hooks, obfuscation, exfil, typosquat). Downloads the tarball, so it dispatches to the hardened analyzer sandbox -- never unpacked inline | Info, Exploit | network_recon :8000 |
-| **Traffic (TrafficMind)** | **proxy_brain** | **DANGEROUS** -- web hacking in code: it writes Python against a pre-imported `redamon` SDK to work the captured HTTP corpus (`search` / `get` / `sitemap` / `params` / `grep` / `diff` / `to_curl` / `query` reads, `decode` / `jwt().forge()` crypto, `replay` / `batch(parallel)` / `fuzz` active sends, and `browser(id)` to drive a real Chromium for DOM-based XSS / SPA / post-JS bugs). Reads run in any phase; active sends and the browser are host-pinned to the origin, tenant-scoped by a signed tag, exploitation-gated, budgeted, and re-captured. The agent reads its own on-demand cookbook via `redamon.manual()`. Replaces the former ten `proxy_*` tools | All (send: Exploit, Post) | network_recon :8000 |
+| **Traffic (TrafficMind)** | **proxy_brain** | **DANGEROUS** -- web hacking in code: it writes Python against a pre-imported `whitehat` SDK to work the captured HTTP corpus (`search` / `get` / `sitemap` / `params` / `grep` / `diff` / `to_curl` / `query` reads, `decode` / `jwt().forge()` crypto, `replay` / `batch(parallel)` / `fuzz` active sends, and `browser(id)` to drive a real Chromium for DOM-based XSS / SPA / post-JS bugs). Reads run in any phase; active sends and the browser are host-pinned to the origin, tenant-scoped by a signed tag, exploitation-gated, budgeted, and re-captured. The agent reads its own on-demand cookbook via `whitehat.manual()`. Replaces the former ten `proxy_*` tools | All (send: Exploit, Post) | network_recon :8000 |
 | **Workspace FS** | **fs_read** | Read workspace file with line numbers, auto-detects binary, stores snapshot for `fs_diff vs_last_read` | All | -- (in-process) |
 | | **fs_read_many** | Batched read of multiple files, capped at `max_total_bytes` (default 200 KB) | All | -- (in-process) |
 | | **fs_stat** | Metadata only -- size, mtime, mode, type, optional SHA-256 | All | -- (in-process) |
@@ -659,25 +659,25 @@ Two paths: pick one of **39 prefilled Quick-Add presets** (OSINT, threat-intel, 
 
 > **Full operator manual** (every form field, all 39 presets, the auth flow, the live discovery workflow, validation rules, troubleshooting, and the storage / security model): **[MCP Tool Plugins wiki page](https://github.com/samugit83/redamon/wiki/MCP-Tool-Plugins)**.
 
-### MCP Server: Your Own Agent Connecting *Into* RedAmon
+### MCP Server: Your Own Agent Connecting *Into* WhiteHat
 
-The mirror image of the plugins above. Instead of RedAmon's agent reaching *out* to tools, **your** agent connects *in* and drives RedAmon: your Claude Code session, an internal triage assistant, a nightly CI job, anything that speaks the Model Context Protocol. Mint an access token in **Global Settings → MCP Server** and it gets **30 tools** behind **9 permissions**: list projects, read scan status and settings, query the attack-surface graph in plain English or raw Cypher, read findings / suppressed findings / remediations, run saved graph views, compare saved scan versions, get an attack-surface overview, exploit paths and blast radius, start / stop / queue a recon run, record a triage verdict, and (off by default, behind three independent switches) run a command in the Kali sandbox.
+The mirror image of the plugins above. Instead of WhiteHat's agent reaching *out* to tools, **your** agent connects *in* and drives WhiteHat: your Claude Code session, an internal triage assistant, a nightly CI job, anything that speaks the Model Context Protocol. Mint an access token in **Global Settings → MCP Server** and it gets **30 tools** behind **9 permissions**: list projects, read scan status and settings, query the attack-surface graph in plain English or raw Cypher, read findings / suppressed findings / remediations, run saved graph views, compare saved scan versions, get an attack-surface overview, exploit paths and blast radius, start / stop / queue a recon run, record a triage verdict, and (off by default, behind three independent switches) run a command in the Kali sandbox.
 
 The token acts as **you**, inside **your own projects**. It is re-checked on every call, so a revoke takes effect on the agent's next call rather than its next reconnect; every graph read is rewritten to match only your tenant's nodes and runs in a read-only Neo4j session; and every write is a positive allowlist. Deliberately not exposed: the agent chat, creating or deleting projects, your API keys, the target and scope fields, Rules of Engagement, muting a finding, and any write to the graph. `MCP_SERVER_ENABLED` is off after a normal install and refused over plain HTTP on a server deploy, and `MCP_DISABLED_TOOLS` withdraws a single misbehaving tool without taking the whole surface down.
 
-#### Agent Onboarding (teaching *your* agent how to use RedAmon)
+#### Agent Onboarding (teaching *your* agent how to use WhiteHat)
 
-Connecting an agent tells it *that* the tools exist. It does not tell it what RedAmon is, what the recon pipeline produces, or which of the 30 tools to reach for first. **Agent Onboarding writes those instructions for you.** Pick one of **14 Agent Profiles** (bug bounty, penetration testing, continuous attack-surface monitoring, vulnerability management, triage assistance, asset inventory / CMDB, compliance evidence, DevSecOps CI gating, reporting, M&A and third-party risk, threat-intel correlation, SOC enrichment, research and training, or custom) and RedAmon ticks the permissions that job needs and generates a pack tailored to it: a `SKILL.md` plus reference files covering the operating model, the graph's shape, the tool sequence for that job, the traps specific to it, and tool by tool exactly what *this* token can and cannot do. The tool facts are read from the server's own live tool list at export time, so a pack can never describe a tool differently from how the server serves it. Clients that never load a skill file (Cursor, Windsurf, Cline, Goose, Gemini CLI, Codex CLI) receive a shorter version of the same guidance inline the moment they connect.
+Connecting an agent tells it *that* the tools exist. It does not tell it what WhiteHat is, what the recon pipeline produces, or which of the 30 tools to reach for first. **Agent Onboarding writes those instructions for you.** Pick one of **14 Agent Profiles** (bug bounty, penetration testing, continuous attack-surface monitoring, vulnerability management, triage assistance, asset inventory / CMDB, compliance evidence, DevSecOps CI gating, reporting, M&A and third-party risk, threat-intel correlation, SOC enrichment, research and training, or custom) and WhiteHat ticks the permissions that job needs and generates a pack tailored to it: a `SKILL.md` plus reference files covering the operating model, the graph's shape, the tool sequence for that job, the traps specific to it, and tool by tool exactly what *this* token can and cannot do. The tool facts are read from the server's own live tool list at export time, so a pack can never describe a tool differently from how the server serves it. Clients that never load a skill file (Cursor, Windsurf, Cline, Goose, Gemini CLI, Codex CLI) receive a shorter version of the same guidance inline the moment they connect.
 
 No profile ever ticks `kali:exec` or `recon:overwrite` for you, not even the ones that recommend them: a shell on a target-facing box and an irreversible graph wipe should never arrive as the side effect of choosing an item from a dropdown.
 
-> **Agent Skills teach RedAmon's agent. Agent Onboarding teaches yours.**
+> **Agent Skills teach WhiteHat's agent. Agent Onboarding teaches yours.**
 
 > **[Wiki: MCP Server](https://github.com/samugit83/redamon/wiki/MCP-Server)** | **[Wiki: MCP API Reference](https://github.com/samugit83/redamon/wiki/MCP-API-Reference)** | **[Technical: README.MCP.SERVER.md](docs/readmes/README.MCP.SERVER.md)**
 
 ### Agent Workspace: Per-Project Filesystem, Background Jobs, Auto-Offload
 
-> **Watch the demo:** [RedAmon Agent Workspace: AI Runs 4 Parallel Pentests and Writes Its Own Report (YouTube)](https://youtu.be/dkgIk78T7Hw)
+> **Watch the demo:** [WhiteHat Agent Workspace: AI Runs 4 Parallel Pentests and Writes Its Own Report (YouTube)](https://youtu.be/dkgIk78T7Hw)
 
 Every project gets a persistent `/workspace/<projectId>/` directory that the agent, the kali-sandbox, and you (through the **FileSystem Drawer** in the Red Zone) all see at the same time. Four purpose-built folders are auto-created and protected from rename/delete: `notes/` for the agent's scratch work and draft reports, `tool-outputs/` for auto-offloaded huge outputs, `jobs/` for background-job logs, and `uploads/` for files you drop in for the agent to read. The agent is taught the layout on every think step via a `WORKSPACE_LAYOUT_BLOCK`, and when you drop files into `uploads/` the block surfaces them under a `CHECK THESE NOW` directive so the agent reads them before continuing whatever else it was doing.
 
@@ -689,7 +689,7 @@ Path validation rejects every traversal trick (project-id injection, symlink esc
 
 ### Fireteam: Parallel Specialist Sub-Agents
 
-The agent's most powerful execution mode. When an objective decomposes into **independent investigation angles** (auth surface, route map, header policy; or 5 candidate CVEs to triage in parallel), the root agent fans out into N **specialist sub-agents** that work concurrently inside the same backend, each running its own multi-step ReAct loop with a focused mission. This is RedAmon's implementation of the **Scatter-Gather ReAct (SG-ReAct)** architectural pattern: a root agent that decides when to fan out, a bounded fireteam of specialists that work in parallel, and a fan-in step that merges their findings back into a single consolidated worldview.
+The agent's most powerful execution mode. When an objective decomposes into **independent investigation angles** (auth surface, route map, header policy; or 5 candidate CVEs to triage in parallel), the root agent fans out into N **specialist sub-agents** that work concurrently inside the same backend, each running its own multi-step ReAct loop with a focused mission. This is WhiteHat's implementation of the **Scatter-Gather ReAct (SG-ReAct)** architectural pattern: a root agent that decides when to fan out, a bounded fireteam of specialists that work in parallel, and a fan-in step that merges their findings back into a single consolidated worldview.
 
 Every safety guarantee that applies to the root agent also applies to every member: hard guardrails, soft guardrails, phase gating, Rules of Engagement, and dangerous-tool confirmations (handled **per-member, in parallel**; N members can each be awaiting your approval on their own panel simultaneously without serializing). Recursion is forbidden (a member cannot itself deploy a fireteam) and every wave has a hard cap on members, an iteration budget per member, and a wall-clock timeout. The result is wall-clock parallelism without coordination chaos, predictable termination, and an audit trail where every action is attributable to the specialist that produced it.
 
@@ -723,11 +723,11 @@ Launch **multiple concurrent agent sessions** against the same project. Each ses
 
 ### TrafficMind: HTTP Traffic Capture
 
-RedAmon's built-in, engagement-scoped **proxy history**: a credential-free man-in-the-middle proxy (powered by **mitmproxy**) sits between every offensive tool and its target, records the full request/response of each HTTP transaction, tags it with *who* produced it (project / user / run / tool via a signed HMAC context tag), and stores it in Postgres through a trusted, INSERT-only ingest worker. Think of an always-on HTTP history, except it turns on with a toggle, attributes every request to its source, and is queryable by the operator **and** the AI agent.
+WhiteHat's built-in, engagement-scoped **proxy history**: a credential-free man-in-the-middle proxy (powered by **mitmproxy**) sits between every offensive tool and its target, records the full request/response of each HTTP transaction, tags it with *who* produced it (project / user / run / tool via a signed HMAC context tag), and stores it in Postgres through a trusted, INSERT-only ingest worker. Think of an always-on HTTP history, except it turns on with a toggle, attributes every request to its source, and is queryable by the operator **and** the AI agent.
 
 Capture is **off by default** and gated at two levels (a global master switch that runs the proxy, plus a per-project routing toggle). Eight recon tools and eight agent HTTP tools (`execute_curl`, `execute_httpx`, `execute_playwright`, `execute_nuclei`, `execute_katana`, `execute_ffuf`, `execute_arjun`, `execute_wpscan`) are routed, so both the pipeline's and the agent's own crawl/fuzz/scan traffic is captured, searchable, and replayable. The proxy holds no secrets, an SSRF egress guard with a DNS-rebinding IP pin keeps it from pivoting into internal infrastructure, sensitive headers are redacted, and passive signals (reflected params, missing security headers, cookie-flag issues) are computed for free on every response. A **TrafficMind** view in the top navigation exposes the corpus as a paginated, filterable, proxy-style table with a request/response detail drawer, CSV/JSON export, and reference-counted body cleanup.
 
-The agent works the corpus through a single code-native tool, **`proxy_brain`**: it writes Python against a pre-imported `redamon` SDK and composes the attack itself (loops, conditionals, crypto, oracles) rather than picking from a fixed menu. The SDK's read calls (`search`, `get`, `sitemap`, `params`, `grep`, `diff`, `to_curl`, `query`) run in any phase; its active calls (`replay`, `batch`, `fuzz`) send live traffic and are gated to the exploitation phases, as is `browser(id)`, which drives a real Chromium to confirm bugs that only surface after JavaScript runs (DOM-based XSS, SPA-only routes, JS-minted CSRF). `proxy_brain` runs in the Kali sandbox but holds no database credential: it reaches the corpus only through the agent's `/traffic/exec` (read), `/traffic/replay` (active) and `/traffic/browser` (browser) endpoints, tenant-scoped by a signed tag the sandbox cannot forge, host-pinned to the origin on every send, budget-capped, stealth-restricted, and re-captured. The agent reads its own on-demand cookbook with `redamon.manual()`. See [`docs/readmes/README.TRAFFIC.md`](docs/readmes/README.TRAFFIC.md) for the architecture.
+The agent works the corpus through a single code-native tool, **`proxy_brain`**: it writes Python against a pre-imported `whitehat` SDK and composes the attack itself (loops, conditionals, crypto, oracles) rather than picking from a fixed menu. The SDK's read calls (`search`, `get`, `sitemap`, `params`, `grep`, `diff`, `to_curl`, `query`) run in any phase; its active calls (`replay`, `batch`, `fuzz`) send live traffic and are gated to the exploitation phases, as is `browser(id)`, which drives a real Chromium to confirm bugs that only surface after JavaScript runs (DOM-based XSS, SPA-only routes, JS-minted CSRF). `proxy_brain` runs in the Kali sandbox but holds no database credential: it reaches the corpus only through the agent's `/traffic/exec` (read), `/traffic/replay` (active) and `/traffic/browser` (browser) endpoints, tenant-scoped by a signed tag the sandbox cannot forge, host-pinned to the origin on every send, budget-capped, stealth-restricted, and re-captured. The agent reads its own on-demand cookbook with `whitehat.manual()`. See [`docs/readmes/README.TRAFFIC.md`](docs/readmes/README.TRAFFIC.md) for the architecture.
 
 > **[Wiki: TrafficMind](https://github.com/samugit83/redamon/wiki/TrafficMind)** | **[Technical: README.TRAFFIC.md](docs/readmes/README.TRAFFIC.md)**
 
@@ -737,11 +737,11 @@ Unified view of active sessions: meterpreter, reverse/bind shells, and listeners
 
 > **[Wiki: Reverse Shells](https://github.com/samugit83/redamon/wiki/Reverse-Shells)**
 
-### RedAmon Terminal
+### WhiteHat Terminal
 
 Full interactive **PTY shell access** to the Kali sandbox container directly from the graph page via **xterm.js**. Access all pre-installed pentesting tools (Metasploit, Nmap, Nuclei, Hydra, sqlmap) without leaving the browser. Features dark terminal theme, connection status indicator, auto-reconnect with exponential backoff, fullscreen mode, and browser-side keepalive.
 
-> **[Wiki: The Graph Dashboard](https://github.com/samugit83/redamon/wiki/The-Graph-Dashboard#redamon-terminal)**
+> **[Wiki: The Graph Dashboard](https://github.com/samugit83/redamon/wiki/The-Graph-Dashboard#whitehat-terminal)**
 
 ### CypherFix: Automated Vulnerability Remediation
 
@@ -757,7 +757,7 @@ An **LLM-powered Intent Router** classifies user requests into agent skills: CVE
 
 ### Chat Skills
 
-**On-demand reference injection** via `/skill` command in the agent chat. Chat Skills are tactical reference docs -- tool playbooks, vulnerability guides, framework-specific notes -- that you inject into the agent's context exactly when you need them. Type `/skill ssrf` to load SSRF expertise, or click the skill picker button for a browsable list. **46 reference skills** ship with RedAmon covering vulnerabilities (JWT, OAuth/OIDC, CSRF, race conditions, business logic, prototype pollution, ReDoS, 2FA bypass, LDAP/XPath injection, web cache poisoning, CORS, host header injection, clickjacking, CRLF, and more), tooling (sqlmap, nuclei, ffuf, nmap, httpx, naabu, katana, subfinder, semgrep), protocols (GraphQL, WebSocket, SOAP/WS-Security, SAML), technologies (Firebase, Supabase), frameworks (Next.js, FastAPI, NestJS), Active Directory (kill chain, Kerberoasting/ASREPRoast, AD-CS ESC1-15, BloodHound path-to-DA), cloud (AWS, Azure, GCP), and post-exploitation (Docker escape, Linux / Windows privesc). Unlike Agent Skills (which drive classification and phase-aware workflows), Chat Skills are supplementary context that persists until you change or remove them.
+**On-demand reference injection** via `/skill` command in the agent chat. Chat Skills are tactical reference docs -- tool playbooks, vulnerability guides, framework-specific notes -- that you inject into the agent's context exactly when you need them. Type `/skill ssrf` to load SSRF expertise, or click the skill picker button for a browsable list. **46 reference skills** ship with WhiteHat covering vulnerabilities (JWT, OAuth/OIDC, CSRF, race conditions, business logic, prototype pollution, ReDoS, 2FA bypass, LDAP/XPath injection, web cache poisoning, CORS, host header injection, clickjacking, CRLF, and more), tooling (sqlmap, nuclei, ffuf, nmap, httpx, naabu, katana, subfinder, semgrep), protocols (GraphQL, WebSocket, SOAP/WS-Security, SAML), technologies (Firebase, Supabase), frameworks (Next.js, FastAPI, NestJS), Active Directory (kill chain, Kerberoasting/ASREPRoast, AD-CS ESC1-15, BloodHound path-to-DA), cloud (AWS, Azure, GCP), and post-exploitation (Docker escape, Linux / Windows privesc). Unlike Agent Skills (which drive classification and phase-aware workflows), Chat Skills are supplementary context that persists until you change or remove them.
 
 > **[Wiki: Chat Skills](https://github.com/samugit83/redamon/wiki/Chat-Skills)** | **[Community Chat Skills](agentic/skills/)**
 
@@ -775,7 +775,7 @@ Hunts live credentials across **14 kinds of target** with **1060 detectors**: gi
 
 ### Supply Chain / Malicious Package Detection
 
-Detects known-malicious (`MAL-`) and known-vulnerable (`CVE`/`GHSA`) packages **fully offline** against a local OSV database, across three layers that share one engine and one graph model. **L1** audits an uploaded SBOM / lockfile from the **"Other Scans" modal**; **L2 (Supply-Chain Recon)** harvests the npm package set a live target actually serves during recon (source maps, imports, technologies) with zero manifest; **L3** gives the AI agent on-demand `execute_osv_scanner` / `execute_guarddog` tools. Untrusted bytes (tarballs, target JS) are processed in a hardened, secret-free, network-isolated **DIRTY** sandbox (`cap_drop=ALL`, read-only, no-install); only a schema-validated JSON artifact crosses into the creds-holding writer. Results are stored as `Package` / `MalPackageFinding` nodes (`MAL-` = malicious, `CVE`/`GHSA` = vulnerable, GuardDog = suspicious). Populate the offline DB once with `./redamon.sh supply-chain-sync npm`.
+Detects known-malicious (`MAL-`) and known-vulnerable (`CVE`/`GHSA`) packages **fully offline** against a local OSV database, across three layers that share one engine and one graph model. **L1** audits an uploaded SBOM / lockfile from the **"Other Scans" modal**; **L2 (Supply-Chain Recon)** harvests the npm package set a live target actually serves during recon (source maps, imports, technologies) with zero manifest; **L3** gives the AI agent on-demand `execute_osv_scanner` / `execute_guarddog` tools. Untrusted bytes (tarballs, target JS) are processed in a hardened, secret-free, network-isolated **DIRTY** sandbox (`cap_drop=ALL`, read-only, no-install); only a schema-validated JSON artifact crosses into the creds-holding writer. Results are stored as `Package` / `MalPackageFinding` nodes (`MAL-` = malicious, `CVE`/`GHSA` = vulnerable, GuardDog = suspicious). Populate the offline DB once with `./whitehat.sh supply-chain-sync npm`.
 
 > **[Technical: README.SUPPLY_CHAIN.md](docs/readmes/README.SUPPLY_CHAIN.md)**
 
@@ -786,7 +786,7 @@ Detects known-malicious (`MAL-`) and known-vulnerable (`CVE`/`GHSA`) packages **
 > **[Wiki: Project Settings Reference](https://github.com/samugit83/redamon/wiki/Project-Settings-Reference)**
 
 <p align="center">
-  <img src="docs/assets/settings.gif" alt="RedAmon Project Settings" width="100%"/>
+  <img src="docs/assets/settings.gif" alt="WhiteHat Project Settings" width="100%"/>
 </p>
 
 ### Rules of Engagement (RoE)
@@ -802,7 +802,7 @@ Upload a RoE document (PDF, TXT, MD, DOCX) to auto-configure project settings an
 > **[Wiki: Insights Dashboard](https://github.com/samugit83/redamon/wiki/Insights-Dashboard)**
 
 <p align="center">
-  <img src="docs/assets/insights.gif" alt="RedAmon Insights Dashboard" width="100%"/>
+  <img src="docs/assets/insights.gif" alt="WhiteHat Insights Dashboard" width="100%"/>
 </p>
 
 ### Target Guardrail
@@ -977,25 +977,25 @@ flowchart TB
 
 ## Troubleshooting
 
-RedAmon is fully Dockerized and runs on any OS with Docker Compose v2+. For OS-specific fixes (Linux, Windows, macOS), see **[Troubleshooting Guide](docs/readmes/TROUBLESHOOTING.md)** or the **[Wiki](https://github.com/samugit83/redamon/wiki/Troubleshooting)**.
+WhiteHat is fully Dockerized and runs on any OS with Docker Compose v2+. For OS-specific fixes (Linux, Windows, macOS), see **[Troubleshooting Guide](docs/readmes/TROUBLESHOOTING.md)** or the **[Wiki](https://github.com/samugit83/redamon/wiki/Troubleshooting)**.
 
 ---
 
-## RedAmon HackLab
+## WhiteHat HackLab
 
 <table>
 <tr>
 <td width="280" align="center">
-  <a href="https://github.com/samugit83/redamon/wiki/RedAmon-HackLab">
-    <img src="docs/assets/hacklab.png" alt="RedAmon HackLab" width="260"/>
+  <a href="https://github.com/samugit83/redamon/wiki/WhiteHat-HackLab">
+    <img src="docs/assets/hacklab.png" alt="WhiteHat HackLab" width="260"/>
   </a>
 </td>
 <td>
-  <h3>Want to see RedAmon think like a real pentester?</h3>
+  <h3>Want to see WhiteHat think like a real pentester?</h3>
   <p>Explore real-time live attack sessions -- every step, every pivot, every exploit -- across 15 vulnerability categories on a live target. Full session logs, decoded walkthroughs, and video recordings showing the agent autonomously compromising a multi-service server from scratch.</p>
-  <a href="https://github.com/samugit83/redamon/wiki/RedAmon-HackLab"><b>Explore the HackLab &rarr;</b></a>
+  <a href="https://github.com/samugit83/redamon/wiki/WhiteHat-HackLab"><b>Explore the HackLab &rarr;</b></a>
   &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://github.com/samugit83/redamon/wiki/RedAmon-HackLab#community-sessions"><b>Submit your own session &rarr;</b></a>
+  <a href="https://github.com/samugit83/redamon/wiki/WhiteHat-HackLab#community-sessions"><b>Submit your own session &rarr;</b></a>
   <br/><sub>Got an amazing agent session on your own target? Share it with the community -- session log + YouTube video.</sub>
 </td>
 </tr>
@@ -1005,30 +1005,30 @@ RedAmon is fully Dockerized and runs on any OS with Docker Compose v2+. For OS-s
 
 ## Community Showcase
 
-Videos, writeups, and real-world experiences from security professionals using RedAmon in the field. Want to be featured? See the [Content Creator](CONTRIBUTING.md#content-creator) track in CONTRIBUTING.md.
+Videos, writeups, and real-world experiences from security professionals using WhiteHat in the field. Want to be featured? See the [Content Creator](CONTRIBUTING.md#content-creator) track in CONTRIBUTING.md.
 
 ### Videos
 
 | Title | Link |
 |-------|------|
-| RedAmon v2.2.0, Social Engineering Test: Payload Delivery to Shell Access | [Watch](https://youtu.be/kVjV9K_eks4) |
+| WhiteHat v2.2.0, Social Engineering Test: Payload Delivery to Shell Access | [Watch](https://youtu.be/kVjV9K_eks4) |
 | AI Agent CVE Validation: Beyond Standard Tooling | [Watch](https://youtu.be/rypmP1SJon8) |
-| RedAmon 2.0, From 0 to 1000 GitHub Stars in 10 Days: Multi-Agent Parallel Attacks | [Watch](https://youtu.be/afViJUit0xE) |
+| WhiteHat 2.0, From 0 to 1000 GitHub Stars in 10 Days: Multi-Agent Parallel Attacks | [Watch](https://youtu.be/afViJUit0xE) |
 | Build an Autonomous AI Red Team Agent from Scratch: LangGraph + Metasploit + Neo4j Full Tutorial | [Watch](https://youtu.be/mO5CCkYlY94) |
 
 ### Real-World Case Studies
 
 | Who | What | Link |
 |-----|------|------|
-| Nipun Dinudaya | Deployed RedAmon on a company website, identified a critical SQL injection vulnerability that could have caused significant data exposure | [Read on LinkedIn](https://www.linkedin.com/posts/nipun-dinudaya-6159b32bb_redamon-cybersecurity-penetrationtesting-ugcPost-7431233870253166592-aLvb) |
-| Venkata Bhargav CH S | Used RedAmon during an internship at Ascent e-Digit Solutions: hands-on reconnaissance, DNS analysis, and attack surface mapping | [Read on LinkedIn](https://www.linkedin.com/posts/venkata-bhargav-cybersecurity_cybersecurity-ethicalhacking-redteam-share-7434940660803182592-e9En) |
+| Nipun Dinudaya | Deployed WhiteHat on a company website, identified a critical SQL injection vulnerability that could have caused significant data exposure | [Read on LinkedIn](https://www.linkedin.com/posts/nipun-dinudaya-6159b32bb_redamon-cybersecurity-penetrationtesting-ugcPost-7431233870253166592-aLvb) |
+| Venkata Bhargav CH S | Used WhiteHat during an internship at Ascent e-Digit Solutions: hands-on reconnaissance, DNS analysis, and attack surface mapping | [Read on LinkedIn](https://www.linkedin.com/posts/venkata-bhargav-cybersecurity_cybersecurity-ethicalhacking-redteam-share-7434940660803182592-e9En) |
 
 ### Community Guides
 
 | Who | What | Link |
 |-----|------|------|
 | MrGood | Mastering Redamon: A Comprehensive Guide to Installation on Kali Linux, addressing Kali-specific Docker challenges and security posture | [Read on Medium](https://cyberaccoon.medium.com/mastering-redamon-a-comprehensive-guide-to-installation-on-kali-linux-ea544e6f5b9f) |
-| Bogdan Caraman | How to Install RedAmon on Debian 13 (Trixie) with OpenRouter, step-by-step guide with Docker setup, static IP, and systemd automation | [Read on Blog](https://blog.bogdancaraman.com/install-redamon-debian-13-openrouter/) |
+| Bogdan Caraman | How to Install WhiteHat on Debian 13 (Trixie) with OpenRouter, step-by-step guide with Docker setup, static IP, and systemd automation | [Read on Blog](https://blog.bogdancaraman.com/install-redamon-debian-13-openrouter/) |
 
 ---
 
@@ -1050,19 +1050,19 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for gu
 
 For questions, feedback, or collaboration inquiries: **devergo.sam@gmail.com**
 
-**Sponsorship:** RedAmon is free and MIT licensed, and stays that way. If you would like to sponsor the project, write to the same address. Sponsorship helps cover development and testing costs.
+**Sponsorship:** WhiteHat is free and MIT licensed, and stays that way. If you would like to sponsor the project, write to the same address. Sponsorship helps cover development and testing costs.
 
 ---
 
 ## Legal
 
-> **Local by default; server deployment has a supported hardened path.** Out of the box RedAmon is meant to run on a **local machine** and does not include internet-facing security controls on its own. To run it on a public, internet-reachable server, use the **hardened single-host deploy** in [`tooling/deploy/single-host/`](tooling/deploy/single-host/), which puts the whole stack behind nginx + TLS, a host firewall, SSH hardening, and a single public HTTPS origin, with every internal service bound to loopback. Running the **raw** stack (without that deploy) on a public IP would expose unauthenticated internal services, so anything outside a trusted local network without the hardened deploy is entirely at your own risk.
+> **Local by default; server deployment has a supported hardened path.** Out of the box WhiteHat is meant to run on a **local machine** and does not include internet-facing security controls on its own. To run it on a public, internet-reachable server, use the **hardened single-host deploy** in [`tooling/deploy/single-host/`](tooling/deploy/single-host/), which puts the whole stack behind nginx + TLS, a host firewall, SSH hardening, and a single public HTTPS origin, with every internal service bound to loopback. Running the **raw** stack (without that deploy) on a public IP would expose unauthenticated internal services, so anything outside a trusted local network without the hardened deploy is entirely at your own risk.
 
 This project is released under the [MIT License](LICENSE).
 
-RedAmon integrates several third-party tools under their own licenses (MIT, Apache-2.0, BSD, GPL-2.0/3.0, AGPL-3.0, LGPL, and the WPScan Public Source License). Source code for all AGPL-licensed components is available at their upstream repositories. The full inventory and license obligations are documented in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
+WhiteHat integrates several third-party tools under their own licenses (MIT, Apache-2.0, BSD, GPL-2.0/3.0, AGPL-3.0, LGPL, and the WPScan Public Source License). Source code for all AGPL-licensed components is available at their upstream repositories. The full inventory and license obligations are documented in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
-> **Commercial use note**: The Kali sandbox image bundles **WPScan**, which is governed by the WPScan Public Source License. WPScan restricts commercial use (SaaS, paid product offerings, value-added services) without a separate license from the WPScan team. Pentesting engagements and personal use are permitted. If you intend to use RedAmon in a commercial product or service, review [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) before distribution.
+> **Commercial use note**: The Kali sandbox image bundles **WPScan**, which is governed by the WPScan Public Source License. WPScan restricts commercial use (SaaS, paid product offerings, value-added services) without a separate license from the WPScan team. Pentesting engagements and personal use are permitted. If you intend to use WhiteHat in a commercial product or service, review [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) before distribution.
 
 See [DISCLAIMER.md](DISCLAIMER.md) for full terms of use, acceptable use policy, and legal compliance requirements.
 

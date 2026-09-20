@@ -1,6 +1,6 @@
 # Web Cache Poisoning — Guinea Pig (end-to-end validation target)
 
-A deliberately vulnerable, **real** web-cache setup for validating the RedAmon WCP
+A deliberately vulnerable, **real** web-cache setup for validating the WhiteHat WCP
 module (`recon/cache_scan`) end to end. It is a real nginx shared cache in front of
 a deliberately vulnerable Flask origin, with one crawlable endpoint per pipeline
 feature so you can watch every step of the module work (or fail) against a genuine
@@ -30,13 +30,13 @@ open http://localhost:9090/          # landing page links every test endpoint
 
 Tear down: `docker compose down`.
 
-### Point a RedAmon scan at it
+### Point a WhiteHat scan at it
 
 The scan containers run on a Docker network, so the easiest reliable reachability is
-to attach the cache container to the RedAmon network and target it by name:
+to attach the cache container to the WhiteHat network and target it by name:
 
 ```bash
-docker network connect redamon-network wcp-guinea-cache
+docker network connect whitehat-network wcp-guinea-cache
 # now reachable from scan containers as:  http://wcp-guinea-cache/
 ```
 

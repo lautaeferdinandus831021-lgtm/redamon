@@ -19,7 +19,7 @@ These tests mock:
   - Calls update_graph_from_vhost_sni after the scan
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_partial.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_partial.py -v
 """
 
 from __future__ import annotations

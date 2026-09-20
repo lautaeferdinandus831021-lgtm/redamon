@@ -3,10 +3,10 @@ Capture-proxy routing for recon tools (mitmproxy integration, Phase 1, plan §9)
 
 When the per-project routing gate CAPTURE_PROXY_ENABLED is on AND the proxy is
 reachable, recon HTTP tools route through the capture proxy and carry a signed
-`X-Redamon-Ctx` tag so the ingest can attribute their traffic. Otherwise tools
+`X-WhiteHat-Ctx` tag so the ingest can attribute their traffic. Otherwise tools
 run direct (fail-open, §20.1).
 
-CRITICAL (§20.2, the tag-leak guard): the caller adds the `-H X-Redamon-Ctx`
+CRITICAL (§20.2, the tag-leak guard): the caller adds the `-H X-WhiteHat-Ctx`
 header ONLY in the same branch where it adds the `-proxy` flag. On any direct
 path the tag is never present, so our internal identifiers can never leak to the
 target on a fallback.
@@ -17,7 +17,7 @@ Usage:
     ...
     url, token = proxy_routing.get_capture_routing("katana")
     if url and token:
-        cmd += ["-proxy", url, "-H", f"X-Redamon-Ctx: {token}"]
+        cmd += ["-proxy", url, "-H", f"X-WhiteHat-Ctx: {token}"]
 
 recon tools run with --net=host, so the proxy is reached on the host loopback
 publish (127.0.0.1:<port>).
@@ -26,7 +26,7 @@ import os
 import socket
 import time
 
-from helpers.redamon_ctx import sign_tag
+from helpers.whitehat_ctx import sign_tag
 
 # Module-level context: recon runs one scan per process, so a single configure()
 # call at startup is the right lifetime.

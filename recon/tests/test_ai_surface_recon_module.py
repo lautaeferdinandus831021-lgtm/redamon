@@ -5,7 +5,7 @@ plus MCP detection against a fake session and a fully mocked end-to-end run.
 
 Run inside the recon image:
     docker run --rm --entrypoint python3 -v "$PWD/recon:/app/recon:ro" -w /app \
-        redamon-recon:latest recon/tests/test_ai_surface_recon_module.py
+        whitehat-recon:latest recon/tests/test_ai_surface_recon_module.py
 """
 from __future__ import annotations
 import json

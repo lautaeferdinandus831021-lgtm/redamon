@@ -16,7 +16,7 @@ difference is the point of these tests:
 Driven through the ACTUAL spawn path with a stubbed docker client, so it fails
 if the helper is right but a spawn site stops calling it.
 
-Run:  docker exec redamon-recon-orchestrator sh -c 'cd /app && python -m pytest tests/test_spawn_recon_settings_bind.py -v'
+Run:  docker exec whitehat-recon-orchestrator sh -c 'cd /app && python -m pytest tests/test_spawn_recon_settings_bind.py -v'
 """
 
 import asyncio
@@ -54,7 +54,7 @@ def _fake_docker_client(captured: dict):
 def _spawn(registry_host_path: str, recon_path: str = RECON_PATH) -> dict:
     """Drive start_partial_recon; return the volumes dict handed to containers.run."""
     captured: dict = {}
-    os.makedirs("/tmp/redamon", exist_ok=True)
+    os.makedirs("/tmp/whitehat", exist_ok=True)
 
     async def _go():
         with mock.patch.object(cm.docker, "from_env",

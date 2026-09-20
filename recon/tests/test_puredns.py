@@ -19,14 +19,14 @@ RECON_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(RECON_ROOT))
 
-# Use a test-specific temp dir to avoid touching /tmp/redamon or /app/recon
+# Use a test-specific temp dir to avoid touching /tmp/whitehat or /app/recon
 TEST_TMP = Path("/tmp/test_puredns")
 
 
 def setup_test_env():
     """Create test temp dirs and resolver file."""
     TEST_TMP.mkdir(parents=True, exist_ok=True)
-    data_dir = TEST_TMP / "redamon"
+    data_dir = TEST_TMP / "whitehat"
     data_dir.mkdir(exist_ok=True)
     resolver_dir = TEST_TMP / "recon_data"
     resolver_dir.mkdir(exist_ok=True)
@@ -92,7 +92,7 @@ def test_none_settings_defaults_enabled():
         real_path = Path
 
         def path_factory(p):
-            if p == "/tmp/redamon":
+            if p == "/tmp/whitehat":
                 return real_path(data_dir)
             elif p == "/app/recon/data/resolvers.txt":
                 return real_path(resolver_dir / "resolvers.txt")
@@ -122,9 +122,9 @@ def test_successful_filtering():
     subs = ["a.example.com", "b.example.com", "wildcard.example.com"]
     settings = {"PUREDNS_ENABLED": True}
 
-    # The function writes to /tmp/redamon and reads from /app/recon/data
+    # The function writes to /tmp/whitehat and reads from /app/recon/data
     # We'll create real files and mock only subprocess.run
-    data_dir = Path("/tmp/redamon")
+    data_dir = Path("/tmp/whitehat")
     data_dir.mkdir(parents=True, exist_ok=True)
     resolver_src = Path("/app/recon/data/resolvers.txt")
 
@@ -173,7 +173,7 @@ def test_command_construction_all_flags():
         return mock.MagicMock(returncode=0, stderr="")
 
     # Ensure resolver exists
-    resolver_shared = Path("/tmp/redamon/resolvers.txt")
+    resolver_shared = Path("/tmp/whitehat/resolvers.txt")
     resolver_shared.parent.mkdir(parents=True, exist_ok=True)
     if not resolver_shared.exists():
         resolver_shared.write_text("8.8.8.8\n")
@@ -200,7 +200,7 @@ def test_command_construction_all_flags():
     assert "resolve" in captured_cmd
 
     # Cleanup
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_command_construction_all_flags")
@@ -242,7 +242,7 @@ def test_command_construction_defaults():
     assert "resolve" in captured_cmd
     assert "--write" in captured_cmd
 
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_command_construction_defaults")
@@ -264,7 +264,7 @@ def test_timeout_returns_unfiltered():
 
     assert result == subs
 
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_timeout_returns_unfiltered")
@@ -286,7 +286,7 @@ def test_docker_not_found_returns_unfiltered():
 
     assert result == subs
 
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_docker_not_found_returns_unfiltered")
@@ -311,7 +311,7 @@ def test_no_output_file_returns_unfiltered():
 
     assert result == subs
 
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_no_output_file_returns_unfiltered")
@@ -415,7 +415,7 @@ def test_input_file_content():
 
     def capture_run(cmd, **kwargs):
         nonlocal written_content
-        input_path = Path("/tmp/redamon/puredns_input_example.com.txt")
+        input_path = Path("/tmp/whitehat/puredns_input_example.com.txt")
         if input_path.exists():
             written_content = input_path.read_text()
         return mock.MagicMock(returncode=0, stderr="")
@@ -427,7 +427,7 @@ def test_input_file_content():
     lines = [l for l in written_content.strip().split('\n') if l]
     assert lines == subs, f"Expected {subs}, got {lines}"
 
-    for f in Path("/tmp/redamon").glob("puredns_*"):
+    for f in Path("/tmp/whitehat").glob("puredns_*"):
         f.unlink(missing_ok=True)
 
     print("PASS: test_input_file_content")
@@ -437,9 +437,9 @@ def test_input_file_content():
 # Run all tests
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    # Ensure /tmp/redamon exists with resolvers for filesystem-based tests
-    Path("/tmp/redamon").mkdir(parents=True, exist_ok=True)
-    resolver = Path("/tmp/redamon/resolvers.txt")
+    # Ensure /tmp/whitehat exists with resolvers for filesystem-based tests
+    Path("/tmp/whitehat").mkdir(parents=True, exist_ok=True)
+    resolver = Path("/tmp/whitehat/resolvers.txt")
     if not resolver.exists():
         resolver.write_text("8.8.8.8\n8.8.4.4\n")
 

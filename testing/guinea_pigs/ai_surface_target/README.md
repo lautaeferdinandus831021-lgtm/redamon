@@ -1,4 +1,4 @@
-# `ai_surface_target` — RedAmon guinea pig for AI surface recon
+# `ai_surface_target` — WhiteHat guinea pig for AI surface recon
 
 A purpose-built, **non-AI**, deterministic HTTP target that emits **every** surface signal the lap-1 AI recon catalogue (`recon/helpers/ai_signal_catalog.py`) tries to detect. Used to drive end-to-end tests that exercise:
 
@@ -58,7 +58,7 @@ Why this matters for the test suite:
                           │  (recon container reaches 127.0.0.1:*)
                           │
                 ┌─────────────────────────────────────────┐
-                │  RedAmon recon (naabu + nmap + httpx)   │
+                │  WhiteHat recon (naabu + nmap + httpx)   │
                 │  Writes annotations to Neo4j            │
                 └─────────────────────────────────────────┘
                           │
@@ -112,9 +112,9 @@ Each port runs an `aiohttp` app that returns an HTML page on `/`. The `Server:` 
 | 8001  | triton-or-vllm    | `triton-server/24.05`  | `Triton API`   | — (disambiguate)      | triton       |
 | 8080  | open-webui        | `nginx/1.18`           | `Open WebUI`   | — (disambiguate);  http_probe title regex DOES fire | — |
 
-**Catalog ports owned by Redamon services** — three catalog disambiguate ports are NOT bound here because Redamon services already publish them on the host:
+**Catalog ports owned by WhiteHat services** — three catalog disambiguate ports are NOT bound here because WhiteHat services already publish them on the host:
 
-| Catalog port | Catalog name              | Redamon owner                 |
+| Catalog port | Catalog name              | WhiteHat owner                 |
 |-------------:|---------------------------|-------------------------------|
 | 8000         | vllm-or-chroma-or-langserve | kali-sandbox (MCP network-recon) |
 | 8002         | triton-metrics            | kali-sandbox (MCP nuclei)     |
@@ -207,21 +207,21 @@ alone. Lets you verify, end-to-end, that ZAP Ajax Spider can:
 | `/api/search`             | GET    | `form.onsubmit` triggers XHR with query string            | ✗                                  | ✓               |
 | `/api/auth/logout`        | GET    | `<a href>` with text "Sign out"                           | ✓                                  | ✗ (avoided)     |
 | `/static/logo.png`        | GET    | `<img src>` static asset                                  | ✓                                  | ✓ (filter it)   |
-| `/api/me`                 | GET    | Always fetched on load — returns `x-redamon-authed` header if `Authorization` was injected | ✗ | ✓ |
+| `/api/me`                 | GET    | Always fetched on load — returns `x-whitehat-authed` header if `Authorization` was injected | ✗ | ✓ |
 | `/api/admin/users`        | GET    | JS-injected `<a>` rendered ONLY when `/api/me` reported authed | ✗                             | ✓ (auth-only)   |
 | `/api/admin/audit-log`    | GET    | Cascade fetch after `/api/me` returned authed             | ✗                                  | ✓ (auth-only)   |
 
 Manual smoke-check:
 ```bash
 curl -s http://127.0.0.1:9105/ | head -20            # HTML index with buttons
-curl -s http://127.0.0.1:9105/api/me -i | grep -i x-redamon-authed   # → "false" (no Authorization)
-curl -s http://127.0.0.1:9105/api/me -H "Authorization: Bearer test" -i | grep -i x-redamon-authed  # → "true"
+curl -s http://127.0.0.1:9105/api/me -i | grep -i x-whitehat-authed   # → "false" (no Authorization)
+curl -s http://127.0.0.1:9105/api/me -H "Authorization: Bearer test" -i | grep -i x-whitehat-authed  # → "true"
 curl -s http://127.0.0.1:9105/api/admin/users -H "Authorization: Bearer test"  # → JSON 200
 curl -s http://127.0.0.1:9105/api/admin/users -i | head -1            # → 403 without auth
 ```
 
 End-to-end recon test:
-1. Create a RedAmon project, set target URL `http://127.0.0.1:9105`
+1. Create a WhiteHat project, set target URL `http://127.0.0.1:9105`
 2. Run HTTP Probing — confirms the BaseURL node
 3. Enable ZAP Ajax Spider, leave seed mode = `base_urls`
 4. Run partial recon
@@ -276,7 +276,7 @@ End-to-end validation (against the live recon image, no Neo4j required):
 ```bash
 docker run --rm --entrypoint python3 \
   -v "$(pwd)/../../:/work:ro" -w /work \
-  redamon-recon:latest -c "
+  whitehat-recon:latest -c "
 from recon.helpers.ai_signal_catalog import match_ai_sdk
 import urllib.request
 for f in ['openai-leaked', 'gemini-with-context', 'negative-jquery']:
@@ -349,7 +349,7 @@ The Phase 6 lab fixture keeps a real Ollama around for the times we need to veri
 Build the e2e driver (separate artifact at `recon/tests/test_ai_e2e_against_guinea_pig.py` or `testing/guinea_pigs/ai_surface_target/scripts/e2e_driver.py`) that:
 
 1. Brings up the target via `docker compose up -d`.
-2. Creates a RedAmon project with `ipMode=true`, `targetIps=['127.0.0.1']`, the 18 ports in `naabuCustomPorts`, and the 38 paths in `httpxPaths`.
+2. Creates a WhiteHat project with `ipMode=true`, `targetIps=['127.0.0.1']`, the 18 ports in `naabuCustomPorts`, and the 38 paths in `httpxPaths`.
 3. Triggers a full recon scan.
 4. Polls until completion.
 5. Queries Neo4j; diffs against [expected_results.yaml](expected_results.yaml).
@@ -388,7 +388,7 @@ Run it inside the recon image:
 ```bash
 docker run --rm --entrypoint sh \
   -v "$PWD/recon:/app/recon:ro" -v "$PWD/graph_db:/app/graph_db:ro" \
-  -v "$PWD/guinea_pigs:/app/guinea_pigs:ro" -w /app redamon-recon:latest -c '
+  -v "$PWD/guinea_pigs:/app/guinea_pigs:ro" -w /app whitehat-recon:latest -c '
   pip install -q pyyaml yara-python jq prance "openapi-spec-validator>=0.7.1,<0.8" "mcp>=1.27" uvicorn &&
   python3 testing/guinea_pigs/ai_surface_target/validate_ai_surface_recon.py'
 ```

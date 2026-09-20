@@ -15,10 +15,10 @@ as a side effect, which were the largest group of gaps.
 
 Skipped unless the neo4j driver is importable AND a database answers. To run it:
 
-  docker run --rm --network redamon-network -v "$PWD:/repo" -w /repo \\
+  docker run --rm --network whitehat-network -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://neo4j:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_updated_at_graph_live -v
+    whitehat-agent python -m unittest tests.test_updated_at_graph_live -v
 
 Everything it creates is scoped to a throwaway project id and deleted in
 tearDownClass, so it is safe against a populated database.

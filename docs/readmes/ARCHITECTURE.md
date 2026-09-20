@@ -264,7 +264,7 @@ flowchart TB
 | PostgreSQL | 127.0.0.1:5432 | Loopback | Primary database (Prisma) |
 | Neo4j Browser | http://127.0.0.1:7474 | Loopback | Graph database UI for attack surface visualization |
 | Neo4j Bolt | 127.0.0.1:7687 | Loopback | Neo4j driver protocol (used by agent) |
-| Recon Orchestrator | http://127.0.0.1:8010 | Loopback | Manages recon pipeline containers. **Network-isolated:** on its own `redamon-orchestrator-net` (not `redamon`) — reachable from the host and the webapp, but not from the worker. |
+| Recon Orchestrator | http://127.0.0.1:8010 | Loopback | Manages recon pipeline containers. **Network-isolated:** on its own `whitehat-orchestrator-net` (not `whitehat`) — reachable from the host and the webapp, but not from the worker. |
 | Agent API | http://localhost:8090 | LAN | AI agent WebSocket + REST API |
 | MCP Network Recon | http://127.0.0.1:8000/sse | Loopback + token | curl + naabu (HTTP probing, port scanning) |
 | MCP Nuclei | http://127.0.0.1:8002/sse | Loopback + token | Nuclei vulnerability scanner |
@@ -272,7 +272,7 @@ flowchart TB
 | MCP Nmap | http://127.0.0.1:8004/sse | Loopback + token | Nmap network scanner |
 | Metasploit Progress | http://127.0.0.1:8013 | Loopback | Live progress streaming for long-running exploits |
 | Tunnel Manager | http://127.0.0.1:8015 | Loopback | ngrok/chisel tunnel configuration API |
-| RedAmon Terminal | ws://127.0.0.1:8016 | Loopback | Kali sandbox PTY shell access (xterm.js; browser reaches it via the agent proxy) |
+| WhiteHat Terminal | ws://127.0.0.1:8016 | Loopback | Kali sandbox PTY shell access (xterm.js; browser reaches it via the agent proxy) |
 | Metasploit Listener | 0.0.0.0:4444 | LAN (by design) | Reverse shell listener — a target connects back here in direct/no-tunnel mode |
 
 ## Recon Pipeline Detail

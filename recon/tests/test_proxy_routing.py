@@ -3,7 +3,7 @@ Unit tests for recon capture-proxy routing (Phase 1).
 
 Loads the helper modules by path so the test runs on the host without triggering
 recon/helpers/__init__.py (which imports heavy optional deps). Also verifies the
-recon copy of redamon_ctx is cross-compatible with the capture_proxy copy — a
+recon copy of whitehat_ctx is cross-compatible with the capture_proxy copy — a
 token signed on the recon side must verify on the ingest side.
 
 Run: python3 -m unittest recon.tests.test_proxy_routing
@@ -31,18 +31,18 @@ def _load(name, path):
 
 
 # Temporarily register a lightweight `helpers` package so proxy_routing's
-# `from helpers.redamon_ctx import sign_tag` resolves to the recon copy without
+# `from helpers.whitehat_ctx import sign_tag` resolves to the recon copy without
 # executing the real recon/helpers/__init__.py (which imports heavy deps absent
 # on the host). CRITICAL: restore sys.modules afterward so we don't poison other
 # test modules that share this process and DO need the real `helpers` package.
 _saved_helpers = sys.modules.get("helpers")
-_saved_ctx = sys.modules.get("helpers.redamon_ctx")
+_saved_ctx = sys.modules.get("helpers.whitehat_ctx")
 try:
     _helpers_pkg = types.ModuleType("helpers")
     _helpers_pkg.__path__ = []
     sys.modules["helpers"] = _helpers_pkg
-    recon_ctx = _load("helpers.redamon_ctx", RECON_HELPERS / "redamon_ctx.py")
-    sys.modules["helpers.redamon_ctx"] = recon_ctx
+    recon_ctx = _load("helpers.whitehat_ctx", RECON_HELPERS / "whitehat_ctx.py")
+    sys.modules["helpers.whitehat_ctx"] = recon_ctx
     # proxy_routing captures sign_tag at import, so restoring below is safe.
     pr = _load("helpers.proxy_routing", RECON_HELPERS / "proxy_routing.py")
 finally:
@@ -51,12 +51,12 @@ finally:
     else:
         sys.modules.pop("helpers", None)
     if _saved_ctx is not None:
-        sys.modules["helpers.redamon_ctx"] = _saved_ctx
+        sys.modules["helpers.whitehat_ctx"] = _saved_ctx
     else:
-        sys.modules.pop("helpers.redamon_ctx", None)
+        sys.modules.pop("helpers.whitehat_ctx", None)
 
 # The ingest-side copy, loaded independently for the cross-compat check.
-capture_ctx = _load("capture_redamon_ctx", CAPTURE / "redamon_ctx.py")
+capture_ctx = _load("capture_whitehat_ctx", CAPTURE / "whitehat_ctx.py")
 
 SCANNER = "scanner-key-xyz"
 

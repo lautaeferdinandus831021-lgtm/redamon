@@ -70,10 +70,10 @@ execute_curl url: "https://target.tld/api/lookup?id=1%0d%0aHTTP/1.1%20200%20OK%0
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history (proxy_brain only see traffic that crossed the capture proxy).
 
-- `redamon.params` surfaces the params that build `Location` / `Set-Cookie` / custom headers (the injectable positions).
-- `redamon.fuzz id "url" ["foo%0d%0aX-Pwn:%20yes","foo%0aX-Pwn:%20yes","foo%E5%98%8A%E5%98%8DX-Pwn:%20yes"]` iterates the CRLF variant set over one captured QUERY param, watching per-payload status and length for the response that grew an extra header.
-- For body or header positions (redamon.fuzz only drives a query param), `redamon.replay id mutate:{param:{"url":"foo%0d%0aSet-Cookie:%20admin=true"}}` mutates the param and lets you inspect the response headers for the injected `X-Pwn` / `Set-Cookie`.
-- `redamon.grep "X-Pwn"` confirms the injected header actually surfaced in a captured response.
+- `whitehat.params` surfaces the params that build `Location` / `Set-Cookie` / custom headers (the injectable positions).
+- `whitehat.fuzz id "url" ["foo%0d%0aX-Pwn:%20yes","foo%0aX-Pwn:%20yes","foo%E5%98%8A%E5%98%8DX-Pwn:%20yes"]` iterates the CRLF variant set over one captured QUERY param, watching per-payload status and length for the response that grew an extra header.
+- For body or header positions (whitehat.fuzz only drives a query param), `whitehat.replay id mutate:{param:{"url":"foo%0d%0aSet-Cookie:%20admin=true"}}` mutates the param and lets you inspect the response headers for the injected `X-Pwn` / `Set-Cookie`.
+- `whitehat.grep "X-Pwn"` confirms the injected header actually surfaced in a captured response.
 
 ### Variant probes
 

@@ -9,7 +9,7 @@ Tactical reference for content, vhost, parameter, and POST-body fuzzing with `ff
 
 Upstream: https://github.com/ffuf/ffuf
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|
@@ -110,7 +110,7 @@ execute_ffuf args: "-w /usr/share/seclists/Discovery/Web-Content/common.txt -u h
 
 ### Captured traffic (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, an ffuf run routed through the capture proxy folds every request/response into captured history, queryable afterward via redamon.grep (substring over response bodies) and redamon.query, with no re-run needed. Seed and scope the fuzz to real endpoints with redamon.sitemap (observed paths), redamon.search (matching txns), and redamon.params (params flagged injectable). For single-parameter value fuzzing there is an in-platform analog: redamon.fuzz(id, insertion_point, payloads) replays one captured request across a query param (the Burp-Intruder move, capped at 50, origin host only), and redamon.replay reproduces a single request with mutations.
+When HTTP Traffic Capture is enabled, an ffuf run routed through the capture proxy folds every request/response into captured history, queryable afterward via whitehat.grep (substring over response bodies) and whitehat.query, with no re-run needed. Seed and scope the fuzz to real endpoints with whitehat.sitemap (observed paths), whitehat.search (matching txns), and whitehat.params (params flagged injectable). For single-parameter value fuzzing there is an in-platform analog: whitehat.fuzz(id, insertion_point, payloads) replays one captured request across a query param (the Burp-Intruder move, capped at 50, origin host only), and whitehat.replay reproduces a single request with mutations.
 
 ## Calibration discipline
 

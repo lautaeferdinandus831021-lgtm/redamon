@@ -1,4 +1,4 @@
-"""Resolved-IP denylist — the shared core of every RedAmon egress guard.
+"""Resolved-IP denylist — the shared core of every WhiteHat egress guard.
 
 SHARED, NOT DUPLICATED. This file is the only copy. The capture-proxy image
 bundles it at build time (``COPY recon_orchestrator/ip_denylist.py /app/``, the
@@ -64,9 +64,9 @@ def is_internal_ip(
     object (the capture proxy's ``EgressPolicy``, which also carries non-IP
     toggles) can be passed straight through.
 
-    The explicit `extra_blocked` denylist — RedAmon's own service IPs — is ALWAYS
+    The explicit `extra_blocked` denylist — WhiteHat's own service IPs — is ALWAYS
     enforced and never policy-gated, so relaxing a category can never turn a
-    guard into a pivot into RedAmon itself.
+    guard into a pivot into WhiteHat itself.
     """
     try:
         addr = ipaddress.ip_address(ip_str)

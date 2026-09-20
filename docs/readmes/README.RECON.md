@@ -1,4 +1,4 @@
-# RedAmon Reconnaissance Module
+# WhiteHat Reconnaissance Module
 
 **Unmask the hidden before the world does.**
 
@@ -171,7 +171,7 @@ flowchart TB
         Broker["🛡️ docker-broker<br/>validates container creates<br/>allowlisted images + scratch mounts only"]
 
         subgraph Containers["Sibling Containers"]
-            Recon["redamon-recon<br/>Python Orchestrator<br/>📋 Coordinates all scans"]
+            Recon["whitehat-recon<br/>Python Orchestrator<br/>📋 Coordinates all scans"]
             NaabuC["naabu<br/>projectdiscovery/naabu<br/>🔌 Port Scanner"]
             HttpxC["httpx<br/>projectdiscovery/httpx<br/>🌐 HTTP Prober"]
             NucleiC["nuclei<br/>projectdiscovery/nuclei<br/>🎯 Vuln Scanner"]
@@ -207,7 +207,7 @@ The pipeline uses a **fan-out / fan-in** pattern with `ThreadPoolExecutor` to ru
 ```mermaid
 sequenceDiagram
     participant User
-    participant Recon as redamon-recon
+    participant Recon as whitehat-recon
     participant Docker as Docker Daemon
     participant Naabu as naabu container
     participant Httpx as httpx container
@@ -310,7 +310,7 @@ sequenceDiagram
 
 ## 🔄 Scanning Pipeline Overview
 
-RedAmon executes scans in a **parallelized pipeline** using a fan-out / fan-in pattern. Independent modules within each group run concurrently via `ThreadPoolExecutor`, while groups that depend on prior results run sequentially. Graph DB updates happen in a dedicated background thread so the main pipeline is never blocked.
+WhiteHat executes scans in a **parallelized pipeline** using a fan-out / fan-in pattern. Independent modules within each group run concurrently via `ThreadPoolExecutor`, while groups that depend on prior results run sequentially. Graph DB updates happen in a dedicated background thread so the main pipeline is never blocked.
 
 ### High-Level Pipeline
 
@@ -673,7 +673,7 @@ afterwards, and all three run the **same** pipeline.
 
 ### Domain batch
 
-Paste or upload a flat hostname list. RedAmon groups it and scans the groups one
+Paste or upload a flat hostname list. WhiteHat groups it and scans the groups one
 after another.
 
 **The grouping rule is the last two labels.** `suba.sub3.domain3.com` belongs to
@@ -1689,7 +1689,7 @@ NUCLEI_DAST_MODE = True
 
 **Only scan systems you own or have explicit written permission to test.**
 
-Unauthorized scanning is illegal. RedAmon is intended for:
+Unauthorized scanning is illegal. WhiteHat is intended for:
 - Penetration testers with proper authorization
 - Security researchers on approved targets
 - Bug bounty hunters within program scope

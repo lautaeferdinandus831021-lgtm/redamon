@@ -1,5 +1,5 @@
 """
-RedAmon - Subdomain Takeover Helpers
+WhiteHat - Subdomain Takeover Helpers
 ====================================
 Helpers for the layered subdomain takeover module.
 
@@ -340,8 +340,8 @@ def build_subjack_command(
 # entrypoint (`/usr/local/bin/baddns-batch`) with a shared-volume targets
 # file. Output is NDJSON on stdout (one Finding per line).
 #
-# AGPL isolation: RedAmon Python never imports baddns. The binary lives
-# in its own image (`redamon-baddns:latest`) with its own filesystem.
+# AGPL isolation: WhiteHat Python never imports baddns. The binary lives
+# in its own image (`whitehat-baddns:latest`) with its own filesystem.
 # Process + filesystem boundary = not a derivative work. See
 # THIRD-PARTY-LICENSES.md.
 # =============================================================================
@@ -378,7 +378,7 @@ def build_baddns_command(
     work_dir_host: str,
     *,
     targets_filename: str = "baddns_targets.txt",
-    docker_image: str = "redamon-baddns:latest",
+    docker_image: str = "whitehat-baddns:latest",
     modules: Iterable[str] = BADDNS_DEFAULT_MODULES,
     nameservers: Iterable[str] = (),
     extra_docker_args: Iterable[str] = (),
@@ -390,7 +390,7 @@ def build_baddns_command(
     bind-mount semantics create the target as a directory if it doesn't
     pre-exist in the image filesystem. Mounting the parent directory
     matches the convention used by nuclei_helpers.py / the rest of
-    RedAmon.
+    WhiteHat.
 
     `work_dir_host` must be a path visible to the Docker daemon (i.e. the
     HOST path when invoked from Docker-in-Docker). The directory must

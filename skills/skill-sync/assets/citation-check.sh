@@ -45,7 +45,7 @@ while IFS= read -r f; do
   # skip the rule system's own files and prose documentation - editing those is
   # not what "you may have invalidated a rule" is about.
   case "$f" in
-    skills/*|docs/*|_local/*|redamon.wiki/*|.github/*) continue ;;
+    skills/*|docs/*|_local/*|whitehat.wiki/*|.github/*) continue ;;
   esac
   base="$(basename "$f")"
   # a citation matches on the full repo path OR the bare basename

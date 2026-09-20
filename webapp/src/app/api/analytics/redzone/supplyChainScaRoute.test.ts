@@ -58,7 +58,7 @@ beforeEach(() => {
   runCalls.length = 0
   runReturnByCall = []
   shouldThrow = null
-  delete process.env.REDAMON_REDZONE_ROW_CAP
+  delete process.env.WHITEHAT_REDZONE_ROW_CAP
 })
 
 describe('supplyChainSca: contract', () => {
@@ -266,7 +266,7 @@ describe('supplyChainSca: row caps', () => {
   // rows: the assertion is about the >= comparison, and building 200k mock rows
   // to prove it would cost a lot of heap to test nothing extra.
   test('meta.truncated flags a sheet that hit the cap', async () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '3'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '3'
     setDatasets({
       verdicts: Array.from({ length: 3 }, (_, i) => ({ findingId: `f${i}`, purl: 'p' })),
     })

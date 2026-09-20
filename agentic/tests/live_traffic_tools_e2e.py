@@ -7,7 +7,7 @@ orchestration (fetch origin -> build mutated request -> sign replay tag -> invok
 execute_curl) with execute_curl mocked (the real send+capture is proved by the
 separate proxy live test).
 
-Run: docker exec redamon-agent python /app/tests/live_traffic_tools_e2e.py
+Run: docker exec whitehat-agent python /app/tests/live_traffic_tools_e2e.py
 Exits non-zero on any failure; self-cleans.
 """
 import asyncio
@@ -22,7 +22,7 @@ if _A not in sys.path:
 import psycopg
 from agent_context import set_tenant_context, set_phase_context
 import traffic_tools as tt
-import redamon_ctx
+import whitehat_ctx
 
 DSN = os.environ["DATABASE_URL"]
 INTERNAL = os.environ.get("INTERNAL_API_KEY", "")
@@ -214,7 +214,7 @@ async def test_active_tools(pa, ua):
         return mock.calls[-1]["args"] if mock.calls else ""
 
     def last_tag():
-        return redamon_ctx.verify_tag(mock.calls[-1].get("_redamon_ctx", ""), {"recon": "x", "agent": INTERNAL}) if mock.calls else None
+        return whitehat_ctx.verify_tag(mock.calls[-1].get("_whitehat_ctx", ""), {"recon": "x", "agent": INTERNAL}) if mock.calls else None
 
     # proxy_replay: param mutation
     r = await ex._run_active_proxy("proxy_replay", {"id": "e2", "mutate": '{"param":{"id":"1"}}'})

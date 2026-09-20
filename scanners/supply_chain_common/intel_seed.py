@@ -18,10 +18,10 @@ only proves the file is the one that was committed, not that it is well-formed.
 
 Rebuild from a volume that holds a good live sync (then update SEED_SHA256):
 
-    docker run --rm --user root -v redamon-sca-intel:/src:ro \\
+    docker run --rm --user root -v whitehat-sca-intel:/src:ro \\
         -v "$PWD/scanners/supply_chain_common:/app/supply_chain_common" \\
         -e PYTHONPATH=/app --entrypoint python3 \\
-        redamon-supply-chain-analyzer:latest \\
+        whitehat-supply-chain-analyzer:latest \\
         -m supply_chain_common.intel_seed --from /src \\
         --out /app/supply_chain_common/sca_intel_seed.json.gz
 

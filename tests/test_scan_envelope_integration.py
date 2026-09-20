@@ -62,7 +62,7 @@ SCAN_KINDS = ("full_recon", "partial_recon", "ai_attack", "gvm",
 # exists to prevent.
 OBSERVED_PEAK_MB = {"partial_recon": 153, "full_recon": 1229}
 
-ENV_KNOBS = ("REDAMON_MEM_GOVERNOR", "OS_HEADROOM_MEM", "SERVICE_BASELINE_MEM",
+ENV_KNOBS = ("WHITEHAT_MEM_GOVERNOR", "OS_HEADROOM_MEM", "SERVICE_BASELINE_MEM",
              "RECON_JOB_ENVELOPE_MEM", "RECON_MAX_CONCURRENT_GLOBAL",
              "RECON_MAX_CONCURRENT_PER_USER", "RESOURCE_PROFILE_PATH",
              "RESOURCE_PROFILE_DEFAULT_PATH")
@@ -76,7 +76,7 @@ class EnvelopeIntegrationBase(unittest.IsolatedAsyncioTestCase):
         self._saved = {k: os.environ.get(k) for k in ENV_KNOBS}
         for k in ENV_KNOBS:
             os.environ.pop(k, None)
-        os.environ["RESOURCE_PROFILE_PATH"] = "/tmp/redamon-no-such-profile.json"
+        os.environ["RESOURCE_PROFILE_PATH"] = "/tmp/whitehat-no-such-profile.json"
         rg.reset_profile_cache()
 
     def tearDown(self):
@@ -311,7 +311,7 @@ class TestProfileLayeringEndToEnd(EnvelopeIntegrationBase):
 
 class TestGovernorDisabledPath(EnvelopeIntegrationBase):
     async def test_disabled_governor_admits_regardless_of_envelope(self):
-        os.environ["REDAMON_MEM_GOVERNOR"] = "0"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "0"
         self.host(8, 0.1)
         led = al.ReservationLedger()
         r = await led.try_admit("partial_recon:p1", led.envelope_for("partial_recon"))

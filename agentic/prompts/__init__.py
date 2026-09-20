@@ -1,5 +1,5 @@
 """
-RedAmon Agent Prompts Package
+WhiteHat Agent Prompts Package
 
 System prompts for the ReAct agent orchestrator.
 Includes phase-aware reasoning, tool descriptions, and structured output formats.

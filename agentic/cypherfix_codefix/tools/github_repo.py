@@ -132,9 +132,9 @@ class GitHubRepoManager:
         env = {
             **self._git_env(),
             "GIT_AUTHOR_NAME": "CypherFix",
-            "GIT_AUTHOR_EMAIL": "cypherfix@redamon.io",
+            "GIT_AUTHOR_EMAIL": "cypherfix@whitehat.io",
             "GIT_COMMITTER_NAME": "CypherFix",
-            "GIT_COMMITTER_EMAIL": "cypherfix@redamon.io",
+            "GIT_COMMITTER_EMAIL": "cypherfix@whitehat.io",
         }
         commit_result = self._run_git(["commit", "-m", message], cwd=self.repo_path, env=env)
         if commit_result.returncode != 0:

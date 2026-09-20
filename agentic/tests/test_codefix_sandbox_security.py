@@ -446,7 +446,7 @@ class ContainerManagerSandbox(unittest.TestCase):
     def test_start_applies_hardening_and_no_secrets(self):
         m = self._manager()
         res = m.start_codefix_sandbox("job1")
-        self.assertEqual(res["container"], "redamon-codefix-job1")
+        self.assertEqual(res["container"], "whitehat-codefix-job1")
         image, kw = m.client.containers.run_calls[-1]
         self.assertEqual(image, m.codefix_sandbox_image)
         self.assertEqual(kw["cap_drop"], ["ALL"])
@@ -602,7 +602,7 @@ class Smoke(unittest.TestCase):
         src = (REPO_ROOT / "docker-compose.yml").read_text()
         self.assertIn("codefix-net", src)
         self.assertIn("cypherfix-work", src)
-        self.assertIn("redamon-codefix-sandbox:latest", src)
+        self.assertIn("whitehat-codefix-sandbox:latest", src)
 
 
 # ===========================================================================

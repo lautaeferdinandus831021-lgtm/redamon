@@ -9,7 +9,7 @@ description: >
   denylist; wiring an agent tool that replays captured traffic.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [capture_proxy]
   auto_invoke:
@@ -58,7 +58,7 @@ The one-line "route every egress through the guard" rule is in the capture_proxy
 
 ```bash
 docker compose --profile tools build capture-proxy    # image rebuild (Dockerfile change)
-./redamon.sh test unit                                # capture_proxy section
+./whitehat.sh test unit                                # capture_proxy section
 ```
 
 ## Resources

@@ -1,5 +1,5 @@
 """
-RedAmon Phishing / Social Engineering Prompts
+WhiteHat Phishing / Social Engineering Prompts
 
 Prompts for social engineering attack workflows including payload generation,
 malicious document creation, web delivery, handler setup, and email delivery.
@@ -47,8 +47,8 @@ This unlocks `metasploit_console` and `kali_shell` (msfvenom) and ensures findin
 
 **CRITICAL: ALWAYS use Metasploit `exploit/multi/handler` via the `metasploit_console` tool.**
 **NEVER use `nc`, `ncat`, `netcat`, or `socat` as a listener — even for plain shell payloads like `cmd/unix/reverse_bash`.**
-**Only Metasploit handlers create tracked sessions that appear in the RedAmon Remote Shells UI.**
-**A plain netcat listener will catch the shell but RedAmon cannot detect, display, or interact with it.**
+**Only Metasploit handlers create tracked sessions that appear in the WhiteHat Remote Shells UI.**
+**A plain netcat listener will catch the shell but WhiteHat cannot detect, display, or interact with it.**
 **If `metasploit_console` is not available in your current phase, request a phase transition to exploitation BEFORE setting up the handler.**
 
 Read "Pre-Configured Payload Settings" section (if present above) FIRST.
@@ -264,7 +264,7 @@ Report the one-liner command (Method C) or URL (Method D) to the user.
 | Web delivery: no session (chisel) | Verify chisel is tunneling port 8080. Check `SRVHOST 0.0.0.0` and `SRVPORT 8080`. Verify the one-liner URL uses the VPS hostname. Check `/var/log/chisel.log`. |
 | HTA delivery: no session (ngrok) | Same as web delivery — HTA needs SRVPORT reachable. Use Method A or chisel. |
 | HTA delivery: no session (chisel) | Verify chisel tunnels port 8080. Check SRVHOST/SRVPORT settings and chisel logs. |
-| No session appears in RedAmon UI | You used `nc`/`netcat`/`socat` instead of Metasploit `exploit/multi/handler`. Kill the netcat listener and set up a proper handler via `metasploit_console`. Only Metasploit sessions are tracked by RedAmon. |
+| No session appears in WhiteHat UI | You used `nc`/`netcat`/`socat` instead of Metasploit `exploit/multi/handler`. Kill the netcat listener and set up a proper handler via `metasploit_console`. Only Metasploit sessions are tracked by WhiteHat. |
 | **Same approach fails 3+ times** | **STOP. Use action="ask_user" to discuss alternative approaches.** |
 """
 

@@ -64,15 +64,15 @@ Example: e-commerce checkout
 
 If HTTP Traffic Capture is enabled, source and drive the state-machine probes from the recorded checkout / workflow sequence instead of rebuilding each request by hand. proxy_brain tools only see requests that went through the capture proxy, so run the workflow (via `execute_playwright` or the UI) through it first, then work from the captured transactions.
 
-- `redamon.search({"host":"target.tld"})` and `redamon.sitemap()` recover the ordered transition set (add_item -> apply_coupon -> create_order -> auth -> capture) with methods and statuses, replacing manual re-capture for Step 2.
-- Step-3 state-machine abuse is redamon.replay:
-  - Skip / reorder: replay the `capture` transaction (`redamon.replay(<capture_txn>, {})`) without firing `auth` first.
-  - Replay a stale step with mutated args: `redamon.replay(<order_txn>, {"body":"{\"price\":1,\"qty\":-1}"})` to test whether the server trusts client-supplied totals after approval.
+- `whitehat.search({"host":"target.tld"})` and `whitehat.sitemap()` recover the ordered transition set (add_item -> apply_coupon -> create_order -> auth -> capture) with methods and statuses, replacing manual re-capture for Step 2.
+- Step-3 state-machine abuse is whitehat.replay:
+  - Skip / reorder: replay the `capture` transaction (`whitehat.replay(<capture_txn>, {})`) without firing `auth` first.
+  - Replay a stale step with mutated args: `whitehat.replay(<order_txn>, {"body":"{\"price\":1,\"qty\":-1}"})` to test whether the server trusts client-supplied totals after approval.
   - Limit slicing / coupon stacking: re-fire a captured `apply_coupon` transaction repeatedly.
-- Principal matrix: auth-swap a captured request with `redamon.replay(id, {"dropHeaders":["Cookie","Authorization"]})` or `{"headers":{"Authorization":"Bearer <userB>"}}` to run the same transition as user A, user B, premium, and admin.
-- `redamon.diff(<pre_state_read>, <post_state_read>)` supplies the pre/post evidence the validation shape demands (counter moved, status advanced, refund doubled); `redamon.query({...})` reads the ledger / counter analytically over the traffic table to quantify the violation. `redamon.to_curl(id)` renders the minimal PoC request set.
+- Principal matrix: auth-swap a captured request with `whitehat.replay(id, {"dropHeaders":["Cookie","Authorization"]})` or `{"headers":{"Authorization":"Bearer <userB>"}}` to run the same transition as user A, user B, premium, and admin.
+- `whitehat.diff(<pre_state_read>, <post_state_read>)` supplies the pre/post evidence the validation shape demands (counter moved, status advanced, refund doubled); `whitehat.query({...})` reads the ledger / counter analytically over the traffic table to quantify the violation. `whitehat.to_curl(id)` renders the minimal PoC request set.
 
-Caveat: redamon.replay pins host/scheme/port to the origin, so cross-channel parity against a different host or the mobile back end still needs execute_curl; race amplification still runs through execute_code (see `/skill race_conditions`). redamon.fuzz only walks a query param, so mutate body / price positions by iterating redamon.replay.
+Caveat: whitehat.replay pins host/scheme/port to the origin, so cross-channel parity against a different host or the mobile back end still needs execute_curl; race amplification still runs through execute_code (see `/skill race_conditions`). whitehat.fuzz only walks a query param, so mutate body / price positions by iterating whitehat.replay.
 
 ## Step 3: probe matrix
 

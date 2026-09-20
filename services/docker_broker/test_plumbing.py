@@ -82,7 +82,7 @@ async def send(raw):
 
 async def main():
     broker.UPSTREAM_SOCK = MOCK_SOCK
-    broker.ALLOWED_BIND_PREFIXES = ["/tmp/redamon"]
+    broker.ALLOWED_BIND_PREFIXES = ["/tmp/whitehat"]
 
     up = await asyncio.start_unix_server(mock_upstream, path=MOCK_SOCK)
     br = await asyncio.start_unix_server(broker.handle_client, path=BROKER_SOCK)

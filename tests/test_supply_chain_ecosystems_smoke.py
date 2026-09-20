@@ -54,8 +54,8 @@ def _database_url():
     password = _dotenv("POSTGRES_PASSWORD")
     if not password:
         return None
-    user = os.environ.get("POSTGRES_USER") or _dotenv("POSTGRES_USER") or "redamon"
-    db = os.environ.get("POSTGRES_DB") or _dotenv("POSTGRES_DB") or "redamon"
+    user = os.environ.get("POSTGRES_USER") or _dotenv("POSTGRES_USER") or "whitehat"
+    db = os.environ.get("POSTGRES_DB") or _dotenv("POSTGRES_DB") or "whitehat"
     # `postgres` inside the compose network, loopback from the host.
     host = os.environ.get("POSTGRES_HOST", "postgres")
     return "postgresql://{}:{}@{}:5432/{}".format(user, password, host, db)

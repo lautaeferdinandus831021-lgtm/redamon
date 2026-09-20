@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # secrets_gate.sh -- fail the deploy on weak/default/unset secrets (§8.5).
-# Runs on the host in the app dir. Verifies the secrets redamon.sh generated; it does
+# Runs on the host in the app dir. Verifies the secrets whitehat.sh generated; it does
 # NOT set them. Requires _common.sh.
 #
 # AGENT_WS_TICKET_SECRET and TUNNEL_AUTH_TOKEN are load-bearing: unset -> S6 ticket auth
@@ -23,7 +23,7 @@ secrets_gate() {
     # strip ONE pair of surrounding quotes only (preserve interior chars incl. spaces)
     val=${val%\"}; val=${val#\"}; val=${val%\'}; val=${val#\'}
     case "${val}" in
-      ""|changeme|changeme123|redamon_secret|admin|password|secret)
+      ""|changeme|changeme123|whitehat_secret|admin|password|secret)
         err "FATAL: ${v} is unset or a known-default value"
         fail=1; continue ;;
     esac

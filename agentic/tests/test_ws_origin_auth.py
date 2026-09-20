@@ -54,10 +54,10 @@ class OriginCheck(unittest.TestCase):
         self.assertTrue(check_ws_origin("http://192.168.1.10:3000", "192.168.1.10:8090", []))
 
     def test_public_single_origin_allowed(self):
-        self.assertTrue(check_ws_origin("https://redamon.example.com", "redamon.example.com", []))
+        self.assertTrue(check_ws_origin("https://whitehat.example.com", "whitehat.example.com", []))
 
     def test_cross_site_rejected(self):
-        self.assertFalse(check_ws_origin("https://evil.example.com", "redamon.example.com", []))
+        self.assertFalse(check_ws_origin("https://evil.example.com", "whitehat.example.com", []))
 
     def test_extra_allowlist_superset(self):
         self.assertTrue(check_ws_origin("http://localhost:3000", "agent:8090",

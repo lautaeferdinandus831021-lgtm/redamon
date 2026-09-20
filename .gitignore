@@ -3,7 +3,7 @@ agentic/agent-workspace/*
 !agentic/agent-workspace/.gitkeep
 
 # Memory-governor calibration output (host-specific measured envelopes). Each
-# host generates its own via `bash tests/redamon_mem_calibrate.sh`; the governor
+# host generates its own via `bash tests/whitehat_mem_calibrate.sh`; the governor
 # falls back to safe built-in constants when absent. Never commit one host's
 # numbers for another host to inherit.
 **/resource_profile.json
@@ -67,7 +67,7 @@ venv/
 ENV/
 env/
 .venv/
-services/knowledge_base/.redamon-venv/
+services/knowledge_base/.whitehat-venv/
 .env.local
 
 # Environment variables / Secrets
@@ -107,7 +107,7 @@ dmypy.json
 recon/data/resolvers.txt
 # MITRE CVE database refresh marker. Written by add_mitre.py inside the spawned
 # recon container, which volume-mounts the host's recon/ — so every scan dirtied
-# a tracked file and `./redamon.sh update` then refused to fast-forward.
+# a tracked file and `./whitehat.sh update` then refused to fast-forward.
 recon/main_recon_modules/data/mitre_db/.last_update
 
 # Recon output files (contain sensitive scan data)
@@ -239,7 +239,7 @@ docs/readmes/agent_prompts/
 # DevergoLabs (separate local project kept at repo root, untracked)
 /DevergoLabs/
 
-# RedAmon local config (created by redamon.sh)
+# WhiteHat local config (created by whitehat.sh)
 .gvm-enabled
 .kbase-enabled
 .kbase-disabled
@@ -261,12 +261,12 @@ services/knowledge_base/data/
 # Deploy plan (local only)
 tooling/deploy/DEPLOY_PLAN_EC2.md
 tooling/deploy/single-host/E2E_DEPLOY_TEST_PROMPT.md
-redamon-session-*.md
+whitehat-session-*.md
 
 # supply-chain guinea pig dry-run scratch output
 testing/guinea_pigs/supply_chain_target/.dryrun/
 
-# transient dir used by tests/redamon_env_block_test.sh (docker must see it,
+# transient dir used by tests/whitehat_env_block_test.sh (docker must see it,
 # so it cannot live in /tmp); always removed by the test itself
 .envblock-test.*
 

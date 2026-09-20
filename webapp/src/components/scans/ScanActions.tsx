@@ -35,7 +35,7 @@ export function ScanActions({
   // surfaces agree on WHY the button is off, not just that it is.
   const gvmBlockedReason =
     disabledReason ? disabledReason
-    : !gvm.isAvailable ? 'GVM is not installed. Run ./redamon.sh install --gvm to enable vulnerability scanning'
+    : !gvm.isAvailable ? 'GVM is not installed. Run ./whitehat.sh install --gvm to enable vulnerability scanning'
     : stealthMode && !gvm.isPaused ? 'GVM scanning is disabled in Stealth Mode (generates ~50,000 active probes per target)'
     : !scans.hasReconData && !gvm.isPaused ? 'Run recon first'
     : ''

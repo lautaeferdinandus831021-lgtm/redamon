@@ -1,4 +1,4 @@
-# RedAmon Supply-Chain DIRTY analyzer
+# WhiteHat Supply-Chain DIRTY analyzer
 # ====================================
 # This image processes UNTRUSTED bytes: package tarballs (GuardDog downloads
 # them), target-served JS/source-maps, and manifests/SBOMs. It is the dirty zone

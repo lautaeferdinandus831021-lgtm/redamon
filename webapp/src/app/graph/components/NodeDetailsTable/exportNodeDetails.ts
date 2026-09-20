@@ -69,7 +69,7 @@ function* projectedJsonRows(input: NodeDetailsExportInput): Iterable<Record<stri
 export async function exportNodeDetailsCsv(input: NodeDetailsExportInput): Promise<void> {
   const headers = buildHeaders(input)
   await downloadStreaming(
-    `redamon-${slugForType(input.nodeType)}-${timestampSlug()}.csv`,
+    `whitehat-${slugForType(input.nodeType)}-${timestampSlug()}.csv`,
     CSV_MIME,
     () => streamCsvChunks(headers, lazyRows(input)),
   )
@@ -92,7 +92,7 @@ export async function exportNodeDetailsJson(input: NodeDetailsExportInput): Prom
   }
 
   await downloadStreaming(
-    `redamon-${slugForType(input.nodeType)}-${timestampSlug()}.json`,
+    `whitehat-${slugForType(input.nodeType)}-${timestampSlug()}.json`,
     'application/json;charset=utf-8',
     () => combined(),
   )
@@ -116,7 +116,7 @@ export async function exportNodeDetailsMarkdown(input: NodeDetailsExportInput): 
   }
 
   await downloadStreaming(
-    `redamon-${slugForType(input.nodeType)}-${timestampSlug()}.md`,
+    `whitehat-${slugForType(input.nodeType)}-${timestampSlug()}.md`,
     'text/markdown;charset=utf-8',
     () => combined(),
   )

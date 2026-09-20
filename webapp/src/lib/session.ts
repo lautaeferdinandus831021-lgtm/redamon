@@ -28,7 +28,7 @@ export async function getSession(): Promise<Session | null> {
 
 /**
  * Resolves the EFFECTIVE user for authorization decisions:
- *   - standard user       -> own id (any `redamon-act-as` cookie is IGNORED)
+ *   - standard user       -> own id (any `whitehat-act-as` cookie is IGNORED)
  *   - admin, not simulating -> own id
  *   - admin, simulating X   -> X, but only when the act-as cookie was minted by
  *                              THIS admin (claims.sub === session.userId)

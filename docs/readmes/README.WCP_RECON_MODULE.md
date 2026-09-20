@@ -1,6 +1,6 @@
 # Web Cache Poisoning (WCP) Recon Module - Technical Reference
 
-This document explains, end to end, how RedAmon detects **web cache poisoning** and
+This document explains, end to end, how WhiteHat detects **web cache poisoning** and
 **web cache deception**. It is written for an engineer who needs to understand,
 operate, debug, or extend the module. It starts with the macro flow and then dives
 into every component, data structure, and decision. All diagrams are Mermaid.
@@ -15,7 +15,7 @@ tests whether an attacker-controlled, *unkeyed* request component (a header, a q
 parameter, or a path trick) can be smuggled into a **shared cache entry** and then
 served to other visitors. Detection is a **two-engine pipeline**: the third-party
 **WCVS** tool provides broad technique coverage (the "find suspects" half), and a
-**RedAmon-native 5-phase confirmation engine** re-validates every suspect with a
+**WhiteHat-native 5-phase confirmation engine** re-validates every suspect with a
 safe, isolated baseline → poison → clean → persistence sequence (the "prove it" half).
 Only findings that pass a confidence threshold become `Vulnerability` nodes in the
 Neo4j attack-surface graph.
@@ -43,7 +43,7 @@ flowchart TD
     subgraph MOD["recon/cache_scan package"]
         direction TB
         S0["0 · Collect targets<br/>http_probe + resource_enum · RoE filtered"]
-        S1["1 · WCVS breadth<br/>docker run redamon-wcvs → candidates"]
+        S1["1 · WCVS breadth<br/>docker run whitehat-wcvs → candidates"]
         S1b["1b · Cache oracle<br/>X-Cache / Age / CF-Cache-Status"]
         S2["2 · Cache-buster<br/>isolated test slot"]
         S3["3 · Hypotheses<br/>WCVS + generic + framework packs"]
@@ -125,7 +125,7 @@ flowchart LR
 | | Engine | Role | Strength | Weakness |
 |---|---|---|---|---|
 | Phase 1 | **WCVS** (Hackmanit Web Cache Vulnerability Scanner, Go) | **Breadth** - find suspects | 10+ technique classes, crawler, deception, mature | High-noise; "vulnerable" needs re-proof |
-| Phases 1b–5 | **RedAmon native** (Python) | **Depth** - confirm suspects | Precise, fingerprint-aware, integrated scoring/safety/graph; reflected **and** non-reflective (differential) detection | Single-shot poison (no concurrent race-winning) |
+| Phases 1b–5 | **WhiteHat native** (Python) | **Depth** - confirm suspects | Precise, fingerprint-aware, integrated scoring/safety/graph; reflected **and** non-reflective (differential) detection | Single-shot poison (no concurrent race-winning) |
 
 WCVS casts the wide net; the native layer turns "looks vulnerable" into a trustworthy,
 scored finding. (CacheX was evaluated as an alternative confirmer; we built native for
@@ -135,7 +135,7 @@ tighter integration and zero new runtime dependency. See §15.)
 
 ## 5. The package layout
 
-`recon/cache_scan/` - baked into the `redamon-recon` image (not volume-mounted), so
+`recon/cache_scan/` - baked into the `whitehat-recon` image (not volume-mounted), so
 changes require `docker compose --profile tools build recon`.
 
 | File | Responsibility |
@@ -152,7 +152,7 @@ changes require `docker compose --profile tools build recon`.
 | `normalizers.py` | shape findings into the `cache_scan` output structure |
 
 Supporting code outside the package:
-- `scanners/wcvs/Dockerfile` - builds `redamon-wcvs:latest` from WCVS source.
+- `scanners/wcvs/Dockerfile` - builds `whitehat-wcvs:latest` from WCVS source.
 - `graph_db/mixins/cache_mixin.py` - `update_graph_from_cache_scan` (graph write).
 - `recon/partial_recon_modules/cache_scanning.py` - partial-recon entry point.
 
@@ -188,7 +188,7 @@ runaway active scan.
 ### Step 0b - Build the HTTP session
 `_build_retry_session()` returns a `requests.Session` with retry/backoff on
 `429/500/502/503/504` (Cloudflare-fronted targets frequently 429 burst probes), GET
-only, and a `RedAmon-CachePoison/1.0` User-Agent.
+only, and a `WhiteHat-CachePoison/1.0` User-Agent.
 
 ### The per-URL loop
 
@@ -238,8 +238,8 @@ daemon), exactly like Nuclei/Katana.
 
 ```mermaid
 flowchart TD
-    U["target_urls"] --> TF["write targets.txt<br/>/tmp/redamon/.cache_scan/run_id/"]
-    TF --> CMD["build_wcvs_command<br/>docker run --net=host redamon-wcvs"]
+    U["target_urls"] --> TF["write targets.txt<br/>/tmp/whitehat/.cache_scan/run_id/"]
+    TF --> CMD["build_wcvs_command<br/>docker run --net=host whitehat-wcvs"]
     CMD --> SKIP["safety_skip_tests<br/>-st dos / deception / css"]
     CMD --> RUN["subprocess.run · timeout"]
     RUN --> RPT["WCVS_date_rand_Report.json<br/>written incrementally per URL"]
@@ -259,7 +259,7 @@ flowchart TD
 docker run --rm --net=host \
   -v <host targets dir>:/targets:ro \
   -v <host output dir>:/output \
-  redamon-wcvs:latest \
+  whitehat-wcvs:latest \
   -u file:/targets/targets.txt \   # batch input: one URL per line
   -gr -gp /output/ \               # generate JSON report into /output
   -v 1 -t <concurrency> \          # verbosity, threads
@@ -269,9 +269,9 @@ docker run --rm --net=host \
 ```
 
 - `--net=host` so loopback/lab targets are reachable from the sibling container.
-- `get_host_path()` translates `/tmp/redamon` container paths to host paths for the
+- `get_host_path()` translates `/tmp/whitehat` container paths to host paths for the
   bind mounts.
-- Targets and report live under `/tmp/redamon/.cache_scan/<run_id>/`; the directory is
+- Targets and report live under `/tmp/whitehat/.cache_scan/<run_id>/`; the directory is
   removed in a `finally` block.
 
 ### Safety: `-st` (skip tests)
@@ -376,7 +376,7 @@ Two sources:
 ### Phase 4 - Behavioural confirmation (`confirm.py`)
 This is the heart of the engine. For one vector, `confirm_vector` runs **all in one
 isolated cache-buster slot**, using a **benign canary** (a non-resolving
-`<token>.redamon-poc.invalid` host, or a plain token):
+`<token>.whitehat-poc.invalid` host, or a plain token):
 
 ```mermaid
 sequenceDiagram
@@ -464,7 +464,7 @@ high/7.5, dos → high/7.5, reflected → medium/5.3.
 
 Target `https://shop.example/home`, Cloudflare-fronted, backend reflects
 `X-Forwarded-Host` into a `<script src>`. Buster `?rdmncb=cb9f1a2b`, canary
-`rdmn1a2b3c.redamon-poc.invalid`.
+`rdmn1a2b3c.whitehat-poc.invalid`.
 
 ```mermaid
 sequenceDiagram
@@ -475,9 +475,9 @@ sequenceDiagram
     C-->>S: cf-cache-status HIT · age 30  →  cacheable
     S->>C: baseline GET /home?rdmncb=cb9f1a2b
     C-->>S: clean page
-    S->>C: poison GET …?rdmncb=cb9f1a2b<br/>X-Forwarded-Host: rdmn1a2b3c.redamon-poc.invalid
+    S->>C: poison GET …?rdmncb=cb9f1a2b<br/>X-Forwarded-Host: rdmn1a2b3c.whitehat-poc.invalid
     C->>B: forwards (header unkeyed)
-    B-->>C: page with //rdmn1a2b3c.redamon-poc.invalid/…
+    B-->>C: page with //rdmn1a2b3c.whitehat-poc.invalid/…
     C-->>S: reflected_in_baseline = true
     S->>C: clean GET …?rdmncb=cb9f1a2b (no header)
     C-->>S: HIT · canary STILL present  →  persisted + cache_hit
@@ -540,7 +540,7 @@ RETURN e.url, v.cache_header, v.cache_impact, v.confidence, v.poc_link
 {
   "scan_metadata": {
     "scan_timestamp": "...", "duration_seconds": 12.3,
-    "engine": "wcvs+native-confirm", "docker_image": "redamon-wcvs:latest",
+    "engine": "wcvs+native-confirm", "docker_image": "whitehat-wcvs:latest",
     "scan_profile": "safe-confirm", "min_confidence": 0.8,
     "total_urls_scanned": 42, "cacheable_urls": 17, "wcvs_candidates": 5
   },
@@ -626,7 +626,7 @@ Naming convention: `web_cache_poison_*` (DB column) → `webCachePoison*`
 | Setting | Default | Meaning |
 |---|---|---|
 | `…_ENABLED` | `false` | Master toggle (active, opt-in) |
-| `…_DOCKER_IMAGE` | `redamon-wcvs:latest` | WCVS image (locally built) |
+| `…_DOCKER_IMAGE` | `whitehat-wcvs:latest` | WCVS image (locally built) |
 | `…_SCAN_PROFILE` | `safe-confirm` | safe-confirm \| extended \| research |
 | `…_TIMEOUT` | `1800` | WCVS subprocess timeout (s) |
 | `…_TIMEOUT_PER_REQ` | `10` | native confirmation per-request timeout (s) |
@@ -676,7 +676,7 @@ hypotheses.
 CacheX's most valuable idea - **behavioural (differential) diffing** to catch
 non-reflective poisoning - has since been **ported natively** into `confirm.py`
 (Phase 4) and its header payload list folded into `hypotheses.py` (Phase 3), under
-RedAmon's benign-canary safety rules and FP guard. The one CacheX advantage still **not**
+WhiteHat's benign-canary safety rules and FP guard. The one CacheX advantage still **not**
 ported is **concurrent race-winning** (sending many poison requests to beat short-TTL
 eviction). If that recall matters, the remaining upgrade is to add CacheX as a **second**
 confirmer behind the `wcvs_runner.py` docker-in-docker pattern (a finding survives if
@@ -734,7 +734,7 @@ appear as `Vulnerability {source:'cache_poisoning'}` linked via `HAS_VULNERABILI
   ```
   docker run --rm --network host -e NEO4J_URI=bolt://localhost:7687 \
     -e NEO4J_USER=neo4j -e NEO4J_PASSWORD=<pw> --entrypoint python3 \
-    redamon-recon:latest -m unittest recon.tests.test_cache_scan_integration
+    whitehat-recon:latest -m unittest recon.tests.test_cache_scan_integration
   ```
 
 ---

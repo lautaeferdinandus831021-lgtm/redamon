@@ -1,9 +1,9 @@
-# RedAmon test toolchain (Part A of the testing foundation).
+# WhiteHat test toolchain (Part A of the testing foundation).
 #
 # Installed two ways (see docs/readmes/README.TESTING.md):
 #   * Baked into the daily-driver images (agentic/, recon/) via their
 #     requirements.txt so the canonical gate needs no runtime install.
-#   * Runtime-installed by `redamon.sh test` inside the occasional-run slim
+#   * Runtime-installed by `whitehat.sh test` inside the occasional-run slim
 #     images (recon-orchestrator, ai-attack-surface, capture-proxy, docker-broker).
 #
 # pytest runs the existing stdlib `unittest.TestCase` tests unchanged — this is a

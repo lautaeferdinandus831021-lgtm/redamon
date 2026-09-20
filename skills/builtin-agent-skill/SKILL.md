@@ -2,7 +2,7 @@
 name: builtin-agent-skill
 description: >
   Adding a built-in Agent Skill (an attack technique like ssrf, xxe, rce) that
-  ships hardcoded in RedAmon: classified by the Intent Router, injected into the
+  ships hardcoded in WhiteHat: classified by the Intent Router, injected into the
   agent prompt, toggled per project, badged in the chat drawer. Nine layers
   across agentic and webapp, two of which fail with no error.
   Trigger: adding or editing a built-in attack skill; a new
@@ -11,7 +11,7 @@ description: >
   in agentic/state.py, or the webapp AttackSkillsSection / AIAssistantDrawer.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [agentic, webapp]
   auto_invoke:

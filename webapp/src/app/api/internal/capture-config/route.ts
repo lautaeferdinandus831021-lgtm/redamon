@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       // captureProxyBodyRules is a Json column -> already an object; the proxy's
       // parse_body_rules() accepts a dict and merges it over the safe defaults.
       body_rules: (s?.captureProxyBodyRules as Record<string, unknown>) ?? {},
-      // NOTE: the RedAmon-service IP denylist (CAPTURE_BLOCKED_IPS) is a security
+      // NOTE: the WhiteHat-service IP denylist (CAPTURE_BLOCKED_IPS) is a security
       // invariant sourced ONLY from env in the proxy; it is deliberately NOT here.
     }
 
