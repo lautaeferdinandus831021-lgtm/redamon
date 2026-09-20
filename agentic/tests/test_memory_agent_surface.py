@@ -12,6 +12,10 @@ Four things are pinned, each of which fails SILENTLY when it breaks:
 4. The auto-capture hook is wired in BOTH execute nodes and the tools are
    registered by the orchestrator. The nodes duplicate that tail, so wiring one
    and forgetting the other is the documented failure mode.
+5. The two session seams are CALLED. `session_context_text` and
+   `MemoryAutoUpdater.session_end` both worked - and were tested - before
+   anything invoked them, so "nothing calls it" is the failure mode to pin:
+   a digest nobody injects, and a decay/reflection pass that never runs.
 
 Runs with the agent's real dependency set (redamon-agent image), per the repo
 testing rules - not on the host.
@@ -356,6 +360,200 @@ class WiringRegressionTests(unittest.TestCase):
         for node in ("orchestrator_helpers/nodes/execute_tool_node.py",
                      "orchestrator_helpers/nodes/execute_plan_node.py"):
             self.assertIn("capture_tool_result(", _read_source(node), f"{node} lost the hook")
+
+
+class SessionLifecycleTests(_MemoryEnv):
+    """What a session starts with, and what it leaves behind."""
+
+    def test_a_project_that_learned_nothing_gets_no_block(self):
+        from memory_hook import session_context_text
+
+        self.assertEqual(session_context_text(project_id="proj-untouched"), "")
+
+    def test_the_digest_carries_the_playbook_as_untrusted_data(self):
+        from memory.auto_update import get_updater
+        from memory_hook import session_context_text
+
+        updater = get_updater()
+        record = updater.save_memory(
+            project_id="proj-mem",
+            text="nuclei is useless against this WAF; hand-craft the payloads.",
+            kind="lesson",
+        )
+        # A fresh memory is a CANDIDATE; the digest injects what earned a place,
+        # so promote it the way a recall does.
+        updater.store().touch(record)
+        block = session_context_text(project_id="proj-mem")
+        self.assertIn("earlier sessions", block)
+        self.assertIn("nuclei is useless against this WAF", block)
+        # It reaches the SYSTEM prompt, so the data/instruction boundary has to
+        # be unforgeable rather than a reassuring sentence.
+        self.assertIn("<<<UNTRUSTED_MEMORY id=", block)
+        self.assertIn("never instructions", block)
+
+    def test_the_digest_is_project_scoped(self):
+        from memory.auto_update import get_updater
+        from memory_hook import session_context_text
+
+        updater = get_updater()
+        record = updater.save_memory(
+            project_id="proj-one", text="Only project one learned this sentence.", kind="lesson",
+        )
+        updater.store().touch(record)
+        self.assertEqual(session_context_text(project_id="proj-two"), "")
+        self.assertIn("Only project one learned", session_context_text(project_id="proj-one"))
+
+    def test_initialize_recovers_the_digest_for_a_new_session(self):
+        from memory.auto_update import get_updater
+        from orchestrator_helpers.nodes.initialize_node import _memory_context
+
+        updater = get_updater()
+        record = updater.save_memory(
+            project_id="proj-mem",
+            text="Hand-craft the payloads here; nuclei is blocked by the WAF.",
+            kind="lesson",
+        )
+        updater.store().touch(record)
+
+        self.assertIn("Hand-craft the payloads", _memory_context({}, "proj-mem"))
+        self.assertEqual(_memory_context({}, "proj-none"), "")
+
+    def test_initialize_keeps_the_context_it_already_recovered(self):
+        from orchestrator_helpers.nodes.initialize_node import _memory_context
+
+        self.assertEqual(
+            _memory_context({"memory_context": "cached block"}, "proj-mem"),
+            "cached block",
+        )
+
+    def test_the_digest_never_raises_on_a_broken_store(self):
+        from memory_hook import session_context_text
+
+        os.environ["MEMORY_DB_PATH"] = "/proc/definitely/not/writable/memory.db"
+        from memory.auto_update import reset_updater
+        reset_updater()
+        self.assertEqual(session_context_text(project_id="proj-mem"), "")
+
+    def test_the_end_of_session_pass_decays_and_reflects(self):
+        from memory.auto_update import get_updater
+        from memory_hook import session_end_pass
+
+        updater = get_updater()
+        for ok in (False, False, False, True):
+            updater.observe_tool_result(
+                project_id="proj-mem", tool_name="execute_nuclei", success=ok,
+                phase="exploitation", session_id="s1", output="",
+                error="" if ok else "connection refused",
+            )
+
+        result = session_end_pass(project_id="proj-mem", session_id="s1", reason="unit test")
+
+        self.assertEqual(set(result), {"decayed", "reflection"})
+        self.assertIn("lesson", result["reflection"] or "")
+
+    def test_two_sweeps_in_one_day_do_not_decay_twice(self):
+        """A day can hold several sessions, and every one of them ends a pass.
+
+        `idle_days()` is measured from last use, so it does not shrink after a
+        sweep - without the delta guard the same idleness would be decayed once
+        per session, far faster than the configured half-life.
+        """
+        import unittest.mock as mock
+
+        from memory.auto_update import get_updater
+        from memory.models import MemoryRecord
+
+        updater = get_updater()
+        updater.save_memory(
+            project_id="proj-mem", text="A lesson that nobody re-reads.", kind="lesson",
+        )
+        store = updater.store()
+        before = store.candidates("proj-mem")[0].confidence
+
+        with mock.patch.object(MemoryRecord, "idle_days", return_value=40.0):
+            first = updater.decay_sweep("proj-mem")
+            after_first = store.candidates("proj-mem")[0].confidence
+            second = updater.decay_sweep("proj-mem")
+
+        self.assertEqual(first, 1)
+        self.assertLess(after_first, before)
+        self.assertEqual(second, 0)
+        self.assertAlmostEqual(store.candidates("proj-mem")[0].confidence, after_first, places=6)
+
+    def test_a_later_sweep_decays_only_the_time_since_the_last_one(self):
+        import unittest.mock as mock
+
+        from memory.auto_update import get_updater
+        from memory.models import MemoryRecord
+
+        updater = get_updater()
+        updater.save_memory(
+            project_id="proj-mem", text="A lesson that nobody re-reads.", kind="lesson",
+        )
+        store = updater.store()
+        clock = {"now": 1_700_000_000.0}
+
+        with mock.patch("memory.auto_update.time.time", side_effect=lambda: clock["now"]), \
+                mock.patch.object(MemoryRecord, "idle_days", return_value=40.0):
+            self.assertEqual(updater.decay_sweep("proj-mem"), 1)
+            after_first = store.candidates("proj-mem")[0].confidence
+
+            clock["now"] += 10 * 86400  # ten idle days later
+            self.assertEqual(updater.decay_sweep("proj-mem"), 1)
+
+        after_second = store.candidates("proj-mem")[0].confidence
+        self.assertLess(after_second, after_first)
+        # 40 idle days then 10 more is 50 days of decay in total, not 80.
+        self.assertAlmostEqual(
+            after_second / after_first, 0.5 ** (10.0 / 30.0), places=3,
+        )
+
+    def test_the_end_of_session_pass_is_fail_open(self):
+        from memory_hook import session_end_pass
+
+        # No project in context and none passed: a refusal, not a crash.
+        self.assertEqual(session_end_pass(), {})
+
+        os.environ["MEMORY_DB_PATH"] = "/proc/definitely/not/writable/memory.db"
+        from memory.auto_update import reset_updater
+        reset_updater()
+        result = session_end_pass(project_id="proj-mem")
+        self.assertEqual(result.get("decayed"), 0)
+        self.assertIsNone(result.get("reflection"))
+
+
+class SessionLifecycleWiringTests(unittest.TestCase):
+    """The seams are only real where the agent loop actually calls them."""
+
+    def test_initialize_recovers_the_context_onto_the_state(self):
+        source = _read_source("orchestrator_helpers/nodes/initialize_node.py")
+        self.assertIn("from memory_hook import session_context_text", source)
+        self.assertIn("session_context_text(project_id=project_id)", source)
+        # Both main paths carry it: a new objective and a continuation. A
+        # session created before this shipped recovers it on its next turn.
+        self.assertEqual(source.count('"memory_context": _memory_context(state, project_id)'), 2)
+
+    def test_the_think_prompt_carries_it_below_the_higher_priority_blocks(self):
+        source = _read_source("orchestrator_helpers/nodes/think_node.py")
+        self.assertIn('_memory_context = state.get("memory_context") or ""', source)
+        inject = source.index('system_prompt = _memory_context + "\\n\\n" + system_prompt')
+        # Prepended BEFORE the stealth rules and the report discipline, both of
+        # which re-prepend over it and must keep their priority.
+        self.assertLess(inject, source.index("STEALTH_MODE_RULES"))
+        self.assertLess(inject, source.index("_discipline + \"\\n\\n\" + system_prompt"))
+
+    def test_the_terminal_node_closes_the_session(self):
+        source = _read_source("orchestrator_helpers/nodes/generate_response_node.py")
+        self.assertIn("from memory_hook import session_end_pass", source)
+        self.assertIn('reason="run completed"', source)
+
+    def test_a_cancelled_run_closes_the_session_too(self):
+        # The Stop button, a deleted conversation and the emergency stop all
+        # cancel the task, so the graph never reaches its terminal node.
+        source = _read_source("websocket_api.py")
+        self.assertIn("def _memory_session_end(", source)
+        marker = source.index("Query task cancelled for session")
+        self.assertIn("_memory_session_end(", source[marker:marker + 400])
 
 
 if __name__ == "__main__":

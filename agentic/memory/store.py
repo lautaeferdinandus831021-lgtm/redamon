@@ -33,6 +33,7 @@ from typing import Any, Iterable, Iterator, Optional, Sequence
 from . import scoring
 from .models import (
     EVENT_CREATED,
+    EVENT_DECAYED,
     EVENT_EDGE,
     EVENT_REINFORCED,
     EVENT_UPDATED,
@@ -565,6 +566,22 @@ class MemoryStore:
             )
             for r in rows
         ]
+
+    def last_decay_at(self, project_id: str) -> dict[str, float]:
+        """memory_id -> `at` of its most recent decayed event.
+
+        A decay sweep needs this to apply only the time that no earlier sweep has
+        already accounted for: `idle_days()` is measured from last use and keeps
+        growing past a sweep, so two sweeps in one day would otherwise decay the
+        same idleness twice.
+        """
+        with self._lock, self._connect() as conn:
+            rows = conn.execute(
+                "SELECT memory_id, MAX(at) AS last_at FROM memory_events "
+                "WHERE project_id=? AND event_type=? GROUP BY memory_id",
+                (project_id, EVENT_DECAYED),
+            ).fetchall()
+        return {r["memory_id"]: float(r["last_at"]) for r in rows}
 
     def event_counts(self, project_id: str, *, since: float = 0.0) -> dict[str, int]:
         with self._lock, self._connect() as conn:

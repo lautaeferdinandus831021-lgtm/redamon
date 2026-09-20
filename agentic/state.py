@@ -1063,6 +1063,11 @@ class AgentState(TypedDict):
     # Internal: prior chain context string (loaded once at session init)
     _prior_chain_context: Optional[str]
 
+    # Project memory recovered at session init (initialize_node sets it once; the
+    # checkpoint carries it for the rest of the session) and injected into every
+    # think prompt. See docs/readmes/README.USAGE.md.
+    memory_context: str
+
     # Response tier for adaptive formatting ("conversational", "summary", "full_report")
     _response_tier: Optional[str]
 
@@ -1302,6 +1307,7 @@ def create_initial_state(
         "chain_waves_memory": [],
         "_last_chain_step_id": None,
         "_prior_chain_context": None,
+        "memory_context": "",
         "_response_tier": None,
         # Deep Think
         "deep_think_result": None,

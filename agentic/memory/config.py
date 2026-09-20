@@ -62,8 +62,9 @@ class MemoryConfig:
     enabled: bool = True
     auto_update: bool = True
     self_improve: bool = True
-    # Run a reflection pass every N captured observations (and always at session
-    # end). 0 disables the periodic pass but keeps the session-end one.
+    # Run a reflection pass every N captured observations (and once at session
+    # end, which is wired separately). 0 turns the counter off but keeps the
+    # session-end pass.
     self_improve_every: int = 10
     db_path: str = ""
     recall_limit: int = 8
