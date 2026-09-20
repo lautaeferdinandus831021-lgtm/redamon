@@ -954,11 +954,37 @@ def get_enabled_user_skills() -> list[dict]:
 # TOOL PHASE RESTRICTION HELPERS (moved from params.py)
 # =============================================================================
 
+def memory_tool_names() -> frozenset:
+    """The agent's memory tools, or empty when the subsystem is unavailable.
+
+    Resolved lazily from `memory_tools` so this module stays importable with the
+    memory package missing (standalone deployment, partial checkout).
+    """
+    try:
+        from memory_tools import MEMORY_TOOL_NAMES
+        return frozenset(MEMORY_TOOL_NAMES)
+    except Exception:  # noqa: BLE001
+        return frozenset()
+
+
+def report_tool_names() -> frozenset:
+    """The agent's report-review tools, or empty when report_tools is unavailable.
+
+    Lazy for the same reason as `memory_tool_names` above.
+    """
+    try:
+        from report_tools import REPORT_TOOL_NAMES
+        return frozenset(REPORT_TOOL_NAMES)
+    except Exception:  # noqa: BLE001
+        return frozenset()
+
+
 def is_tool_allowed_in_phase(tool_name: str, phase: str) -> bool:
     """Check if a tool is allowed in the given phase.
 
     Resolution order:
-    1. Foundational fs_*/job_* tools: always allowed (phase-agnostic, like query_graph).
+    1. Foundational fs_*/job_* tools, and the agent-native memory_*/report_*
+       tools: always allowed (phase-agnostic).
     2. Project's TOOL_PHASE_MAP override (per-project, per-tool, set via UI).
     3. MCP manifest default_phases (for tools declared by user-managed MCP servers).
     4. Default to all phases (when nothing else specifies).
@@ -967,6 +993,18 @@ def is_tool_allowed_in_phase(tool_name: str, phase: str) -> bool:
     # tools - blocking them by phase makes no sense. They cannot reach the network
     # or run scans on their own; only what runs through them is phase-relevant.
     if tool_name.startswith("fs_") or tool_name.startswith("job_"):
+        return True
+
+    # memory_* (recall / save / timeline / reflect) is the agent's own state and
+    # report_review is the agent reviewing its own draft: neither is a capability
+    # aimed at a target, both are in-process, send no target traffic, and so have
+    # no phase to be restricted to - the same reasoning as fs_*/job_* above. They
+    # must NOT become TOOL_PHASE_MAP keys either, for the two silent-failure
+    # reasons documented on GRAPH_COMPANION_TOOLS above: this function returns
+    # False for an unmapped tool, and fetch_agent_settings REPLACES the whole map,
+    # so a project whose stored map predates the new keys would have them
+    # permanently disabled until someone backfilled the jsonb.
+    if tool_name in memory_tool_names() or tool_name in report_tool_names():
         return True
 
     # graph_schema / graph_summary INHERIT query_graph's gating: the operator

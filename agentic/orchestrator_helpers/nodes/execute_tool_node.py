@@ -288,6 +288,19 @@ async def execute_tool_node(
         tool_name=tool_name,
     )
 
+    # Memory auto-update. The outcome is final HERE - after the embedded-error
+    # flip and the classification above - so a Playwright timeout reported as
+    # success=True is remembered as the failure it is. Mirrored in
+    # execute_plan_node for the same reason the two blocks above are mirrored.
+    from memory_hook import capture_tool_result
+    capture_tool_result(
+        tool_name=tool_name,
+        phase=phase,
+        success=bool(step_data.get("success")),
+        output=step_data.get("tool_output") or "",
+        error=step_data.get("error_message") or "",
+    )
+
     # Detailed logging - tool output
     tool_output = step_data.get("tool_output", "")
     success = step_data.get("success", False)

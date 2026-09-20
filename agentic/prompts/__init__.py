@@ -28,6 +28,7 @@ from .base import (
     build_attack_path_behavior,
     build_tool_args_section,
     build_tool_name_enum,
+    with_agent_tools,
     build_phase_definitions,
     build_kali_install_prompt,
     DEEP_THINK_PROMPT,
@@ -438,7 +439,7 @@ def get_phase_tools(
         parts.append(f"## Custom Instructions\n\n{post_expl_prompt}\n")
 
     # Determine allowed tools for current phase (dynamic from TOOL_PHASE_MAP in DB)
-    phase_allowed_unfiltered = get_allowed_tools_for_phase(phase)
+    phase_allowed_unfiltered = with_agent_tools(get_allowed_tools_for_phase(phase))
     # Optional fireteam-member filter: render only the intersection with the
     # member's declared skills, so the "primary tools" view stays focused.
     # Phase-allowlisting still applies — filter is a SUBSET operation, never a

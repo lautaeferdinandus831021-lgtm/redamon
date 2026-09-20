@@ -67,7 +67,11 @@ from prompts import (
     build_tool_name_enum,
     build_tool_args_section,
 )
-from prompts.base import build_fireteam_prompt_fragments, CACHE_PREFIX_END_MARKER
+from prompts.base import (
+    build_fireteam_prompt_fragments,
+    CACHE_PREFIX_END_MARKER,
+    with_agent_tools,
+)
 from prompts.classification import build_skill_menu
 from prompt_safety import wrap_untrusted
 from utils import get_session_config_prompt
@@ -499,7 +503,7 @@ async def think_node(state: AgentState, config, *, llm, guidance_queues, neo4j_c
         execution_trace=state.get("execution_trace", []),
     )
 
-    allowed_tools = get_allowed_tools_for_phase(phase)
+    allowed_tools = with_agent_tools(get_allowed_tools_for_phase(phase))
 
     # Conditionally render the deploy_fireteam action based on project gates.
     # When FIRETEAM_ENABLED=false OR current phase not in allowed phases, the
@@ -560,6 +564,16 @@ async def think_node(state: AgentState, config, *, llm, guidance_queues, neo4j_c
         from prompts.stealth_rules import STEALTH_MODE_RULES
         system_prompt = STEALTH_MODE_RULES + "\n\n" + system_prompt
         logger.info(f"[{user_id}/{project_id}/{session_id}] STEALTH MODE active — injected stealth rules into prompt")
+
+    # Always-on evidence/report discipline (docs/readmes/README.REPORT_KIT.md).
+    # Prepended like the stealth rules, and for the same reason: it constrains
+    # what a `thought` may claim, so an unverified claim never reaches the
+    # write-up instead of being caught there. The report-time half (structure +
+    # class gotchas) is appended in generate_response_node.
+    from report_hook import report_discipline_block
+    _discipline = report_discipline_block()
+    if _discipline:
+        system_prompt = _discipline + "\n\n" + system_prompt
 
     # Scope guardrail: remind agent to stay within authorized targets
     # Always inject for hard-blocked domains (government/public); also inject when soft guardrail is enabled

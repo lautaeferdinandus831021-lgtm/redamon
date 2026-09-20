@@ -3,6 +3,10 @@ RedAmon Agent Tools
 
 MCP tools and Neo4j graph query tool definitions.
 Includes phase-aware tool management.
+The memory tools (memory_recall/_save/_timeline/_reflect) and the auto-capture
+hook live in memory_tools.py and memory_hook.py; see docs/readmes/README.MEMORY.md.
+The report-review tool (report_review) and its prompt seams live in
+report_tools.py and report_hook.py; see docs/readmes/README.REPORT_KIT.md.
 """
 
 import os
