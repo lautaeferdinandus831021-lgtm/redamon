@@ -236,6 +236,19 @@ async def _execute_single_step(
         tool_name=tool_name,
     )
 
+    # Memory auto-update. The outcome is final HERE - after the embedded-error
+    # flip and the classification above - so a plan step that "succeeded" with a
+    # timeout in its body is remembered as the failure it is. Mirrored in
+    # execute_tool_node for the same reason the two blocks above are mirrored.
+    from memory_hook import capture_tool_result
+    capture_tool_result(
+        tool_name=tool_name,
+        phase=phase,
+        success=bool(step.get("success")),
+        output=step.get("tool_output") or "",
+        error=step.get("error_message") or "",
+    )
+
     tool_output = step.get("tool_output", "")
 
     # Emit output as chunk for non-streaming tools so frontend shows Raw Output
