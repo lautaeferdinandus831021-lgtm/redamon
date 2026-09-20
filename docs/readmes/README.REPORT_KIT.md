@@ -125,6 +125,7 @@ another one.
 ## Related
 
 * Root ruleset: [`AGENTS.md`](../../AGENTS.md); component rules: [`agentic/AGENTS.md`](../../agentic/AGENTS.md)
+* How to actually use it in a session (the four modes, the skill import, the switches): [`README.USAGE.md`](README.USAGE.md)
 * The agent's persistent memory, which this layer complements: [`README.MEMORY.md`](README.MEMORY.md)
 * Adding a skill the agent loads on demand: skill `add-community-skill`
 * Adding a tool the agent can call: skill `agentic-tool-integration`
