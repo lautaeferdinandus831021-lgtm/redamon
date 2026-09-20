@@ -31,27 +31,35 @@ alias for `unit`).
 ## CI (GitHub Actions)
 
 [`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs the unit gate
-on every pull request (and on `workflow_dispatch`). It is the same gate as
-locally — `./redamon.sh test unit`, inside the section images, one test file per
-pytest subprocess — split across jobs. It has to be split: `cmd_test` resolves
-each section by image tag and treats a missing image as a FAILURE of the gate, and
-the built images do not all fit on one runner's disk.
+on every pull request (and on `workflow_dispatch`): the same command as locally,
+`./redamon.sh test unit`, each section inside its own image, one test file per
+pytest subprocess, with **nothing skipped**.
+
+It is a single job because the section images must exist before the gate can run
+(`cmd_test` resolves each section by image tag and treats a missing image as a
+FAILURE of the gate), and because the gate has no "just one section" mode: the
+unit tier always bundles the shell suites and webapp vitest, and
+`tests/redamon_gate_unskippable_test.sh` asserts that a missing
+`webapp/node_modules` is a failure rather than a skip. Splitting sections into
+separate legs therefore needs `REDAMON_TEST_ALLOW_MISSING`, which trips that
+guard suite in every leg.
 
 | Job | What runs |
 |---|---|
-| `plan` | parses `_TEST_SECTIONS` out of `redamon.sh` and emits the matrix, so a section added or renamed there cannot silently drop out of CI (an unparseable block fails the job instead) |
-| `section` (one leg per section) | `docker compose build <service>` for that section only, then `./redamon.sh test unit` with `REDAMON_TEST_ALLOW_MISSING` naming the *other* sections and `webapp` |
-| `host-suites` | `npm ci` in `webapp/`, then `./redamon.sh test unit` with every Python section allowed missing — the shell suites and vitest run for real |
+| `plan` | parses `_TEST_SECTIONS` out of `redamon.sh` and emits the compose services to build, so a section added or renamed there cannot silently drop out of CI (an unparseable block, or a service that is not in `docker-compose.yml`, fails the job instead) |
+| `unit-gate` | `npm ci` in `webapp/`, `docker compose build` of every section service (`COMPOSE_PARALLEL_LIMIT=2` caps concurrent builds), then `./redamon.sh test unit` with no skip overrides |
 
 Two properties to keep in mind when editing it:
 
-- **A leg can never miss its own image.** `REDAMON_TEST_ALLOW_MISSING` names only
-  the inputs that leg genuinely lacks, and the gate prints a `SKIPPED` line for
-  each one, so the log says exactly what ran and what did not. If that leg's own
-  image failed to build, the job is red — never green with a skip.
-- **The shell suites need no image**, so the gate runs them on the host in every
-  leg; `host-suites` is where their result is attributed, and where a missing
-  `webapp/node_modules` is a failure rather than a skip.
+- **Nothing is skippable.** The workflow sets no `REDAMON_TEST_ALLOW_MISSING`,
+  so the gate's `SKIPPED` path is never taken: an image that failed to build (or
+  no `node_modules`) turns the job red instead of quietly narrowing what ran.
+- **The two required compose variables are placeholders.** `docker compose`
+  validates the whole file before building any one service, and `NEO4J_PASSWORD`
+  / `POSTGRES_PASSWORD` are `:?`-required because `redamon.sh` normally generates
+  them into `.env`. The workflow sets dummy values for a checkout that has none;
+  the gate runs its sections with `docker run`, not `compose up`, so no database
+  is ever contacted.
 
 ---
 
@@ -85,7 +93,10 @@ Two properties to keep in mind when editing it:
 | shell | (host bash) | `tests/*_test.sh` |
 | webapp | (node) | `webapp/src/**/*.test.ts(x)` via vitest |
 
-A section whose image is not built is **skipped cleanly**, never failed.
+A section whose image is not built **fails the gate** by default (that is the
+point: a suite that never ran proves nothing). `REDAMON_TEST_ALLOW_MISSING`
+narrows what the tier counts as a failure, and the gate then prints a `SKIPPED`
+line per allowed input; CI deliberately sets it not at all.
 
 ### The `shell` section
 
