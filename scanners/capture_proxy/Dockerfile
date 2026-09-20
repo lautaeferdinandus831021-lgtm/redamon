@@ -1,7 +1,7 @@
-# redamon-capture-proxy — one image, two roles (mitmdump proxy OR ingest worker).
+# whitehat-capture-proxy — one image, two roles (mitmdump proxy OR ingest worker).
 # The role is selected by the compose `command:` + env + network, not the image,
 # so isolation comes from placement (proxy: pentest-net, no DB creds; ingest:
-# redamon-network, scoped INSERT-only role), per plan §15.2 / §15.10.
+# whitehat-network, scoped INSERT-only role), per plan §15.2 / §15.10.
 FROM python:3.12-slim
 
 # Pinned deps (§15.10: the proxy parses untrusted target responses — keep patched).
@@ -19,7 +19,7 @@ RUN useradd -m -u 10001 -s /usr/sbin/nologin capture
 RUN find / -xdev -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
 
 WORKDIR /app
-COPY scanners/capture_proxy/redamon_ctx.py \
+COPY scanners/capture_proxy/whitehat_ctx.py \
      scanners/capture_proxy/egress.py \
      scanners/capture_proxy/capture_lib.py \
      scanners/capture_proxy/capture_addon.py \

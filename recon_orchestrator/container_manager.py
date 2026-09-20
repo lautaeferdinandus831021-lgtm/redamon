@@ -127,7 +127,7 @@ MAX_PARALLEL_PARTIAL_RECONS = 12
 # containers over the host bind bridge on Docker Desktop for Mac; the volume
 # lives inside the Linux VM and works on both macOS and native Linux. Overridable
 # for tests / alternate layouts.
-BROKER_SOCKET_VOLUME = os.environ.get("RECON_DOCKER_BROKER_VOLUME", "redamon_broker_socket")
+BROKER_SOCKET_VOLUME = os.environ.get("RECON_DOCKER_BROKER_VOLUME", "whitehat_broker_socket")
 
 # Where the cypherfix-work volume is mounted INSIDE the orchestrator container.
 # Used to clean up per-job worktrees (the same volume the agent clones into).
@@ -239,7 +239,7 @@ def _env_size(name: str, default: str) -> str:
 class ContainerManager:
     """Manages Docker containers for recon, GVM scan, GitHub hunt, and TruffleHog processes"""
 
-    def __init__(self, recon_image: str = "redamon-recon:latest", gvm_image: str = "redamon-vuln-scanner:latest", github_hunt_image: str = "redamon-github-hunter:latest", trufflehog_image: str = "redamon-trufflehog:latest", ai_attack_image: str = "redamon-ai-attack-surface:latest", supply_chain_image: str = "redamon-supply-chain:latest"):
+    def __init__(self, recon_image: str = "whitehat-recon:latest", gvm_image: str = "whitehat-vuln-scanner:latest", github_hunt_image: str = "whitehat-github-hunter:latest", trufflehog_image: str = "whitehat-trufflehog:latest", ai_attack_image: str = "whitehat-ai-attack-surface:latest", supply_chain_image: str = "whitehat-supply-chain:latest"):
         self.client = docker.from_env()
         self.recon_image = recon_image
         self.gvm_image = gvm_image
@@ -297,8 +297,8 @@ class ContainerManager:
         # CodeFix build sandboxes (T6/E10): ephemeral, hardened, secret-free
         # containers that run the UNTRUSTED clone+build+test step of the CypherFix
         # agent. job_id -> {"container_id", "created_at"}.
-        self.codefix_sandbox_image = os.environ.get("CODEFIX_SANDBOX_IMAGE", "redamon-codefix-sandbox:latest")
-        self.codefix_sandbox_network = os.environ.get("CODEFIX_SANDBOX_NETWORK", "redamon-codefix-net")
+        self.codefix_sandbox_image = os.environ.get("CODEFIX_SANDBOX_IMAGE", "whitehat-codefix-sandbox:latest")
+        self.codefix_sandbox_network = os.environ.get("CODEFIX_SANDBOX_NETWORK", "whitehat-codefix-net")
         self.codefix_sandbox_mem = _env_size("CODEFIX_SANDBOX_MEM", "2g")
         self.codefix_sandbox_nanocpus = int(os.environ.get("CODEFIX_SANDBOX_NANOCPUS", str(2_000_000_000)))
         self.codefix_sandbox_pids = int(os.environ.get("CODEFIX_SANDBOX_PIDS", "512"))
@@ -321,9 +321,9 @@ class ContainerManager:
         # an empty string. int("") would raise here, in __init__, crash-looping
         # the orchestrator the moment the knobs were wired into compose.
         self.supply_chain_analyzer_image = _env_unset_if_blank(
-            "SUPPLY_CHAIN_ANALYZER_IMAGE", "redamon-supply-chain-analyzer:latest")
+            "SUPPLY_CHAIN_ANALYZER_IMAGE", "whitehat-supply-chain-analyzer:latest")
         self.supply_chain_analyzer_network = _env_unset_if_blank(
-            "SUPPLY_CHAIN_ANALYZER_NETWORK", "redamon-supply-chain-net")
+            "SUPPLY_CHAIN_ANALYZER_NETWORK", "whitehat-supply-chain-net")
         self.supply_chain_analyzer_mem = _env_unset_if_blank(
             "SUPPLY_CHAIN_ANALYZER_MEM", "1500m")
         self.supply_chain_analyzer_nanocpus = int(
@@ -334,7 +334,7 @@ class ContainerManager:
         # needs outbound internet but must not see the host's loopback stack,
         # where Neo4j (7687) and the orchestrator (8010) listen.
         self.trufflehog_network = _env_unset_if_blank(
-            "TRUFFLEHOG_NETWORK", "redamon-trufflehog-net")
+            "TRUFFLEHOG_NETWORK", "whitehat-trufflehog-net")
         # Allowlisted host paths for the `filesystem` source, keyed by the UI
         # value. Server-resolved on purpose: an operator-typed host path plus a
         # scan container is a file-disclosure primitive. Absent => not mounted,
@@ -353,11 +353,11 @@ class ContainerManager:
         # _trufflehog_scope_check. None => no scope declared, same as other scans.
         self.trufflehog_scope_checker = None
         self.supply_chain_osv_db_volume = os.environ.get(
-            "SUPPLY_CHAIN_OSV_DB_VOLUME", "redamon-osv-db")
+            "SUPPLY_CHAIN_OSV_DB_VOLUME", "whitehat-osv-db")
         # Named volume shared with the webapp: the operator's uploaded SBOM/
         # lockfile lands at <volume>/<project_id>/<filename>.
         self.supply_chain_uploads_volume = os.environ.get(
-            "SUPPLY_CHAIN_UPLOADS_VOLUME", "redamon_supply_chain_uploads")
+            "SUPPLY_CHAIN_UPLOADS_VOLUME", "whitehat_supply_chain_uploads")
         # Lazy-on-scan OSV DB refresh: hard ceiling on the sync sidecar so a slow
         # download can never stall a scan spawn (npm is ~208 MB on a cold volume).
         self.osv_db_refresh_timeout = int(
@@ -367,7 +367,7 @@ class ContainerManager:
         self._osv_db_refresh_lock = threading.Lock()
         # Supply-chain incident intel (supplychainattack.org catalog), refreshed
         # TTL-guarded on the scan-spawn path like the OSV DB above.
-        self.sca_intel_volume = os.environ.get("SCA_INTEL_VOLUME", "redamon-sca-intel")
+        self.sca_intel_volume = os.environ.get("SCA_INTEL_VOLUME", "whitehat-sca-intel")
         # 120s, not the OSV path's 900s: this feed is ~5 MB, so a longer ceiling
         # would only ever mean a hung fetch sitting on the scan-spawn path.
         self.sca_intel_refresh_timeout = int(
@@ -644,7 +644,7 @@ class ContainerManager:
         LLM-provider keys, or reach the control plane. Falls back to the master
         key ONLY when SCANNER_API_KEY is unset/placeholder (pre-secret installs),
         so an operator who runs `up` before `update` is never hard-broken; the
-        scope closes automatically once redamon.sh generates the key."""
+        scope closes automatically once whitehat.sh generates the key."""
         scanner = os.environ.get("SCANNER_API_KEY", "")
         if scanner and scanner != "changeme":
             return {"SCANNER_API_KEY": scanner}
@@ -803,7 +803,7 @@ class ContainerManager:
         """Generate container name for a project"""
         # Sanitize project_id for container name
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-recon-{safe_id}"
+        return f"whitehat-recon-{safe_id}"
 
     async def _run_blocking(self, fn, *args):
         """Run a blocking (docker-py) callable in the default thread pool so it
@@ -1033,10 +1033,10 @@ class ContainerManager:
                     # READ-ONLY: only the refresh sidecar ever writes it.
                     self.sca_intel_volume: {"bind": "/sca-intel", "mode": "ro"},
                     # Mount /tmp for Docker-in-Docker temp files (avoids spaces in paths)
-                    "/tmp/redamon": {"bind": "/tmp/redamon", "mode": "rw"},
+                    "/tmp/whitehat": {"bind": "/tmp/whitehat", "mode": "rw"},
                     # JS Recon shared volumes with webapp
-                    "redamon_js_recon_uploads": {"bind": "/data/js-recon-uploads", "mode": "ro"},
-                    "redamon_js_recon_custom": {"bind": "/data/js-recon-custom", "mode": "ro"},
+                    "whitehat_js_recon_uploads": {"bind": "/data/js-recon-uploads", "mode": "ro"},
+                    "whitehat_js_recon_custom": {"bind": "/data/js-recon-custom", "mode": "ro"},
                     # Official nuclei-templates volume (read-only) for the AI tag
                     # selector to read TEMPLATES-STATS.json. Populated by
                     # ensure_templates_volume() before any nuclei pass.
@@ -1069,7 +1069,7 @@ class ContainerManager:
     # secrets. Spawned via the orchestrator's REAL docker socket (like GVM), with
     # hardening enforced here. The agent drives it via `docker exec` (the command
     # channel is the docker control plane, NOT a shared network), so the sandbox
-    # sits on codefix-net with NO RedAmon peer.
+    # sits on codefix-net with NO WhiteHat peer.
     # =======================================================================
 
     @staticmethod
@@ -1082,13 +1082,13 @@ class ContainerManager:
         return safe or "codefix"
 
     def _codefix_sandbox_name(self, job_id: str) -> str:
-        return f"redamon-codefix-{self._safe_job_id(job_id)}"
+        return f"whitehat-codefix-{self._safe_job_id(job_id)}"
 
     def _ensure_codefix_network(self) -> None:
         """Create the isolated CodeFix network if it does not exist.
 
         Docker Compose never creates this network: by design NO service is
-        attached to it (the sandbox must have no RedAmon peer), and Compose only
+        attached to it (the sandbox must have no WhiteHat peer), and Compose only
         creates networks used by the services it starts. So the orchestrator owns
         its lifecycle — create-if-missing here, idempotently, before every spawn.
         """
@@ -1386,18 +1386,18 @@ class ContainerManager:
     # A single persistent proxy + ingest pair, toggled on/off (NOT per-scan).
     # The orchestrator reconciles the desired state set by the Global Settings
     # toggle. The proxy is credential-free on pentest-net; the ingest holds the
-    # scoped INSERT-only DB role on redamon-network. Both spawned via the host
+    # scoped INSERT-only DB role on whitehat-network. Both spawned via the host
     # docker daemon (like every other orchestrator-managed container).
     # =======================================================================
-    CAPTURE_PROXY_NAME = "redamon-capture-proxy"
-    TRAFFIC_INGEST_NAME = "redamon-traffic-ingest"
-    # Compose network names: `redamon` is explicitly named "redamon-network";
-    # `pentest-net` has no explicit name so Compose derives "redamon_pentest-net".
-    _CAPTURE_PROXY_NETWORK = "redamon_pentest-net"
-    _CAPTURE_INGEST_NETWORK = "redamon-network"
+    CAPTURE_PROXY_NAME = "whitehat-capture-proxy"
+    TRAFFIC_INGEST_NAME = "whitehat-traffic-ingest"
+    # Compose network names: `whitehat` is explicitly named "whitehat-network";
+    # `pentest-net` has no explicit name so Compose derives "whitehat_pentest-net".
+    _CAPTURE_PROXY_NETWORK = "whitehat_pentest-net"
+    _CAPTURE_INGEST_NETWORK = "whitehat-network"
 
     def _capture_image(self) -> str:
-        return os.environ.get("CAPTURE_PROXY_IMAGE", "redamon-capture-proxy:latest")
+        return os.environ.get("CAPTURE_PROXY_IMAGE", "whitehat-capture-proxy:latest")
 
     def _capture_port(self) -> int:
         try:
@@ -1439,7 +1439,7 @@ class ContainerManager:
         # whole toggle rather than degrade the catalog match, and a
         # partially-constructed manager (every harness that builds one via
         # __new__) would do exactly that.
-        intel_volume = getattr(self, "sca_intel_volume", "") or "redamon-sca-intel"
+        intel_volume = getattr(self, "sca_intel_volume", "") or "whitehat-sca-intel"
         recon_path = getattr(self, "recon_host_path", "")
         vols[intel_volume] = {"bind": "/sca-intel", "mode": "ro"}
         if recon_path:
@@ -1482,8 +1482,8 @@ class ContainerManager:
         self._remove_container_if_exists(self.TRAFFIC_INGEST_NAME)
 
         spool_vols = {
-            "redamon_capture_spool": {"bind": "/spool", "mode": "rw"},
-            "redamon_capture_bodies": {"bind": "/bodies", "mode": "rw"},
+            "whitehat_capture_spool": {"bind": "/spool", "mode": "rw"},
+            "whitehat_capture_bodies": {"bind": "/bodies", "mode": "rw"},
         }
 
         # --- Proxy: pentest-net, loopback publish, NO DB creds / signing key ---
@@ -1506,17 +1506,17 @@ class ContainerManager:
                 # denylist (security invariant, never DB-tunable) stays on the env.
                 "CAPTURE_BLOCKED_IPS": blocked_ips,
             },
-            volumes={**spool_vols, "redamon_capture_ca": {"bind": "/ca", "mode": "rw"}},
+            volumes={**spool_vols, "whitehat_capture_ca": {"bind": "/ca", "mode": "rw"}},
             cap_drop=["ALL"],
             read_only=True,
             tmpfs={"/tmp": "size=64m,exec"},
             mem_limit=_env_size("CAPTURE_PROXY_MEM", "384m"),
             pids_limit=256,
             restart_policy={"Name": "unless-stopped"},
-            labels={"redamon.capture": "proxy"},
+            labels={"whitehat.capture": "proxy"},
         )
 
-        # --- Ingest: redamon-network, scoped INSERT-only role + verify keys ---
+        # --- Ingest: whitehat-network, scoped INSERT-only role + verify keys ---
         self.client.containers.run(
             image,
             name=self.TRAFFIC_INGEST_NAME,
@@ -1527,7 +1527,7 @@ class ContainerManager:
                 "CAPTURE_SPOOL_DIR": "/spool",
                 "CAPTURE_BODIES_DIR": "/bodies",
                 "CAPTURE_PROXY_REDACT_SECRETS": redact,
-                "CAPTURE_REDACT_SALT": os.environ.get("CAPTURE_REDACT_SALT", "redamon-capture"),
+                "CAPTURE_REDACT_SALT": os.environ.get("CAPTURE_REDACT_SALT", "whitehat-capture"),
                 "TRAFFIC_INGEST_DATABASE_URL": os.environ.get("TRAFFIC_INGEST_DATABASE_URL", ""),
                 # Tag-verification keys: source=recon -> scanner, source=agent -> internal.
                 "SCANNER_API_KEY": os.environ.get("SCANNER_API_KEY", ""),
@@ -1552,7 +1552,7 @@ class ContainerManager:
             mem_limit=_env_size("TRAFFIC_INGEST_MEM", "256m"),
             pids_limit=256,
             restart_policy={"Name": "unless-stopped"},
-            labels={"redamon.capture": "ingest"},
+            labels={"whitehat.capture": "ingest"},
         )
 
         logger.info(f"[capture] started proxy + ingest (port {port})")
@@ -1815,7 +1815,7 @@ class ContainerManager:
                     await self.stop_trufflehog(project_id, source, timeout=5)
                 except Exception as e:
                     logger.error(f"Error cleaning up TruffleHog {project_id}/{source}: {e}")
-        # L1-3: stop supply-chain scans too, or a running redamon-supply-chain-<pid>
+        # L1-3: stop supply-chain scans too, or a running whitehat-supply-chain-<pid>
         # (holding Neo4j creds + its mem envelope) orphans on orchestrator shutdown.
         for project_id in list(self.supply_chain_states.keys()):
             try:
@@ -1844,7 +1844,7 @@ class ContainerManager:
     def _get_partial_container_name(self, project_id: str, run_id: str) -> str:
         """Generate container name for a partial recon run"""
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-partial-recon-{safe_id}-{run_id[:8]}"
+        return f"whitehat-partial-recon-{safe_id}-{run_id[:8]}"
 
     def _count_active_partial_recons(self, project_id: str) -> int:
         """Count the number of active (running/starting) partial recons for a project"""
@@ -1994,9 +1994,9 @@ class ContainerManager:
                     self.client.images.build(path=recon_path, tag=self.recon_image, rm=True)
             await self._run_blocking(_ensure_image)
 
-            # Write config JSON to /tmp/redamon/ (shared volume)
+            # Write config JSON to /tmp/whitehat/ (shared volume)
             import json
-            config_dir = Path("/tmp/redamon")
+            config_dir = Path("/tmp/whitehat")
             config_dir.mkdir(parents=True, exist_ok=True)
             config_path = config_dir / f"partial_{project_id}_{run_id}.json"
             with open(config_path, "w") as f:
@@ -2021,7 +2021,7 @@ class ContainerManager:
                     "PROJECT_ID": project_id,
                     "USER_ID": config.get("user_id", ""),
                     "WEBAPP_API_URL": config.get("webapp_api_url", ""),
-                    "PARTIAL_RECON_CONFIG": f"/tmp/redamon/partial_{project_id}_{run_id}.json",
+                    "PARTIAL_RECON_CONFIG": f"/tmp/whitehat/partial_{project_id}_{run_id}.json",
                     "PARTIAL_RECON_RUN_ID": run_id,
                     "UPDATE_GRAPH_DB": "true",
                     "HOST_RECON_OUTPUT_PATH": f"{recon_path}/output",
@@ -2068,10 +2068,10 @@ class ContainerManager:
                     self.supply_chain_osv_db_volume: {"bind": "/osv-db", "mode": "ro"},
                     # Incident intel (partial-recon parity with full recon above).
                     self.sca_intel_volume: {"bind": "/sca-intel", "mode": "ro"},
-                    "/tmp/redamon": {"bind": "/tmp/redamon", "mode": "rw"},
+                    "/tmp/whitehat": {"bind": "/tmp/whitehat", "mode": "rw"},
                     # JS Recon shared volumes with webapp (uploaded files + custom patterns)
-                    "redamon_js_recon_uploads": {"bind": "/data/js-recon-uploads", "mode": "ro"},
-                    "redamon_js_recon_custom": {"bind": "/data/js-recon-custom", "mode": "ro"},
+                    "whitehat_js_recon_uploads": {"bind": "/data/js-recon-uploads", "mode": "ro"},
+                    "whitehat_js_recon_custom": {"bind": "/data/js-recon-custom", "mode": "ro"},
                     # Official nuclei-templates volume (read-only) for the AI tag
                     # selector to read TEMPLATES-STATS.json.
                     "nuclei-templates": {"bind": "/opt/nuclei-templates-official", "mode": "ro"},
@@ -2130,7 +2130,7 @@ class ContainerManager:
 
         # Best-effort cleanup of config file
         try:
-            config_path = Path(f"/tmp/redamon/partial_{project_id}_{run_id}.json")
+            config_path = Path(f"/tmp/whitehat/partial_{project_id}_{run_id}.json")
             if config_path.exists():
                 config_path.unlink()
         except Exception:
@@ -2278,7 +2278,7 @@ class ContainerManager:
     def _get_ai_attack_container_name(self, project_id: str, run_id: str) -> str:
         """Generate container name for an AI Attack Surface run"""
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-ai-attack-{safe_id}-{run_id[:8]}"
+        return f"whitehat-ai-attack-{safe_id}-{run_id[:8]}"
 
     def _count_active_ai_attack(self, project_id: str) -> int:
         return sum(
@@ -2431,8 +2431,8 @@ class ContainerManager:
                         f"scan will degrade to no-judge"
                     )
 
-            # Write the run config to the shared /tmp/redamon volume.
-            config_dir = Path("/tmp/redamon")
+            # Write the run config to the shared /tmp/whitehat volume.
+            config_dir = Path("/tmp/whitehat")
             config_dir.mkdir(parents=True, exist_ok=True)
             # Sanitize project_id for the filename (it's client-supplied via the
             # path param); run_id is a server UUID. Mirrors the container-name rule.
@@ -2471,7 +2471,7 @@ class ContainerManager:
                     **self._scanner_env(),  # S3/E6: scoped scanner token
                 },
                 volumes={
-                    "/tmp/redamon": {"bind": "/tmp/redamon", "mode": "rw"},
+                    "/tmp/whitehat": {"bind": "/tmp/whitehat", "mode": "rw"},
                     # Mount source for dev (no rebuild needed), like the other scanners.
                     f"{ai_attack_path}": {"bind": "/app/ai_attack_surface_scan", "mode": "rw"},
                 },
@@ -2535,7 +2535,7 @@ class ContainerManager:
         if not runs and project_id in self.ai_attack_states:
             del self.ai_attack_states[project_id]
         try:
-            cfg = Path(f"/tmp/redamon/ai_attack_{project_id}_{run_id}.json")
+            cfg = Path(f"/tmp/whitehat/ai_attack_{project_id}_{run_id}.json")
             if cfg.exists():
                 cfg.unlink()
         except Exception:
@@ -2713,7 +2713,7 @@ class ContainerManager:
     def _get_gvm_container_name(self, project_id: str) -> str:
         """Generate container name for a GVM scan"""
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-gvm-{safe_id}"
+        return f"whitehat-gvm-{safe_id}"
 
     async def get_gvm_status(self, project_id: str) -> GvmState:
         """Get current status of a GVM scan process. Docker inspection runs off
@@ -2861,7 +2861,7 @@ class ContainerManager:
                 },
                 volumes={
                     # GVM socket for communicating with gvmd
-                    "redamon_gvmd_socket": {"bind": "/run/gvmd", "mode": "ro"},
+                    "whitehat_gvmd_socket": {"bind": "/run/gvmd", "mode": "ro"},
                     # Recon output (read-only, for extracting targets)
                     f"{recon_path}/output": {"bind": "/app/recon/output", "mode": "ro"},
                     # GVM scan output (read-write, for saving results)
@@ -3132,7 +3132,7 @@ class ContainerManager:
     def is_gvm_available(self) -> bool:
         """Check if GVM stack is installed by looking for the gvmd container"""
         try:
-            container = self.client.containers.get("redamon-gvm-gvmd")
+            container = self.client.containers.get("whitehat-gvm-gvmd")
             return container.status == "running"
         except Exception:
             return False
@@ -3144,7 +3144,7 @@ class ContainerManager:
     def _get_github_hunt_container_name(self, project_id: str) -> str:
         """Generate container name for a GitHub hunt"""
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-github-hunt-{safe_id}"
+        return f"whitehat-github-hunt-{safe_id}"
 
     async def get_github_hunt_status(self, project_id: str) -> GithubHuntState:
         """Get current status of a GitHub hunt process. Docker inspection runs
@@ -3577,7 +3577,7 @@ class ContainerManager:
         so starting docker does not force-remove a running huggingface scan."""
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
         safe_source = re.sub(r'[^a-zA-Z0-9_.-]', '_', source or "unknown")
-        return f"redamon-trufflehog-{safe_id}-{safe_source}"
+        return f"whitehat-trufflehog-{safe_id}-{safe_source}"
 
     def _trufflehog_run_dir(self, project_id: str, source: str) -> Path:
         """Per-run scratch dir on the host: the job file in, the scan's working
@@ -3589,7 +3589,7 @@ class ContainerManager:
         """
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
         safe_source = re.sub(r'[^a-zA-Z0-9_.-]', '_', source or "unknown")
-        return Path(f"/tmp/redamon/trufflehog_{safe_id}_{safe_source}")
+        return Path(f"/tmp/whitehat/trufflehog_{safe_id}_{safe_source}")
 
     @staticmethod
     def _trufflehog_output_name(project_id: str, source: str) -> str:
@@ -3716,7 +3716,7 @@ class ContainerManager:
         which a bridge gives it through NAT; what it must NOT have is the host's
         own loopback stack, where Neo4j (7687) and the orchestrator (8010) live.
         On host networking a target of ``127.0.0.1:7687`` resolves straight into
-        RedAmon's own graph. Compose never creates this network because no
+        WhiteHat's own graph. Compose never creates this network because no
         service is attached to it. Idempotent, tolerates the create race.
         """
         name = self.trufflehog_network
@@ -3870,9 +3870,9 @@ class ContainerManager:
         """Create the isolated supply-chain analyzer network if missing.
 
         Same rationale as _ensure_codefix_network: Compose never creates it
-        because no service is attached (the analyzer must have no RedAmon peer).
+        because no service is attached (the analyzer must have no WhiteHat peer).
         The OSV verdict path needs ZERO egress; this bridge provides none of its
-        own to the RedAmon services. Idempotent, tolerates the create race."""
+        own to the WhiteHat services. Idempotent, tolerates the create race."""
         name = self.supply_chain_analyzer_network
         try:
             self.client.networks.get(name)
@@ -3983,7 +3983,7 @@ class ContainerManager:
 
         GuardDog downloads the attacker-authored tarball, so the container:
           - runs on the ISOLATED analyzer bridge (internet NAT for the registry,
-            but NO route to any RedAmon service),
+            but NO route to any WhiteHat service),
           - drops ALL caps, read-only rootfs, exec tmpfs scratch, mem/pids caps,
           - carries ZERO secrets (a full RCE in here finds no cred).
 
@@ -4002,7 +4002,7 @@ class ContainerManager:
 
         self._ensure_supply_chain_network()
         # GuardDog needs registry egress; the isolated analyzer bridge provides
-        # internet NAT while sharing no subnet with RedAmon services. An operator
+        # internet NAT while sharing no subnet with WhiteHat services. An operator
         # may still pin a dedicated egress net.
         network = os.environ.get("SUPPLY_CHAIN_EGRESS_NETWORK",
                                  self.supply_chain_analyzer_network)
@@ -4112,11 +4112,11 @@ class ContainerManager:
         """Refresh the offline OSV DB if it is older than the TTL (default 24h).
 
         Called on the scan-spawn path (L1 + L2) so the malicious-package feed is
-        current without the operator remembering `redamon.sh supply-chain-sync`.
+        current without the operator remembering `whitehat.sh supply-chain-sync`.
         OSV publishes new MAL-/CVE advisories daily, so a DB frozen at install
         time silently misses newly-published malware.
 
-        WHY HERE: `redamon-osv-db` is mounted READ-ONLY (and non-root) into every
+        WHY HERE: `whitehat-osv-db` is mounted READ-ONLY (and non-root) into every
         scan container, so a scanner physically cannot refresh its own DB. Only
         this process holds the Docker socket, so the refresh runs as a short-lived
         root sidecar off the analyzer image writing the volume rw.
@@ -4124,7 +4124,7 @@ class ContainerManager:
         `bootstrap=False` (the scan-path default) REFUSES to populate a cold/empty
         DB: the initial download is ~208 MB and would otherwise block the first
         recon spawn for minutes, for a feature that is OFF by default. Cold
-        population stays explicit (`redamon.sh supply-chain-sync`), matching the
+        population stays explicit (`whitehat.sh supply-chain-sync`), matching the
         documented "images are eager, the data is lazy" contract. Only an
         already-populated DB is kept fresh here.
 
@@ -4164,11 +4164,11 @@ mkdir -p "$DB"
 # Cold-DB guard: without an existing DB tree this would be a ~208 MB first
 # download on the scan-spawn path. Refuse unless explicitly bootstrapping.
 if [ "$BOOTSTRAP" != "1" ] && [ ! -d "$DB/osv-scanner" ]; then
-  echo "cold-db: not populated, skipping auto-refresh (run redamon.sh supply-chain-sync)"
+  echo "cold-db: not populated, skipping auto-refresh (run whitehat.sh supply-chain-sync)"
   exit 0
 fi
 for ECO in $(echo "__ECOS__" | tr ',' ' '); do
-  MARK="$DB/.redamon_synced_$(echo "$ECO" | tr './' '__')"
+  MARK="$DB/.whitehat_synced_$(echo "$ECO" | tr './' '__')"
   if [ -f "$MARK" ]; then
     AGE=$(( $(date +%s) - $(stat -c %Y "$MARK" 2>/dev/null || echo 0) ))
     if [ "$AGE" -lt "$TTL" ]; then echo "skip $ECO (age ${AGE}s < ${TTL}s)"; continue; fi
@@ -4350,7 +4350,7 @@ exit $RC
             # entrypoint is COPYed), and intel_sync.py lives there, so this mount
             # is mandatory - without it the sidecar dies with ModuleNotFoundError
             # and the intel silently never refreshes. This is the same failure
-            # documented for cmd_supply_chain_sync in redamon.sh.
+            # documented for cmd_supply_chain_sync in whitehat.sh.
             sc_common_host = join_host_path(
                 parent_host_path(self.recon_host_path), "scanners", "supply_chain_common")
             if not self.recon_host_path:
@@ -4442,7 +4442,7 @@ exit $RC
     # ------------------------------------------------------------------
     def _get_supply_chain_container_name(self, project_id: str) -> str:
         safe_id = re.sub(r'[^a-zA-Z0-9_.-]', '_', project_id)
-        return f"redamon-supply-chain-{safe_id}"
+        return f"whitehat-supply-chain-{safe_id}"
 
     async def start_supply_chain(self, project_id: str, user_id: str,
                                  webapp_api_url: str, supply_chain_path: str,
@@ -4539,7 +4539,7 @@ exit $RC
                     # and AI attack all mount this; supply chain omitted it, so the
                     # analyzer read a path the scan container never wrote (L1
                     # GuardDog deep analysis broken). See Phase 0.1.
-                    "/tmp/redamon": {"bind": "/tmp/redamon", "mode": "rw"},
+                    "/tmp/whitehat": {"bind": "/tmp/whitehat", "mode": "rw"},
                     f"{supply_chain_path}/output": {"bind": "/app/supply_chain_scan/output", "mode": "rw"},
                     f"{supply_chain_path}": {"bind": "/app/supply_chain_scan", "mode": "rw"},
                     **self._recon_settings_mount(),
@@ -4717,7 +4717,7 @@ exit $RC
             if not allowed:
                 raise ValueError(
                     f"Target '{host}' is not allowed ({reason}). TruffleHog sources may "
-                    f"not be pointed at RedAmon-internal or private addresses."
+                    f"not be pointed at WhiteHat-internal or private addresses."
                 )
 
     def _trufflehog_scope_check(self, project_id: str, source: str, config: dict) -> None:

@@ -10,7 +10,7 @@ needs no YAML dependency.
 from __future__ import annotations
 
 # Env var the target auth key is injected through (never written into the config).
-TARGET_KEY_ENV = "REDAMON_TARGET_KEY"
+TARGET_KEY_ENV = "WHITEHAT_TARGET_KEY"
 
 # ai_interface_type -> (body dict with '{{prompt}}', transformResponse expr).
 # '<MODEL>' is replaced with the resolved model id.
@@ -91,7 +91,7 @@ def build_target_provider(target, model: str | None = None,
 
     return {
         "id": "https",
-        "label": "redamon-target",
+        "label": "whitehat-target",
         "config": {
             "url": url,
             "method": "POST",
@@ -112,7 +112,7 @@ def build_config(target, *, plugins: list[str], strategies: list[str],
     base = (judge_base_url or "").rstrip("/")
     grader_base = base + "/v1"        # OpenAI-compatible shim that Ollama serves
     return {
-        "description": "redamon ai-attack-surface promptfoo run",
+        "description": "whitehat ai-attack-surface promptfoo run",
         "targets": [build_target_provider(target, model, auth_header, auth_scheme)],
         "redteam": {
             "purpose": purpose,

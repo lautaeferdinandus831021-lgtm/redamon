@@ -70,7 +70,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  delete process.env.REDAMON_REDZONE_ROW_CAP
+  delete process.env.WHITEHAT_REDZONE_ROW_CAP
 })
 
 describe('every route emits a Cypher-parseable LIMIT', () => {
@@ -109,7 +109,7 @@ describe('the env override reaches every route', () => {
   // these route modules were imported at the top of this file, long before the
   // env var was set.
   test.each(ROUTE_NAMES.filter(n => !UNCAPPED.has(n)))('%s honours a lowered cap', async name => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '7'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '7'
     await ROUTES[name].GET(makeRequest())
     const limits = emittedLimits()
     expect(limits.length).toBeGreaterThan(0)
@@ -121,7 +121,7 @@ describe('the env override reaches every route', () => {
   test.each(['0.5', '0', '-3', 'lots', ''])(
     'a junk override (%j) never empties the tables with LIMIT 0',
     async raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       await ROUTES.killChain.GET(makeRequest())
       for (const lit of emittedLimits()) expect(Number(lit)).toBe(200_000)
     },
@@ -130,7 +130,7 @@ describe('the env override reaches every route', () => {
   test.each(['1e21', '999999999999999999999'])(
     'an absurd override (%j) never emits exponential notation',
     async raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       await ROUTES.killChain.GET(makeRequest())
       for (const lit of emittedLimits()) {
         expect(lit).toMatch(/^\d+$/)
@@ -145,7 +145,7 @@ describe('cap changes do not leak across sheets within one response', () => {
   // it for both the query and the meta.truncated comparison, so a drift between
   // the two would mislabel a capped sheet as complete.
   test('supplyChainSca uses one consistent cap for all three sheets', async () => {
-    process.env.REDAMON_REDZONE_ROW_CAP = '11'
+    process.env.WHITEHAT_REDZONE_ROW_CAP = '11'
     const res = await ROUTES.supplyChainSca.GET(makeRequest())
     expect(res.status).toBe(200)
     const limits = emittedLimits()

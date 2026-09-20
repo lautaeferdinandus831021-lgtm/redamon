@@ -20,8 +20,8 @@ import { signIn, mintToken } from './auth'
  * Run: cd testing/e2e && npx playwright test trufflehogGithub
  */
 
-const PROJECT = process.env.REDAMON_PROJECT || 'e651f859c3114faf94196ab02'
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROJECT = process.env.WHITEHAT_PROJECT || 'e651f859c3114faf94196ab02'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 const TOKEN_KEY = 'trufflehogGithubToken'
 
 function repoRoot(): string {
@@ -58,17 +58,17 @@ const FIELD_LABELS = [
 test.beforeEach(async ({ context, baseURL }) => {
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
   // ProjectProvider resolves the current project from localStorage first; without
   // it the graph header reads "No Project" and the Red Zone queries run with no
   // project id, so a populated table looks empty.
   await context.addInitScript(([u, p]) => {
-    localStorage.setItem('redamon-current-user', u)
-    localStorage.setItem('redamon-current-project', p)
+    localStorage.setItem('whitehat-current-user', u)
+    localStorage.setItem('whitehat-current-project', p)
   }, [USER, PROJECT])
 })
 
@@ -80,7 +80,7 @@ test.afterAll(async ({ playwright, baseURL }) => {
   // is how a failed run left the account's real GitHub token cleared.
   const ctx = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await ctx.put(`/api/users/${USER}/settings`, {
     data: { [TOKEN_KEY]: fixtureToken() },

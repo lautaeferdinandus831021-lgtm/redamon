@@ -1,19 +1,19 @@
 """
-redamon — the `proxy_brain` SDK. Runs inside kali-sandbox; the agent's
-`proxy_brain` code does `import redamon` and drives the captured-traffic corpus
+whitehat — the `proxy_brain` SDK. Runs inside kali-sandbox; the agent's
+`proxy_brain` code does `import whitehat` and drives the captured-traffic corpus
 and the active replay path through it.
 
 It holds NO database credential and opens NO socket to Postgres. Every capability
 is an authenticated HTTP call to the agent's `/traffic/exec` (read) and
 `/traffic/replay` (active PREPARE) endpoints — the mirror of the redagraph ->
-/graph/exec broker. Tenant identity is carried by the signed `REDAMON_CTX` tag
+/graph/exec broker. Tenant identity is carried by the signed `WHITEHAT_CTX` tag
 (minted by the agent, which holds INTERNAL_API_KEY; this worker does not), so a
 foothold here cannot read or send for a tenant it was not issued for.
 
 Env (injected per-invocation by the proxy_brain MCP tool):
-  REDAMON_AGENT_URL  - the agent base URL (default http://agent:8080)
+  WHITEHAT_AGENT_URL  - the agent base URL (default http://agent:8080)
   SCANNER_API_KEY    - scoped transport auth (X-Internal-Key)
-  REDAMON_CTX        - the signed agent tag (tenant/session/phase claims)
+  WHITEHAT_CTX        - the signed agent tag (tenant/session/phase claims)
 """
 from __future__ import annotations
 
@@ -39,13 +39,13 @@ _BROWSER_NAV_TIMEOUT = 30000  # ms
 
 
 def _agent_url() -> str:
-    return os.environ.get("REDAMON_AGENT_URL", "http://agent:8080").rstrip("/")
+    return os.environ.get("WHITEHAT_AGENT_URL", "http://agent:8080").rstrip("/")
 
 
 def _ctx() -> str:
-    tok = os.environ.get("REDAMON_CTX", "").strip()
+    tok = os.environ.get("WHITEHAT_CTX", "").strip()
     if not tok:
-        _die("no REDAMON_CTX in the environment — proxy_brain must be launched by the agent "
+        _die("no WHITEHAT_CTX in the environment — proxy_brain must be launched by the agent "
              "so the tenant/session context is set.")
     return tok
 
@@ -59,7 +59,7 @@ def _headers() -> Dict[str, str]:
 
 
 def _die(msg: str) -> None:
-    print(f"redamon: {msg}", file=sys.stderr)
+    print(f"whitehat: {msg}", file=sys.stderr)
     raise SystemExit(2)
 
 
@@ -127,8 +127,8 @@ def _read(op: str, args: Optional[Dict[str, Any]] = None) -> str:
 
 def search(filters: Optional[Dict[str, Any]] = None, **kwargs) -> List[Txn]:
     """Burp-style history search. Call EITHER with a dict of filters
-    (redamon.search({"host": "x", "hasAuth": True})) OR with keyword filters
-    (redamon.search(host="x", has_auth=True)) — both work. Filters: host, method,
+    (whitehat.search({"host": "x", "hasAuth": True})) OR with keyword filters
+    (whitehat.search(host="x", has_auth=True)) — both work. Filters: host, method,
     status, status_class/statusClass, tool, source, session/sessionId, run/runId,
     has_auth/hasAuth, reflected, only_5xx/only5xx, q, body_q/bodyq, limit. Returns
     Txn rows (use .id with get/replay)."""
@@ -340,7 +340,7 @@ def _run(curl_args: str, ctx: str, payload: Optional[str] = None) -> Response:
     except Exception:  # noqa: BLE001
         cap_url, cap_tok = (None, None)
     if cap_url and cap_tok:
-        args = args + ["-x", cap_url, "-k", "-H", f"X-Redamon-Ctx: {cap_tok}"]
+        args = args + ["-x", cap_url, "-k", "-H", f"X-WhiteHat-Ctx: {cap_tok}"]
     try:
         proc = subprocess.run(["curl", *args], capture_output=True, text=True, timeout=_CURL_TIMEOUT)
         raw = proc.stdout
@@ -419,7 +419,7 @@ class Browser:
             _die(f"browser: Playwright is unavailable in this sandbox: {e}")
         from browser_launch import BROWSER_ARGS, CHROME_UA, capture_kwargs
         proxy, headers = capture_kwargs(_ctx(), header_tag=cap_tag)
-        # Auth headers are the profile's; the capture tag (X-Redamon-Ctx) stays
+        # Auth headers are the profile's; the capture tag (X-WhiteHat-Ctx) stays
         # authoritative — build_auth_headers refuses that name, so no collision.
         headers = {**auth_headers, **(headers or {})}
         self._alerts: List[str] = []
@@ -573,7 +573,7 @@ def browser(id: str) -> Browser:
     """Open a live chromium PINNED to the host of captured transaction `id` (find
     one with search()). Exploitation-phase only, per-session action-budgeted, and
     re-captured. Use it to confirm bugs whose signal only appears after JS runs:
-    read redamon.manual("browser") first."""
+    read whitehat.manual("browser") first."""
     return Browser(id)
 
 
@@ -626,15 +626,15 @@ def _manual_sections() -> Dict[str, str]:
 
 
 def manual(section: Optional[str] = None) -> str:
-    """The proxy_brain cookbook. `redamon.manual()` returns the core (SDK
-    reference + the Burp-capability map + the section index); `redamon.manual("jwt")`
+    """The proxy_brain cookbook. `whitehat.manual()` returns the core (SDK
+    reference + the Burp-capability map + the section index); `whitehat.manual("jwt")`
     returns one deep section (recipes for that technique). Read the section you
     need RIGHT BEFORE writing the code that uses it — output is truncated, so keep
     reads scoped. Call with no arg first to see the section index."""
     secs = _manual_sections()
     if not secs:
         return ("[proxy_brain_manual.md not found next to the SDK — the inline tool "
-                "description lists the full redamon.* API; proceed from that.]")
+                "description lists the full whitehat.* API; proceed from that.]")
     if section:
         key = str(section).split()[0].lower().strip("#:()")
         if key in secs and key:

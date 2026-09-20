@@ -20,7 +20,7 @@ class TestAmassWordlistCommandBuilding(unittest.TestCase):
     """Test the Amass command building logic with wordlist support."""
 
     def _build_amass_command(self, settings, domain="test.com",
-                              host_recon_output="/home/user/redamon/recon/output",
+                              host_recon_output="/home/user/whitehat/recon/output",
                               container_wordlist_exists=True):
         """
         Simulate the command-building logic from run_amass() without
@@ -146,10 +146,10 @@ class TestAmassWordlistCommandBuilding(unittest.TestCase):
 
     def test_host_path_derivation(self):
         """HOST_RECON_OUTPUT_PATH -> parent dir -> wordlists/jhaddix-all.txt"""
-        host_output = "/home/user/redamon/recon/output"
+        host_output = "/home/user/whitehat/recon/output"
         host_dir = os.path.dirname(host_output)
         wordlist_path = os.path.join(host_dir, 'wordlists', 'jhaddix-all.txt')
-        self.assertEqual(wordlist_path, "/home/user/redamon/recon/wordlists/jhaddix-all.txt")
+        self.assertEqual(wordlist_path, "/home/user/whitehat/recon/wordlists/jhaddix-all.txt")
 
     def test_empty_wordlists_list_uses_default(self):
         """Empty AMASS_BRUTE_WORDLISTS should not crash."""

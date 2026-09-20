@@ -205,8 +205,8 @@ class TestBuildNucleiCommand(unittest.TestCase):
         env = {"HOST_CUSTOM_TEMPLATES_PATH": host_path}
         with patch.dict(os.environ, env, clear=False):
             return build_nuclei_command(
-                targets_file="/tmp/redamon/.nuclei_temp/targets.txt",
-                output_file="/tmp/redamon/.nuclei_temp/output.jsonl",
+                targets_file="/tmp/whitehat/.nuclei_temp/targets.txt",
+                output_file="/tmp/whitehat/.nuclei_temp/output.jsonl",
                 docker_image="projectdiscovery/nuclei:latest",
                 custom_templates=custom_templates,
                 selected_custom_templates=selected_custom_templates,

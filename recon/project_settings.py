@@ -49,7 +49,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     'DOMAIN_BATCH_GROUPS': [],
     'VERIFY_DOMAIN_OWNERSHIP': False,
     'OWNERSHIP_TOKEN': 'your-secret-token-here',
-    'OWNERSHIP_TXT_PREFIX': '_redamon-verify',
+    'OWNERSHIP_TXT_PREFIX': '_whitehat-verify',
 
     # Scan Modules
     'SCAN_MODULES': ['domain_discovery', 'port_scan', 'http_probe', 'resource_enum', 'vuln_scan'],
@@ -236,7 +236,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     'TAKEOVER_AI_CLASSIFIER': False,
     # BadDNS (AGPL-3.0, isolated sidecar — disabled by default, opt-in)
     'BADDNS_ENABLED': False,
-    'BADDNS_DOCKER_IMAGE': 'redamon-baddns:latest',
+    'BADDNS_DOCKER_IMAGE': 'whitehat-baddns:latest',
     'BADDNS_MODULES': ['cname', 'ns', 'mx', 'txt', 'spf'],
     'BADDNS_NAMESERVERS': [],
     'BADDNS_RUN_TIMEOUT': 1800,
@@ -295,7 +295,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     'AI_SURFACE_RECON_ENABLED': True,
     'AI_SURFACE_RECON_TIMEOUT': 10,
     'AI_SURFACE_RECON_MAX_WORKERS': 5,
-    'AI_SURFACE_RECON_USER_AGENT': 'RedAmon-AISurfaceRecon/1.0',
+    'AI_SURFACE_RECON_USER_AGENT': 'WhiteHat-AISurfaceRecon/1.0',
     'AI_SURFACE_RECON_CHAT_SHAPE_PROBE_ENABLED': True,
     'AI_SURFACE_RECON_MCP_HANDSHAKE_ENABLED': True,
     'AI_SURFACE_RECON_MCP_LIST_TOOLS_ENABLED': True,
@@ -808,7 +808,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
 
     # Web Cache Poisoning (WCVS breadth + native 5-phase confirmation)
     'WEB_CACHE_POISON_ENABLED': False,                          # Master toggle (active, opt-in)
-    'WEB_CACHE_POISON_DOCKER_IMAGE': 'redamon-wcvs:latest',     # WCVS image (locally built)
+    'WEB_CACHE_POISON_DOCKER_IMAGE': 'whitehat-wcvs:latest',     # WCVS image (locally built)
     'WEB_CACHE_POISON_SCAN_PROFILE': 'safe-confirm',           # safe-confirm | extended | research
     'WEB_CACHE_POISON_TIMEOUT': 1800,                          # WCVS subprocess timeout (seconds)
     'WEB_CACHE_POISON_TIMEOUT_PER_REQ': 10,                    # Native confirmation per-request timeout

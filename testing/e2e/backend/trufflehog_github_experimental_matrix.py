@@ -23,8 +23,8 @@ deleted commits - so:
 The fixtures are built by build_github_experimental_fixtures.sh and hold
 SYNTHETIC credentials only:
 
-    redamon-thx-dangling   SentryToken, ONLY in an unreachable commit
-    redamon-thx-live       an RSA PrivateKey in the live tree; nothing dangling
+    whitehat-thx-dangling   SentryToken, ONLY in an unreachable commit
+    whitehat-thx-live       an RSA PrivateKey in the live tree; nothing dangling
     both repos             AWS's example pair as a negative control (never fires)
 
 The detector NAMES come from the manifest rather than being written here: the
@@ -42,7 +42,7 @@ Run:  python3 testing/e2e/backend/trufflehog_github_experimental_matrix.py
         ^ assert the baseline cases against an artifact already on disk, instead
           of paying for the same 90-minute scan once per assertion. See
           BASELINE_REUSABLE for exactly which cases that is allowed for.
-Env:  REDAMON_PROJECT, REDAMON_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
+Env:  WHITEHAT_PROJECT, WHITEHAT_USER, ORCH_URL, ORCHESTRATOR_API_KEY,
       GHX_SCAN_TIMEOUT, GITHUB_FIXTURE_TOKEN (else _local/gh_fixture_token)
 """
 import json
@@ -53,8 +53,8 @@ import time
 import urllib.error
 import urllib.request
 
-PROJECT = os.environ.get("REDAMON_PROJECT", "e651f859c3114faf94196ab02")
-USER = os.environ.get("REDAMON_USER", "cmrzlj3xk0000ob3vo67o3igg")
+PROJECT = os.environ.get("WHITEHAT_PROJECT", "e651f859c3114faf94196ab02")
+USER = os.environ.get("WHITEHAT_USER", "cmrzlj3xk0000ob3vo67o3igg")
 ORCH = os.environ.get("ORCH_URL", "http://127.0.0.1:8010")
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 OUTPUT_DIR = os.path.join(REPO_ROOT, "scanners", "trufflehog_scan", "output")

@@ -66,7 +66,7 @@ def _reset_governors():
 
 
 class IntegrationBase(unittest.TestCase):
-    ENV = ("REDAMON_MEM_GOVERNOR", "SUPPLY_CHAIN_ANALYZER_MEM", "MEM_BUDGET_FRACTION",
+    ENV = ("WHITEHAT_MEM_GOVERNOR", "SUPPLY_CHAIN_ANALYZER_MEM", "MEM_BUDGET_FRACTION",
            "CONTAINER_CAP_HEADROOM", "PER_CONTAINER_MAX", "RESOURCE_PROFILE_PATH",
            "SUPPLY_CHAIN_IMPORT_MAX_FILES", "SUPPLY_CHAIN_IMPORT_MAX_BYTES")
 
@@ -113,7 +113,7 @@ class TestThrottleReachesTheMiner(IntegrationBase):
 
     def test_governor_disabled_restores_full_reads(self):
         combined = self._js_dir(count=40)
-        os.environ["REDAMON_MEM_GOVERNOR"] = "false"
+        os.environ["WHITEHAT_MEM_GOVERNOR"] = "false"
         _set_mem(32 * GB, 1 * 1024 ** 2)
         s = ps.apply_memory_governor(dict(ps.DEFAULT_SETTINGS))
         self.assertEqual(len(scr._read_js_contents(combined, s)), 40)
@@ -222,7 +222,7 @@ class TestProfileLayeringForSupplyChain(IntegrationBase):
         _set_mem(64 * GB, 32 * GB)
         self._profile({"tool_container_envelope_bytes": {"supply_chain_analyzer": 2 * GB}})
         _set_mem(64 * GB, 32 * GB)
-        argv = ad.analyzer_docker_argv("/tmp/redamon/j", "/host/sc")
+        argv = ad.analyzer_docker_argv("/tmp/whitehat/j", "/host/sc")
         self.assertEqual(argv[argv.index("--memory") + 1], str(int(2 * GB * 1.5)))
 
     def test_partial_calibration_does_not_wipe_sibling_defaults(self):
@@ -377,7 +377,7 @@ class TestSpawnPathParityContract(IntegrationBase):
         # The hint must actually match the real image name.
         hint = "supply-chain-analyzer"
         self.assertIn('"{}"'.format(hint), keys)
-        self.assertIn(hint, "redamon-supply-chain-analyzer:latest")
+        self.assertIn(hint, "whitehat-supply-chain-analyzer:latest")
 
     def test_no_other_calibration_hint_collides_with_the_analyzer_image(self):
         # _tool_key does substring matching over an unordered dict, so a hint that
@@ -388,7 +388,7 @@ class TestSpawnPathParityContract(IntegrationBase):
         block = cal[cal.find("TOOL_KEYS = {"):]
         block = block[:block.find("}") + 1]
         hints = re.findall(r'"([a-z0-9-]+)":\s*"', block)
-        image = "redamon-supply-chain-analyzer:latest"
+        image = "whitehat-supply-chain-analyzer:latest"
         matching = [h for h in hints if h in image]
         self.assertEqual(matching, ["supply-chain-analyzer"],
                          "ambiguous calibration hints for the analyzer image")

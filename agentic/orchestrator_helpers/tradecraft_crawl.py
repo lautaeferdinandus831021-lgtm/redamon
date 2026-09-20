@@ -26,7 +26,7 @@ from prompt_safety import wrap_untrusted, UNTRUSTED_OUTPUT_GUIDANCE
 
 logger = get_logger(__name__)
 
-USER_AGENT = "RedAmon-Tradecraft/1.0"
+USER_AGENT = "WhiteHat-Tradecraft/1.0"
 
 # Junk path patterns (auth pages, archives, metadata). Borrowed from tradecraft_lookup.
 NOISE_PATH_PATTERNS = re.compile(

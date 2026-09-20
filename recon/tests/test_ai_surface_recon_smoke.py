@@ -11,7 +11,7 @@ Run inside the recon image:
         -v "$PWD/recon:/app/recon:ro" -v "$PWD/graph_db:/app/graph_db:ro" \
         -v "$PWD/recon_orchestrator:/app/recon_orchestrator:ro" \
         -v "$PWD/webapp:/app/webapp:ro" -w /app \
-        redamon-recon:latest recon/tests/test_ai_surface_recon_smoke.py
+        whitehat-recon:latest recon/tests/test_ai_surface_recon_smoke.py
 """
 from __future__ import annotations
 import re

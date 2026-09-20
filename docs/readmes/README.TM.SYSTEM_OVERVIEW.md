@@ -1,11 +1,11 @@
-# RedAmon Threat Model
+# WhiteHat Threat Model
 
 > **Scope of this document:** System overview, assets, architecture, data flow, trust boundaries, entry points, and the full network surface — describing the **current state of fact** of the deployed system. Every statement below is grounded in repository evidence (source, Dockerfiles, `docker-compose.yml`, Prisma/Neo4j schemas, config).
 >
-> **Deployment postures:** RedAmon supports two deployment postures, and the trust model differs between them:
+> **Deployment postures:** WhiteHat supports two deployment postures, and the trust model differs between them:
 >
-> - **Local (default).** Single host, Docker Compose, driven by `redamon.sh`. Host-published ports are reachable on the operator's machine/LAN, not the internet. The base `docker-compose.yml` binds `webapp:3000`, `agent:8090`, and the reverse-shell catcher `4444` on `0.0.0.0` (LAN-reachable); the datastores, MCP servers, and orchestrator are bound to `127.0.0.1`. There is no anonymous-internet-attacker actor in this posture, and several app-layer weaknesses (unauthenticated agent endpoints that trust body-supplied identity, no login lockout, secrets that fail *open* when unset) are only reachable from the LAN.
-> - **Public-internet (hardened).** Provisioned by `tooling/deploy/single-host/deploy.sh`, which wraps the same stack in an internet-facing security layer that `redamon.sh` deliberately does not provide (see `tooling/deploy/single-host/README.md`). It re-binds `webapp:3000` and `agent:8090` to `127.0.0.1`, keeps `4444` on loopback (opened via `ufw` to engagement-target CIDRs only, per-engagement), and puts **nginx as the single public origin on `443`** (TLS-terminated) reverse-proxying the webapp and **only the four agent `/ws/*` paths** under one origin. The agent's REST surface is never proxied. An operator-IP allowlist (nginx `allow`/`deny` + `ufw`), login rate-limiting, HSTS, fail2ban, SSH hardening, and a secrets-strength gate compensate for the local-only assumptions above. **This posture adds an anonymous internet attacker as a first-class actor**, and the deploy layer's role is to ensure only the TLS webapp origin (plus the allowlisted agent WS paths) is reachable, with every other port/endpoint closed or funneled.
+> - **Local (default).** Single host, Docker Compose, driven by `whitehat.sh`. Host-published ports are reachable on the operator's machine/LAN, not the internet. The base `docker-compose.yml` binds `webapp:3000`, `agent:8090`, and the reverse-shell catcher `4444` on `0.0.0.0` (LAN-reachable); the datastores, MCP servers, and orchestrator are bound to `127.0.0.1`. There is no anonymous-internet-attacker actor in this posture, and several app-layer weaknesses (unauthenticated agent endpoints that trust body-supplied identity, no login lockout, secrets that fail *open* when unset) are only reachable from the LAN.
+> - **Public-internet (hardened).** Provisioned by `tooling/deploy/single-host/deploy.sh`, which wraps the same stack in an internet-facing security layer that `whitehat.sh` deliberately does not provide (see `tooling/deploy/single-host/README.md`). It re-binds `webapp:3000` and `agent:8090` to `127.0.0.1`, keeps `4444` on loopback (opened via `ufw` to engagement-target CIDRs only, per-engagement), and puts **nginx as the single public origin on `443`** (TLS-terminated) reverse-proxying the webapp and **only the four agent `/ws/*` paths** under one origin. The agent's REST surface is never proxied. An operator-IP allowlist (nginx `allow`/`deny` + `ufw`), login rate-limiting, HSTS, fail2ban, SSH hardening, and a secrets-strength gate compensate for the local-only assumptions above. **This posture adds an anonymous internet attacker as a first-class actor**, and the deploy layer's role is to ensure only the TLS webapp origin (plus the allowlisted agent WS paths) is reachable, with every other port/endpoint closed or funneled.
 >
 > The structure below describes the **local** posture; each network entry point notes how the public-internet layer changes its exposure.
 
@@ -25,7 +25,7 @@
 
 ## System Overview
 
-**RedAmon** is a self-hosted, AI-driven **offensive security / red-team automation platform**. An operator defines an engagement (target scope + Rules of Engagement), launches automated **reconnaissance**, **vulnerability scanning**, and **secret hunting**, then drives an **LLM agent** (single agent or multi-agent "fireteam") that reasons over the findings and executes offensive tooling (nmap, nuclei, metasploit, hydra, playwright, ffuf, etc.) inside a sandboxed Kali container. Results are stored in a multi-tenant graph and surfaced through a Next.js web UI.
+**WhiteHat** is a self-hosted, AI-driven **offensive security / red-team automation platform**. An operator defines an engagement (target scope + Rules of Engagement), launches automated **reconnaissance**, **vulnerability scanning**, and **secret hunting**, then drives an **LLM agent** (single agent or multi-agent "fireteam") that reasons over the findings and executes offensive tooling (nmap, nuclei, metasploit, hydra, playwright, ffuf, etc.) inside a sandboxed Kali container. Results are stored in a multi-tenant graph and surfaced through a Next.js web UI.
 
 **Primary data types handled:**
 - Engagement configuration and **Rules of Engagement** (target domains/IPs, scope exclusions, client contact details, time windows, allowed phases) — `Project` model, ~750 lines.
@@ -41,7 +41,7 @@
 | Layer | Technology (evidence) |
 |-------|-----------------------|
 | Frontend / Web | **Next.js 16** (App Router), **React 19**, TypeScript, TanStack Query/Table, xterm.js, react-force-graph / `@xyflow/react`, Recharts (`webapp/package.json`) |
-| Web auth | **JWT (HS256)** via `jose`, **bcryptjs** (12 rounds) password hashing, httpOnly cookie `redamon-auth` (`webapp/src/lib/auth.ts`, `webapp/src/middleware.ts`) |
+| Web auth | **JWT (HS256)** via `jose`, **bcryptjs** (12 rounds) password hashing, httpOnly cookie `whitehat-auth` (`webapp/src/lib/auth.ts`, `webapp/src/middleware.ts`) |
 | Relational DB | **PostgreSQL 16** via **Prisma ORM 6** (`webapp/prisma/schema.prisma`, push-based workflow) |
 | Graph DB | **Neo4j 5.26 Community** + APOC plugin; bolt protocol (`docker-compose.yml`) |
 | AI agent | **Python / FastAPI / Uvicorn**, **LangGraph + LangChain**, LangGraph Postgres checkpointer (`agentic/`) |
@@ -57,7 +57,7 @@
 
 ### Deployment Architecture
 
-All services run as containers on a single Docker host across **three bridge networks** (`redamon-network`, `redamon-orchestrator-net`, `pentest-net`) plus selected containers on the **host network**. The privileged orchestrator API is bound to **host loopback only** (`127.0.0.1:8010`).
+All services run as containers on a single Docker host across **three bridge networks** (`whitehat-network`, `whitehat-orchestrator-net`, `pentest-net`) plus selected containers on the **host network**. The privileged orchestrator API is bound to **host loopback only** (`127.0.0.1:8010`).
 
 **Public-internet topology (via `tooling/deploy/single-host/`).** When deployed publicly, an **nginx reverse proxy terminates TLS on `443`** and is the only listener reachable from the internet. It proxies `/` and `/api/*` to the loopback-bound webapp (`127.0.0.1:3000`) and the four agent WebSocket paths (`/ws/agent`, `/ws/kali-terminal`, `/ws/cypherfix-triage`, `/ws/cypherfix-codefix`) to the loopback-bound agent (`127.0.0.1:8090`); the agent's REST endpoints are never proxied. Port `80` serves only the ACME challenge and a redirect to `443`. `ufw` default-denies inbound except `443` (and `22`/`443` from the operator CIDR); the Docker loopback re-binds are the primary control for `3000`/`8090` (ufw is belt-and-braces, since Docker's own iptables chains can bypass it). The bridge networks and the orchestrator loopback bind are unchanged from the local posture. Because `NEXT_PUBLIC_AGENT_WS_URL` is baked at build time, the webapp is rebuilt with a same-origin `wss://<domain>/ws/…` so the browser never targets `:8090` directly.
 
@@ -65,7 +65,7 @@ All services run as containers on a single Docker host across **three bridge net
 graph TD
     Operator((Operator / localhost browser)) -->|HTTP :3000| WEB[webapp - Next.js]
 
-    subgraph net_redamon [redamon-network bridge]
+    subgraph net_whitehat [whitehat-network bridge]
         WEB
         AGENT[agent - FastAPI / LangGraph :8080]
         KALI[kali-sandbox - MCP servers + terminal]
@@ -80,7 +80,7 @@ graph TD
         KALI -->|/graph/exec| AGENT
     end
 
-    subgraph net_orch [redamon-orchestrator-net bridge - isolated]
+    subgraph net_orch [whitehat-orchestrator-net bridge - isolated]
         ORCH[recon-orchestrator - FastAPI :8010 loopback]
         OLLAMA[on-demand Ollama judge :11434]
         ORCH --> OLLAMA
@@ -142,11 +142,11 @@ graph TD
 | Asset | Type | Notes |
 |-------|------|-------|
 | Host Docker daemon socket (`/var/run/docker.sock`) | Host control plane | Held by orchestrator + docker-broker; root-equivalent |
-| Docker volumes (`postgres_data`, `neo4j_data`, `redamon_llm_models`, GVM feed volumes, `report_data`, `js_recon_*`) | Persistent storage | Hold DBs, models, uploads, reports |
+| Docker volumes (`postgres_data`, `neo4j_data`, `whitehat_llm_models`, GVM feed volumes, `report_data`, `js_recon_*`) | Persistent storage | Hold DBs, models, uploads, reports |
 | Kali sandbox container | Offensive tool runtime | Holds raw network caps (`NET_RAW`, `NET_ADMIN`), `seccomp:unconfined` |
 | GVM/OpenVAS stack | Vuln scanner | `ospd` runs `seccomp/apparmor=unconfined`, `NET_ADMIN`/`NET_RAW` |
 | On-demand Ollama LLM container | Local inference | Spawned per AI-surface scan; isolated net |
-| Bridge networks (`redamon`, `orchestrator-net`, `pentest-net`) | Network segmentation | Trust-zone separation |
+| Bridge networks (`whitehat`, `orchestrator-net`, `pentest-net`) | Network segmentation | Trust-zone separation |
 
 ### 4. Other Assets
 
@@ -179,7 +179,7 @@ sequenceDiagram
     participant A as agent (LangGraph)
     participant K as kali-sandbox (MCP)
 
-    U->>W: HTTP request (+ redamon-auth cookie)
+    U->>W: HTTP request (+ whitehat-auth cookie)
     W->>MW: route through middleware
     MW->>MW: jwtVerify(AUTH_SECRET), inject x-user-id/role
     alt scan launch
@@ -248,14 +248,14 @@ graph LR
 
 ## Inbound MCP: a third actor, and a credential that outlives its session
 
-Everything above describes two ways in: a human at a browser, and RedAmon's own
+Everything above describes two ways in: a human at a browser, and WhiteHat's own
 agent reaching OUT to tools. The inbound MCP server (`/api/mcp-server`,
 `MCP_SERVER_ENABLED`, off by default) adds a third: **an external AI agent
 reaching IN**, authenticating as one user and driving recon on their behalf.
 
-This is RedAmon's THIRD MCP mode and the three are easy to conflate:
+This is WhiteHat's THIRD MCP mode and the three are easy to conflate:
 
-| Mode | Direction | RedAmon is | Credential |
+| Mode | Direction | WhiteHat is | Credential |
 |---|---|---|---|
 | Kali servers (`mcp/servers/`) | internal | the client | `MCP_AUTH_TOKEN`, loopback |
 | MCP Tool Plugins | outbound | the client | per-plugin, operator-supplied |
@@ -266,7 +266,7 @@ This is RedAmon's THIRD MCP mode and the three are easy to conflate:
 **A new credential class.** Everything else authenticating a human is a JWT
 cookie: short-lived, browser-bound, killed by logout. A personal access token is
 long-lived (default 90 days), travels in a header on EVERY call, and is designed
-to be pasted into a config file on a machine RedAmon does not control. One
+to be pasted into a config file on a machine WhiteHat does not control. One
 capture is a lasting credential, not a stolen session. Mitigations are therefore
 lifecycle-first: sha256 storage (the plaintext exists once, at mint), revocation
 and expiry re-checked on every call rather than at connect, and any password
@@ -329,13 +329,13 @@ Under `GATE_MODE=basic_auth` the endpoint is **closed by default** and returns
 edge gate would consume the credential the client needs. `MCP_EDGE_ALLOW_BEARER=true`
 is the deliberate opt-in.
 
-A `[redamon-mcp-auth]` fail2ban jail bans on repeated `401`s, and only on `401`:
+A `[whitehat-mcp-auth]` fail2ban jail bans on repeated `401`s, and only on `401`:
 a healthy client that is merely rate-limited (`429`) or arriving from outside the
 CIDR list (`403`) must not be banned for a configuration problem.
 
 ### Residual risks
 
-- **The token is only as safe as the machine holding it.** RedAmon cannot bind
+- **The token is only as safe as the machine holding it.** WhiteHat cannot bind
   it to a device or a source IP; `MCP_CLIENT_CIDRS` is the only network-level
   narrowing, and it is coarse.
 - **NL queries spend the owner's LLM key.** Bounded by a per-token daily budget
@@ -349,7 +349,7 @@ CIDR list (`403`) must not be banned for a configuration problem.
 
 ## Trust Boundaries
 
-RedAmon implements explicit, code-level privilege separation. The design intent (documented inline in `docker-compose.yml` and `recon_orchestrator/auth.py`) is that the **target-facing worker is the least trusted** component and holds **no secrets**.
+WhiteHat implements explicit, code-level privilege separation. The design intent (documented inline in `docker-compose.yml` and `recon_orchestrator/auth.py`) is that the **target-facing worker is the least trusted** component and holds **no secrets**.
 
 ```mermaid
 graph TB
@@ -482,14 +482,14 @@ Consolidated view of the full network surface and how traffic is mediated in eac
 
 ### 6.1 Posture summary
 
-- **Local (default `redamon.sh` / `docker compose`).** No nginx, no TLS, no gate. The host publishes `webapp:3000`, `agent:8090`, and `kali:4444` on `0.0.0.0` (LAN-reachable); every other listener binds `127.0.0.1` (loopback). The browser talks to the webapp on `:3000` and opens agent WebSockets directly on `:8090`.
+- **Local (default `whitehat.sh` / `docker compose`).** No nginx, no TLS, no gate. The host publishes `webapp:3000`, `agent:8090`, and `kali:4444` on `0.0.0.0` (LAN-reachable); every other listener binds `127.0.0.1` (loopback). The browser talks to the webapp on `:3000` and opens agent WebSockets directly on `:8090`.
 - **Public-internet (`tooling/deploy/single-host/`).** nginx on the host terminates TLS on `443` and is the single public origin. The prod overlay re-binds `webapp:3000` and `agent:8090` to `127.0.0.1`; the browser reaches everything through `443`. `NEXT_PUBLIC_AGENT_WS_URL` is baked at build time to `wss://<domain>/ws/agent`, so the browser never targets `:8090` directly.
 
 > **nginx is a host service, not a container.** It runs on the host (installed by `deploy.sh` via apt), sits **only at the edge** (80/443), and reverse-proxies to two loopback backends — the webapp (`127.0.0.1:3000`) and the agent (`127.0.0.1:8090`). It is **not** a middlebox between containers: all internal service-to-service traffic (webapp ↔ agent ↔ orchestrator ↔ DBs ↔ Kali) flows directly over the Docker bridge networks and never passes through nginx.
 
 ### 6.2 nginx routing map (public-internet posture)
 
-Rendered from `tooling/deploy/single-host/nginx/redamon.conf.tmpl`. These are the only `location` blocks; anything not listed has no route to a backend and is unreachable from the public origin.
+Rendered from `tooling/deploy/single-host/nginx/whitehat.conf.tmpl`. These are the only `location` blocks; anything not listed has no route to a backend and is unreachable from the public origin.
 
 | Listener | Location | → Backend | In-nginx control |
 |----------|----------|-----------|------------------|
@@ -499,15 +499,15 @@ Rendered from `tooling/deploy/single-host/nginx/redamon.conf.tmpl`. These are th
 | `:443` | `/api/auth/login` | webapp `127.0.0.1:3000` | `limit_req` 5/min (burst 3) |
 | `:443` | `/api/` | webapp `127.0.0.1:3000` | `limit_req` 30/s (burst 60) |
 | `:443` | `/ws/(agent\|kali-terminal\|cypherfix-triage\|cypherfix-codefix)` | agent `127.0.0.1:8090` | `auth_request` session gate (when `WS_REQUIRE_SESSION=true`) + `limit_conn` |
-| `:443` | `= /_redamon_session` (internal) | webapp `127.0.0.1:3000/api/auth/me` | internal validator for `auth_request`; not directly reachable |
+| `:443` | `= /_whitehat_session` (internal) | webapp `127.0.0.1:3000/api/auth/me` | internal validator for `auth_request`; not directly reachable |
 
 **The agent's REST surface is never proxied.** Only the four `/ws/*` paths reach `:8090`; `/graph/exec`, `/emergency-stop-all`, `/mcp/*`, `/llm/*`, `/workspace/*`, `/sessions/*`, etc. have no nginx route and stay loopback/bridge-only. The whole `:443` server sits behind the **operator gate** (`GATE_MODE`): `ip_allowlist` (nginx `allow`/`deny` from `OPERATOR_ALLOW_CIDRS`), `basic_auth` (htpasswd popup), or `none`.
 
 ### 6.3 nginx edge behaviors
 
-Applied by nginx on the `:443` origin (`redamon.conf.tmpl` + `nginx/snippets/`):
+Applied by nginx on the `:443` origin (`whitehat.conf.tmpl` + `nginx/snippets/`):
 
-- **Inbound header stripping** (`redamon-proxy-common.conf`): clears `X-Internal-Key`, `X-Scanner-Key`, `X-User-Id`, `X-User-Role` on every request (the webapp trusts these internally), pins `X-Forwarded-For`/`X-Real-IP` to the real peer, and hides `X-Powered-By`.
+- **Inbound header stripping** (`whitehat-proxy-common.conf`): clears `X-Internal-Key`, `X-Scanner-Key`, `X-User-Id`, `X-User-Role` on every request (the webapp trusts these internally), pins `X-Forwarded-For`/`X-Real-IP` to the real peer, and hides `X-Powered-By`.
 - **Security headers added** (the webapp sets none of its own): HSTS (`max-age=63072000; includeSubDomains; preload`), CSP (no `unsafe-eval`; `object-src 'none'`; `frame-ancestors 'none'`; `base-uri`/`form-action 'self'`), `X-Frame-Options DENY`, `X-Content-Type-Options nosniff`, `Referrer-Policy`, `X-Robots-Tag`.
 - **TLS**: TLS 1.2/1.3 only, ECDHE ciphers, `ssl_session_tickets off`, OCSP stapling.
 - **Rate/connection limits**: `limit_req` (login 5/min, api 30/s), `limit_conn 20`/IP, slowloris timeouts (`client_body/header_timeout 15s`, `keepalive_timeout 20s`), `large_client_header_buffers 8 32k`, `client_max_body_size 60m`.
@@ -566,7 +566,7 @@ The webapp middleware (`webapp/src/middleware.ts`) enforces the JWT cookie on ev
 - `/api/global/tunnel-config/sync`
 - static assets (`/_next/*`, `/favicon*`, `/logo.png`, `/js_logo.png`)
 
-Every other `/api/*` route requires a valid `redamon-auth` JWT cookie. The `X-Internal-Key` / `X-Scanner-Key` service headers (cleared by nginx at the edge) are accepted only from internal callers on the Docker network.
+Every other `/api/*` route requires a valid `whitehat-auth` JWT cookie. The `X-Internal-Key` / `X-Scanner-Key` service headers (cleared by nginx at the edge) are accepted only from internal callers on the Docker network.
 
 ### 6.8 Internal segmentation (east-west)
 
@@ -574,12 +574,12 @@ Container-to-container traffic runs over three Docker bridge networks plus the h
 
 | Network | Members | Purpose |
 |---------|---------|---------|
-| `redamon-network` | webapp, agent, kali-sandbox, postgres, neo4j | Main application plane |
-| `redamon-orchestrator-net` | recon-orchestrator, webapp (multi-homed), on-demand Ollama | Isolated privileged orchestration |
+| `whitehat-network` | webapp, agent, kali-sandbox, postgres, neo4j | Main application plane |
+| `whitehat-orchestrator-net` | recon-orchestrator, webapp (multi-homed), on-demand Ollama | Isolated privileged orchestration |
 | `pentest-net` | kali-sandbox, spawned scanners | Target-facing offensive plane |
 | host network | spawned recon/gvm/secret scanners, reverse-shell catcher | Raw-socket scanning + direct reverse shells |
 
-Notable internal reachability: the webapp is the only container multi-homed onto `redamon-orchestrator-net` (it holds `X-Orchestrator-Key`); the recon-orchestrator holds the Docker socket (via docker-broker for scanner spawns, and the real socket for GVM / CodeFix sandbox); the agent reaches the Kali MCP servers over `redamon-network`; spawned scanners write to Neo4j over the host network.
+Notable internal reachability: the webapp is the only container multi-homed onto `whitehat-orchestrator-net` (it holds `X-Orchestrator-Key`); the recon-orchestrator holds the Docker socket (via docker-broker for scanner spawns, and the real socket for GVM / CodeFix sandbox); the agent reaches the Kali MCP servers over `whitehat-network`; spawned scanners write to Neo4j over the host network.
 
 ### 6.9 Egress (outbound)
 
@@ -587,4 +587,4 @@ Outbound connections leave the host to: external **LLM providers** (agent, per-u
 
 ---
 
-*Generated from static analysis of the RedAmon repository. This document describes the current system structure and network surface (state of fact) only.*
+*Generated from static analysis of the WhiteHat repository. This document describes the current system structure and network surface (state of fact) only.*

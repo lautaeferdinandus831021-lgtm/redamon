@@ -9,7 +9,7 @@ Reference for endpoint discovery via the Katana crawler: depth tuning, JS-discov
 
 Upstream: https://docs.projectdiscovery.io/opensource/katana/usage
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|
@@ -123,7 +123,7 @@ Bootstrap the profile once via `execute_playwright` (login flow), then point Kat
 
 ### Captured traffic (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled and Katana crawls through the capture proxy, the crawl folds into captured history and becomes queryable via redamon.search (host/method/status filters) and redamon.grep (substring over response bodies). The crawl output overlaps redamon.sitemap (distinct observed endpoints) and redamon.params (distinct params, POST bodies included), so redamon.sitemap can dedupe what is already seen and seed only the paths Katana still needs to reach, no re-crawl needed to inspect what was captured.
+When HTTP Traffic Capture is enabled and Katana crawls through the capture proxy, the crawl folds into captured history and becomes queryable via whitehat.search (host/method/status filters) and whitehat.grep (substring over response bodies). The crawl output overlaps whitehat.sitemap (distinct observed endpoints) and whitehat.params (distinct params, POST bodies included), so whitehat.sitemap can dedupe what is already seen and seed only the paths Katana still needs to reach, no re-crawl needed to inspect what was captured.
 
 ## Known-files mode (`-kf`)
 

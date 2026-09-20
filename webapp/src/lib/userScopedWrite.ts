@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma'
  * Guards a write that hangs off a `userId` foreign key.
  *
  * The browser can hold a user id that no longer exists (a DB reset, a deleted
- * account, a stale `redamon-current-user` restored on an admin's next visit).
+ * account, a stale `whitehat-current-user` restored on an admin's next visit).
  * Reads for such an id come back as an innocuous empty list, so the first
  * WRITE is where it surfaces - and without this it surfaced as an unhandled
  * Prisma P2003 ("Foreign key constraint violated on user_llm_providers_user_id_fkey")

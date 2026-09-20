@@ -879,7 +879,7 @@ def test_roe_caps_arjun_rate_limit():
 
 def test_auth_header_stays_separate_from_ctx_tag_in_arjun_headers():
     """Row 2: arjun packs ALL headers into ONE --headers argument joined by
-    newlines, and the internal X-Redamon-Ctx tag is appended to that same list.
+    newlines, and the internal X-WhiteHat-Ctx tag is appended to that same list.
     An auth value carrying a newline could split or spoof the tag, so the
     profile's lines must lead and remain their own line."""
     from recon.helpers.resource_enum.arjun_helpers import run_arjun_discovery
@@ -916,8 +916,8 @@ def test_auth_header_stays_separate_from_ctx_tag_in_arjun_headers():
     joined = cmd[cmd.index('--headers') + 1]
     lines = joined.split('\n')
     assert lines[0] == 'Cookie: sid=abc123', lines
-    assert 'X-Redamon-Ctx: signed-ctx-token' in lines, lines
-    assert 'X-Redamon-Ctx' not in lines[0]
+    assert 'X-WhiteHat-Ctx: signed-ctx-token' in lines, lines
+    assert 'X-WhiteHat-Ctx' not in lines[0]
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 """
-RedAmon Remote Code Execution (RCE) Prompts
+WhiteHat Remote Code Execution (RCE) Prompts
 
 Black-box workflows for RCE testing across the six classic primitives:
 command injection, server-side template injection (SSTI), insecure deserialization,
@@ -10,7 +10,7 @@ Synthesis:
 - Shannon vuln-injection.txt + exploit-injection.txt: OWASP exploitation stages
   (Confirmation -> Fingerprinting -> Exfiltration -> Critical Impact), proof
   levels 1-4, false-positive gate. White-box / source-code / deliverable-file
-  instructions are intentionally stripped -- RedAmon agents have no source access.
+  instructions are intentionally stripped -- WhiteHat agents have no source access.
 """
 
 
@@ -585,7 +585,7 @@ Critical-impact proofs (Level 4). Pick the MINIMUM viable proof; do not chain.
 
 **File write under app constraints:**
 ```
-;echo 'PROOF_WRITE_REDAMON' > /tmp/rce_proof_$$
+;echo 'PROOF_WRITE_WHITEHAT' > /tmp/rce_proof_$$
 ;ls -la /tmp/rce_proof_*
 ```
 

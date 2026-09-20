@@ -4,7 +4,7 @@ Cache Poisoning Scanner — WCVS breadth engine (Phase 1).
 Runs Hackmanit's Web Cache Vulnerability Scanner (WCVS) docker-in-docker against
 the discovered URL list and parses its JSON report into candidate findings. WCVS
 gives breadth (10+ technique classes, deception, cache-buster discovery); the
-RedAmon-native confirmation layer (confirm.py) then re-validates every candidate.
+WhiteHat-native confirmation layer (confirm.py) then re-validates every candidate.
 
 WCVS report schema (pkg/report.go), exact JSON tags:
   Report{ name, version, foundVulnerabilities, hasError, errorMessages, date,
@@ -83,7 +83,7 @@ def safety_skip_tests(allow_deception: bool, allow_cpdos: bool) -> list[str]:
     return skip
 
 
-def run_wcvs(target_urls: list[str], settings: dict, work_dir: str = "/tmp/redamon/.cache_scan") -> list[dict]:
+def run_wcvs(target_urls: list[str], settings: dict, work_dir: str = "/tmp/whitehat/.cache_scan") -> list[dict]:
     """Run WCVS over the target URLs and return parsed candidate findings.
 
     Each candidate dict: {url, technique, vector_name, reason, reflections,
@@ -98,7 +98,7 @@ def run_wcvs(target_urls: list[str], settings: dict, work_dir: str = "/tmp/redam
 
     from recon.cache_scan.safety import is_deception_allowed, is_cpdos_allowed
 
-    docker_image = settings.get("WEB_CACHE_POISON_DOCKER_IMAGE", "redamon-wcvs:latest")
+    docker_image = settings.get("WEB_CACHE_POISON_DOCKER_IMAGE", "whitehat-wcvs:latest")
     threads = settings.get("WEB_CACHE_POISON_CONCURRENCY", 10)
     req_rate = settings.get("WEB_CACHE_POISON_MAX_RPS_PER_HOST", 0)
     cache_header = settings.get("WEB_CACHE_POISON_CACHE_HEADER", "") or ""

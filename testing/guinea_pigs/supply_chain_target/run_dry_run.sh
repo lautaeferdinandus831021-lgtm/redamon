@@ -35,7 +35,7 @@ docker run --rm --network host "$HTTPX_IMAGE" \
   -u "${TARGET}:8080/" -td -json -silent 2>/dev/null >> "$WORK/httpx.json"
 echo "[+] tech: $(python3 -c "import json;print(json.loads(open('$WORK/httpx.json').readline()).get('tech'))" 2>/dev/null || echo '?')"
 
-echo "[*] running js_recon + supply_chain_recon in redamon-recon..."
+echo "[*] running js_recon + supply_chain_recon in whitehat-recon..."
 # The broker socket is now mounted UNCONDITIONALLY. retire.js is not part of
 # the opt-in deep pass - it runs on every L2 scan, and like GuardDog it is
 # dispatched into the hardened analyzer image over DOCKER_HOST. Gating the
@@ -50,15 +50,15 @@ echo "[*] running js_recon + supply_chain_recon in redamon-recon..."
 # a source path that does not exist on the host. This mirrors what
 # container_manager passes the real recon container.
 #
-# /tmp/redamon must be bind-mounted AT THE SAME PATH, exactly as the real recon
+# /tmp/whitehat must be bind-mounted AT THE SAME PATH, exactly as the real recon
 # container has it. The analyzer job dir is created there and handed to the
 # daemon as a mount source, so container path and host path have to agree - if
 # they do not, docker silently creates an empty dir and the analyzer reports
 # "cannot read job spec".
 DEEP_ENV=(-e DOCKER_HOST=unix:///var/run/broker/docker.sock
           -e SUPPLY_CHAIN_COMMON_HOST_PATH="$ROOT/scanners/supply_chain_common"
-          -v redamon_broker_socket:/var/run/broker
-          -v /tmp/redamon:/tmp/redamon)
+          -v whitehat_broker_socket:/var/run/broker
+          -v /tmp/whitehat:/tmp/whitehat)
 if [ "${SC_DEEP:-0}" = "1" ]; then
   echo "[*] deep analysis ON (downloads real tarballs from the npm registry)"
   DEEP_ENV+=(-e SC_DEEP=1)
@@ -77,11 +77,11 @@ docker run --rm --network host \
   -v "$ROOT/scanners/supply_chain_common":/app/supply_chain_common:ro \
   -v "$HERE/dry_run_harvest.py":/app/dry_run_harvest.py:ro \
   -v "$WORK":/work:rw \
-  -v redamon-osv-db:/osv-db:ro \
+  -v whitehat-osv-db:/osv-db:ro \
   -e SCA_INTEL_PATH=/sca-intel \
-  -v redamon-sca-intel:/sca-intel:ro \
+  -v whitehat-sca-intel:/sca-intel:ro \
   --entrypoint python3 \
-  redamon-recon:latest /app/dry_run_harvest.py
+  whitehat-recon:latest /app/dry_run_harvest.py
 
 # The run is root-in-container (it needs the broker socket); hand the output back.
 sudo -n chown "$(id -u):$(id -g)" "$WORK"/*.json 2>/dev/null \

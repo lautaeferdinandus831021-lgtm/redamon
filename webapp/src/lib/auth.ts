@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 
-export const AUTH_COOKIE_NAME = 'redamon-auth'
+export const AUTH_COOKIE_NAME = 'whitehat-auth'
 const BCRYPT_ROUNDS = 12
 const TOKEN_EXPIRY = '7d'
 
@@ -46,7 +46,7 @@ export async function verifyToken(token: string): Promise<{ sub: string; role: s
 // with a DEDICATED secret (never AUTH_SECRET) so an agent-side compromise cannot
 // forge login cookies. Returns null when the secret is unset, and the agent then
 // REFUSES the socket (it fails closed, see agentic/ws_ticket.py) - a stack whose
-// .env predates this secret must run ./redamon.sh update.
+// .env predates this secret must run ./whitehat.sh update.
 const WS_TICKET_EXPIRY = '60s'
 
 function getWsTicketSecret(): Uint8Array | null {
@@ -78,7 +78,7 @@ export async function createWsTicket(
 // only honors it when the caller's real role (from the untouched login JWT) is
 // admin AND the token's `sub` equals that admin's id - so a standard user forging
 // this cookie is ignored, and a login cookie replayed here fails the `act` check.
-export const ACT_AS_COOKIE_NAME = 'redamon-act-as'
+export const ACT_AS_COOKIE_NAME = 'whitehat-act-as'
 const ACT_AS_EXPIRY = '12h'
 
 export async function createActAsToken(adminUserId: string, targetUserId: string): Promise<string> {

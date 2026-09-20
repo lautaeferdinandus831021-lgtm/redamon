@@ -1,6 +1,6 @@
 # ADD A CHAT SKILL
 
-Add **[SKILL_NAME]** (e.g. `ad_kill_chain`, `ffuf`, `jwt_cheatsheet`) as a new **Chat Skill** shipped with RedAmon.
+Add **[SKILL_NAME]** (e.g. `ad_kill_chain`, `ffuf`, `jwt_cheatsheet`) as a new **Chat Skill** shipped with WhiteHat.
 
 > **Scope**: a Chat Skill is an on-demand reference `.md` injected into the agent via the `/skill <name>` command in the chat drawer, or the lightning-bolt skill picker. It does NOT affect classification, phase routing, or tool selection. It is a tactical reference doc (tool playbooks, vulnerability theory, framework notes, scan-mode guides). Users import the shipped catalog via "Import from Community" in Global Settings > Chat Skills, then activate skills mid-session with `/skill <name>`. For phase-structured attack workflows, see [PROMPT.ADD_COMMUNITY_AGENT_SKILL.md](PROMPT.ADD_COMMUNITY_AGENT_SKILL.md). For hardcoded first-class skills, see [PROMPT.ADD_BUILTIN_AGENT_SKILL.md](PROMPT.ADD_BUILTIN_AGENT_SKILL.md).
 
@@ -53,7 +53,7 @@ Key differences from Agent Skills:
 |---|---|---|
 | 1. The skill `.md` with YAML frontmatter | [agentic/skills/<category>/<skill_name>.md](../../../agentic/skills/) | YES |
 | 2. Category folder | [agentic/skills/<category>/](../../../agentic/skills/) | YES (create if new) |
-| 3. Wiki catalog | [redamon.wiki/Chat-Skills.md](../../../redamon.wiki/Chat-Skills.md) | YES if shipping publicly |
+| 3. Wiki catalog | [whitehat.wiki/Chat-Skills.md](../../../whitehat.wiki/Chat-Skills.md) | YES if shipping publicly |
 | 4. Everything else (classification, Prisma, UI code) | N/A | NO CODE CHANGES |
 
 ---
@@ -122,7 +122,7 @@ description: <one-line summary, used by the skill picker and autocomplete>
 
 ### Content rules
 
-Chat Skills are simpler than Agent Skills. The wiki documents this at [redamon.wiki/Chat-Skills.md "Writing a Chat Skill File"](../../../redamon.wiki/Chat-Skills.md):
+Chat Skills are simpler than Agent Skills. The wiki documents this at [whitehat.wiki/Chat-Skills.md "Writing a Chat Skill File"](../../../whitehat.wiki/Chat-Skills.md):
 
 - No phase structure (no "Phase 1: Reconnaissance", etc.)
 - No "When to Classify Here" section (Chat Skills are not classified)
@@ -178,7 +178,7 @@ Additional rules:
 
 ## Phase 3: Update the wiki
 
-Edit the "Default Chat Skills Library" and/or "Community Chat Skills" tables in [redamon.wiki/Chat-Skills.md](../../../redamon.wiki/Chat-Skills.md) (current tables at lines ~217-235).
+Edit the "Default Chat Skills Library" and/or "Community Chat Skills" tables in [whitehat.wiki/Chat-Skills.md](../../../whitehat.wiki/Chat-Skills.md) (current tables at lines ~217-235).
 
 Add a row matching the format:
 
@@ -252,6 +252,6 @@ Flag this to the user when shipping a skill update.
 - [ ] Commands reference real agent tools when relevant
 - [ ] File is under 50 KB
 - [ ] No em dashes anywhere
-- [ ] (Optional, if shipping publicly) [redamon.wiki/Chat-Skills.md](../../../redamon.wiki/Chat-Skills.md) catalog table updated
+- [ ] (Optional, if shipping publicly) [whitehat.wiki/Chat-Skills.md](../../../whitehat.wiki/Chat-Skills.md) catalog table updated
 - [ ] `GET /skills` returns the new entry with correct `name`, `description`, `category` (no rebuild, directory is volume-mounted)
 - [ ] End-to-end: Import from Community -> appears in Global Settings > Chat Skills -> activates via `/skill <name>` -> badge appears -> agent answers from skill content -> `/skill remove` deactivates

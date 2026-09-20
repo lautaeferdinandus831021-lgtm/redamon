@@ -16,9 +16,9 @@ new dependency.
 Fail-CLOSED (STRIDE S2/S3/S4): when `AGENT_WS_TICKET_SECRET` is unset, the
 `/ws/agent`, `/ws/kali-terminal`, and both `/ws/cypherfix-*` handlers REJECT the
 connection (close 1008) instead of trusting a self-asserted identity. A stack
-brought up WITHOUT `redamon.sh` (which generates the secret via
+brought up WITHOUT `whitehat.sh` (which generates the secret via
 `ensure_auth_secrets`) therefore has non-functional WebSockets by design; run
-`redamon.sh` or set the secret. `verify_ws_ticket` also fails closed when the
+`whitehat.sh` or set the secret. `verify_ws_ticket` also fails closed when the
 secret is configured but the ticket is missing/invalid/expired.
 """
 

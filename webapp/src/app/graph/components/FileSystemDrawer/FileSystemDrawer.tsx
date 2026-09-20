@@ -71,7 +71,7 @@ export interface FileSystemDrawerProps {
 // PROTECTED_SUBDIRS in agentic/workspace_fs.py (backend also enforces).
 const PROTECTED_SUBDIRS = new Set(['notes', 'tool-outputs', 'jobs', 'uploads'])
 
-const WIDTH_STORAGE_KEY = 'redamon-filesystem-drawer-width'
+const WIDTH_STORAGE_KEY = 'whitehat-filesystem-drawer-width'
 const DEFAULT_WIDTH_PX = 494
 const MIN_WIDTH_PX = 320
 const MAX_WIDTH_PX = 1200
@@ -143,7 +143,7 @@ export function FileSystemDrawer({
   initialPath = '.',
   initialTab = 'files',
 }: FileSystemDrawerProps) {
-  // RedAmon-styled modal dialogs (replaces browser-native alert/confirm).
+  // WhiteHat-styled modal dialogs (replaces browser-native alert/confirm).
   // Provider is mounted in app/layout.tsx.
   const { alertError, alertWarning, dangerConfirm } = useAlertModal()
 

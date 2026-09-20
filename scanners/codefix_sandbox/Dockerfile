@@ -1,4 +1,4 @@
-# RedAmon CodeFix build sandbox
+# WhiteHat CodeFix build sandbox
 #
 # This image runs the UNTRUSTED clone+build+test step of the CodeFix (CypherFix)
 # agent. A cloned repo is attacker-influenceable input (malicious postinstall
@@ -7,7 +7,7 @@
 #
 # Hardening is applied by the spawner (recon_orchestrator/container_manager.py):
 # no secrets in env, cap_drop=ALL, no-new-privileges, read-only rootfs, nonroot
-# user, resource limits, and a network (codefix-net) with NO RedAmon peer.
+# user, resource limits, and a network (codefix-net) with NO WhiteHat peer.
 #
 # The container ships NO application code and exposes NO server. Commands arrive
 # via `docker exec` from the orchestrator (which holds the real docker socket).

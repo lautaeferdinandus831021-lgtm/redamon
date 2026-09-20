@@ -1,7 +1,7 @@
 """
 Unit tests for the capture context tag (sign/verify) security primitive.
 
-Run: python3 -m unittest capture_proxy.tests.test_redamon_ctx
+Run: python3 -m unittest capture_proxy.tests.test_whitehat_ctx
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import redamon_ctx as ctx  # noqa: E402
+import whitehat_ctx as ctx  # noqa: E402
 
 SCANNER = "scanner-secret-AAAA"
 INTERNAL = "internal-secret-BBBB"

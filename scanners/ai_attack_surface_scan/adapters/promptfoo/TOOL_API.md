@@ -85,13 +85,13 @@ config is YAML (we emit it from the adapter). Verbatim key shape:
 ```yaml
 targets:                         # alias: "providers"
   - id: https                    # the built-in HTTP provider
-    label: redamon-target
+    label: whitehat-target
     config:
       url: 'http://HOST:PORT/v1/chat/completions'
       method: POST
       headers:
         Content-Type: application/json
-        Authorization: 'Bearer {{env.REDAMON_TARGET_KEY}}'   # only if a key is in scope
+        Authorization: 'Bearer {{env.WHITEHAT_TARGET_KEY}}'   # only if a key is in scope
       body:
         model: '<id>'
         messages:
@@ -144,7 +144,7 @@ auth + custom off-graph URL targets (§6 of the plan), identical to the other 3 
 {
   "promptIdx": 0, "testIdx": 0,
   "testCase": { /* the atomic test case, incl. its metadata + assertions */ },
-  "provider": { "id": "...", "label": "redamon-target" },
+  "provider": { "id": "...", "label": "whitehat-target" },
   "prompt": { "raw": "...", "label": "..." },
   "vars": { /* incl. the injected adversarial var */ },
   "response": { "output": "<model text>", ... },   // ProviderResponse

@@ -10,8 +10,8 @@ Covers the three graph-layer fixes shipped after the 2026-04-19 audit:
      success=False and produce a ChainFailure record.
 
 Run:
-    docker run --rm -v "/home/samuele/Progetti didattici/redamon/agentic:/app" \
-        -w /app redamon-agent python -m unittest tests.test_finding_bridges -v
+    docker run --rm -v "/home/samuele/Progetti didattici/whitehat/agentic:/app" \
+        -w /app whitehat-agent python -m unittest tests.test_finding_bridges -v
 """
 
 from __future__ import annotations

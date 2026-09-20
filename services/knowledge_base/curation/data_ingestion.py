@@ -613,7 +613,7 @@ def _write_last_ingest(data_dir: Path, profile: str) -> None:
 def main():
     """CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="RedAmon Knowledge Base ingestion pipeline",
+        description="WhiteHat Knowledge Base ingestion pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

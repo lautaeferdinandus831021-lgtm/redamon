@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the `./redamon.sh update` git path: _upstream_ref,
+# Test suite for the `./whitehat.sh update` git path: _upstream_ref,
 # _restore_runtime_tracked_files, _has_local_only_commits,
 # _diverged_by_runtime_scribbles_only, _update_pull, _assert_checkout_writable.
 #
@@ -12,14 +12,14 @@
 # precisely what makes the divergence permanent.
 #
 # Real git repos in a temp dir; no network, no Docker daemon. Run:
-#   bash tests/redamon_update_pull_test.sh
+#   bash tests/whitehat_update_pull_test.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -75,7 +75,7 @@ scribble2() { printf 'refreshed-wappalyzer\n' > "$1/$RUNTIME_FILE2"; }
 # Capture a function that may `exit`, without taking the test runner down.
 run_capture() { OUT="$( "$@" 2>&1 )"; RC=$?; }
 
-# Run a function under the SAME `set -euo pipefail` redamon.sh really executes
+# Run a function under the SAME `set -euo pipefail` whitehat.sh really executes
 # with. This suite runs `set +e` so one failed assertion does not abort the file,
 # which means run_capture CANNOT observe an errexit abort - and that is exactly
 # the class of bug that shipped green here (a bare `x="$(fn)"` whose git call
@@ -91,7 +91,7 @@ run_strict() {
         shift 2
         "$@"
         printf "__END__"
-    ' _ "$REPO_ROOT/redamon.sh" "$SCRIPT_DIR" "$@" 2>&1)"
+    ' _ "$REPO_ROOT/whitehat.sh" "$SCRIPT_DIR" "$@" 2>&1)"
     STRICT_RC=$?
 }
 
@@ -261,7 +261,7 @@ chmod -R u+w "$SCRIPT_DIR" 2>/dev/null
 section "regression: errexit - a failing 'git status' must not kill the update"
 # ============================================================================
 # BUG: `dirty="$(_dirty_tracked_files)"` was a bare assignment. _dirty_tracked_files
-# swallows stderr and returns git's status, so under redamon.sh's own
+# swallows stderr and returns git's status, so under whitehat.sh's own
 # `set -euo pipefail` a failing `git status` aborted _update_pull instantly:
 # exit 128, ZERO output, and cmd_update died before printing anything at all.
 # `git status` really can fail while refs still resolve - a corrupt index, or
@@ -286,7 +286,7 @@ section "regression: the auto-heal must not trigger a spurious image rebuild"
 # ============================================================================
 # BUG: after `git reset --hard`, cmd_update still diffed from the DISCARDED
 # commit, so changed_files contained the reverted runtime paths. Those match
-# `^recon/` (redamon.sh, rebuild_tools+=(recon)) and rebuild the heavy recon
+# `^recon/` (whitehat.sh, rebuild_tools+=(recon)) and rebuild the heavy recon
 # image a release never touched - and a non-empty rebuild list also arms
 # preflight_disk_gate's 40 GB floor, which ABORTS the update on a small host.
 SCRIPT_DIR="$(make_pair rebuildmap)"
@@ -320,7 +320,7 @@ section "security: the reset guard cannot be prefix-confused"
 SCRIPT_DIR="$(make_pair guard)"
 # Calls the REAL guard. An earlier version of this helper reimplemented the
 # match here; a mutation run proved it useless - deleting the traversal check
-# from redamon.sh left every assertion green.
+# from whitehat.sh left every assertion green.
 guard_says() { _is_runtime_tracked_path "$1" && echo authorises || echo refuses; }
 assert_eq "a real runtime file authorises"        "$(guard_says "$RUNTIME_FILE")" "authorises"
 assert_eq "the second runtime file authorises"    "$(guard_says "$RUNTIME_FILE2")" "authorises"
@@ -347,13 +347,13 @@ assert_eq "and the commit survives untouched" \
     "$(git -C "$SCRIPT_DIR" rev-parse HEAD)" "$HEAD_BEFORE"
 
 # ============================================================================
-section "safety: REDAMON_NO_AUTO_RESET opts out of the destructive recovery"
+section "safety: WHITEHAT_NO_AUTO_RESET opts out of the destructive recovery"
 # ============================================================================
 SCRIPT_DIR="$(make_pair optout)"
 scribble "$SCRIPT_DIR"
 git_q "$SCRIPT_DIR" commit -qam 'local changes' >/dev/null 2>&1
 HEAD_BEFORE="$(git -C "$SCRIPT_DIR" rev-parse HEAD)"
-REDAMON_NO_AUTO_RESET=1 run_strict _update_pull
+WHITEHAT_NO_AUTO_RESET=1 run_strict _update_pull
 assert_eq "refuses to heal when opted out" "$STRICT_RC" "1"
 assert_eq "history is untouched" "$(git -C "$SCRIPT_DIR" rev-parse HEAD)" "$HEAD_BEFORE"
 assert_contains "and says how to do it by hand" "$STRICT_OUT" "reset --hard origin/master"

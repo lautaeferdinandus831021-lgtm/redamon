@@ -3,7 +3,7 @@
 Wraps `dolevf/graphql-cop` as an external misconfig scanner. Runs 12 checks per
 endpoint (alias overloading, batch query DoS, directive overloading, GraphiQL
 detection, trace mode, GET-based CSRF, unhandled errors, etc.) and normalizes
-the JSON output into RedAmon's Vulnerability dict shape.
+the JSON output into WhiteHat's Vulnerability dict shape.
 
 Pinned to `dolevf/graphql-cop:1.14` (DockerHub). Re-verify TITLE_TO_KEY on image
 bumps -- graphql-cop's JSON output discriminates by `title`, not by internal key.
@@ -24,7 +24,7 @@ DEFAULT_IMAGE = 'dolevf/graphql-cop:1.14'
 # --------------------------------------------------------------------------
 # graphql-cop test registry
 # --------------------------------------------------------------------------
-# Internal key (-e exclusion flag) -> RedAmon vulnerability_type.
+# Internal key (-e exclusion flag) -> WhiteHat vulnerability_type.
 # Keys match graphql-cop/lib/tests/__init__.py tests dict exactly.
 GRAPHQL_COP_TEST_TO_VULN_TYPE: Dict[str, str] = {
     'field_suggestions':            'graphql_field_suggestions_enabled',
@@ -273,7 +273,7 @@ def _extract_json_array(stdout: str) -> Optional[list]:
 
 
 def _normalize_findings(endpoint: str, raw_findings: List[dict]) -> List[dict]:
-    """Convert graphql-cop JSON -> RedAmon Vulnerability dict shape.
+    """Convert graphql-cop JSON -> WhiteHat Vulnerability dict shape.
 
     Only findings with result=True become Vulnerability records. All 12 test
     results (result=True/False) are kept in evidence so the mixin can set
@@ -315,7 +315,7 @@ def _normalize_findings(endpoint: str, raw_findings: List[dict]) -> List[dict]:
 
 
 def _map_severity(raw: str) -> str:
-    """graphql-cop severity -> RedAmon canonical lowercase."""
+    """graphql-cop severity -> WhiteHat canonical lowercase."""
     return {
         'HIGH':   'high',
         'MEDIUM': 'medium',

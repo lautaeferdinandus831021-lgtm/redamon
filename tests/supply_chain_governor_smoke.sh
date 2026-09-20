@@ -61,11 +61,11 @@ eq "docker run accepts the governed --memory verbatim" "$OUT" "accepted"
 
 # -----------------------------------------------------------------------------
 echo "== the analyzer really gets the limit applied =="
-if docker image inspect redamon-supply-chain-analyzer:latest >/dev/null 2>&1; then
-  NAME="redamon-smoke-analyzer-$$"
+if docker image inspect whitehat-supply-chain-analyzer:latest >/dev/null 2>&1; then
+  NAME="whitehat-smoke-analyzer-$$"
   docker run -d --name "$NAME" --memory "$MEM_VALUE" --cap-drop ALL --read-only \
     --tmpfs /tmp:size=1g,exec --pids-limit 512 --entrypoint sleep \
-    redamon-supply-chain-analyzer:latest 30 >/dev/null 2>&1
+    whitehat-supply-chain-analyzer:latest 30 >/dev/null 2>&1
   APPLIED="$(docker inspect "$NAME" --format '{{.HostConfig.Memory}}' 2>/dev/null)"
   CAPS="$(docker inspect "$NAME" --format '{{.HostConfig.CapDrop}}' 2>/dev/null)"
   ROOTFS="$(docker inspect "$NAME" --format '{{.HostConfig.ReadonlyRootfs}}' 2>/dev/null)"
@@ -76,11 +76,11 @@ if docker image inspect redamon-supply-chain-analyzer:latest >/dev/null 2>&1; th
   eq "analyzer rootfs is read-only" "$ROOTFS" "true"
   eq "analyzer PID ceiling applied" "$PIDS" "512"
 else
-  skip "analyzer container limits" "redamon-supply-chain-analyzer image not built"
+  skip "analyzer container limits" "whitehat-supply-chain-analyzer image not built"
 fi
 
 # -----------------------------------------------------------------------------
-echo "== every running RedAmon container is capped =="
+echo "== every running WhiteHat container is capped =="
 # Scope to the STACK's own services. Other compose projects (guinea-pig targets)
 # are outside the ledger by construction, so they get their own advisory check
 # rather than failing this one.
@@ -95,13 +95,13 @@ eq "no always-on stack container runs uncapped" "${UNCAPPED:-none}" "none"
 # reserved for, so the least it can do is carry its own ceiling.
 STACK="$(docker compose ps --format '{{.Name}}' 2>/dev/null | tr '\n' ' ')"
 OUTSIDE=""
-for c in $(docker ps --format '{{.Names}}' | grep '^redamon-'); do
+for c in $(docker ps --format '{{.Names}}' | grep '^whitehat-'); do
   [[ " $STACK " == *" $c "* ]] && continue
   M="$(docker inspect "$c" --format '{{.HostConfig.Memory}}' 2>/dev/null)"
   [[ "$M" == "0" ]] && OUTSIDE="$OUTSIDE $c"
 done
 if [[ -z "$OUTSIDE" ]]; then
-  ok "no out-of-stack redamon container runs uncapped"
+  ok "no out-of-stack whitehat container runs uncapped"
 else
   skip "out-of-stack containers are uncapped:$OUTSIDE" "recreate them to pick up caps"
 fi
@@ -169,7 +169,7 @@ eq "the L3 reservation was released after the call" "$AFTER" "0"
 
 # -----------------------------------------------------------------------------
 echo "== broker allowlist still covers the analyzer =="
-ALLOW="$(grep -c 'redamon-supply-chain-analyzer' services/docker_broker/broker.py 2>/dev/null || echo 0)"
+ALLOW="$(grep -c 'whitehat-supply-chain-analyzer' services/docker_broker/broker.py 2>/dev/null || echo 0)"
 gt "analyzer image is referenced by the broker policy" "$ALLOW" "0"
 
 echo

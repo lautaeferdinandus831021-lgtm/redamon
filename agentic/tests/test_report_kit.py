@@ -8,7 +8,7 @@ The tests are written around the two properties that make this layer useful:
 * it must be cheap to run - deterministic, no LLM, no network, so a verdict is
   reproducible and every flag points at the phrase that produced it.
 
-Runs with the agent's real dependency set (redamon-agent image), per the repo
+Runs with the agent's real dependency set (whitehat-agent image), per the repo
 testing rules - not on the host.
 """
 import os
@@ -96,9 +96,9 @@ class TestRules(unittest.TestCase):
             self.assertIn(phrase, DISCIPLINE_RULES)
 
     def test_discipline_block_follows_the_env_switch(self):
-        with mock.patch.dict(os.environ, {"REDAMON_REPORT_DISCIPLINE": "false"}):
+        with mock.patch.dict(os.environ, {"WHITEHAT_REPORT_DISCIPLINE": "false"}):
             self.assertEqual(discipline_block(), "")
-        with mock.patch.dict(os.environ, {"REDAMON_REPORT_DISCIPLINE": "true"}):
+        with mock.patch.dict(os.environ, {"WHITEHAT_REPORT_DISCIPLINE": "true"}):
             self.assertEqual(discipline_block(), DISCIPLINE_RULES)
 
     def test_structure_lists_the_sections_in_order(self):
@@ -119,7 +119,7 @@ class TestRules(unittest.TestCase):
 
     def test_report_block_is_empty_when_switched_off(self):
         with mock.patch.dict(os.environ,
-                             {"REDAMON_REPORT_DISCIPLINE_REPORT_BLOCK": "false"}):
+                             {"WHITEHAT_REPORT_DISCIPLINE_REPORT_BLOCK": "false"}):
             self.assertEqual(build_report_block("ssrf"), "")
 
     def test_report_block_without_a_known_class_says_so(self):

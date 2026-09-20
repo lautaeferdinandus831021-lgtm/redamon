@@ -2,7 +2,7 @@
 
 ## Overview
 
-**CypherFix** is RedAmon's automated vulnerability remediation pipeline. It bridges the gap between discovering vulnerabilities (via reconnaissance, DAST scanning, and AI-powered pentesting) and actually fixing them in code. The pipeline consists of two independent AI agents that operate in sequence:
+**CypherFix** is WhiteHat's automated vulnerability remediation pipeline. It bridges the gap between discovering vulnerabilities (via reconnaissance, DAST scanning, and AI-powered pentesting) and actually fixing them in code. The pipeline consists of two independent AI agents that operate in sequence:
 
 1. **Triage Agent** - Scores every finding in the Neo4j attack surface graph
    with a fixed risk model, groups the findings that share a fix, has an LLM
@@ -603,14 +603,14 @@ flowchart LR
 
 Key properties:
 
-- **Per-job, ephemeral.** A `redamon-codefix-<job>` container is spawned at the start of a run and destroyed on completion / disconnect / TTL (a reaper cleans orphans).
+- **Per-job, ephemeral.** A `whitehat-codefix-<job>` container is spawned at the start of a run and destroyed on completion / disconnect / TTL (a reaper cleans orphans).
 - **No secrets.** The sandbox environment is empty — a full RCE during a build finds nothing to steal.
-- **No internal reach.** It sits on an isolated `codefix-net` bridge with NAT egress (so `npm`/`pip` installs work) but **no RedAmon peer** — it cannot reach webapp/Neo4j/Postgres/agent.
+- **No internal reach.** It sits on an isolated `codefix-net` bridge with NAT egress (so `npm`/`pip` installs work) but **no WhiteHat peer** — it cannot reach webapp/Neo4j/Postgres/agent.
 - **Hardened runtime.** `cap_drop=ALL`, `security_opt=no-new-privileges`, read-only rootfs (writable tmpfs + worktree only), non-root user, CPU/memory/PID limits.
 - **Command channel is the docker control plane**, not a shared network: the agent cannot reach the orchestrator directly, so requests flow `agent → webapp (X-Internal-Key) → orchestrator (X-Orchestrator-Key) → docker exec`. This preserves the rule that only the webapp holds the orchestrator key.
 - **Token isolation.** Clone/commit/push run on the agent side with the token via `GIT_ASKPASS`; the sandbox mounts the worktree (`.git` read-only) and never sees the token.
 
-If the sandbox image (`redamon-codefix-sandbox:latest`, built via `docker compose --profile tools build`) is missing, `github_bash` is cleanly disabled (file edits still work) — it never falls back to in-agent execution.
+If the sandbox image (`whitehat-codefix-sandbox:latest`, built via `docker compose --profile tools build`) is missing, `github_bash` is cleanly disabled (file edits still work) — it never falls back to in-agent execution.
 
 ### Diff Block & Approval Flow
 
@@ -680,7 +680,7 @@ flowchart LR
 |-----------|---------|
 | **Clone** | Shallow clone to the shared work dir `{CODEFIX_WORK_BASE}/{job}/repo` (the build sandbox mounts this; `.git` mounted read-only). Token supplied via `GIT_ASKPASS` — **never in the clone URL or `.git/config`**. Removes existing dir, 120s timeout |
 | **Branch** | `git checkout -b cypherfix/{remediation_id}` |
-| **Commit** | Author: `CypherFix <cypherfix@redamon.io>`. **Stages only the LLM's approved files (`state.files_modified`) — never `git add -A`**, so build artifacts or files a malicious build slipped into the worktree cannot reach the PR |
+| **Commit** | Author: `CypherFix <cypherfix@whitehat.io>`. **Stages only the LLM's approved files (`state.files_modified`) — never `git add -A`**, so build artifacts or files a malicious build slipped into the worktree cannot reach the PR |
 | **Push** | Force-push (allows re-runs on same branch). **Branch allow-list**: refused if the target is the default branch / `main` / `master`, or does not match the configured fix-branch prefix (closes T7). Token sanitized from errors |
 | **PR** | Creates via GitHub API; if 422 (already exists), finds and updates existing PR |
 
@@ -856,7 +856,7 @@ CypherFix settings are stored per-project in the PostgreSQL `Project` model and 
 | `CYPHERFIX_REPOS_BASE` | `/tmp/cypherfix-repos` | Base directory for cloned repos |
 | `NEO4J_URI` | `bolt://neo4j:7687` | Neo4j connection (triage) |
 | `NEO4J_USER` | `neo4j` | Neo4j username |
-| `NEO4J_PASSWORD` | `redamon_neo4j` | Neo4j password |
+| `NEO4J_PASSWORD` | `whitehat_neo4j` | Neo4j password |
 | `TAVILY_API_KEY` | — | Tavily web search API key (triage) |
 | `OPENAI_API_KEY` | — | OpenAI API key |
 | `ANTHROPIC_API_KEY` | — | Anthropic API key |

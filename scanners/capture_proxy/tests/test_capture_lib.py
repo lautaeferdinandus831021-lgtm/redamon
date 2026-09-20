@@ -93,7 +93,7 @@ class TestEgress(unittest.TestCase):
         self.assertTrue(egress.is_internal_ip("169.254.169.254", policy=p))
 
     def test_extra_blocked_enforced_even_when_private_relaxed(self):
-        # The explicit denylist (RedAmon service IPs) is never policy-gated.
+        # The explicit denylist (WhiteHat service IPs) is never policy-gated.
         p = egress.EgressPolicy(block_private=False)
         self.assertTrue(egress.is_internal_ip("172.24.0.9", extra_blocked=["172.24.0.9"], policy=p))
 
@@ -371,7 +371,7 @@ class TestEnsureDirWritable(unittest.TestCase):
             self.assertIn(parent, msg)
             self.assertIn(f"uid={os.getuid()}", msg)
             self.assertIn("chmod 0777", msg)          # the repair command
-            self.assertIn("redamon_capture_spool", msg)  # names the volume
+            self.assertIn("whitehat_capture_spool", msg)  # names the volume
 
     def test_non_permission_oserror_is_not_swallowed(self):
         # ENOTDIR (a file where a dir should be) is a different bug; let it surface

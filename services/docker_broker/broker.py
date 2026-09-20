@@ -65,12 +65,12 @@ _DEFAULT_ALLOWED_IMAGES = [
     "jauderho/hakrawler:latest",
     "ghcr.io/zaproxy/zaproxy:stable",
     "dolevf/graphql-cop:1.14",
-    "redamon-baddns:latest",
+    "whitehat-baddns:latest",
     # Supply-chain feature (plan Phase 0.5/2): the DIRTY analyzer and the CLEAN
     # standalone scanner. The analyzer may be spawned by a broker-socket caller
     # (recon in L2), so it must be allowlisted or the spawn fails closed.
-    "redamon-supply-chain-analyzer:latest",
-    "redamon-supply-chain:latest",
+    "whitehat-supply-chain-analyzer:latest",
+    "whitehat-supply-chain:latest",
     "alpine",          # temp-file cleanup helper
     "alpine:latest",
 ]
@@ -120,21 +120,21 @@ _CANONICAL_ALLOWED = {_canonical_image(i) for i in ALLOWED_IMAGES}
 # Host bind-mount sources the tools legitimately need. Anything else (especially
 # "/" or the docker socket) is denied. Sources without a leading "/" are treated
 # as named volumes and checked against ALLOWED_VOLUMES.
-_DEFAULT_BIND_PREFIXES = ["/tmp/redamon"]
+_DEFAULT_BIND_PREFIXES = ["/tmp/whitehat"]
 ALLOWED_BIND_PREFIXES = _DEFAULT_BIND_PREFIXES + _csv_env("DOCKER_BROKER_ALLOWED_BIND_PREFIXES")
-# NOTE: redamon-sca-intel is allowlisted for READ only, deliberately absent from
+# NOTE: whitehat-sca-intel is allowlisted for READ only, deliberately absent from
 # ALLOWED_RW_VOLUMES below. That denial is what stops a spawned scanner poisoning
 # the incident intel that other scans then trust.
 ALLOWED_VOLUMES = set(_csv_env("DOCKER_BROKER_ALLOWED_VOLUMES")) | {
-    "nuclei-templates", "redamon-osv-db", "redamon-sca-intel"}
+    "nuclei-templates", "whitehat-osv-db", "whitehat-sca-intel"}
 
 # T1/T2: host paths a tool container may bind READ-WRITE. Any other allowed
 # host path (e.g. the source tree under ${PWD}, which is an allowed *read*
 # prefix so tools can mount wordlists/output ro) may be bound only :ro.
-# Legit sub-tool spawns write exclusively under /tmp/redamon; everything else
+# Legit sub-tool spawns write exclusively under /tmp/whitehat; everything else
 # they mount is already :ro (targets, wordlists, work dirs, nuclei-templates).
 # This closes the "bind ${PWD} rw and overwrite recon/main.py or a Skill" path.
-_DEFAULT_RW_PREFIXES = ["/tmp/redamon"]
+_DEFAULT_RW_PREFIXES = ["/tmp/whitehat"]
 ALLOWED_RW_PREFIXES = _DEFAULT_RW_PREFIXES + _csv_env("DOCKER_BROKER_ALLOWED_RW_PREFIXES")
 ALLOWED_RW_VOLUMES = set(_csv_env("DOCKER_BROKER_ALLOWED_RW_VOLUMES"))
 
@@ -150,7 +150,7 @@ _IMAGES_CREATE_RE = re.compile(r"^/(v[\d.]+/)?images/create$")  # docker pull
 # existing verbs can be gated to broker-owned targets only. Without this, the
 # create-time allowlist is irrelevant to a hijack of a trusted infra container
 # (exec/attach into the orchestrator/broker -> host root).
-_OWNER_LABEL = "redamon.broker-owned"
+_OWNER_LABEL = "whitehat.broker-owned"
 
 # Operate-on-EXISTING-container verbs (capture group 2 = the container id/name).
 # Gated to broker-owned targets. attach + exec-start are hijack endpoints handled
@@ -202,7 +202,7 @@ def _bind_source_allowed(source: str) -> bool:
         return False
     if source.startswith("/"):
         # absolute host path. NORMALIZE first so traversal tricks like
-        # "/tmp/redamon/../../etc" (which textually starts with the allowed
+        # "/tmp/whitehat/../../etc" (which textually starts with the allowed
         # prefix but resolves to /etc) are caught.
         norm = os.path.normpath(source)
         if norm == "/" or "docker.sock" in norm:

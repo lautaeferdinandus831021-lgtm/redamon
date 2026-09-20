@@ -21,7 +21,7 @@ CREATE TABLE "projects" (
     "subdomain_list" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "verify_domain_ownership" BOOLEAN NOT NULL DEFAULT false,
     "ownership_token" TEXT NOT NULL DEFAULT 'your-secret-token-here',
-    "ownership_txt_prefix" TEXT NOT NULL DEFAULT '_redamon-verify',
+    "ownership_txt_prefix" TEXT NOT NULL DEFAULT '_whitehat-verify',
     "scan_modules" TEXT[] DEFAULT ARRAY['domain_discovery', 'port_scan', 'http_probe', 'resource_enum', 'vuln_scan']::TEXT[],
     "update_graph_db" BOOLEAN NOT NULL DEFAULT true,
     "use_tor_for_recon" BOOLEAN NOT NULL DEFAULT false,

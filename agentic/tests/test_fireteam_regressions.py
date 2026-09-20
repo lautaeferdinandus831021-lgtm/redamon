@@ -4,8 +4,8 @@ Covers: member target_info merge, execution_trace append, plan-wave output
 handoff + ChainStep writes, and per-turn token accounting.
 
 Run:
-    docker run --rm -v "/home/samuele/Progetti didattici/redamon/agentic:/app" \
-        -w /app redamon-agent python -m unittest tests.test_fireteam_regressions -v
+    docker run --rm -v "/home/samuele/Progetti didattici/whitehat/agentic:/app" \
+        -w /app whitehat-agent python -m unittest tests.test_fireteam_regressions -v
 """
 
 from __future__ import annotations

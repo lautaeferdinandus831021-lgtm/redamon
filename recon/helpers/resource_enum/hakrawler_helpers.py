@@ -1,5 +1,5 @@
 """
-RedAmon - Hakrawler Crawler Helpers for Resource Enumeration
+WhiteHat - Hakrawler Crawler Helpers for Resource Enumeration
 ============================================================
 Active URL discovery using Hakrawler web crawler (Docker-in-Docker).
 """
@@ -56,14 +56,14 @@ def _crawl_single_url(
         cmd.append("-subs")
 
     # HTTP traffic capture (Phase 1): route through the capture proxy when
-    # enabled + reachable. The X-Redamon-Ctx tag is added ONLY in this routing
+    # enabled + reachable. The X-WhiteHat-Ctx tag is added ONLY in this routing
     # branch (§20.2 no-leak). hakrawler joins headers with ';;' via -h.
     _cap_headers = list(custom_headers) if custom_headers else []
     from helpers.proxy_routing import get_capture_routing
     _cap_url, _cap_token = get_capture_routing("hakrawler")
     if _cap_url and _cap_token:
         cmd.extend(["-proxy", _cap_url])
-        _cap_headers.append(f"X-Redamon-Ctx: {_cap_token}")
+        _cap_headers.append(f"X-WhiteHat-Ctx: {_cap_token}")
     if _cap_headers:
         cmd.extend(["-h", ";;".join(_cap_headers)])
 

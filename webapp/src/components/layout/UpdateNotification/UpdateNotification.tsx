@@ -129,7 +129,7 @@ export function UpdateNotification() {
           <Download size={20} className={styles.downloadIcon} />
           <div>
             <p className={styles.versionText}>
-              RedAmon <strong>v{latestVersion}</strong> is available.
+              WhiteHat <strong>v{latestVersion}</strong> is available.
               You are running <strong>v{currentVersion}</strong>.
             </p>
           </div>
@@ -139,7 +139,7 @@ export function UpdateNotification() {
 
         <div className={styles.updateSection}>
           <p className={styles.updateLabel}>Run this command in your terminal to update:</p>
-          <CopyCommand command="./redamon.sh update" />
+          <CopyCommand command="./whitehat.sh update" />
         </div>
       </div>
     </Modal>

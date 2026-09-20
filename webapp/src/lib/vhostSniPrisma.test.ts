@@ -4,7 +4,7 @@
  * Creates a project with vhostSni* values via Prisma client, reads them back,
  * verifies the column shapes match the schema, then deletes the test project.
  *
- * Hits a real Postgres instance (the redamon-postgres docker container).
+ * Hits a real Postgres instance (the whitehat-postgres docker container).
  * Auto-skips when PRISMA_FOR_TESTS_OK env var isn't set.
  */
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'

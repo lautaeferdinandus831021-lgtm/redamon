@@ -34,7 +34,7 @@ def _split_url(url: str) -> tuple[str, str]:
     """Return ``(base_url, path)`` where ``base_url = scheme://host:port``
     and ``path`` is the URL path (defaults to ``'/'``). Query string and
     fragment are dropped — Endpoint identity is ``(path, method, baseurl)``
-    per the existing Redamon convention (matches js_recon + vuln_scan mixins)."""
+    per the existing WhiteHat convention (matches js_recon + vuln_scan mixins)."""
     parsed = urlparse(url)
     base_url = f"{parsed.scheme}://{parsed.netloc}"
     path = parsed.path or "/"

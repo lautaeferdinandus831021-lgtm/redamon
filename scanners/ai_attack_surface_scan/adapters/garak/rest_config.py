@@ -94,7 +94,7 @@ def build_rest_config(target, model: str | None = None,
     return {
         "rest": {
             "RestGenerator": {
-                "name": f"redamon:{getattr(target, 'baseurl', '')}{getattr(target, 'path', '')}",
+                "name": f"whitehat:{getattr(target, 'baseurl', '')}{getattr(target, 'path', '')}",
                 "uri": target.url,
                 "method": (getattr(target, "method", "POST") or "POST").lower(),
                 "headers": headers,

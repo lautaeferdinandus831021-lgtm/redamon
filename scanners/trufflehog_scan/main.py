@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RedAmon - Secret Multiscanner Entry Point
+WhiteHat - Secret Multiscanner Entry Point
 ===============================================
 Runs ONE TruffleHog source for one project and writes its findings to JSON.
 
@@ -40,7 +40,7 @@ def run_trufflehog_scan(job) -> dict:
         return {"error": str(exc)}
 
     print("\n" + "=" * 70)
-    print("           RedAmon - Secret Multiscanner")
+    print("           WhiteHat - Secret Multiscanner")
     print("=" * 70)
     print(f"  Source:              {source.label} ({source.id})")
     print(f"  Project:             {job.project_id}")

@@ -58,7 +58,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>RedAmon Supply-Chain Target</title>
+<title>WhiteHat Supply-Chain Target</title>
 <meta name="generator" content="WordPress 6.1">
 
 <!-- MALICIOUS: axios 1.14.1 is covered by OSV MAL-2026-2307 (live, not
@@ -146,7 +146,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <script src="/assets/vendor-telemetry.js"></script>
 </head>
 <body>
-<h1>RedAmon Supply-Chain Target</h1>
+<h1>WhiteHat Supply-Chain Target</h1>
 <p>Deterministic L2 validation surface.</p>
 <ul>
   <li><a href="/assets/app.7f3c2a.js">app bundle</a></li>
@@ -244,7 +244,7 @@ def _sourcemap(sources, file_name):
 def _bundle(name, map_name):
     """A JS bundle that points at its own source map."""
     return (
-        "/* %s - RedAmon supply-chain guinea pig bundle */\n"
+        "/* %s - WhiteHat supply-chain guinea pig bundle */\n"
         "(function(){var a=1;window.__SC_TARGET__='%s';})();\n"
         "//# sourceMappingURL=%s\n" % (name, name, map_name)
     )
@@ -253,7 +253,7 @@ def _bundle(name, map_name):
 # Stub library files. Content is irrelevant (versions come from the PATH), but
 # they must exist and return 200 so js_recon/katana do not log misses.
 def _stub(label):
-    return "/* %s stub - RedAmon guinea pig */\nvar __x=0;\n" % label
+    return "/* %s stub - WhiteHat guinea pig */\nvar __x=0;\n" % label
 
 
 # --------------------------------------------------------------------------

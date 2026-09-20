@@ -1,5 +1,5 @@
 """
-RedAmon - Endpoint Organization Helpers
+WhiteHat - Endpoint Organization Helpers
 =======================================
 Functions for organizing and structuring discovered endpoints.
 """

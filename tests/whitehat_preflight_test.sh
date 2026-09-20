@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the redamon.sh preflight guards that keep a host from ending up
+# Test suite for the whitehat.sh preflight guards that keep a host from ending up
 # with a dead stack behind a 502:
 #
 #   preflight_disk_gate / _disk_free_gb / _docker_disk_path   (disk governor)
@@ -9,7 +9,7 @@
 #   _restore_runtime_tracked_files                            (runtime scribbles block git pull)
 #
 # Every test stubs docker/df/git, so no daemon and no network are needed.
-# Run:  bash tests/redamon_preflight_test.sh
+# Run:  bash tests/whitehat_preflight_test.sh
 # =============================================================================
 set -uo pipefail
 
@@ -17,9 +17,9 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Source the script (the BASH_SOURCE guard prevents command dispatch), then relax
 # -e so a failing assertion does not abort the run. Same pattern as
-# tests/redamon_build_test.sh.
+# tests/whitehat_build_test.sh.
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -68,7 +68,7 @@ assert_eq "no docker info -> repo fallback" "$(_docker_disk_path)" "$SCRIPT_DIR"
 _docker_info_field() { printf ''; }
 
 section "UNIT: preflight_disk_gate thresholds"
-unset REDAMON_SKIP_DISK_GATE REDAMON_MIN_DISK_GB
+unset WHITEHAT_SKIP_DISK_GATE WHITEHAT_MIN_DISK_GB
 _gate() { DF_AVAIL_KB="$(gb "$1")"; preflight_disk_gate "$2" test; echo "$?"; }
 assert_eq "100GB vs 40 required -> pass"      "$(_gate 100 40)" "0"
 assert_eq "exactly 40 vs 40 -> pass"          "$(_gate 40 40)"  "0"
@@ -88,13 +88,13 @@ DF_AVAIL_KB="$(gb 1)"
 assert_eq "1GB free blocks by default" "$(preflight_disk_gate 40 test; echo $?)" "1"
 # Export inside the same subshell that runs the gate: a `VAR=x func` prefix does
 # not reach a function called from a command substitution.
-assert_eq "REDAMON_SKIP_DISK_GATE=1 bypasses" \
-    "$( export REDAMON_SKIP_DISK_GATE=1; preflight_disk_gate 40 test; echo $? )" "0"
-assert_eq "REDAMON_MIN_DISK_GB lowers the bar" \
-    "$( export REDAMON_MIN_DISK_GB=1; preflight_disk_gate 40 test; echo $? )" "0"
-assert_eq "REDAMON_MIN_DISK_GB raises the bar" \
-    "$( DF_AVAIL_KB="$(gb 50)"; export REDAMON_MIN_DISK_GB=80; preflight_disk_gate 40 test; echo $? )" "1"
-unset REDAMON_SKIP_DISK_GATE REDAMON_MIN_DISK_GB
+assert_eq "WHITEHAT_SKIP_DISK_GATE=1 bypasses" \
+    "$( export WHITEHAT_SKIP_DISK_GATE=1; preflight_disk_gate 40 test; echo $? )" "0"
+assert_eq "WHITEHAT_MIN_DISK_GB lowers the bar" \
+    "$( export WHITEHAT_MIN_DISK_GB=1; preflight_disk_gate 40 test; echo $? )" "0"
+assert_eq "WHITEHAT_MIN_DISK_GB raises the bar" \
+    "$( DF_AVAIL_KB="$(gb 50)"; export WHITEHAT_MIN_DISK_GB=80; preflight_disk_gate 40 test; echo $? )" "1"
+unset WHITEHAT_SKIP_DISK_GATE WHITEHAT_MIN_DISK_GB
 
 section "UNIT: preflight_disk_gate messaging"
 error() { echo "ERR:$*"; }
@@ -134,9 +134,9 @@ assert_eq "partial build blocked at 5GB"  "$(_cb 5 build docker-broker)"  "rc=1"
 assert_eq "tools full build blocked at 20GB" "$(_cb 20 --profile tools build)" "rc=1"
 
 section "INTEGRATION: ensure_core_images"
-_core_image_names() { printf 'redamon-agent\nredamon-webapp\n'; }
+_core_image_names() { printf 'whitehat-agent\nwhitehat-webapp\n'; }
 # docker image inspect succeeds only for images listed in HAVE.
-HAVE="redamon-agent redamon-webapp"
+HAVE="whitehat-agent whitehat-webapp"
 docker() {
     if [[ "$1" == "image" && "$2" == "inspect" ]]; then
         [[ " $HAVE " == *" $3 "* ]] && return 0 || return 1
@@ -144,14 +144,14 @@ docker() {
     return 0
 }
 assert_eq "all images present -> pass" "$(ensure_core_images; echo $?)" "0"
-HAVE="redamon-agent"
+HAVE="whitehat-agent"
 assert_eq "one image missing -> block" "$(ensure_core_images; echo $?)" "1"
 HAVE=""
 assert_eq "no images at all -> block"  "$(ensure_core_images; echo $?)" "1"
 error() { echo "ERR:$*"; }
 OUT="$(ensure_core_images 2>&1)"
-assert_contains "names the missing image" "$OUT" "redamon-webapp"
-assert_contains "points at the fix"       "$OUT" "./redamon.sh install"
+assert_contains "names the missing image" "$OUT" "whitehat-webapp"
+assert_contains "points at the fix"       "$OUT" "./whitehat.sh install"
 error() { :; }
 # Unresolvable compose output must never block a working host.
 _core_image_names() { printf ''; }
@@ -191,7 +191,7 @@ section "REGRESSION: every 'ready'/'success' announcement is gated on a check"
 # The whole point of verify_core_running is that nothing tells the user the stack
 # is up without asking Docker first. A new banner added later must be gated too,
 # so assert on the source rather than on behaviour alone.
-SRC="$REPO_ROOT/redamon.sh"
+SRC="$REPO_ROOT/whitehat.sh"
 # Real banners only: skip comment lines, which legitimately quote the string.
 banner_lines="$(grep -n 'is ready!' "$SRC" | grep -v '^[0-9]*:[[:space:]]*#' | cut -d: -f1)"
 assert_eq "three ready banners exist (install, up, up dev)" \
@@ -223,7 +223,7 @@ assert_eq "was down, still down -> success"    "$(_upd_tail false no)"  "OK"
 assert_eq "was down, came up -> success"       "$(_upd_tail false yes)" "OK"
 unset -f verify_core_running
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"   # restore the real one
+source "$REPO_ROOT/whitehat.sh"   # restore the real one
 set +e
 info() { :; }; warn() { :; }; error() { :; }
 
@@ -289,7 +289,7 @@ echo -e "\033[1m== the gates run BEFORE any Docker work (install/update) ==\033[
 # `docker compose up -d`, so it built 16 images (30-60 min) and only then
 # discovered the host was too small; `update` never ran a RAM gate at all.
 for _c in cmd_install cmd_update; do
-    _body="$(awk -v f="^${_c}\\(\\)" '$0 ~ f {on=1} on {print} on && /^}/ {exit}' "$REPO_ROOT/redamon.sh")"
+    _body="$(awk -v f="^${_c}\\(\\)" '$0 ~ f {on=1} on {print} on && /^}/ {exit}' "$REPO_ROOT/whitehat.sh")"
     case "$_body" in
         *preflight_ram_gate*) pass "$_c runs the RAM gate" ;;
         *) fail "$_c runs the RAM gate (absent)" ;;
@@ -297,7 +297,7 @@ for _c in cmd_install cmd_update; do
 done
 # Compare positions WITHIN cmd_install's own body: `compose_build` also appears
 # elsewhere in the file, so a whole-file grep compares the wrong two lines.
-_body="$(awk '/^cmd_install\(\)/{on=1} on {print} on && /^}/{exit}' "$REPO_ROOT/redamon.sh")"
+_body="$(awk '/^cmd_install\(\)/{on=1} on {print} on && /^}/{exit}' "$REPO_ROOT/whitehat.sh")"
 _gate_at=$(printf '%s\n' "$_body" | grep -n "preflight_ram_gate" | head -1 | cut -d: -f1)
 _build_at=$(printf '%s\n' "$_body" | grep -n "compose_build" | head -1 | cut -d: -f1)
 if [[ -n "$_gate_at" && -n "$_build_at" && "$_gate_at" -lt "$_build_at" ]]; then

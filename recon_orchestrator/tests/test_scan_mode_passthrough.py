@@ -54,10 +54,10 @@ def _spawn(scan_mode):
     mgr._docker_op_executor = ThreadPoolExecutor(max_workers=2)
     # The recon spawn mounts the offline OSV database read-only for L2
     # supply-chain recon, so the volume name is now part of the spawn path.
-    mgr.supply_chain_osv_db_volume = "redamon-osv-db"
+    mgr.supply_chain_osv_db_volume = "whitehat-osv-db"
     # ...and the supply-chain incident intel beside it (A2/B/D read it).
-    mgr.sca_intel_volume = "redamon-sca-intel"
-    mgr.recon_image = "redamon-recon:latest"
+    mgr.sca_intel_volume = "whitehat-sca-intel"
+    mgr.recon_image = "whitehat-recon:latest"
     mgr.running_states = {}
     mgr.partial_recon_states = {}
 
@@ -88,7 +88,7 @@ def _spawn(scan_mode):
         return None
 
     mgr.ensure_sca_intel_fresh_async = _sca_intel_fresh
-    mgr._get_container_name = lambda pid: f"redamon-recon-{pid}"
+    mgr._get_container_name = lambda pid: f"whitehat-recon-{pid}"
     mgr._scanner_env = lambda: {}
     mgr._scanner_hardening = lambda drop_caps=True: {}
     mgr._container_mem_limit = lambda kind: None

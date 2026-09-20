@@ -17,8 +17,8 @@ setup_fail2ban() {
   # NOTE: backend is set PER JAIL, not in [DEFAULT]. A global `backend = systemd` makes
   # the nginx jails read the journal and IGNORE their file `logpath`, so they never fire.
   # sshd uses systemd (journald auth), nginx jails use auto (file/inotify).
-  cat <<F2B | run_sudo_tee /etc/fail2ban/jail.d/redamon.conf
-# RedAmon fail2ban jails: SSH brute-force + nginx auth/badbots/rate-limit.
+  cat <<F2B | run_sudo_tee /etc/fail2ban/jail.d/whitehat.conf
+# WhiteHat fail2ban jails: SSH brute-force + nginx auth/badbots/rate-limit.
 
 [DEFAULT]
 bantime  = 3600
@@ -65,10 +65,10 @@ bantime  = 600
 # trips while bursting, whereas eleven 401s in two minutes is never legitimate.
 # The MCP location sets \`limit_req_log_level warn\`, so its rate-limit lines no
 # longer reach the [error]-anchored nginx-limit-req filter at all.
-[redamon-mcp-auth]
+[whitehat-mcp-auth]
 enabled  = ${_MCP_JAIL_ENABLED}
 port     = http,https
-filter   = redamon-mcp-auth
+filter   = whitehat-mcp-auth
 logpath  = /var/log/nginx/access.log
 maxretry = 10
 findtime = 120
@@ -84,8 +84,8 @@ F2B
   # it matches this endpoint and not everything sharing its prefix: an open
   # `[^"]*` tail would also ban on a 401 from a future /api/mcp-server-<x>
   # route. tests/deploy_mcp_fail2ban_test.sh runs the corpus this was tuned on.
-  cat <<'F2BFILTER' | run_sudo_tee /etc/fail2ban/filter.d/redamon-mcp-auth.conf
-# RedAmon: repeated credential failures against the inbound MCP endpoint.
+  cat <<'F2BFILTER' | run_sudo_tee /etc/fail2ban/filter.d/whitehat-mcp-auth.conf
+# WhiteHat: repeated credential failures against the inbound MCP endpoint.
 [Definition]
 failregex = ^<HOST> .* "(?:POST|GET) /api/mcp-server(?:\?[^"]*)? HTTP/[^"]+" 401
 ignoreregex =

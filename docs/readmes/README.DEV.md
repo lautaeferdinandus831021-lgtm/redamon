@@ -1,6 +1,6 @@
-# RedAmon — Developer Guide
+# WhiteHat — Developer Guide
 
-**Everything you need to understand, develop, and extend RedAmon.**
+**Everything you need to understand, develop, and extend WhiteHat.**
 
 This guide is the single entry point for developers. It covers the technology stack, system architecture, project layout, how each subsystem works, and the exact commands you need to apply your changes. For deep dives into specific components, follow the links to the dedicated documentation pages listed in the [Documentation Index](#9-documentation-index) at the end.
 
@@ -35,9 +35,9 @@ This guide is the single entry point for developers. It covers the technology st
 
 ## 1. Technology Stack
 
-Every technology used in RedAmon, organized by layer. Each entry links to its **official documentation** so you can learn how it works.
+Every technology used in WhiteHat, organized by layer. Each entry links to its **official documentation** so you can learn how it works.
 
-> For detailed role descriptions of each technology within RedAmon, see [TECH_STACK.md](TECH_STACK.md).
+> For detailed role descriptions of each technology within WhiteHat, see [TECH_STACK.md](TECH_STACK.md).
 
 ### Frontend
 
@@ -140,7 +140,7 @@ OpenAI-compatible (Ollama) providers expose an optional reasoning control in **G
 
 ## 2. Architecture at a Glance
 
-RedAmon is a fully Dockerized system with 15+ containers communicating over three internal networks.
+WhiteHat is a fully Dockerized system with 15+ containers communicating over three internal networks.
 
 ### Service Topology
 
@@ -174,12 +174,12 @@ Browser ──→ Webapp (Next.js :3000) ──WebSocket──→ Agent (FastAPI
 
 | Network | Subnet | Purpose |
 |---------|--------|---------|
-| **`redamon`** (`redamon-network`) | bridge (default) | Inter-service communication for webapp, agent, worker, databases |
-| **`orchestrator-net`** (`redamon-orchestrator-net`) | bridge | **Isolation network** for the privileged recon-orchestrator. Shared only with the webapp (multi-homed) and the on-demand Ollama judge, so a compromised worker cannot reach the orchestration API. |
+| **`whitehat`** (`whitehat-network`) | bridge (default) | Inter-service communication for webapp, agent, worker, databases |
+| **`orchestrator-net`** (`whitehat-orchestrator-net`) | bridge | **Isolation network** for the privileged recon-orchestrator. Shared only with the webapp (multi-homed) and the on-demand Ollama judge, so a compromised worker cannot reach the orchestration API. |
 | **`pentest-net`** | 172.28.0.0/16 | Isolated scanning network — Kali sandbox, MCP tools, and target containers (guinea pigs) |
 
 > **Worker isolation.** The `recon-orchestrator` holds the Docker socket and is
-> the privileged component. It is **not** on `redamon`; it sits alone on
+> the privileged component. It is **not** on `whitehat`; it sits alone on
 > `orchestrator-net` with only the webapp and the Ollama judge, and its host port
 > is bound to `127.0.0.1`. The `kali-sandbox` worker therefore has no path to it
 > (DNS `NXDOMAIN` + the gateway back-door is closed). The worker is not given the
@@ -192,14 +192,14 @@ Browser ──→ Webapp (Next.js :3000) ──WebSocket──→ Agent (FastAPI
 
 | Service | Container Name | Port | Role |
 |---------|---------------|------|------|
-| `webapp` | redamon-webapp | 3000 | Next.js frontend + backend API |
-| `agent` | redamon-agent | 8090 (→8080 internal) | AI agent (LangGraph + FastAPI WebSocket) |
-| `recon-orchestrator` | redamon-recon-orchestrator | 8010 | Spawns recon/GVM/GitHub containers via Docker SDK |
-| `kali-sandbox` | redamon-kali | 8000, 8002–8004 | MCP tool servers (nmap, nuclei, metasploit, network-recon) |
-| `postgres` | redamon-postgres | 5432 | PostgreSQL database |
-| `neo4j` | redamon-neo4j | 7474, 7687 | Neo4j graph database |
-| `gvmd` | redamon-gvm-gvmd | internal | GVM daemon (vulnerability scanner) |
-| `gvm-ospd` | redamon-gvm-ospd | internal | OpenVAS scanner engine |
+| `webapp` | whitehat-webapp | 3000 | Next.js frontend + backend API |
+| `agent` | whitehat-agent | 8090 (→8080 internal) | AI agent (LangGraph + FastAPI WebSocket) |
+| `recon-orchestrator` | whitehat-recon-orchestrator | 8010 | Spawns recon/GVM/GitHub containers via Docker SDK |
+| `kali-sandbox` | whitehat-kali | 8000, 8002–8004 | MCP tool servers (nmap, nuclei, metasploit, network-recon) |
+| `postgres` | whitehat-postgres | 5432 | PostgreSQL database |
+| `neo4j` | whitehat-neo4j | 7474, 7687 | Neo4j graph database |
+| `gvmd` | whitehat-gvm-gvmd | internal | GVM daemon (vulnerability scanner) |
+| `gvm-ospd` | whitehat-gvm-ospd | internal | OpenVAS scanner engine |
 | `recon` | (profile: tools) | — | Recon pipeline image (spawned dynamically, not always running) |
 
 > For full Mermaid diagrams, container architecture, and data flow pipelines, see [ARCHITECTURE.md](ARCHITECTURE.md).
@@ -209,7 +209,7 @@ Browser ──→ Webapp (Next.js :3000) ──WebSocket──→ Agent (FastAPI
 ## 3. Project Filesystem Overview
 
 ```
-redamon/
+whitehat/
 ├── agentic/                        # AI agent orchestrator (Python 3.11 / LangGraph / FastAPI)
 │   ├── api.py                      #   FastAPI entry point, mounts WebSocket endpoints
 │   ├── orchestrator.py             #   Main ReAct agent loop: think → select tool → observe → repeat
@@ -565,11 +565,11 @@ All REST endpoints live in `webapp/src/app/api/`. There are 17 route groups:
 | Service | Internal URL |
 |---------|-------------|
 | Agent | `http://agent:8080` |
-| Recon Orchestrator | `http://recon-orchestrator:8010` (reachable **only from the webapp** — on `orchestrator-net`, not `redamon`) |
+| Recon Orchestrator | `http://recon-orchestrator:8010` (reachable **only from the webapp** — on `orchestrator-net`, not `whitehat`) |
 | Webapp | `http://webapp:3000` (the orchestrator reaches it via its own `WEBAPP_API_URL` for RoE/guardrail pre-flight) |
 | Kali Sandbox (MCP) | `http://kali-sandbox:8000/sse` (requires `Authorization: Bearer $MCP_AUTH_TOKEN`) |
 | Neo4j | `bolt://neo4j:7687` |
-| PostgreSQL | `postgresql://redamon:<POSTGRES_PASSWORD>@postgres:5432/redamon` (password from `.env`, generated on fresh install) |
+| PostgreSQL | `postgresql://whitehat:<POSTGRES_PASSWORD>@postgres:5432/whitehat` (password from `.env`, generated on fresh install) |
 
 **React hooks:**
 
@@ -579,7 +579,7 @@ The webapp exposes 19 custom hooks in `src/hooks/` that encapsulate all real-tim
 
 ### 4.5 Settings Architecture
 
-RedAmon has **190+ project settings** that control everything from Katana crawl depth to Metasploit payload configuration.
+WhiteHat has **190+ project settings** that control everything from Katana crawl depth to Metasploit payload configuration.
 
 **Where settings live:**
 
@@ -626,7 +626,7 @@ Settings have defaults defined in **four layers** that must stay in sync:
 
 ```bash
 git clone https://github.com/samugit83/redamon.git
-cd redamon
+cd whitehat
 
 # Enable dev mode (one-time, creates a gitignored override file)
 cp docker-compose.dev.yml docker-compose.override.yml
@@ -649,7 +649,7 @@ Once the override file exists, all `docker compose` commands automatically use d
 - Configure your LLM provider API key and other settings in the webapp at `/settings` (Global Settings page). No `.env` file is needed -- all API keys, tunnel credentials, and tool settings are configured from the UI.
 - Create a project, set a target domain, and you're ready to go.
 
-> **Not a developer?** Use `./redamon.sh install` for a single-command production setup. See the [README Quick Start](../../README.md#quick-start).
+> **Not a developer?** Use `./whitehat.sh install` for a single-command production setup. See the [README Quick Start](../../README.md#quick-start).
 
 **Verify everything is running:**
 
@@ -695,7 +695,7 @@ docker compose logs --tail=200 agent            # Last 200 lines
 docker compose exec agent bash                  # Shell into agent container
 docker compose exec webapp sh                   # Shell into webapp (Alpine, no bash)
 docker compose exec kali-sandbox bash           # Shell into Kali sandbox
-docker compose exec postgres psql -U redamon    # PostgreSQL interactive shell
+docker compose exec postgres psql -U whitehat    # PostgreSQL interactive shell
 
 # ─── Rebuild ─────────────────────────────────────────────────────────────
 docker compose build webapp                     # Rebuild webapp image only
@@ -706,15 +706,15 @@ docker compose up -d                            # Recreate containers with new i
 # ─── Database (PostgreSQL) ──────────────────────────────────────────────
 docker compose exec webapp npx prisma db push   # Apply Prisma schema changes
 docker compose exec webapp npx prisma studio    # Visual DB browser (http://localhost:5555)
-docker compose exec postgres psql -U redamon -c "SELECT * FROM \"Project\" LIMIT 5;"
+docker compose exec postgres psql -U whitehat -c "SELECT * FROM \"Project\" LIMIT 5;"
 
 # ─── Database (Neo4j) ───────────────────────────────────────────────────
 # Browser UI:  http://127.0.0.1:7474   (loopback-only host publish)
 # Bolt URL:    bolt://127.0.0.1:7687
 # Credentials: neo4j / <NEO4J_PASSWORD from .env>
-#   On a fresh install redamon.sh generates a strong NEO4J_PASSWORD into .env;
+#   On a fresh install whitehat.sh generates a strong NEO4J_PASSWORD into .env;
 #   there is no compose fallback anymore - Neo4j refuses to start if the var is
-#   unset (${NEO4J_PASSWORD:?...} fail-closed, STRIDE S13). Run redamon.sh.
+#   unset (${NEO4J_PASSWORD:?...} fail-closed, STRIDE S13). Run whitehat.sh.
 #   Get it with:  grep '^NEO4J_PASSWORD=' .env
 
 # ─── Service Management ─────────────────────────────────────────────────
@@ -736,7 +736,7 @@ docker compose down -v && docker compose up -d  # DANGER: deletes ALL data (volu
 
 ### 5.6 AI-Assisted Coding
 
-AI-assisted development is welcome and encouraged. RedAmon is a large, multi-language, multi-container codebase — AI coding tools can significantly speed up development and help you navigate unfamiliar subsystems.
+AI-assisted development is welcome and encouraged. WhiteHat is a large, multi-language, multi-container codebase — AI coding tools can significantly speed up development and help you navigate unfamiliar subsystems.
 
 **Recommended model:** We recommend **Anthropic Claude Opus 4.6** (`claude-opus-4-6`) given the complexity of this repository. Opus handles large context windows, multi-file reasoning, and architectural decisions better than smaller models. You can use it through [Claude Code](https://claude.com/claude-code), Cursor, Windsurf, or any editor that supports Anthropic models.
 
@@ -746,7 +746,7 @@ Other capable models (GPT-5, Gemini 2.5 Pro) can also work, but Opus 4.6 has bee
 
 1. **Understand before committing** — Always review and understand the code your AI generates before submitting a PR. You are responsible for every line you push, not the AI.
 2. **Read the relevant files first** — Point your AI tool at the specific files and subsystems it needs to understand. Blind generation without context produces hallucinated imports, wrong API signatures, and broken integrations.
-3. **Respect the architecture** — RedAmon has clear boundaries between subsystems (webapp, agent, recon, MCP). Don't let AI tools blur these boundaries by generating cross-cutting shortcuts that bypass the established communication patterns (REST, WebSocket, MCP protocol).
+3. **Respect the architecture** — WhiteHat has clear boundaries between subsystems (webapp, agent, recon, MCP). Don't let AI tools blur these boundaries by generating cross-cutting shortcuts that bypass the established communication patterns (REST, WebSocket, MCP protocol).
 4. **Test inside Docker** — AI tools often generate code that works locally but fails in the container. Always verify your changes inside the Docker stack, not just in your editor's preview.
 5. **Don't blindly add dependencies** — If the AI suggests a new `import` or `require`, check that the package exists in the relevant `requirements.txt` or `package.json` first. Adding an uninstalled dependency will crash-loop the container.
 6. **Keep diffs minimal** — Resist the temptation to let AI refactor, reformat, or "improve" surrounding code. PRs should only contain changes relevant to the task. Large AI-generated diffs that touch unrelated files are hard to review and will be rejected.
@@ -768,7 +768,7 @@ Other capable models (GPT-5, Gemini 2.5 Pro) can also work, but Opus 4.6 has bee
 4. Add the UI control in the appropriate webapp settings component. Include a fallback value in the `onChange` handler.
 5. Backfill existing database rows if needed:
    ```bash
-   docker compose exec postgres psql -U redamon -c \
+   docker compose exec postgres psql -U whitehat -c \
      "UPDATE \"Project\" SET \"newField\" = 'default_value' WHERE \"newField\" IS NULL;"
    ```
 6. Rebuild affected services:
@@ -916,7 +916,7 @@ No `.env` file is required. All user-configurable settings (API keys, tunnel cre
 
 These use Docker Compose's `${VAR:-default}` syntax. Override them in `.env` if needed.
 
-> **Secrets are auto-generated on install (since 5.3.1).** `redamon.sh` writes
+> **Secrets are auto-generated on install (since 5.3.1).** `whitehat.sh` writes
 > strong random values for `POSTGRES_PASSWORD`, `NEO4J_PASSWORD` and
 > `MCP_AUTH_TOKEN` into `.env` on a **fresh** install (and warns, without
 > changing anything, if an existing DB volume is still on the old default). The
@@ -924,13 +924,13 @@ These use Docker Compose's `${VAR:-default}` syntax. Override them in `.env` if 
 > unset — they are **not** the value a normal install runs with.
 >
 > The DB host ports (`5432/7474/7687`) are published on `127.0.0.1` only; the
-> app tier reaches them over the internal `redamon` bridge.
+> app tier reaches them over the internal `whitehat` bridge.
 
 | Variable | Fallback (if unset) | Description |
 |----------|---------------------|-------------|
-| `POSTGRES_USER` | `redamon` | PostgreSQL username |
+| `POSTGRES_USER` | `whitehat` | PostgreSQL username |
 | `POSTGRES_PASSWORD` | *(required, no fallback; Postgres refuses to start if unset)* | PostgreSQL password, **auto-generated on fresh install** |
-| `POSTGRES_DB` | `redamon` | PostgreSQL database name |
+| `POSTGRES_DB` | `whitehat` | PostgreSQL database name |
 | `NEO4J_PASSWORD` | *(required, no fallback; Neo4j refuses to start if unset)* | Neo4j password, **auto-generated on fresh install** |
 | `MCP_AUTH_TOKEN` | *(required; empty ⇒ MCP servers fail closed / reject)* | Bearer token the agent presents to the Kali MCP servers, **auto-generated on fresh install** |
 | `POSTGRES_PORT` | `5432` | Host port for PostgreSQL (bound to `127.0.0.1`) |

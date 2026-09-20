@@ -13,7 +13,7 @@ recon crashes with
 
 No docker daemon is needed: docker.from_env is patched for the whole construction.
 
-Run:  docker exec redamon-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_spawn_graph_db_bind -v'
+Run:  docker exec whitehat-recon-orchestrator sh -c 'cd /app && python -m unittest tests.test_spawn_graph_db_bind -v'
 """
 
 import asyncio
@@ -52,7 +52,7 @@ def _fake_docker_client(captured: dict):
 def _spawn(graph_db_host_path: str, recon_path: str = RECON_PATH) -> dict:
     """Drive start_partial_recon; return the volumes dict handed to containers.run."""
     captured: dict = {}
-    os.makedirs("/tmp/redamon", exist_ok=True)
+    os.makedirs("/tmp/whitehat", exist_ok=True)
 
     async def _go():
         with mock.patch.object(cm.docker, "from_env",

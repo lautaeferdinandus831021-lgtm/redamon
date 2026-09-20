@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RedAmon - GitHub Secret Hunter Main Entry Point
+WhiteHat - GitHub Secret Hunter Main Entry Point
 =================================================
 Orchestrates GitHub secret scanning using project settings from the webapp API.
 
@@ -62,7 +62,7 @@ def run_github_secret_hunt(project_id: str) -> dict:
     target_repos = get_setting('GITHUB_TARGET_REPOS', '')
 
     print("\n" + "=" * 70)
-    print("           RedAmon - GitHub Secret Hunter")
+    print("           WhiteHat - GitHub Secret Hunter")
     print("=" * 70)
     print(f"  Target Org/User: {target}")
     print(f"  Target Repos:    {target_repos or '(all)'}")

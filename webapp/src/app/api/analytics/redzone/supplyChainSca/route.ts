@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
   // Row caps, now the one global cap shared with every other RedZone route.
   // Still exported through meta.truncated so the UI can say "there is more"
   // instead of presenting a capped list as the complete picture. Read per
-  // request, not at module load, so REDAMON_REDZONE_ROW_CAP is honoured without
+  // request, not at module load, so WHITEHAT_REDZONE_ROW_CAP is honoured without
   // depending on import order.
   const VERDICT_LIMIT = rowCap()
   const SHEET_LIMIT = rowCap()

@@ -13,7 +13,7 @@
 #
 # Each hop is a different file, and a break in any one of them produces the
 # SAME symptom: the endpoint 404s and nothing says why. Worse for this flag
-# specifically, redamon.sh's ensure_auth_secrets APPENDS
+# specifically, whitehat.sh's ensure_auth_secrets APPENDS
 # `MCP_SERVER_ENABLED=false` when the key is absent, so an unseeded host does
 # not merely default off, it is actively pinned off.
 #
@@ -69,7 +69,7 @@ FIX
     ' 2>/dev/null )
 }
 
-STAGED="$(_probe https-domain redamon.example)"
+STAGED="$(_probe https-domain whitehat.example)"
 
 if [[ -z "$STAGED" ]]; then
   echo "  SKIP  deploy.sh could not be sourced headlessly (its main() ran or died)"
@@ -89,14 +89,14 @@ else
   eq "MCP_CLIENT_CIDRS crosses intact" "$got" "198.51.100.0/24"
   # The origin is DERIVED (scheme + host + non-default port), never typed.
   got="$(grep -E '^MCP_PUBLIC_ORIGIN=' <<<"$STAGED" | head -1 | cut -d= -f2- | tr -d "'\"")"
-  eq "MCP_PUBLIC_ORIGIN is derived from ACCESS_MODE" "$got" "https://redamon.example"
+  eq "MCP_PUBLIC_ORIGIN is derived from ACCESS_MODE" "$got" "https://whitehat.example"
 
   # THE case this variable exists for: nginx forwards `Host $host`, which drops
   # the port, so on a non-default port the webapp cannot rebuild its own origin
   # and would 403 a same-origin client against itself.
-  PORTED="$(_probe https-domain redamon.example 8443)"
+  PORTED="$(_probe https-domain whitehat.example 8443)"
   got="$(grep -E '^MCP_PUBLIC_ORIGIN=' <<<"$PORTED" | head -1 | cut -d= -f2- | tr -d "'\"")"
-  eq "a non-default HTTPS_PORT is carried in the origin" "$got" "https://redamon.example:8443"
+  eq "a non-default HTTPS_PORT is carried in the origin" "$got" "https://whitehat.example:8443"
 
   # And the default port must NOT be appended: https://host:443 is not the
   # origin a browser sends, so appending it would break the common case.
@@ -117,10 +117,10 @@ MCP_SERVER_ENABLED=true; seed MCP_SERVER_ENABLED "$MCP_SERVER_ENABLED"
 eq "a fresh .env gets the operator's value" \
    "$(grep '^MCP_SERVER_ENABLED=' "$T/.env" | cut -d= -f2)" "true"
 
-# redamon.sh runs AFTER the seed and appends the key only when ABSENT. Simulate
+# whitehat.sh runs AFTER the seed and appends the key only when ABSENT. Simulate
 # it to prove the ordering: a seeded 'true' must survive.
 grep -q '^MCP_SERVER_ENABLED=' "$T/.env" || echo "MCP_SERVER_ENABLED=false" >> "$T/.env"
-eq "redamon.sh does NOT clobber a seeded true" \
+eq "whitehat.sh does NOT clobber a seeded true" \
    "$(grep '^MCP_SERVER_ENABLED=' "$T/.env" | cut -d= -f2)" "true"
 eq "and writes exactly one entry" "$(grep -c '^MCP_SERVER_ENABLED=' "$T/.env")" "1"
 

@@ -1,5 +1,5 @@
 /**
- * Renders the MCP API reference page for the wiki (redamon.wiki/MCP-API-Reference.md).
+ * Renders the MCP API reference page for the wiki (whitehat.wiki/MCP-API-Reference.md).
  *
  * The page is built from the server's own `tools/list` answer, the same bytes a
  * connected client receives, rather than from the source. Arguments, types,
@@ -43,7 +43,7 @@ export async function listAdvertisedTools(): Promise<Tool[]> {
   const server = buildMcpServer({
     token: { tokenId: 'docs', userId: 'docs', tokenPrefix: 'rdmn_mcp_docs', name: 'docs', scopes: [] },
   })
-  const client = new Client({ name: 'redamon-api-reference', version: '1.0.0' }, { capabilities: {} })
+  const client = new Client({ name: 'whitehat-api-reference', version: '1.0.0' }, { capabilities: {} })
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
   try {
@@ -244,8 +244,8 @@ function renderAuthentication(): string {
   const presets = MCP_EXPIRY_PRESET_DAYS.map(d => (d === 365 ? '1 year' : `${d} days`))
   const clientConfig = {
     mcpServers: {
-      redamon: {
-        url: 'https://your-redamon-host/api/mcp-server',
+      whitehat: {
+        url: 'https://your-whitehat-host/api/mcp-server',
         headers: { Authorization: `Bearer ${TOKEN_EXAMPLE}` },
       },
     },
@@ -253,7 +253,7 @@ function renderAuthentication(): string {
   return [
     '## Authentication',
     '',
-    `Every request carries a personal access token in the \`Authorization\` header. That is the only way in: this endpoint ignores the browser session cookie and RedAmon's internal service keys, and it never reads a token from the URL. A token acts as the user who created it, inside that user's own projects, limited to the permissions ticked on it.`,
+    `Every request carries a personal access token in the \`Authorization\` header. That is the only way in: this endpoint ignores the browser session cookie and WhiteHat's internal service keys, and it never reads a token from the URL. A token acts as the user who created it, inside that user's own projects, limited to the permissions ticked on it.`,
     '',
     'The server is off by default. Until `MCP_SERVER_ENABLED=true` is set in `.env` and the webapp container is recreated with `docker compose up -d webapp`, every request answers `404`, whatever the token. A plain `docker compose restart` keeps the old environment, so the server stays off.',
     '',
@@ -264,7 +264,7 @@ function renderAuthentication(): string {
     `3. Tick the [permissions](#permissions) it needs. Only ${DEFAULT_MCP_SCOPES.map(s => `\`${s}\``).join(', ')} is ticked by default.`,
     '4. Confirm your password, then copy the token.',
     '',
-    `The token is shown **once**. It starts with \`${MCP_TOKEN_PREFIX}\`, and RedAmon stores only a SHA-256 hash of it, so a lost token cannot be shown again, only replaced. Treat it like a password: anyone holding it can do everything its permissions allow.`,
+    `The token is shown **once**. It starts with \`${MCP_TOKEN_PREFIX}\`, and WhiteHat stores only a SHA-256 hash of it, so a lost token cannot be shown again, only replaced. Treat it like a password: anyone holding it can do everything its permissions allow.`,
     '',
     '### 2. Send it with every request',
     '',
@@ -281,14 +281,14 @@ function renderAuthentication(): string {
     'For Claude Code:',
     '',
     '```bash',
-    'claude mcp add --transport http redamon https://your-redamon-host/api/mcp-server \\',
+    'claude mcp add --transport http whitehat https://your-whitehat-host/api/mcp-server \\',
     `  --header "Authorization: Bearer ${TOKEN_EXAMPLE}"`,
     '```',
     '',
     '### 3. Check it',
     '',
     '```bash',
-    'curl -s https://your-redamon-host/api/mcp-server \\',
+    'curl -s https://your-whitehat-host/api/mcp-server \\',
     "  -H 'Content-Type: application/json' \\",
     "  -H 'Accept: application/json, text/event-stream' \\",
     `  -H 'Authorization: Bearer ${TOKEN_EXAMPLE}' \\`,
@@ -341,7 +341,7 @@ export function renderApiReference(tools: Tool[]): string {
     '',
     '# MCP API Reference',
     '',
-    `Every tool the RedAmon [MCP Server](MCP-Server) advertises: what it does, the arguments it takes, the permission its token needs and how it behaves. This page covers the tools only. Turning the server on, minting a token, connecting a client and the security model are in [MCP Server](MCP-Server).`,
+    `Every tool the WhiteHat [MCP Server](MCP-Server) advertises: what it does, the arguments it takes, the permission its token needs and how it behaves. This page covers the tools only. Turning the server on, minting a token, connecting a client and the security model are in [MCP Server](MCP-Server).`,
     '',
     `> **Generated, not written.** This page is produced from the tool list the server itself returns, so it cannot describe a tool differently from how the server serves it. Do not edit it by hand: the next run overwrites it, and a unit test fails while it is out of date. See [Regenerating the API reference](MCP-Server#regenerating-the-api-reference).`,
     '',

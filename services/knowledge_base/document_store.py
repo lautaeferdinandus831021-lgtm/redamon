@@ -10,7 +10,7 @@ def load_document(source_path: str, project_root: Path | str = None) -> str:
     Args:
         source_path: Project-relative POSIX path stored on the chunk's
             `source_path` property.
-        project_root: Override the default project root (the redamon/
+        project_root: Override the default project root (the whitehat/
             directory). Useful for tests and alternate deployments.
 
     Returns:

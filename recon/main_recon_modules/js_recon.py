@@ -99,7 +99,7 @@ _MAX_JS_FILE_SIZE = 5 * 1024 * 1024
 def _parse_endpoint_validation_headers(header_lines: list) -> dict:
     """Parse user-provided endpoint validation headers."""
     headers = {
-        'User-Agent': 'Mozilla/5.0 (compatible; RedAmon-JsRecon/1.0)',
+        'User-Agent': 'Mozilla/5.0 (compatible; WhiteHat-JsRecon/1.0)',
     }
 
     for line in header_lines:
@@ -334,7 +334,7 @@ def _download_js_files(
             resp = _safe_redirect_get(
                 url,
                 timeout=min(timeout // 10, 30),
-                headers={'User-Agent': 'Mozilla/5.0 (compatible; RedAmon/1.0)'},
+                headers={'User-Agent': 'Mozilla/5.0 (compatible; WhiteHat/1.0)'},
             )
             if resp is None:
                 return None
@@ -906,7 +906,7 @@ def run_js_recon(combined_result: dict, settings: dict) -> dict:
     """
     start_time = time.time()
     pid = os.getpid()
-    work_dir = Path(f'/tmp/redamon/js_recon_{pid}')
+    work_dir = Path(f'/tmp/whitehat/js_recon_{pid}')
 
     print("\n" + "=" * 60)
     print("[*][JsRecon] JS Recon Scanner -- Starting")

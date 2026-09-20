@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { isNewerVersion } from '@/lib/semver'
 import type { ChangelogEntry } from '@/lib/parseChangelog'
 
-const DISMISSED_KEY = 'redamon-dismissed-version'
+const DISMISSED_KEY = 'whitehat-dismissed-version'
 
 interface VersionCheckResult {
   current_version: string

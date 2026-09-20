@@ -28,7 +28,7 @@ from prompts import base  # noqa: E402
 
 class WorkspaceLayoutBase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-layout-prompt-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-layout-prompt-")
         self._orig = base._WORKSPACE_ROOT_FOR_PROMPT
         base._WORKSPACE_ROOT_FOR_PROMPT = Path(self.tmp)
 

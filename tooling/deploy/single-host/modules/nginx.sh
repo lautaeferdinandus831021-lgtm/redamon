@@ -5,10 +5,10 @@
 # Reads (exported by deploy.sh): ACCESS_MODE, SERVER_NAME, CSP_CONNECT, TLS_MODE,
 #   SSL_CERT_REMOTE, SSL_KEY_REMOTE, GATE_MODE, OPERATOR_ALLOW_CIDRS,
 #   BASIC_AUTH_USER, BASIC_AUTH_PASS, MCP_EDGE_ALLOW_BEARER.
-# Templates + snippet are SCP'd to /tmp/redamon-deploy/nginx/ by deploy.sh.
+# Templates + snippet are SCP'd to /tmp/whitehat-deploy/nginx/ by deploy.sh.
 
-NGINX_TMPL_DIR=/tmp/redamon-deploy/nginx
-NGINX_SITE=/etc/nginx/sites-available/redamon
+NGINX_TMPL_DIR=/tmp/whitehat-deploy/nginx
+NGINX_SITE=/etc/nginx/sites-available/whitehat
 
 # Build the access-gate directive block from GATE_MODE.
 _gate_block() {
@@ -28,8 +28,8 @@ _gate_block() {
       printf '%s\n' "${out}"
       ;;
     basic_auth)
-      printf '%s\n' '    auth_basic "RedAmon";
-    auth_basic_user_file /etc/nginx/.redamon_htpasswd;'
+      printf '%s\n' '    auth_basic "WhiteHat";
+    auth_basic_user_file /etc/nginx/.whitehat_htpasswd;'
       ;;
     none|*)
       echo "    # access gate: none (relying on app login + cloud Security Group)"
@@ -106,14 +106,14 @@ _install_htpasswd() {
   [[ -n "${BASIC_AUTH_USER:-}" && -n "${BASIC_AUTH_PASS:-}" ]] || { err "basic_auth needs BASIC_AUTH_USER/PASS"; return 1; }
   local hash
   hash=$(openssl passwd -apr1 "${BASIC_AUTH_PASS}")
-  printf '%s:%s\n' "${BASIC_AUTH_USER}" "${hash}" | run_sudo_tee /etc/nginx/.redamon_htpasswd
+  printf '%s:%s\n' "${BASIC_AUTH_USER}" "${hash}" | run_sudo_tee /etc/nginx/.whitehat_htpasswd
   # Must be readable by the nginx worker (www-data on Debian/Ubuntu). 640 root:root left
   # www-data unable to open() it -> every credentialed request 500'd. Own it by the nginx
   # group so basic_auth actually authenticates.
   local ngx_grp; ngx_grp="$(id -gn "$(ps -o user= -C nginx 2>/dev/null | grep -v '^root$' | head -1)" 2>/dev/null)"
   [[ -n "${ngx_grp}" ]] || ngx_grp=www-data
-  run_sudo chown "root:${ngx_grp}" /etc/nginx/.redamon_htpasswd
-  run_sudo chmod 640 /etc/nginx/.redamon_htpasswd
+  run_sudo chown "root:${ngx_grp}" /etc/nginx/.whitehat_htpasswd
+  run_sudo chmod 640 /etc/nginx/.whitehat_htpasswd
 }
 
 # Line-oriented render: single-line tokens via bash substitution; whole-line blocks
@@ -157,7 +157,7 @@ _install_snippet() {
   local _snip
   for _snip in "${NGINX_TMPL_DIR}"/snippets/*.conf; do
     [ -e "${_snip}" ] || continue
-    run_sudo cp "${_snip}" "/etc/nginx/snippets/redamon-$(basename "${_snip}")"
+    run_sudo cp "${_snip}" "/etc/nginx/snippets/whitehat-$(basename "${_snip}")"
   done
 }
 
@@ -165,8 +165,8 @@ _install_snippet() {
 _write_site() {
   local tmpl
   case "${ACCESS_MODE:-https-domain}" in
-    https-*) tmpl="${NGINX_TMPL_DIR}/redamon.conf.tmpl" ;;
-    http-*)  tmpl="${NGINX_TMPL_DIR}/redamon-http.conf.tmpl" ;;
+    https-*) tmpl="${NGINX_TMPL_DIR}/whitehat.conf.tmpl" ;;
+    http-*)  tmpl="${NGINX_TMPL_DIR}/whitehat-http.conf.tmpl" ;;
     *) err "Unknown ACCESS_MODE: ${ACCESS_MODE}"; return 1 ;;
   esac
   [[ -f "$tmpl" ]] || { err "template not found: $tmpl"; return 1; }
@@ -174,7 +174,7 @@ _write_site() {
   CSP_HEADER_NAME="Content-Security-Policy-Report-Only"
   is_true "${CSP_ENFORCE:-false}" && CSP_HEADER_NAME="Content-Security-Policy"
   WS_AUTH_REQUEST=""
-  is_true "${WS_REQUIRE_SESSION:-true}" && WS_AUTH_REQUEST="auth_request /_redamon_session;"
+  is_true "${WS_REQUIRE_SESSION:-true}" && WS_AUTH_REQUEST="auth_request /_whitehat_session;"
   case "${ACCESS_MODE:-https-domain}" in
     *-domain) REDIRECT_HOST="${DOMAIN}" ;;
     *)        REDIRECT_HOST='$host' ;;   # bare-IP: keep nginx $host (no canonical name)
@@ -184,7 +184,7 @@ _write_site() {
   _install_htpasswd
   _render_template "$tmpl" | run_sudo_tee "${NGINX_SITE}"
   run_sudo rm -f /etc/nginx/sites-enabled/default
-  run_sudo ln -sf "${NGINX_SITE}" /etc/nginx/sites-enabled/redamon
+  run_sudo ln -sf "${NGINX_SITE}" /etc/nginx/sites-enabled/whitehat
 }
 
 _nginx_test_reload() {
@@ -208,11 +208,11 @@ server {
     listen [::]:80;
     server_name ${SERVER_NAME};
     location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 200 'redamon acme bootstrap'; add_header Content-Type text/plain; }
+    location / { return 200 'whitehat acme bootstrap'; add_header Content-Type text/plain; }
 }
 EOF
   run_sudo rm -f /etc/nginx/sites-enabled/default
-  run_sudo ln -sf "${NGINX_SITE}" /etc/nginx/sites-enabled/redamon
+  run_sudo ln -sf "${NGINX_SITE}" /etc/nginx/sites-enabled/whitehat
   _nginx_test_reload
 }
 

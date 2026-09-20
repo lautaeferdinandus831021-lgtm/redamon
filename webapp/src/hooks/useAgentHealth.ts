@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react'
  * agent container (LLM providers, MCP servers).
  *
  * Why: the agent is the process that actually dials the operator's endpoint. If
- * it is down, the test fails before RedAmon ever leaves its own network, and the
+ * it is down, the test fails before WhiteHat ever leaves its own network, and the
  * error lands under the field the operator just typed - which reads as "your URL
  * is wrong" (issue #184). Knowing the agent is offline BEFORE the click is what
  * stops the misdiagnosis; the route-level message is only the fallback.
@@ -50,14 +50,14 @@ export function useAgentHealth(): AgentHealth {
         setError(
           typeof body?.error === 'string'
             ? body.error
-            : `The RedAmon agent service is not responding (HTTP ${resp.status}).`,
+            : `The WhiteHat agent service is not responding (HTTP ${resp.status}).`,
         )
       } catch {
         // A failure of the browser -> webapp hop, not webapp -> agent. Report it
         // as offline too: either way no test can succeed right now.
         if (cancelled) return
         setStatus('offline')
-        setError('Could not reach the RedAmon webapp to check the agent service.')
+        setError('Could not reach the WhiteHat webapp to check the agent service.')
       }
     }
 

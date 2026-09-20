@@ -12,7 +12,7 @@ Covers:
 
 Run:
     docker run --rm --network host --entrypoint python3 \\
-        -v "$PWD:/work:ro" -w /work redamon-recon:latest \\
+        -v "$PWD:/work:ro" -w /work whitehat-recon:latest \\
         recon/tests/test_ai_http_probe_signals.py
 """
 from __future__ import annotations

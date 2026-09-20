@@ -122,17 +122,17 @@ _host_mounts = _detect_host_mounts()
 
 # Configuration — resolved dynamically, no hardcoded machine paths
 RECON_PATH = _get_host_path(_host_mounts, "/app/recon", "RECON_PATH")
-RECON_IMAGE = os.getenv("RECON_IMAGE", "redamon-recon:latest")
+RECON_IMAGE = os.getenv("RECON_IMAGE", "whitehat-recon:latest")
 GVM_SCAN_PATH = _get_host_path(_host_mounts, "/app/gvm_scan", "GVM_SCAN_PATH")
-GVM_IMAGE = os.getenv("GVM_IMAGE", "redamon-vuln-scanner:latest")
+GVM_IMAGE = os.getenv("GVM_IMAGE", "whitehat-vuln-scanner:latest")
 GITHUB_HUNT_PATH = _get_host_path(_host_mounts, "/app/github_secret_hunt", "GITHUB_HUNT_PATH")
-GITHUB_HUNT_IMAGE = os.getenv("GITHUB_HUNT_IMAGE", "redamon-github-hunter:latest")
+GITHUB_HUNT_IMAGE = os.getenv("GITHUB_HUNT_IMAGE", "whitehat-github-hunter:latest")
 TRUFFLEHOG_PATH = _get_host_path(_host_mounts, "/app/trufflehog_scan", "TRUFFLEHOG_PATH")
-TRUFFLEHOG_IMAGE = os.getenv("TRUFFLEHOG_IMAGE", "redamon-trufflehog:latest")
+TRUFFLEHOG_IMAGE = os.getenv("TRUFFLEHOG_IMAGE", "whitehat-trufflehog:latest")
 # Supply-Chain scan (L1). SUPPLY_CHAIN_UPLOADS_PATH is the host dir where the
 # webapp stores an uploaded SBOM/lockfile; mounted read-only into the scan.
 SUPPLY_CHAIN_PATH = _get_host_path(_host_mounts, "/app/supply_chain_scan", "SUPPLY_CHAIN_PATH")
-SUPPLY_CHAIN_IMAGE = os.getenv("SUPPLY_CHAIN_IMAGE", "redamon-supply-chain:latest")
+SUPPLY_CHAIN_IMAGE = os.getenv("SUPPLY_CHAIN_IMAGE", "whitehat-supply-chain:latest")
 # graph_db host path, bound into EVERY spawned scan container. Resolved the same
 # way as every other source path (auto-detected from our own mounts, env override
 # second) instead of being DERIVED from a sibling's Source string: on any host
@@ -174,7 +174,7 @@ try:
 except RuntimeError:
     AI_ATTACK_SURFACE_PATH = ""
     logger.info("AI Attack Surface source not mounted — feature disabled until mounted")
-AI_ATTACK_SURFACE_IMAGE = os.getenv("AI_ATTACK_SURFACE_IMAGE", "redamon-ai-attack-surface:latest")
+AI_ATTACK_SURFACE_IMAGE = os.getenv("AI_ATTACK_SURFACE_IMAGE", "whitehat-ai-attack-surface:latest")
 try:
     CUSTOM_TEMPLATES_PATH = _get_host_path(_host_mounts, "/app/nuclei-templates", "CUSTOM_TEMPLATES_PATH")
 except RuntimeError:
@@ -630,7 +630,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="RedAmon Recon Orchestrator",
+    title="WhiteHat Recon Orchestrator",
     description="Container orchestration service for recon processes",
     version=VERSION,
     lifespan=lifespan,
@@ -832,7 +832,7 @@ async def local_llm_ensure(model: Optional[str] = None):
 @app.post("/local-llm/release")
 async def local_llm_release():
     """Release one lease. When the last lease is freed the container is stopped
-    and removed; the model-weights volume (redamon_llm_models) persists."""
+    and removed; the model-weights volume (whitehat_llm_models) persists."""
     if not local_llm_manager:
         raise HTTPException(status_code=503, detail="Local LLM manager not initialized")
     status = await asyncio.to_thread(local_llm_manager.release)
@@ -967,7 +967,7 @@ async def get_defaults():
         # Plus the four the registry cannot infer. Each is a Project COLUMN, so
         # it is not runtime-only in the registry's sense; it is simply not a
         # global default. The rest of the targeting block legitimately has one:
-        # an empty subdomain list, and the shipped `_redamon-verify` TXT prefix.
+        # an empty subdomain list, and the shipped `_whitehat-verify` TXT prefix.
         RUNTIME_ONLY_KEYS.update({
             "USER_ID",          # the owner, set by the loader from the API response
             "TARGET_DOMAIN",    # per-project, provided by the operator

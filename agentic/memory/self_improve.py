@@ -9,7 +9,7 @@ This is a deterministic reflection pass over the memory store, not an LLM call:
   actually holds ("execute_nuclei failed 4/5 recent calls here"), so a lesson can
   be audited against the timeline that produced it.
 
-The pass does three things agentmemory's lifecycle does, in RedAmon's terms:
+The pass does three things agentmemory's lifecycle does, in WhiteHat's terms:
 
 1. **Distil** - tool-outcome observations become `lesson` memories about which
    tools are reliable here, replacing raw failure noise with a durable claim.

@@ -561,7 +561,7 @@ RUNTIME_ONLY: dict[str, dict] = {
         "source": "user_account", "tool": "agent", "unit": "none", "roe_capped": False,
         "meaning": (
             "The OUTBOUND MCP servers the agent may connect to, configured on the user "
-            "account rather than the project. Not to be confused with RedAmon's own inbound "
+            "account rather than the project. Not to be confused with WhiteHat's own inbound "
             "MCP server, which external agents connect to."
         ),
     },
@@ -1458,7 +1458,7 @@ def build() -> str:
         tools[tool] = entry
 
     out: list[str] = []
-    out.append("# RedAmon recon settings registry.")
+    out.append("# WhiteHat recon settings registry.")
     out.append("#")
     out.append("# The one hand-maintained description of every recon parameter. See README.md")
     out.append("# beside this file for what belongs here and what stays in Prisma.")

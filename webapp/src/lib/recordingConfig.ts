@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-import { signTag } from '@/lib/redamonCtx'
+import { signTag } from '@/lib/whitehatCtx'
 
 export interface ActiveRecordingBlock {
   tag: string

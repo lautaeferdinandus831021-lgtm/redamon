@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install Docker and deploy RedAmon HackLab target environment
+# Install Docker and deploy WhiteHat HackLab target environment
 set -e
 
 echo "=== Installing Docker ==="
@@ -83,7 +83,7 @@ CMD ["/usr/local/sbin/vsftpd", "/etc/vsftpd.conf"]
 DOCKERFILE
 
 # --- Self-signed TLS cert with multi-SAN for the VHost & SNI hidden vhost demo ---
-# The cert SANs include 7 hidden vhost hostnames so RedAmon's httpx scrapes them
+# The cert SANs include 7 hidden vhost hostnames so WhiteHat's httpx scrapes them
 # from the certificate during the HTTP probe phase, seeding them as candidates
 # for the VHost & SNI module's L7 + L4 probes.
 echo "=== Generating self-signed TLS cert with multi-SAN for hidden vhost demo ==="
@@ -106,7 +106,7 @@ cat > ~/dvws-node/landing/index.html << 'LANDING_HTML'
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RedAmon HackLab -- Research Target</title>
+<title>WhiteHat HackLab -- Research Target</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
@@ -130,26 +130,26 @@ cat > ~/dvws-node/landing/index.html << 'LANDING_HTML'
 <body>
 <div class="container">
 
-<h1>RedAmon HackLab</h1>
+<h1>WhiteHat HackLab</h1>
 <p class="subtitle">Research Target Server -- gpigs.devergolabs.com</p>
 
 <div class="warning-box">
-  <strong>WARNING:</strong> This server is a dedicated research target for authorized security testing with <a href="https://github.com/samugit83/redamon">RedAmon</a> only. All traffic is logged and monitored. By accessing any service on this server, you accept the Rules of Engagement below.
+  <strong>WARNING:</strong> This server is a dedicated research target for authorized security testing with <a href="https://github.com/samugit83/redamon">WhiteHat</a> only. All traffic is logged and monitored. By accessing any service on this server, you accept the Rules of Engagement below.
 </div>
 
 <div class="info-box">
-  This server hosts multiple services as part of the <a href="https://github.com/samugit83/redamon">RedAmon</a> HackLab research environment. The RedAmon AI agent is designed to autonomously discover and map the attack surface. No additional information about the target is provided here intentionally -- the agent must perform its own reconnaissance.
+  This server hosts multiple services as part of the <a href="https://github.com/samugit83/redamon">WhiteHat</a> HackLab research environment. The WhiteHat AI agent is designed to autonomously discover and map the attack surface. No additional information about the target is provided here intentionally -- the agent must perform its own reconnaissance.
 </div>
 
 <h2>Rules of Engagement</h2>
 <ol>
-  <li><strong>RedAmon-only testing.</strong> This server is provided exclusively for testing with the <a href="https://github.com/samugit83/redamon">RedAmon</a> framework. Manual exploitation, third-party scanners, and automated tools other than RedAmon are not authorized.</li>
+  <li><strong>WhiteHat-only testing.</strong> This server is provided exclusively for testing with the <a href="https://github.com/samugit83/redamon">WhiteHat</a> framework. Manual exploitation, third-party scanners, and automated tools other than WhiteHat are not authorized.</li>
   <li><strong>Scope.</strong> Only interact with services hosted on this server. All other IPs and infrastructure behind this server are out of scope.</li>
   <li><strong>No lateral movement.</strong> Do not attempt to pivot from this server to other systems, networks, or cloud infrastructure.</li>
   <li><strong>No denial of service.</strong> Do not perform load testing, resource exhaustion, or any action intended to degrade availability.</li>
   <li><strong>No data exfiltration beyond the server.</strong> Do not exfiltrate data to external servers, set up reverse shells to your own infrastructure, or establish persistent backdoors.</li>
   <li><strong>No modification of the environment.</strong> Do not delete databases, drop tables, modify other users' data, or alter running services in ways that affect other testers.</li>
-  <li><strong>Responsible disclosure.</strong> If you discover a vulnerability in RedAmon itself (not in the target), report it via <a href="https://github.com/samugit83/redamon/issues">GitHub Issues</a>.</li>
+  <li><strong>Responsible disclosure.</strong> If you discover a vulnerability in WhiteHat itself (not in the target), report it via <a href="https://github.com/samugit83/redamon/issues">GitHub Issues</a>.</li>
   <li><strong>Legal compliance.</strong> You are solely responsible for ensuring your testing complies with all applicable laws in your jurisdiction. Unauthorized access to computer systems is illegal in most countries.</li>
   <li><strong>No warranty / liability.</strong> This server is provided "as is" for educational and research purposes. Devergolabs assumes no liability for any damages arising from your use. Access may be revoked at any time without notice.</li>
   <li><strong>Logging and monitoring.</strong> All traffic to this server is logged. IP addresses and request data are recorded for security monitoring and abuse prevention.</li>
@@ -161,16 +161,16 @@ cat > ~/dvws-node/landing/index.html << 'LANDING_HTML'
 
 <h2>Get Started</h2>
 <p style="margin-top:0.5rem;">
-  <span class="badge">1</span> Install <a href="https://github.com/samugit83/redamon">RedAmon</a> &nbsp;
+  <span class="badge">1</span> Install <a href="https://github.com/samugit83/redamon">WhiteHat</a> &nbsp;
   <span class="badge">2</span> Create a project targeting this server &nbsp;
   <span class="badge">3</span> Run the recon pipeline &nbsp;
   <span class="badge">4</span> Let the AI agent attack &nbsp;
-  <span class="badge">5</span> Record and <a href="https://github.com/samugit83/redamon/wiki/RedAmon-HackLab#community-sessions">submit your session</a>
+  <span class="badge">5</span> Record and <a href="https://github.com/samugit83/redamon/wiki/WhiteHat-HackLab#community-sessions">submit your session</a>
 </p>
 
 <div class="footer">
-  <a href="https://github.com/samugit83/redamon">RedAmon</a> &middot;
-  <a href="https://github.com/samugit83/redamon/wiki/RedAmon-HackLab">HackLab Wiki</a> &middot;
+  <a href="https://github.com/samugit83/redamon">WhiteHat</a> &middot;
+  <a href="https://github.com/samugit83/redamon/wiki/WhiteHat-HackLab">HackLab Wiki</a> &middot;
   <a href="https://devergolabs.com">Devergolabs</a>
   <br/>Last updated: 2026-04-04
 </div>
@@ -185,7 +185,7 @@ LANDING_HTML
 cat > ~/dvws-node/landing/nginx.conf << 'NGINX_CONF'
 # ===========================================================================
 # Default server (port 80) -- landing page + dvws-node proxy + Argentum
-# This is the BASELINE response when RedAmon's VHost & SNI module probes the
+# This is the BASELINE response when WhiteHat's VHost & SNI module probes the
 # bare IP with no Host override. The full landing HTML is served (~5KB).
 # ===========================================================================
 server {
@@ -224,7 +224,7 @@ server {
 
 # ===========================================================================
 # Hidden VHost #1: admin.gpigs.devergolabs.com (port 80 / L7)
-# Internal-keyword "admin" -> RedAmon flags as MEDIUM severity
+# Internal-keyword "admin" -> WhiteHat flags as MEDIUM severity
 # ===========================================================================
 server {
     listen 80;
@@ -257,7 +257,7 @@ queue-rabbit  DEGRADED 2 nodes down</pre>
 
 # ===========================================================================
 # Hidden VHost #2: staging.gpigs.devergolabs.com (port 80 / L7)
-# Internal-keyword "staging" -> RedAmon flags as MEDIUM severity
+# Internal-keyword "staging" -> WhiteHat flags as MEDIUM severity
 # ===========================================================================
 server {
     listen 80;
@@ -285,7 +285,7 @@ qauser/qa-456     (regression suite)</pre>
 
 # ===========================================================================
 # Hidden VHost #3: jenkins.gpigs.devergolabs.com (port 80 / L7)
-# Internal-keyword "jenkins" -> RedAmon flags as MEDIUM severity
+# Internal-keyword "jenkins" -> WhiteHat flags as MEDIUM severity
 # ===========================================================================
 server {
     listen 80;
@@ -312,7 +312,7 @@ server {
 # ===========================================================================
 # Hidden VHost #4: marketing.gpigs.devergolabs.com (port 80 / L7)
 # NO internal-keyword match BUT returns 403 (different status from baseline 200)
-# -> RedAmon flags as LOW severity (status mismatch is the trigger)
+# -> WhiteHat flags as LOW severity (status mismatch is the trigger)
 # ===========================================================================
 server {
     listen 80;
@@ -332,22 +332,22 @@ server {
 
 # ===========================================================================
 # Hidden VHost #5: news.gpigs.devergolabs.com (port 80 / L7)
-# Same status as baseline + slight body size delta -> RedAmon flags as INFO severity
+# Same status as baseline + slight body size delta -> WhiteHat flags as INFO severity
 # ===========================================================================
 server {
     listen 80;
     server_name news.gpigs.devergolabs.com;
     location / {
         default_type text/html;
-        return 200 '<!DOCTYPE html><html><head><title>RedAmon HackLab - News</title></head>
-<body><h1>RedAmon HackLab News</h1><p>Latest research updates from the Devergolabs security team.</p><ul><li>2026-04-22: New attack-skill library released</li><li>2026-04-15: Improved Cypher query generation</li><li>2026-04-08: VHost & SNI Enumeration module added</li></ul></body></html>';
+        return 200 '<!DOCTYPE html><html><head><title>WhiteHat HackLab - News</title></head>
+<body><h1>WhiteHat HackLab News</h1><p>Latest research updates from the Devergolabs security team.</p><ul><li>2026-04-22: New attack-skill library released</li><li>2026-04-15: Improved Cypher query generation</li><li>2026-04-08: VHost & SNI Enumeration module added</li></ul></body></html>';
     }
 }
 
 # ===========================================================================
 # HTTPS default server (port 443 / TLS) -- baseline TLS response
 # Returns a small fixed string regardless of Host header. This is the L4
-# baseline RedAmon compares against when probing the IP with random SNI.
+# baseline WhiteHat compares against when probing the IP with random SNI.
 # ===========================================================================
 server {
     listen 443 ssl default_server;
@@ -357,13 +357,13 @@ server {
 
     location / {
         default_type text/plain;
-        return 200 'RedAmon HackLab -- TLS endpoint. See / on port 80 for terms.\n';
+        return 200 'WhiteHat HackLab -- TLS endpoint. See / on port 80 for terms.\n';
     }
 }
 
 # ===========================================================================
 # Hidden VHost #6: internal.gpigs.devergolabs.com (port 443 / SNI-routed L4)
-# Internal-keyword "internal" -> RedAmon flags as MEDIUM severity via L4 path
+# Internal-keyword "internal" -> WhiteHat flags as MEDIUM severity via L4 path
 # Reachable only when SNI matches (curl --resolve trick)
 # ===========================================================================
 server {
@@ -405,7 +405,7 @@ INFO  vault leader election in 2h (rotation policy)</pre>
 # Hidden VHost #7: k8s.gpigs.devergolabs.com (port 443 / host_header_bypass)
 # Internal-keyword "k8s" -> normally MEDIUM, but escalated to HIGH because
 # the response differs based on whether the SNI matched (L4) or only the
-# Host header matched via fallthrough (L7). RedAmon flags this as
+# Host header matched via fallthrough (L7). WhiteHat flags this as
 # host_header_bypass -- the highest-severity finding from this module.
 #
 # How the divergence works:
@@ -511,7 +511,7 @@ PUBLIC_IP=$(curl -s ifconfig.me 2>/dev/null || echo '<IP>')
 echo ""
 echo "=== DONE ==="
 echo ""
-echo "RedAmon HackLab deployed successfully."
+echo "WhiteHat HackLab deployed successfully."
 echo "  Landing page:  http://${PUBLIC_IP}/"
 echo "  All containers set to restart: unless-stopped"
 echo ""

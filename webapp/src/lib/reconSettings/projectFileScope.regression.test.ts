@@ -105,7 +105,7 @@ describe('a header with no value is refused', () => {
   })
 
   test('an ordinary header still passes', () => {
-    expect(checkHeader('X-Scan-Id: redamon-7f3a')).toBeNull()
+    expect(checkHeader('X-Scan-Id: whitehat-7f3a')).toBeNull()
   })
 })
 

@@ -149,7 +149,7 @@ class TunnelHandler(BaseHTTPRequestHandler):
     def _authorized(self) -> bool:
         """Validate the inbound bearer token (constant-time). Fail-CLOSED when
         TUNNEL_AUTH_TOKEN is unset (STRIDE S5): an absent token means REFUSE,
-        never accept-everyone. redamon.sh ensure_auth_secrets always sets it."""
+        never accept-everyone. whitehat.sh ensure_auth_secrets always sets it."""
         global _warned_failopen
         expected = _configured_token()
         if not expected:

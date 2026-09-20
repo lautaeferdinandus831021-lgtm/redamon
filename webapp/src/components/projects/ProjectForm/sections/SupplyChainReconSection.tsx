@@ -120,7 +120,7 @@ export function SupplyChainReconSection({ data, updateField, onRun }: SupplyChai
                 <label className={styles.fieldLabel}>Ecosystems</label>
                 <p className={styles.fieldHint}>
                   Select the ecosystems to report. Each one must be present in the offline database, populated with{' '}
-                  <code>./redamon.sh supply-chain-sync npm</code> (one sync per ecosystem).
+                  <code>./whitehat.sh supply-chain-sync npm</code> (one sync per ecosystem).
                 </p>
                 <div className={styles.checkboxGroup} role="group" aria-label="Ecosystems">
                   {SUPPLY_CHAIN_ECOSYSTEMS.map((eco) => (
@@ -180,7 +180,7 @@ export function SupplyChainReconSection({ data, updateField, onRun }: SupplyChai
                     Compares the hosts this scan already saw (the target&apos;s URLs and the servers its JavaScript
                     came from) against a catalog of published supply-chain incidents. Local lookup only: no extra
                     requests, and nothing is sent anywhere. Populate the catalog with
-                    {' '}<code>./redamon.sh sca-intel-sync</code>.
+                    {' '}<code>./whitehat.sh sca-intel-sync</code>.
                   </p>
                 </div>
                 <Toggle

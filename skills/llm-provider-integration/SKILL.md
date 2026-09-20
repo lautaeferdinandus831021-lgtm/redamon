@@ -1,7 +1,7 @@
 ---
 name: llm-provider-integration
 description: >
-  Adding an LLM provider to RedAmon: the credential boundary (keys must never
+  Adding an LLM provider to WhiteHat: the credential boundary (keys must never
   reach scan containers), prefix-routed model ids, and the provider registry. A
   misrouted model id or a leaked key are the two failures this guards.
   Trigger: adding or editing an LLM provider; editing parse_model_provider in
@@ -9,7 +9,7 @@ description: >
   the user_llm_providers model, or an LLM call site that passes an API key.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [agentic, webapp]
   auto_invoke:

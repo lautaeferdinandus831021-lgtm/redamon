@@ -53,7 +53,7 @@ INTERNETDB_BASE = "https://internetdb.shodan.io"
 
 
 def _normalize_shodan_ssl(ssl_block) -> dict:
-    """Normalise Shodan's per-service ``ssl`` block to RedAmon's cert shape.
+    """Normalise Shodan's per-service ``ssl`` block to WhiteHat's cert shape.
 
     Phase 0.6: this block was parsed by Shodan and thrown away, despite
     carrying CN, issuer, serial, expiry, JARM and JA3S for free -- data the

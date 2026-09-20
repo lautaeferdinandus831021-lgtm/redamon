@@ -1,5 +1,5 @@
 """
-RedAmon - Nuclei Helper Functions
+WhiteHat - Nuclei Helper Functions
 ==================================
 Functions for building Nuclei commands, parsing output, and detecting false positives.
 """
@@ -20,10 +20,10 @@ def get_host_path(container_path: str) -> str:
     When running inside a container with mounted volumes, sibling containers
     need host paths, not container paths.
 
-    /tmp/redamon is mounted to the same path inside and outside, so no translation needed.
+    /tmp/whitehat is mounted to the same path inside and outside, so no translation needed.
     """
-    # /tmp/redamon paths are the same inside and outside the container
-    if container_path.startswith("/tmp/redamon"):
+    # /tmp/whitehat paths are the same inside and outside the container
+    if container_path.startswith("/tmp/whitehat"):
         return container_path
 
     host_output_path = os.environ.get("HOST_RECON_OUTPUT_PATH", "")
@@ -253,7 +253,7 @@ def build_nuclei_command(
               "interactsh callbacks would carry it to a third-party host.")
 
     # Authenticated-session profile: real target headers on the tool's own header
-    # path, kept entirely separate from the X-Redamon-Ctx branch below. Already
+    # path, kept entirely separate from the X-WhiteHat-Ctx branch below. Already
     # scope-checked and sanitized by the caller (merge_auth_headers).
     for header in (auth_headers or []):
         cmd.extend(["-H", header])
@@ -263,7 +263,7 @@ def build_nuclei_command(
     from helpers.proxy_routing import get_capture_routing
     _cap_url, _cap_token = get_capture_routing("nuclei")
     if _cap_url and _cap_token:
-        cmd.extend(["-proxy", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_token}"])
+        cmd.extend(["-proxy", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_token}"])
 
     return cmd
 

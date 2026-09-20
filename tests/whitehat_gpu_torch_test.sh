@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the build-time CPU/GPU PyTorch variant decision in redamon.sh
+# Test suite for the build-time CPU/GPU PyTorch variant decision in whitehat.sh
 # (gpu_runtime_available / is_gpu_enabled / _gpu_export_env / _gpu_compose_overlay)
 # plus the Dockerfile + compose contracts that carry the decision.
 #
@@ -11,7 +11,7 @@
 #
 # Suites: unit (stubbed docker), regression (one per bug found in review),
 #         contract (Dockerfile/compose invariants). Run:
-#   bash tests/redamon_gpu_torch_test.sh
+#   bash tests/whitehat_gpu_torch_test.sh
 # No Docker daemon required: `docker` is stubbed throughout.
 # =============================================================================
 set -uo pipefail
@@ -19,7 +19,7 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -228,7 +228,7 @@ assert_not_contains "overlay does NOT touch ai-attack-surface" "$gpu_body" "ai-a
 compose_body="$(cat "$REPO_ROOT/docker-compose.yml")"
 assert_contains "agent build passes TORCH_INDEX_URL" "$compose_body" "TORCH_INDEX_URL:"
 # The DEFAULT must be CPU: an unset env var is the common case (bare
-# `docker compose build`, CI, a contributor who never runs redamon.sh).
+# `docker compose build`, CI, a contributor who never runs whitehat.sh).
 default_line="$(grep -c 'TORCH_INDEX_URL: "${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}"' <<<"$compose_body")"
 assert_eq "both agent build blocks default to the CPU index" "$default_line" "2"
 
@@ -259,11 +259,11 @@ section "regression: dev mode must carry the overlay (B2)"
 # (which passes its own -f flags via $DEV_COMPOSE) would silently start a
 # CUDA-built agent with NO GPU access. Every dev call site must append
 # $GPU_COMPOSE_ARGS.
-redamon_body="$(cat "$REPO_ROOT/redamon.sh")"
+whitehat_body="$(cat "$REPO_ROOT/whitehat.sh")"
 # The pattern matches call sites only: the definition line carries no `$`, and
 # the two prose mentions are followed by ')'.
-dev_uses=$(grep -cE '\$DEV_COMPOSE( |$)' <<<"$redamon_body")
-dev_with_gpu=$(grep -cE '\$DEV_COMPOSE \$GPU_COMPOSE_ARGS' <<<"$redamon_body")
+dev_uses=$(grep -cE '\$DEV_COMPOSE( |$)' <<<"$whitehat_body")
+dev_with_gpu=$(grep -cE '\$DEV_COMPOSE \$GPU_COMPOSE_ARGS' <<<"$whitehat_body")
 [[ "$dev_uses" -ge 3 ]] && pass "found $dev_uses \$DEV_COMPOSE call sites to check" \
                         || fail "expected >=3 \$DEV_COMPOSE call sites, found $dev_uses"
 assert_eq "regression: every \$DEV_COMPOSE compose call carries \$GPU_COMPOSE_ARGS" \
@@ -293,11 +293,11 @@ section "contract: lifecycle subcommands (install/update/purge/status)"
 # =============================================================================
 # purge means "remove everything": a surviving .gpu-enabled would force the NEXT
 # install onto a variant the user never asked for.
-purge_body="$(sed -n '/^cmd_purge()/,/^}/p' "$REPO_ROOT/redamon.sh")"
+purge_body="$(sed -n '/^cmd_purge()/,/^}/p' "$REPO_ROOT/whitehat.sh")"
 assert_contains "purge clears the GPU flag markers"  "$purge_body" "GPU_ENABLED_FLAG_FILE"
 assert_contains "purge clears the frozen variant"    "$purge_body" "TORCH_VARIANT_MARKER"
 
-update_body="$(sed -n '/^cmd_update()/,/^}/p' "$REPO_ROOT/redamon.sh")"
+update_body="$(sed -n '/^cmd_update()/,/^}/p' "$REPO_ROOT/whitehat.sh")"
 assert_contains "update accepts --gpu"                "$update_body" "--gpu)"
 assert_contains "update accepts --cpu"                "$update_body" "--cpu)"
 # The re-exec hands control to the freshly-pulled script; without forwarding, an
@@ -307,11 +307,11 @@ assert_contains "update forwards its flags across the re-exec" "$update_body" 'u
 noflag_reset=$(grep -c 'rm -f "$GPU_ENABLED_FLAG_FILE" "$GPU_DISABLED_FLAG_FILE"' <<<"$update_body")
 assert_eq "update never clears both markers (preserves the install choice)" "$noflag_reset" "0"
 # install DOES reset to auto-detect when no flag is given.
-install_body="$(sed -n '/^cmd_install()/,/^}/p' "$REPO_ROOT/redamon.sh")"
+install_body="$(sed -n '/^cmd_install()/,/^}/p' "$REPO_ROOT/whitehat.sh")"
 assert_contains "install resets to auto-detect with no flag" "$install_body" 'rm -f "$GPU_ENABLED_FLAG_FILE" "$GPU_DISABLED_FLAG_FILE"'
 # The build arg must be exported BEFORE any image is built.
 for fn in cmd_install cmd_update; do
-    body="$(sed -n "/^$fn()/,/^}/p" "$REPO_ROOT/redamon.sh")"
+    body="$(sed -n "/^$fn()/,/^}/p" "$REPO_ROOT/whitehat.sh")"
     exp_line=$(grep -n "_gpu_export_env" <<<"$body" | head -1 | cut -d: -f1)
     bld_line=$(grep -n "compose_build" <<<"$body" | head -1 | cut -d: -f1)
     if [[ -n "$exp_line" && -n "$bld_line" && "$exp_line" -lt "$bld_line" ]]; then
@@ -321,7 +321,7 @@ for fn in cmd_install cmd_update; do
     fi
 done
 
-status_body="$(sed -n '/^cmd_status()/,/^}/p' "$REPO_ROOT/redamon.sh")"
+status_body="$(sed -n '/^cmd_status()/,/^}/p' "$REPO_ROOT/whitehat.sh")"
 assert_contains "status reports the frozen build variant" "$status_body" "TORCH_BUILD"
 
 # update must rebuild BOTH images this feature touches.

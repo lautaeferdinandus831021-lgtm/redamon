@@ -4,7 +4,7 @@ Integration tests for VhostSniMixin -- writes against a REAL Neo4j instance.
 Auto-skips when Neo4j is unreachable.
 
 Run inside the agent container (graph_db is baked there):
-    docker exec redamon-agent python -m pytest /app/recon/tests/test_vhost_sni_graph.py -v
+    docker exec whitehat-agent python -m pytest /app/recon/tests/test_vhost_sni_graph.py -v
 """
 
 from __future__ import annotations

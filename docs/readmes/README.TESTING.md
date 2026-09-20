@@ -1,4 +1,4 @@
-# RedAmon testing guide
+# WhiteHat testing guide
 
 This document has two audiences: the human maintainer, and **the next Claude Code
 session, which reads it before writing or running a test**. It is therefore an
@@ -13,12 +13,12 @@ Running the gate, reading a red one, and the local-vs-CI split are walked throug
 in [`README.USAGE.md`](README.USAGE.md).
 
 ```bash
-./redamon.sh test              # unit gate across every section (the canonical gate)
-./redamon.sh test unit         # same
-./redamon.sh test integration  # integration tier (heavier deps / cross-layer)
-./redamon.sh test all          # unit + integration
-./redamon.sh test live         # live tier (self-skips when the stack is down)
-./redamon.sh test coverage     # all tiers + per-section coverage + floor
+./whitehat.sh test              # unit gate across every section (the canonical gate)
+./whitehat.sh test unit         # same
+./whitehat.sh test integration  # integration tier (heavier deps / cross-layer)
+./whitehat.sh test all          # unit + integration
+./whitehat.sh test live         # live tier (self-skips when the stack is down)
+./whitehat.sh test coverage     # all tiers + per-section coverage + floor
 
 ./agentic/run_tests.sh         # just the agent image, unit gate (fast path)
 ./agentic/run_tests.sh coverage
@@ -35,31 +35,31 @@ alias for `unit`).
 
 [`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs the unit gate
 on every pull request (and on `workflow_dispatch`): the same command as locally,
-`./redamon.sh test unit`, each section inside its own image, one test file per
+`./whitehat.sh test unit`, each section inside its own image, one test file per
 pytest subprocess, with **nothing skipped**.
 
 It is a single job because the section images must exist before the gate can run
 (`cmd_test` resolves each section by image tag and treats a missing image as a
 FAILURE of the gate), and because the gate has no "just one section" mode: the
 unit tier always bundles the shell suites and webapp vitest, and
-`tests/redamon_gate_unskippable_test.sh` asserts that a missing
+`tests/whitehat_gate_unskippable_test.sh` asserts that a missing
 `webapp/node_modules` is a failure rather than a skip. Splitting sections into
-separate legs therefore needs `REDAMON_TEST_ALLOW_MISSING`, which trips that
+separate legs therefore needs `WHITEHAT_TEST_ALLOW_MISSING`, which trips that
 guard suite in every leg.
 
 | Job | What runs |
 |---|---|
-| `plan` | parses `_TEST_SECTIONS` out of `redamon.sh` and emits the compose services to build, so a section added or renamed there cannot silently drop out of CI (an unparseable block, or a service that is not in `docker-compose.yml`, fails the job instead) |
-| `unit-gate` | `npm ci` in `webapp/`, `docker compose build` of every section service (`COMPOSE_PARALLEL_LIMIT=2` caps concurrent builds), then `./redamon.sh test unit` with no skip overrides |
+| `plan` | parses `_TEST_SECTIONS` out of `whitehat.sh` and emits the compose services to build, so a section added or renamed there cannot silently drop out of CI (an unparseable block, or a service that is not in `docker-compose.yml`, fails the job instead) |
+| `unit-gate` | `npm ci` in `webapp/`, `docker compose build` of every section service (`COMPOSE_PARALLEL_LIMIT=2` caps concurrent builds), then `./whitehat.sh test unit` with no skip overrides |
 
 Two properties to keep in mind when editing it:
 
-- **Nothing is skippable.** The workflow sets no `REDAMON_TEST_ALLOW_MISSING`,
+- **Nothing is skippable.** The workflow sets no `WHITEHAT_TEST_ALLOW_MISSING`,
   so the gate's `SKIPPED` path is never taken: an image that failed to build (or
   no `node_modules`) turns the job red instead of quietly narrowing what ran.
 - **The two required compose variables are placeholders.** `docker compose`
   validates the whole file before building any one service, and `NEO4J_PASSWORD`
-  / `POSTGRES_PASSWORD` are `:?`-required because `redamon.sh` normally generates
+  / `POSTGRES_PASSWORD` are `:?`-required because `whitehat.sh` normally generates
   them into `.env`. The workflow sets dummy values for a checkout that has none;
   the gate runs its sections with `docker run`, not `compose up`, so no database
   is ever contacted.
@@ -86,31 +86,31 @@ Two properties to keep in mind when editing it:
 
 | Section | Image | Test root(s) |
 |---|---|---|
-| agent | `redamon-agent` | `agentic/tests` |
-| root group | `redamon-agent` | `tests/`, `supply_chain_*`, `graph_db`, `knowledge_base`, `mcp` |
-| recon | `redamon-recon` | `recon/tests` |
-| recon_orchestrator | `redamon-recon-orchestrator` | `recon_orchestrator/` + `recon_orchestrator/tests` |
-| ai_attack_surface | `redamon-ai-attack-surface` | `scanners/ai_attack_surface_scan/tests` + `adapters/*/tests` |
-| capture_proxy | `redamon-capture-proxy` | `scanners/capture_proxy/tests` |
-| docker_broker | `redamon-docker-broker` | `services/docker_broker/` |
+| agent | `whitehat-agent` | `agentic/tests` |
+| root group | `whitehat-agent` | `tests/`, `supply_chain_*`, `graph_db`, `knowledge_base`, `mcp` |
+| recon | `whitehat-recon` | `recon/tests` |
+| recon_orchestrator | `whitehat-recon-orchestrator` | `recon_orchestrator/` + `recon_orchestrator/tests` |
+| ai_attack_surface | `whitehat-ai-attack-surface` | `scanners/ai_attack_surface_scan/tests` + `adapters/*/tests` |
+| capture_proxy | `whitehat-capture-proxy` | `scanners/capture_proxy/tests` |
+| docker_broker | `whitehat-docker-broker` | `services/docker_broker/` |
 | shell | (host bash) | `tests/*_test.sh` |
 | webapp | (node) | `webapp/src/**/*.test.ts(x)` via vitest |
 
 A section whose image is not built **fails the gate** by default (that is the
-point: a suite that never ran proves nothing). `REDAMON_TEST_ALLOW_MISSING`
+point: a suite that never ran proves nothing). `WHITEHAT_TEST_ALLOW_MISSING`
 narrows what the tier counts as a failure, and the gate then prints a `SKIPPED`
 line per allowed input; CI deliberately sets it not at all.
 
 ### The `shell` section
 
-Parts of RedAmon are bash, not Python: the proportional memory allocator, the
+Parts of WhiteHat are bash, not Python: the proportional memory allocator, the
 preflight RAM/disk gates, secret and admin handling, and the `tooling/deploy`
 driver. Those are covered by `tests/*_test.sh`, which run **on the host** (they
-`source redamon.sh` — the `BASH_SOURCE` guard at the bottom of the script stops
+`source whitehat.sh` — the `BASH_SOURCE` guard at the bottom of the script stops
 the command dispatch from firing) and need no image.
 
 They run in the same tiers as webapp (`unit`, `all`, `coverage`), so the
-canonical `./redamon.sh test` gate covers them. Every suite matched by the glob
+canonical `./whitehat.sh test` gate covers them. Every suite matched by the glob
 must be **hermetic or self-skipping**: one that needs a live stack (e.g.
 `scan_timeline_db_test.sh` without postgres) prints a `SKIP` line and exits 0.
 Smoke/live shell suites are named `*_smoke.sh` / `*_live.sh` and are deliberately
@@ -139,13 +139,13 @@ they skipped. Run them against a stack before trusting a schema change:
 NEO4J_PASSWORD="$(grep '^NEO4J_PASSWORD=' .env | cut -d= -f2-)" \
 docker run --rm --network host --entrypoint python3 \
   -e NEO4J_URI=bolt://localhost:7687 -e NEO4J_USER=neo4j -e NEO4J_PASSWORD="$NEO4J_PASSWORD" \
-  -v "$PWD:/work:ro" -w /work redamon-recon:latest recon/tests/test_schema_catalog.py
+  -v "$PWD:/work:ro" -w /work whitehat-recon:latest recon/tests/test_schema_catalog.py
 ```
 
 A failing file is reported with the command to re-run it on its own:
 
 ```
-  FAIL  redamon_governor_test.sh (exit 1) — re-run: bash tests/redamon_governor_test.sh
+  FAIL  whitehat_governor_test.sh (exit 1) — re-run: bash tests/whitehat_governor_test.sh
 ```
 
 ---
@@ -192,7 +192,7 @@ isolation the tests were designed for and makes the gate deterministic.
 
 Consequences you must know:
 
-- `./redamon.sh test` / `./agentic/run_tests.sh` are deterministic. Prefer them.
+- `./whitehat.sh test` / `./agentic/run_tests.sh` are deterministic. Prefer them.
 - Running `pytest -m unit` over the **whole tree in one process** is *not* the gate
   and may show phantom failures from legacy import-time stubbing. Each
   `conftest.py` adds a `pytest_ignore_collect` that makes a single-process
@@ -229,20 +229,20 @@ no:cacheprovider` for concise, deterministic output.
 
 ## Coverage
 
-`./redamon.sh test coverage` (or `./agentic/run_tests.sh coverage`) runs the
+`./whitehat.sh test coverage` (or `./agentic/run_tests.sh coverage`) runs the
 unit+integration tiers with `pytest-cov` and prints per-section totals.
-`COVERAGE_FILE=/tmp/redamon.coverage` keeps root-owned `.coverage` files out of
+`COVERAGE_FILE=/tmp/whitehat.coverage` keeps root-owned `.coverage` files out of
 the bind mount.
 
 Coverage runs **serially with `--cov-append`** (parallel appends can corrupt the
 data file). The floor is enforced with `--cov-fail-under`; set it per section via
-`REDAMON_COV_FLOOR` (or the section spec in `redamon.sh`).
+`WHITEHAT_COV_FLOOR` (or the section spec in `whitehat.sh`).
 
 To **ratchet** a floor: run coverage, read the section total, set the floor to
 `floor(total) - 2`. Measured agentic total (unit+integration) is **81%** — once
 the import-time pollution was fixed, real coverage was far above the depressed
 41% the old polluted `discover` run reported — so the agentic floor is **79**
-(`REDAMON_COV_FLOOR`, default in `agentic/run_tests.sh`). supply_chain baseline
+(`WHITEHAT_COV_FLOOR`, default in `agentic/run_tests.sh`). supply_chain baseline
 to beat is 72%.
 
 > **The floor guards against rot, not quality.** Because an AI writes these tests,

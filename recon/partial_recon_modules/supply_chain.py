@@ -6,7 +6,7 @@ Output nodes: Package, MalPackageFinding (MERGEd, anchored to BaseURLs).
 Standalone runs need the served JS to harvest packages, so this reuses the full
 JS-recon flow (force-enabled) to fetch JS + parse source maps, then runs the
 supply-chain harvest+verdict over the SAME combined_result. Everything stays
-offline for the verdict (osv-scanner against the mounted redamon-osv-db); no
+offline for the verdict (osv-scanner against the mounted whitehat-osv-db); no
 tarballs, no package manager (S1).
 """
 

@@ -1,5 +1,5 @@
 """
-RedAmon - CDN Identification Helpers
+WhiteHat - CDN Identification Helpers
 ====================================
 Identify IPs and HTTP responses belonging to known CDN / edge providers so that
 'Direct IP Access' security findings on shared infrastructure are suppressed.

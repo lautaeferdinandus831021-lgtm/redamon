@@ -11,10 +11,10 @@
 #
 # The invariant worth guarding is the STRONGER one that replaced it: deploy.sh
 # must never mutate repo source on the host at all. A deploy-time edit dirties
-# the checkout, which breaks `redamon.sh update`'s `git pull --ff-only` on the
+# the checkout, which breaks `whitehat.sh update`'s `git pull --ff-only` on the
 # next run — the exact failure the patch removal was meant to end.
 #
-# Second half: operator app-config that deploy.sh must forward. redamon.sh reads
+# Second half: operator app-config that deploy.sh must forward. whitehat.sh reads
 # these from the server-side .env, so a knob missing from ANY of the three
 # plumbing points (defaults / deploy.env export list / seed) is silently inert
 # on a deployed host while working perfectly in a local install.
@@ -83,13 +83,13 @@ done
 echo "== the app-config seed runs on UPDATE, not only INIT =="
 # cmd_init wipes and rebuilds the host, so a seed that lives only there means an
 # operator who edits .env and runs `update` sees nothing happen. Worse for the
-# MCP flag specifically: redamon.sh's ensure_auth_secrets APPENDS
+# MCP flag specifically: whitehat.sh's ensure_auth_secrets APPENDS
 # MCP_SERVER_ENABLED=false when the key is absent, so an unseeded host is
 # actively pinned off.
 awk '/^cmd_update\(\)/,/^}/' "$DEPLOY" | grep -qE "^seed MCP_SERVER_ENABLED " \
   && pass "cmd_update re-seeds the app .env" \
   || fail "cmd_update does not seed app config (an .env edit + update is a no-op)"
-# An .env-only change rebuilds no image, so redamon.sh's diff-driven update would
+# An .env-only change rebuilds no image, so whitehat.sh's diff-driven update would
 # leave the old container running with the old environment.
 awk '/^cmd_update\(\)/,/^}/' "$DEPLOY" | grep -q "up -d webapp" \
   && pass "cmd_update recreates the webapp so a changed .env applies" \

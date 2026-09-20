@@ -12,7 +12,7 @@
  * healing if the secret is rotated).
  *
  * The password is taken from TRAFFIC_INGEST_DATABASE_URL (generated once by
- * redamon.sh, the single source of truth). The webapp's DATABASE_URL role is the
+ * whitehat.sh, the single source of truth). The webapp's DATABASE_URL role is the
  * DB superuser, so CREATE ROLE / GRANT work here.
  */
 import { PrismaClient } from '@prisma/client'

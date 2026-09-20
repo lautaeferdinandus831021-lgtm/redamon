@@ -1,8 +1,8 @@
-# RedAmon as an MCP Server (inbound)
+# WhiteHat as an MCP Server (inbound)
 
-RedAmon can expose itself to **external AI agents** over the Model Context
+WhiteHat can expose itself to **external AI agents** over the Model Context
 Protocol. A customer's own agent, an MCP-capable client, or a scripted pipeline
-connects in, authenticates as **one RedAmon user**, and can do three things
+connects in, authenticates as **one WhiteHat user**, and can do three things
 scoped to that user's own projects: start a full recon pipeline, change a narrow
 set of recon tuning settings, and query the attack-surface graph.
 
@@ -10,8 +10,8 @@ set of recon tuning settings, and query the attack-surface graph.
 >
 > | | Direction | Where |
 > | --- | --- | --- |
-> | **MCP Tool Plugins** ([README.MCP.md](README.MCP.md)) | **outbound** — RedAmon is the *client* of servers you register | Global Settings → *MCP Tool Plugins* |
-> | **MCP Server** (this document) | **inbound** — other agents are the *clients*, RedAmon is the *server* | Global Settings → *MCP Server* |
+> | **MCP Tool Plugins** ([README.MCP.md](README.MCP.md)) | **outbound** — WhiteHat is the *client* of servers you register | Global Settings → *MCP Tool Plugins* |
+> | **MCP Server** (this document) | **inbound** — other agents are the *clients*, WhiteHat is the *server* | Global Settings → *MCP Server* |
 
 ---
 
@@ -149,7 +149,7 @@ It is **off by default**. A new authenticated inbound surface must be switched o
 deliberately, never inherited by upgrading.
 
 ```bash
-# 1. In .env (redamon.sh writes the switch for you on install)
+# 1. In .env (whitehat.sh writes the switch for you on install)
 MCP_SERVER_ENABLED=true
 
 # 2. Apply. The webapp has NO env_file, so this variable is read from the
@@ -158,11 +158,11 @@ MCP_SERVER_ENABLED=true
 docker compose up -d webapp
 ```
 
-`redamon.sh` **refuses** to enable it while `INTERNAL_API_KEY` is unset or still
+`whitehat.sh` **refuses** to enable it while `INTERNAL_API_KEY` is unset or still
 `changeme`. That is not a formality: the agent's auth fails *open* in that state
 (`agentic/llm_guard.py` `_key_ok`) and the base compose publishes the agent on
 `0.0.0.0:8090`, so the whole graph-isolation story would rest on a check that is
-not running. Run `./redamon.sh install` to generate the secrets first.
+not running. Run `./whitehat.sh install` to generate the secrets first.
 
 ### Knobs
 
@@ -385,8 +385,8 @@ The mint dialog renders this pre-filled, so it is copy-paste with no editing:
 ```json
 {
   "mcpServers": {
-    "redamon": {
-      "url": "https://<redamon-host>/api/mcp-server",
+    "whitehat": {
+      "url": "https://<whitehat-host>/api/mcp-server",
       "headers": { "Authorization": "Bearer rdmn_mcp_<token>" }
     }
   }
@@ -398,7 +398,7 @@ changes, so this document does not assert a list. **Verify your client end to
 end before relying on it.** Claude Code, for example:
 
 ```bash
-claude mcp add --transport http redamon https://<host>/api/mcp-server \
+claude mcp add --transport http whitehat https://<host>/api/mcp-server \
   --header "Authorization: Bearer rdmn_mcp_<token>"
 ```
 
@@ -457,7 +457,7 @@ agent.
 Three gates, all of which must admit the agent: the cloud Security Group, `ufw`,
 then nginx. `./deploy.sh verify` probes the endpoint and tells the failure modes
 apart (404 disabled, 401 working, 403 edge gate). Repeated 401s are banned by the
-`redamon-mcp-auth` fail2ban jail.
+`whitehat-mcp-auth` fail2ban jail.
 
 ### http-* modes are refused
 
@@ -699,4 +699,4 @@ against `audit_log`. Known and accepted; a minimal admin view is a follow-up.
 - [README.GRAPH_DB.md](README.GRAPH_DB.md) — the attack-surface graph
 - [graph_db/schema_sections.md](../../graph_db/schema_sections.md) — the node labels and relationships `graph_schema` serves
 - [GRAPH.SCHEMA.md](GRAPH.SCHEMA.md) — why the graph is shaped this way (lists no labels)
-- [MCP-Server wiki page](../../redamon.wiki/MCP-Server.md) — the operator's view, including the Agent Profile table
+- [MCP-Server wiki page](../../whitehat.wiki/MCP-Server.md) — the operator's view, including the Agent Profile table

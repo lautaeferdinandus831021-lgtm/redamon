@@ -8,7 +8,7 @@ deps (imported lazily, SKIPs otherwise).
 
 Run in the recon image:
     docker run --rm -v "$PWD/recon:/app/recon" -w /app -e PYTHONPATH=/app \
-        --entrypoint python redamon-recon:latest -m unittest recon.tests.test_js_recon_ssrf
+        --entrypoint python whitehat-recon:latest -m unittest recon.tests.test_js_recon_ssrf
 """
 import sys
 import unittest

@@ -45,7 +45,7 @@ DANGEROUS_TOOLS = frozenset({
     'execute_arjun', 'execute_ffuf', 'execute_amass', 'execute_gau',
     'execute_katana',
     # proxy_brain runs agent-authored code that can emit live traffic (its
-    # redamon.replay/fuzz path). One confirmation authorizes a bounded campaign;
+    # whitehat.replay/fuzz path). One confirmation authorizes a bounded campaign;
     # the per-send budget + host-pin bound the blast radius (plan §10).
     'proxy_brain',
     # Supply-chain L3: execute_guarddog downloads attacker-authored tarballs
@@ -289,7 +289,7 @@ DEFAULT_AGENT_SETTINGS: dict[str, Any] = {
         'query_graph': ['informational', 'exploitation', 'post_exploitation'],
         # proxy_brain is the single traffic tool (replaces proxy_search/get/
         # sitemap/params/grep/diff/to_curl/query/replay/fuzz). Available in all
-        # phases so read/decode recon stays usable; active sends (redamon.replay/
+        # phases so read/decode recon stays usable; active sends (whitehat.replay/
         # fuzz) are refused outside exploitation by /traffic/replay itself.
         'proxy_brain': ['informational', 'exploitation', 'post_exploitation'],
         'execute_curl': ['informational', 'exploitation', 'post_exploitation'],

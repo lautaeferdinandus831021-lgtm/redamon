@@ -1,4 +1,4 @@
-# RedAmon JS recon scope guinea pig. Pure stdlib, no dependencies.
+# WhiteHat JS recon scope guinea pig. Pure stdlib, no dependencies.
 FROM python:3.11-alpine
 
 WORKDIR /app

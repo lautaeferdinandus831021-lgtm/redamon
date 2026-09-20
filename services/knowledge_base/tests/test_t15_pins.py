@@ -4,7 +4,7 @@ T15 — KB feed & model integrity pinning.
 Runs as stdlib unittest inside the agent image (httpx + knowledge_base present):
 
     docker run --rm --entrypoint sh -v "$PWD/knowledge_base:/app/knowledge_base:ro" \
-      -w /app redamon-agent -c \
+      -w /app whitehat-agent -c \
       "python -m unittest knowledge_base.tests.test_t15_pins -v"
 
 Covers: pin manifest shape, sha256 verification (no-op / match / mismatch),
@@ -107,7 +107,7 @@ class TestClientAbortsOnMismatch(unittest.TestCase):
         with mock.patch.dict(
             FEED_PINS, {"gtfobins": {"ref": get_feed_ref("gtfobins"), "sha256": wrong}}
         ), mock.patch.object(g, "safe_get", return_value=_fake_resp(poisoned)):
-            client = g.GTFOBinsClient(cache_dir="/tmp/redamon-t15-test-cache")
+            client = g.GTFOBinsClient(cache_dir="/tmp/whitehat-t15-test-cache")
             with self.assertRaises(PinMismatchError):
                 client.fetch()
 

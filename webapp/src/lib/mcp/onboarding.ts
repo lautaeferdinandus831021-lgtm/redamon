@@ -1,9 +1,9 @@
 /**
- * Agent Onboarding: the pack that teaches an EXTERNAL agent how to use RedAmon.
+ * Agent Onboarding: the pack that teaches an EXTERNAL agent how to use WhiteHat.
  *
  * A connected MCP client already gets every tool's name, description and
  * argument schema from `tools/list`. What it cannot get from the protocol is
- * the part that spans tools and the part that spans the product: what RedAmon
+ * the part that spans tools and the part that spans the product: what WhiteHat
  * is, what its recon pipeline produces, the lifecycle a project moves through,
  * and the honest-reporting rules that stop an unattended agent turning an empty
  * result into a false "all clear". That is what this renders.
@@ -93,7 +93,7 @@ export interface OnboardingPack {
   unavailable: string[]
 }
 
-const DEFAULT_SERVER_URL = 'https://your-redamon-host'
+const DEFAULT_SERVER_URL = 'https://your-whitehat-host'
 
 // --- scope filtering ---------------------------------------------------------
 
@@ -119,14 +119,14 @@ function withheldArguments(tool: Tool, scopes: readonly McpScope[]): string[] {
 const code = (s: string) => `\`${s}\``
 const bullet = (s: string) => `- ${s}`
 
-// --- A. what RedAmon is ------------------------------------------------------
+// --- A. what WhiteHat is ------------------------------------------------------
 
 const OPERATING_MODEL = [
   '## Read this first: what you are working with',
   '',
-  'RedAmon is not an exploitation framework, and there is no "attack" tool here to look for.',
+  'WhiteHat is not an exploitation framework, and there is no "attack" tool here to look for.',
   '',
-  '**RedAmon has already done the reconnaissance.** It has mapped a target\'s attack surface into a',
+  '**WhiteHat has already done the reconnaissance.** It has mapped a target\'s attack surface into a',
   'graph, and that graph is the single source of truth for everything it found. Your job is to MINE',
   'that graph, and only where a human explicitly authorized it, to VALIDATE what you found against',
   'the live target.',
@@ -135,10 +135,10 @@ const OPERATING_MODEL = [
   'starts with looking for a capability that deliberately is not here.',
 ].join('\n')
 
-const WHAT_REDAMON_IS = [
-  '## What RedAmon is, and what its recon pipeline does',
+const WHAT_WHITEHAT_IS = [
+  '## What WhiteHat is, and what its recon pipeline does',
   '',
-  'RedAmon\'s recon pipeline is an automated, containerized, parallelized OSINT and',
+  'WhiteHat\'s recon pipeline is an automated, containerized, parallelized OSINT and',
   'vulnerability-scanning engine. It wraps around thirty external tools (Nuclei, Katana, ffuf, gau,',
   'httpx, naabu, amass, tlsx and others) behind one orchestrator, spawned fresh as a container for',
   'each scan, and it writes everything it learns into a Neo4j **attack-surface graph**.',
@@ -170,7 +170,7 @@ const WHAT_REDAMON_IS = [
   'runs when, so it is not actionable. What IS actionable is the shape of the graph it produces, and',
   'that is the next section.',
   '',
-  'RedAmon also runs scanners that are separate from the five phases: the OpenVAS/GVM vulnerability',
+  'WhiteHat also runs scanners that are separate from the five phases: the OpenVAS/GVM vulnerability',
   'scanner, GitHub secret hunting, TruffleHog, the secret multiscanner, AI surface recon,',
   'supply-chain analysis, and partial single-phase recon. On this surface you can OBSERVE those; the',
   'only scan you can START is the full recon pipeline.',
@@ -275,7 +275,7 @@ const AUTHORIZATION = [
   'For bug bounty and for penetration testing, staying in scope is not etiquette. It is the line',
   'between authorized testing and a crime.',
   '',
-  '**You cannot change what RedAmon points at, and you must not try.** The target domain, the',
+  '**You cannot change what WhiteHat points at, and you must not try.** The target domain, the',
   'address list and mode, the subdomain seed list, the domain-batch configuration, the ownership',
   'verification fields and the LLM target guardrail are all outside what any token may write. This is',
   'deliberate: "rescan my own projects" must never be able to become "scan anyone, with the safety',
@@ -452,7 +452,7 @@ function renderCapabilityAreas(tools: Tool[], scopes: readonly McpScope[]): stri
     out.push('')
   }
   out.push(
-    'RedAmon has more than this: an in-app AI agent, attack-path search, report generation and the',
+    'WhiteHat has more than this: an in-app AI agent, attack-path search, report generation and the',
     'other scanners. The MCP surface deliberately exposes recon, the graph, triage and, where a human',
     'enabled it, command execution, and nothing else.'
   )
@@ -762,7 +762,7 @@ function renderConnecting(opts: OnboardingOptions): string {
   const endpoint = `${base}/api/mcp-server`
   const config = {
     mcpServers: {
-      redamon: {
+      whitehat: {
         url: endpoint,
         headers: { Authorization: `Bearer ${MCP_TOKEN_PREFIX}...` },
       },
@@ -772,7 +772,7 @@ function renderConnecting(opts: OnboardingOptions): string {
     '## Connecting',
     '',
     'Your operator gives you a personal access token. Keep it in an environment variable such as',
-    '`$REDAMON_MCP_TOKEN`. Never print it, never log it, and never write it into a file: this',
+    '`$WHITEHAT_MCP_TOKEN`. Never print it, never log it, and never write it into a file: this',
     'document gets committed to repositories.',
     '',
     '```json',
@@ -789,7 +789,7 @@ function renderConnecting(opts: OnboardingOptions): string {
       `curl -s ${endpoint} \\`,
       "  -H 'Content-Type: application/json' \\",
       "  -H 'Accept: application/json, text/event-stream' \\",
-      '  -H "Authorization: Bearer $REDAMON_MCP_TOKEN" \\',
+      '  -H "Authorization: Bearer $WHITEHAT_MCP_TOKEN" \\',
       `  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'`,
       '```'
     )
@@ -875,7 +875,7 @@ const REFERENCES: ReferenceSpec[] = [
     path: 'references/graph-queries.md',
     title: 'Querying the graph',
     intro:
-      'The graph is the single source of truth for everything RedAmon found. Ask it questions in ' +
+      'The graph is the single source of truth for everything WhiteHat found. Ask it questions in ' +
       'the cheapest way that answers them, and remember that everything it returns was written by ' +
       'the target.',
     areas: ['graph', 'hunt'],
@@ -959,7 +959,7 @@ function renderFrontmatter(
   version: string
 ): string {
   const meta = PROFILES[profile]
-  const name = profile === 'custom' ? 'redamon-mcp' : `redamon-${profile.replace(/_/g, '-')}`
+  const name = profile === 'custom' ? 'whitehat-mcp' : `whitehat-${profile.replace(/_/g, '-')}`
   // Composed from the areas this BUILD actually carries, so the trigger text
   // cannot promise a capability area whose tools were all withdrawn.
   const present = new Set(tools.map(t => t.name))
@@ -970,14 +970,14 @@ function renderFrontmatter(
     '---',
     `name: ${name}`,
     `description: >-`,
-    `  Use RedAmon over MCP for ${meta.forWhat}.`,
+    `  Use WhiteHat over MCP for ${meta.forWhat}.`,
     `  Covers ${areas.join(', ')}. Use when asked about an attack surface, a recon scan,`,
-    `  findings, exposed assets or what changed since the last scan on a RedAmon project.`,
+    `  findings, exposed assets or what changed since the last scan on a WhiteHat project.`,
     '---',
     '',
-    `<!-- Generated by RedAmon ${version} for the "${meta.label}" profile.`,
+    `<!-- Generated by WhiteHat ${version} for the "${meta.label}" profile.`,
     `     Built for exactly these permissions: ${scopes.join(', ')}.`,
-    `     Re-export after changing the token, changing the profile, or upgrading RedAmon. -->`,
+    `     Re-export after changing the token, changing the profile, or upgrading WhiteHat. -->`,
   ].join('\n')
 }
 
@@ -1001,11 +1001,11 @@ export function renderOnboardingPack(
   const skill: string[] = [
     renderFrontmatter(resolved, ordered, tools, version),
     '',
-    '# Using RedAmon',
+    '# Using WhiteHat',
     '',
     OPERATING_MODEL,
     '',
-    WHAT_REDAMON_IS,
+    WHAT_WHITEHAT_IS,
     '',
     GRAPH_SHAPE,
     '',
@@ -1087,7 +1087,7 @@ export function renderInlineOnboarding(
   }
 
   const out: string[] = [
-    'RedAmon maps a target\'s attack surface into a queryable graph. It has ALREADY done the',
+    'WhiteHat maps a target\'s attack surface into a queryable graph. It has ALREADY done the',
     'reconnaissance: your job is to mine that graph, and only where a human authorized it, to',
     'validate what you find against the live target. There is no "attack" tool here; do not look',
     'for one.',
@@ -1108,7 +1108,7 @@ export function renderInlineOnboarding(
     '- Muted findings are invisible to every other read. Check them before calling anything clean.',
     '- Truncated results say so. Page, or say the answer is partial.',
     '',
-    'AUTHORIZATION. You cannot change what RedAmon points at, and you must not try. You probably',
+    'AUTHORIZATION. You cannot change what WhiteHat points at, and you must not try. You probably',
     'cannot read the rules of engagement either, so act conservatively and defer to the human on',
     'anything that reaches a target.',
     '',

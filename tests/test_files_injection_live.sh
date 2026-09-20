@@ -31,7 +31,7 @@ fi
 KEY="$(grep -E '^INTERNAL_API_KEY=' .env 2>/dev/null | head -1 | cut -d= -f2-)"
 URL="http://127.0.0.1:8090/files"
 MARKER="/tmp/PWNED_files_injection_$$"
-PROBE="/tmp/redamon_files_probe_$$.txt"
+PROBE="/tmp/whitehat_files_probe_$$.txt"
 
 cleanup() {
     docker compose exec -T kali-sandbox sh -c "rm -f '$MARKER' '$PROBE'" >/dev/null 2>&1 || true
@@ -91,7 +91,7 @@ docker compose exec -T kali-sandbox sh -c "rm -f '$MARKER2'" >/dev/null 2>&1 || 
 # ---- 5. A legit filename with spaces/parens still downloads (functional) ----
 # Pre-fix the unquoted interpolation broke these too; shlex.quote makes them work.
 echo "== 5. legit filename with spaces downloads correctly =="
-SPACED="/tmp/redamon probe ($$).txt"
+SPACED="/tmp/whitehat probe ($$).txt"
 docker compose exec -T kali-sandbox sh -c "printf spaced-ok > '$SPACED'" >/dev/null 2>&1
 body_sp="$(curl -s --max-time 15 "${AUTH[@]}" -G "$URL" --data-urlencode "path=$SPACED" 2>/dev/null)"
 if [[ "$body_sp" == "spaced-ok" ]]; then

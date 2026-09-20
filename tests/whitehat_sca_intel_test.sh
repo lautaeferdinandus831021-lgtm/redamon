@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for cmd_sca_intel_sync / ensure_sca_intel in redamon.sh.
+# Test suite for cmd_sca_intel_sync / ensure_sca_intel in whitehat.sh.
 #
 # Why this exists: an air-gapped deploy (SCA_INTEL_AUTO_REFRESH=false) skipped
 # the incident catalog entirely, so it never received the bundled offline copy
@@ -8,14 +8,14 @@
 # reach the network, and must never abort install/update when it fails.
 #
 # Pure unit test: `docker` is stubbed as a bash function, so it runs anywhere
-# with no Docker daemon.  Run:  bash tests/redamon_sca_intel_test.sh
+# with no Docker daemon.  Run:  bash tests/whitehat_sca_intel_test.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"   # BASH_SOURCE guard blocks command dispatch
+source "$REPO_ROOT/whitehat.sh"   # BASH_SOURCE guard blocks command dispatch
 set +e
 
 PASS=0; FAIL=0

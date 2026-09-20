@@ -6,7 +6,7 @@ Covers ``_annotate_ai_service_hint`` directly and the integration path through
 Run standalone (no pytest required):
 
     docker run --rm --entrypoint python3 \\
-        -v "$PWD:/work:ro" -w /work redamon-recon:latest \\
+        -v "$PWD:/work:ro" -w /work whitehat-recon:latest \\
         recon/tests/test_ai_domain_recon_hint.py
 """
 from __future__ import annotations

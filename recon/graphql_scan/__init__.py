@@ -1,5 +1,5 @@
 """
-GraphQL Security Scanner Package for RedAmon
+GraphQL Security Scanner Package for WhiteHat
 
 This package provides GraphQL security testing capabilities including:
 - Endpoint discovery from multiple sources

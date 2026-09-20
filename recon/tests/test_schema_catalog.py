@@ -17,7 +17,7 @@ authoritative-looking empty answer. That failure mode is why this file exists.
 
 Run:
     docker run --rm --entrypoint python3 -v "$PWD:/work:ro" -w /work \\
-        redamon-recon:latest recon/tests/test_schema_catalog.py
+        whitehat-recon:latest recon/tests/test_schema_catalog.py
 """
 from __future__ import annotations
 

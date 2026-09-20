@@ -13,7 +13,7 @@ import type { BrowserContext } from '@playwright/test'
  * markup staying put.
  */
 
-const AUTH_COOKIE_NAME = 'redamon-auth'
+const AUTH_COOKIE_NAME = 'whitehat-auth'
 
 function repoRoot(): string {
   // tests/ -> e2e/ -> testing/ -> repo root. The harness moved under testing/

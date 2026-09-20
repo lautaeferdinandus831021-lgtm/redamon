@@ -1,8 +1,8 @@
 /**
  * The inbound MCP server.
  *
- * RedAmon is the SERVER here: an external agent connects in and acts as one
- * RedAmon user. That single fact drives every guard below.
+ * WhiteHat is the SERVER here: an external agent connects in and acts as one
+ * WhiteHat user. That single fact drives every guard below.
  *
  * The path is `/api/mcp-server`, never `/api/mcp`. `/api/mcp/` is already the
  * OUTBOUND MCP-plugin admin namespace, and the middleware matches public paths

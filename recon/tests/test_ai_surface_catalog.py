@@ -7,7 +7,7 @@ guess_model_family, pick_tool_dialect, resolve_ai_tool_arg_path).
 
 Run inside the recon image:
     docker run --rm --entrypoint python3 -v "$PWD/recon:/app/recon:ro" -w /app \
-        redamon-recon:latest recon/tests/test_ai_surface_catalog.py
+        whitehat-recon:latest recon/tests/test_ai_surface_catalog.py
 """
 from __future__ import annotations
 import sys

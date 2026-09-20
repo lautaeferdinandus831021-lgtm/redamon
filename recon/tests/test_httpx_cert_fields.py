@@ -29,14 +29,14 @@ def _httpx_line(**tls_overrides):
         "tls_version": "tls13", "cipher": "TLS_AES_128_GCM_SHA256",
         "self_signed": True, "mismatched": True,
         "not_before": "2026-09-13T09:31:27Z", "not_after": "2027-09-13T09:31:27Z",
-        "subject_dn": "O=RedAmon TLS Lab, CN=web.tlslab.test",
+        "subject_dn": "O=WhiteHat TLS Lab, CN=web.tlslab.test",
         "subject_cn": "web.tlslab.test",
-        "subject_org": ["RedAmon TLS Lab"],
+        "subject_org": ["WhiteHat TLS Lab"],
         "subject_an": ["web.tlslab.test", "alt.tlslab.test"],
         "serial": "53:F1:91:03:D5:AB:05:39:A4:01:03:3D:74:FB:43:97:8E:E3:1B:0E",
-        "issuer_dn": "O=RedAmon TLS Lab, CN=web.tlslab.test",
+        "issuer_dn": "O=WhiteHat TLS Lab, CN=web.tlslab.test",
         "issuer_cn": "web.tlslab.test",
-        "issuer_org": ["RedAmon TLS Lab"],
+        "issuer_org": ["WhiteHat TLS Lab"],
         "fingerprint_hash": {
             "md5": "4a76fed83c22e177c98dd131be15d4bb",
             "sha1": "4b9afb458729e3acb7bc009429ad57a65c7e2e6d",
@@ -90,10 +90,10 @@ class TestParserKeepsWhatHttpxReturns(unittest.TestCase):
         """tlsx_mixin stores `issuer = issuer_dn or issuer_cn`. Both sources now
         converge on ONE node, so a different value here would make the property
         flip depending on which scanner wrote last."""
-        self.assertEqual(self.cert["issuer"], "O=RedAmon TLS Lab, CN=web.tlslab.test")
+        self.assertEqual(self.cert["issuer"], "O=WhiteHat TLS Lab, CN=web.tlslab.test")
 
     def test_identifying_detail_is_kept(self):
-        self.assertEqual(self.cert["subject_dn"], "O=RedAmon TLS Lab, CN=web.tlslab.test")
+        self.assertEqual(self.cert["subject_dn"], "O=WhiteHat TLS Lab, CN=web.tlslab.test")
         self.assertEqual(self.cert["issuer_cn"], "web.tlslab.test")
         self.assertTrue(self.cert["serial"].startswith("53:F1:91"))
 
@@ -125,7 +125,7 @@ class TestOlderScanDataStillWorks(unittest.TestCase):
 
     _LEGACY = {
         "subject_cn": "mail.tlslab.test",
-        "issuer": "RedAmon TLS Lab",
+        "issuer": "WhiteHat TLS Lab",
         "not_after": "2024-02-01T00:00:00Z",
         "san": ["mail.tlslab.test"],
     }

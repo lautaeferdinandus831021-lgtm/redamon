@@ -75,14 +75,14 @@ export function toAuthProfileMetadata(profile: AuthProfileRow | null | undefined
 // ---------------------------------------------------------------------------
 // Validation. Mirrors recon/helpers/auth_profile.py, which re-checks at use
 // time: the value reaches each recon tool's -H, and hakrawler (';;') / arjun
-// ('\n') join every header - including the internal X-Redamon-Ctx tag - into
+// ('\n') join every header - including the internal X-WhiteHat-Ctx tag - into
 // one argument.
 
 const HEADER_NAME_RE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
 // Every C0 control except TAB, plus DEL.
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARS_RE = /[\x00-\x08\x0a-\x1f\x7f]/
-const RESERVED_HEADER_NAMES = new Set(['x-redamon-ctx'])
+const RESERVED_HEADER_NAMES = new Set(['x-whitehat-ctx'])
 // Hostname, *.suffix wildcard, IPv4/IPv6 address or CIDR. No scheme, path or spaces.
 const SCOPE_ENTRY_RE = /^(\*\.)?[a-z0-9_.:-]+(\/\d{1,3})?$/
 

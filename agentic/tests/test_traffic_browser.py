@@ -1,12 +1,12 @@
 """Server-side enforcement tests for the /traffic/browser broker endpoint (the
-kali `redamon.browser` PREPARE path). Handlers are invoked directly (no client);
+kali `whitehat.browser` PREPARE path). Handlers are invoked directly (no client);
 the DB layer is stubbed so this stays a unit-level check of the enforcement that
 must live in the AGENT — a compromised kali worker cannot bypass phase, budget or
 the navigation host-pin.
 
 Mirrors test_traffic_endpoints.py: fail-closed on missing/forged tag, off-phase
 refused before the origin is read, origin resolved tenant-scoped, navigation
-host-pin, and the per-session action budget. Run in the redamon-agent image with
+host-pin, and the per-session action budget. Run in the whitehat-agent image with
 the repo mount so `import api` resolves.
 """
 import asyncio
@@ -21,7 +21,7 @@ from unittest import mock
 KEY = "test-internal-key-browser"
 os.environ["INTERNAL_API_KEY"] = KEY
 
-from redamon_ctx import sign_tag  # noqa: E402
+from whitehat_ctx import sign_tag  # noqa: E402
 
 
 def _tag(user_id="u1", project_id="p1", phase="exploitation", key=None):

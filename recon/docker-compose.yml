@@ -1,4 +1,4 @@
-# RedAmon Reconnaissance Module - Docker Compose (standalone)
+# WhiteHat Reconnaissance Module - Docker Compose (standalone)
 # For full stack, use the root docker-compose.yml instead.
 #
 # Usage:
@@ -17,7 +17,7 @@ services:
       context: ..
       dockerfile: recon/Dockerfile
       network: host
-    container_name: redamon-recon
+    container_name: whitehat-recon
 
     # Mount Docker socket to allow container to run Docker commands
     # This enables Docker-in-Docker for ProjectDiscovery tools
@@ -50,7 +50,7 @@ services:
       # Neo4j credentials (for graph DB updates)
       - NEO4J_URI=bolt://localhost:7687
       - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
 
       # User/Project tracking
       - USER_ID=${USER_ID:-default_user}
@@ -103,5 +103,5 @@ volumes:
   #     - recon-output:/data/recon-output:ro
   recon-output:
     driver: local
-    name: redamon-recon-output
+    name: whitehat-recon-output
 

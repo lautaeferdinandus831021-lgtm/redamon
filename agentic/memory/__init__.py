@@ -1,4 +1,4 @@
-"""RedAmon's agent memory: persistent, project-scoped, self-improving.
+"""WhiteHat's agent memory: persistent, project-scoped, self-improving.
 
 Follows agentmemory's model - observations with confidence scoring and a
 lifecycle, a knowledge graph of entities, hybrid (keyword + graph) recall, and

@@ -1,24 +1,24 @@
 """
 Agent-side (kali-sandbox) capture-proxy routing (mitmproxy integration, Phase 1).
 
-The agent signs an opaque X-Redamon-Ctx tag and passes it to a target-facing MCP
-tool as `_redamon_ctx`. This helper decides whether to actually route the tool's
+The agent signs an opaque X-WhiteHat-Ctx tag and passes it to a target-facing MCP
+tool as `_whitehat_ctx`. This helper decides whether to actually route the tool's
 traffic through the capture proxy: only when a tag is present AND the proxy is
 reachable (§20.1 fail-open). The kali worker holds NO signing key — it just
 carries the token verbatim.
 
 CRITICAL (§20.2, tag-leak guard): the caller adds the proxy flag + the
-X-Redamon-Ctx header ONLY in the branch where this returns a URL. On the direct
+X-WhiteHat-Ctx header ONLY in the branch where this returns a URL. On the direct
 path the header is never present, so internal identifiers can't leak to a target.
 
 kali-sandbox reaches the (orchestrator- or compose-spawned) proxy at its container
-DNS name on pentest-net: redamon-capture-proxy:8888. Overridable via CAPTURE_PROXY_URL.
+DNS name on pentest-net: whitehat-capture-proxy:8888. Overridable via CAPTURE_PROXY_URL.
 """
 import os
 import socket
 from urllib.parse import urlparse
 
-_DEFAULT_PROXY_URL = "http://redamon-capture-proxy:8888"
+_DEFAULT_PROXY_URL = "http://whitehat-capture-proxy:8888"
 
 
 def proxy_url() -> str:
@@ -28,7 +28,7 @@ def proxy_url() -> str:
 def _reachable(url: str, timeout: float = 1.0) -> bool:
     try:
         p = urlparse(url)
-        host = p.hostname or "redamon-capture-proxy"
+        host = p.hostname or "whitehat-capture-proxy"
         port = p.port or 8888
         with socket.create_connection((host, port), timeout=timeout):
             return True

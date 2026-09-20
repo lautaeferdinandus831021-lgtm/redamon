@@ -12,7 +12,7 @@ inside a container that has the driver, with this checkout mounted over /app:
 
   docker run --rm --network host -v "$PWD:/app" -w /app \\
     -e NEO4J_URI -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_supply_chain_graph_live -v
+    whitehat-agent python -m unittest tests.test_supply_chain_graph_live -v
 
 Every node it creates is scoped to a throwaway project id and deleted in
 tearDownClass, so it is safe against a populated database.

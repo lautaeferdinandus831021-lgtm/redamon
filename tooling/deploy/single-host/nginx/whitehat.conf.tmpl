@@ -1,7 +1,7 @@
-# RedAmon single public origin -- HTTPS template (ACCESS_MODE=https-domain | https-ip)
+# WhiteHat single public origin -- HTTPS template (ACCESS_MODE=https-domain | https-ip)
 # ------------------------------------------------------------------------------------
 # Rendered by modules/nginx.sh: __TOKENS__ are replaced, then installed to
-# /etc/nginx/sites-available/redamon, `nginx -t` gates the deploy, then reload.
+# /etc/nginx/sites-available/whitehat, `nginx -t` gates the deploy, then reload.
 #
 # THREAT MODEL (verified against the codebase): the agent (:8090) exposes four WS paths;
 # THREE are UNAUTHENTICATED (/ws/kali-terminal is an anonymous root PTY; the two cypherfix
@@ -10,7 +10,7 @@
 # WS paths (never the agent REST surface), (2) requires a valid webapp session cookie before
 # any WS upgrade via auth_request, and (3) sits behind the operator IP/basic-auth gate.
 # The webapp (:3000) trusts X-Internal-Key as an auth bypass and injects X-User-*/ headers,
-# so those client headers are stripped (redamon-proxy-common.conf).
+# so those client headers are stripped (whitehat-proxy-common.conf).
 #
 # Tokens: __SERVER_NAME__ __SSL_CERT_REMOTE__ __SSL_KEY_REMOTE__ __CSP_CONNECT__
 #         __ACME_BLOCK__ __GATE__ __MCP_GATE__ __HTTP_PORT__ __HTTPS_PORT__
@@ -65,7 +65,7 @@ server {
 
     # Security headers (the app sets none of its own). HSTS is https-only.
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
-    include /etc/nginx/snippets/redamon-security-headers.conf;
+    include /etc/nginx/snippets/whitehat-security-headers.conf;
     # CSP: no 'unsafe-eval' (verified: no eval/Function/Worker/WASM). style-src 'unsafe-inline'
     # is unavoidable (runtime-injected styles from the graph/chart libs). Ships Report-Only by
     # default (CSP_ENFORCE=true promotes to enforced after you verify the graph + terminal).
@@ -96,9 +96,9 @@ server {
 
     # __GATE__
 
-    # Internal session validator for auth_request: 200 if the redamon-auth cookie is valid,
+    # Internal session validator for auth_request: 200 if the whitehat-auth cookie is valid,
     # 401 otherwise. Adds real authentication in front of the unauthenticated agent WS paths.
-    location = /_redamon_session {
+    location = /_whitehat_session {
         internal;
         proxy_pass http://127.0.0.1:3000/api/auth/me;
         proxy_http_version 1.1;
@@ -115,7 +115,7 @@ server {
     location ~ ^/ws/(agent|kali-terminal|cypherfix-triage|cypherfix-codefix)$ {
         __WS_AUTH_REQUEST__
         limit_conn conn 20;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:8090;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -125,7 +125,7 @@ server {
 
     location = /api/auth/login {
         limit_req zone=login burst=3 nodelay; limit_req_status 429;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         # A location with any add_header does NOT inherit server-level headers, so re-emit
         # them here (this is the auth-cookie endpoint - it must carry HSTS + hardening).
@@ -149,7 +149,7 @@ server {
         # fan-out of parallel calls). At error level eleven of those in a minute
         # firewall-ban the client for 10 minutes -- taking the operator's own
         # browser with it when they share an egress IP. Credential abuse is
-        # caught by the redamon-mcp-auth jail instead, which bans on repeated
+        # caught by the whitehat-mcp-auth jail instead, which bans on repeated
         # 401s and cannot fire on a merely-fast client.
         limit_req_log_level warn;
         # A tool call is a small JSON-RPC envelope. The route caps the body at
@@ -158,26 +158,26 @@ server {
         # the app reject it.
         client_max_body_size 64k;
         # __MCP_GATE__
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_read_timeout 3600s; proxy_buffering off;
         # A location with any add_header stops inheriting the server-level ones,
         # so the whole set is re-stated. Via the shared snippet, never by hand:
         # hand-copying is what let the login block lose Permissions-Policy, COOP
         # and CORP. HSTS/CSP are template-level and are re-emitted explicitly.
-        include /etc/nginx/snippets/redamon-security-headers-only.conf;
+        include /etc/nginx/snippets/whitehat-security-headers-only.conf;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header __CSP_HEADER_NAME__ "default-src 'none'; frame-ancestors 'none'" always;
         add_header Cache-Control "no-store" always;
     }
     location /api/ {
         limit_req zone=api burst=60 nodelay; limit_req_status 429;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_read_timeout 3600s; proxy_buffering off;   # SSE (recon/scan logs) + long imports
     }
     location / {
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_set_header Upgrade $http_upgrade;           # Next.js HMR/WS passthrough
         proxy_set_header Connection $connection_upgrade;

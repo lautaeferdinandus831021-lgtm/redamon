@@ -417,7 +417,7 @@ export const ONBOARDING_PLAYBOOK: Record<string, PlaybookEntry> = {
   create_project: {
     whenToUse:
       'When a human hands you a scope document and asks for an engagement. It is the ONLY way ' +
-      'to point RedAmon at something new: every other route refuses a targeting change by name.',
+      'to point WhiteHat at something new: every other route refuses a targeting change by name.',
     gotchas: [
       'Scope is fixed HERE and immutable afterwards. Get the targeting mode right on the first call, because the fix for a wrong one is a different project, not a different value.',
       'Exactly one targeting mode. targetDomain, targetIps and domainBatchHosts are mutually exclusive, and passing two is refused rather than resolved.',
@@ -478,7 +478,7 @@ export const ONBOARDING_PLAYBOOK: Record<string, PlaybookEntry> = {
       'Change tuning when the human asked for a different scan, having first read the current values ' +
       'and the reference manual. Change one thing at a time so the effect is attributable.',
     gotchas: [
-      'It can NEVER change what RedAmon points at. The target, the address list, the subdomain seeds, the batch configuration and the safety guardrail are fixed at creation and refused here BY NAME. This is the product\'s legal boundary, not an oversight; a different target means create_project, not a different value.',
+      'It can NEVER change what WhiteHat points at. The target, the address list, the subdomain seeds, the batch configuration and the safety guardrail are fixed at creation and refused here BY NAME. This is the product\'s legal boundary, not an oversight; a different target means create_project, not a different value.',
       'It DOES change the engagement\'s limits: roeGlobalMaxRps, roeExcludedHosts, the time window, roeForbiddenTools, roeForbiddenCategories, the allow flags and roeMaxSeverityPhase are ordinary settable fields here, in either direction. What keeps them honest is that each is enforced at scan start whatever you wrote, so call preflight_scope_check afterwards and report the resolved values.',
       'It does NOT touch the engagement RECORD: the client name, the contacts, the dates and the uploaded document are refused by name. A person writes those.',
       'A value is bounded or validated, never silently clamped, and one bad key refuses the WHOLE call. Read describe_recon_settings for the bound rather than probing for it.',
@@ -767,7 +767,7 @@ export const WORKFLOWS: Workflow[] = [
     title: 'Observe the other scanners',
     requiredTools: ['get_scan_status'],
     body: [
-      'RedAmon runs scanners besides the full recon pipeline. You can watch them; you cannot start them here.',
+      'WhiteHat runs scanners besides the full recon pipeline. You can watch them; you cannot start them here.',
       '',
       '1. `get_scan_status` for the scanner you care about.',
       '2. If it needs to run, ask the human to start it in the app.',

@@ -13,7 +13,7 @@ What only a real database can answer:
 Tier: integration (the `_integration` suffix auto-marks it), so it is NOT in
 the unit gate and self-skips when Neo4j is unreachable.
 
-Run:  ./redamon.sh test integration
+Run:  ./whitehat.sh test integration
   or: docker run --network host ... python -m pytest agentic/tests/test_graph_summary_integration.py
 """
 import os

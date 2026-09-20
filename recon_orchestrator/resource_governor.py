@@ -88,7 +88,7 @@ def env_bytes(name: str, default_bytes: Optional[int]) -> Optional[int]:
 
 
 def governor_enabled() -> bool:
-    return _env_bool("REDAMON_MEM_GOVERNOR", True)
+    return _env_bool("WHITEHAT_MEM_GOVERNOR", True)
 
 
 def _scale_high() -> float:
@@ -237,7 +237,7 @@ def cpu_cores() -> int:
 
 # Ordered candidates: each is a host bind mount (compose), so it reports the host
 # filesystem; "/" is a last-resort container-overlay fallback.
-_DISK_PATHS = (os.environ.get("REDAMON_DISK_PATH", "/app"), "/tmp/redamon", "/app/recon/output", "/")
+_DISK_PATHS = (os.environ.get("WHITEHAT_DISK_PATH", "/app"), "/tmp/whitehat", "/app/recon/output", "/")
 
 
 def disk_stats() -> Optional[Tuple[int, int]]:

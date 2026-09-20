@@ -60,20 +60,20 @@ sibling_host_path = container_manager.sibling_host_path
 class SiblingHostPathTest(unittest.TestCase):
     # (input recon Source, expected graph_db host path)
     CASES = [
-        ("Linux native",       "/home/u/redamon/recon",
-                               "/home/u/redamon/graph_db"),
-        ("macOS Desktop",      "/Users/foo/redamon/recon",
-                               "/Users/foo/redamon/graph_db"),
-        ("Win WSL2 Linux FS",  "/run/desktop/mnt/host/c/Users/foo/redamon/recon",
-                               "/run/desktop/mnt/host/c/Users/foo/redamon/graph_db"),
-        ("Win backslash",      r"C:\Users\foo\redamon\recon",
-                               r"C:\Users\foo\redamon\graph_db"),
-        ("Win forward-slash",  "C:/Users/foo/redamon/recon",
-                               "C:/Users/foo/redamon/graph_db"),
-        ("POSIX trailing /",   "/home/u/redamon/recon/",
-                               "/home/u/redamon/graph_db"),
-        ("Win trailing \\",    "C:\\Users\\foo\\redamon\\recon\\",
-                               "C:\\Users\\foo\\redamon\\graph_db"),
+        ("Linux native",       "/home/u/whitehat/recon",
+                               "/home/u/whitehat/graph_db"),
+        ("macOS Desktop",      "/Users/foo/whitehat/recon",
+                               "/Users/foo/whitehat/graph_db"),
+        ("Win WSL2 Linux FS",  "/run/desktop/mnt/host/c/Users/foo/whitehat/recon",
+                               "/run/desktop/mnt/host/c/Users/foo/whitehat/graph_db"),
+        ("Win backslash",      r"C:\Users\foo\whitehat\recon",
+                               r"C:\Users\foo\whitehat\graph_db"),
+        ("Win forward-slash",  "C:/Users/foo/whitehat/recon",
+                               "C:/Users/foo/whitehat/graph_db"),
+        ("POSIX trailing /",   "/home/u/whitehat/recon/",
+                               "/home/u/whitehat/graph_db"),
+        ("Win trailing \\",    "C:\\Users\\foo\\whitehat\\recon\\",
+                               "C:\\Users\\foo\\whitehat\\graph_db"),
     ]
 
     def test_all_platforms(self):
@@ -94,14 +94,14 @@ class SiblingHostPathTest(unittest.TestCase):
     def test_windows_bug_is_actually_fixed(self):
         """Lock in the fix: demonstrate the OLD derivation was broken on a
         Windows source, and the NEW one is not."""
-        win = r"C:\Users\foo\redamon\recon"
+        win = r"C:\Users\foo\whitehat\recon"
         # The old code path: PurePosixPath.parent collapses to '.', giving a
         # RELATIVE, useless mount source -> Docker Desktop empty-mount bug.
         old = str(PurePosixPath(win).parent / "graph_db")
         self.assertEqual(old, "graph_db", "sanity: this is the bug we are fixing")
         # The new code yields a real absolute host path.
         new = sibling_host_path(win, "graph_db")
-        self.assertEqual(new, r"C:\Users\foo\redamon\graph_db")
+        self.assertEqual(new, r"C:\Users\foo\whitehat\graph_db")
         self.assertNotEqual(new, "graph_db")
 
     def test_result_is_never_bare_relative(self):
@@ -116,11 +116,11 @@ class SiblingHostPathTest(unittest.TestCase):
     def test_works_for_other_scan_dirs(self):
         """Same helper serves github_hunt / trufflehog spawns."""
         self.assertEqual(
-            sibling_host_path(r"C:\Users\foo\redamon\github_secret_hunt", "graph_db"),
-            r"C:\Users\foo\redamon\graph_db")
+            sibling_host_path(r"C:\Users\foo\whitehat\github_secret_hunt", "graph_db"),
+            r"C:\Users\foo\whitehat\graph_db")
         self.assertEqual(
-            sibling_host_path("/srv/redamon/trufflehog_scan", "graph_db"),
-            "/srv/redamon/graph_db")
+            sibling_host_path("/srv/whitehat/trufflehog_scan", "graph_db"),
+            "/srv/whitehat/graph_db")
 
 
 if __name__ == "__main__":

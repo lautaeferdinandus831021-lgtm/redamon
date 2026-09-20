@@ -20,7 +20,7 @@ function undiciFailure(code: string): TypeError {
 describe('describeAgentFailure', () => {
   it('names the agent, not the user endpoint, on ENOTFOUND', () => {
     const msg = describeAgentFailure(undiciFailure('ENOTFOUND'))
-    expect(msg).toContain('RedAmon agent service')
+    expect(msg).toContain('WhiteHat agent service')
     expect(msg).toContain(agentBaseUrl())
     expect(msg).toContain('agent container is not running')
     // The regression guard for #184: the operator must be told their own

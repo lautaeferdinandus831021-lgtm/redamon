@@ -3,9 +3,9 @@
 /**
  * Agent Onboarding: generate the instructions an EXTERNAL agent loads.
  *
- * "Agent Skills teach RedAmon's agent. Agent Onboarding teaches yours." That
+ * "Agent Skills teach WhiteHat's agent. Agent Onboarding teaches yours." That
  * distinction is stated in the modal because it will otherwise be asked about
- * forever: RedAmon already has built-in Agent Skills, Chat Skills and Community
+ * forever: WhiteHat already has built-in Agent Skills, Chat Skills and Community
  * Agent Skills, and all three are INBOUND. This one is outbound.
  *
  * This modal GENERATES A DOCUMENT. It never changes the token. The profile and
@@ -127,7 +127,7 @@ export default function AgentOnboardingModal({
     }
   }, [userId, profile, scopes, serverUrl, style, layout])
 
-  const skillDir = profile === 'custom' ? 'redamon-mcp' : `redamon-${profile.replace(/_/g, '-')}`
+  const skillDir = profile === 'custom' ? 'whitehat-mcp' : `whitehat-${profile.replace(/_/g, '-')}`
 
   const copy = async () => {
     if (!files) return
@@ -204,10 +204,10 @@ export default function AgentOnboardingModal({
     >
       <div className={styles.onboardBody}>
         <p className={styles.onboardLede}>
-          RedAmon writes the instructions your agent loads: what RedAmon is, what its recon pipeline
+          WhiteHat writes the instructions your agent loads: what WhiteHat is, what its recon pipeline
           produces, how to work the job you pick, and exactly what this token can and cannot do.
           <br />
-          <em>Agent Skills teach RedAmon&apos;s agent. Agent Onboarding teaches yours.</em>
+          <em>Agent Skills teach WhiteHat&apos;s agent. Agent Onboarding teaches yours.</em>
         </p>
 
         <div className={styles.onboardNotice}>
@@ -262,10 +262,10 @@ export default function AgentOnboardingModal({
               id="onboardUrl"
               className={`textInput ${styles.control}`}
               value={serverUrl}
-              placeholder="https://your-redamon-host"
+              placeholder="https://your-whitehat-host"
               onChange={e => { setServerUrl(e.target.value); setFiles(null) }}
             />
-            <span className="formHint">Where your agent reaches this RedAmon.</span>
+            <span className="formHint">Where your agent reaches this WhiteHat.</span>
           </div>
 
           <div className={`formGroup ${styles.field}`}>
@@ -361,7 +361,7 @@ export default function AgentOnboardingModal({
               </p>
               <p>
                 <strong>Re-export after changes.</strong> A downloaded pack is a snapshot. Export
-                again after editing the token, changing its profile, or upgrading RedAmon.
+                again after editing the token, changing its profile, or upgrading WhiteHat.
               </p>
             </div>
           </div>

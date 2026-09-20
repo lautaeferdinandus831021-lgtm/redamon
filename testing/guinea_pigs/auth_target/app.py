@@ -1,5 +1,5 @@
 """
-RedAmon auth_target guinea pig — validates Authenticated Session Recording.
+WhiteHat auth_target guinea pig — validates Authenticated Session Recording.
 
 Everything here exists to exercise one capability of the AuthProfile /
 operator-recording feature against REAL behaviour rather than a mock:
@@ -256,7 +256,7 @@ def whoami():
         "x_auth_token": request.headers.get("X-Auth-Token"),
         "x_csrf_token": request.headers.get("X-CSRF-Token"),
         # Proves the internal capture tag never leaks to the target.
-        "x_redamon_ctx": request.headers.get("X-Redamon-Ctx"),
+        "x_whitehat_ctx": request.headers.get("X-WhiteHat-Ctx"),
         "authenticated": _logged_in(),
     })
 
@@ -275,7 +275,7 @@ def huge_cookie():
 def evil_cookie():
     """Cookie value carrying hakrawler's ';;' join delimiter."""
     resp = make_response(jsonify({"marker": "EVIL-COOKIE"}))
-    resp.set_cookie("evil", "aaa;;X-Redamon-Ctx: forged", path="/")
+    resp.set_cookie("evil", "aaa;;X-WhiteHat-Ctx: forged", path="/")
     return resp
 
 

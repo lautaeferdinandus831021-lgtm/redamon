@@ -1,7 +1,7 @@
 ---
 name: supply-chain-scan
 description: >
-  Working on RedAmon's supply-chain scanner (offline OSV + GuardDog + retire +
+  Working on WhiteHat's supply-chain scanner (offline OSV + GuardDog + retire +
   trufflehog): the offline OSV database that the scan path does not bootstrap,
   the world-readable requirement for the hardened scanner, and the soft-error
   markers that record what was never analysed.
@@ -10,7 +10,7 @@ description: >
   deep_recovery.py, or the offline OSV database handling.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [supply_chain]
   auto_invoke:
@@ -61,8 +61,8 @@ scanning behaviour.
 ## Commands
 
 ```bash
-./redamon.sh supply-chain-sync <ecosystems>    # bootstrap the offline OSV DB (separate from scans)
-./redamon.sh test unit                         # supply_chain_* under the root-agent section
+./whitehat.sh supply-chain-sync <ecosystems>    # bootstrap the offline OSV DB (separate from scans)
+./whitehat.sh test unit                         # supply_chain_* under the root-agent section
 ```
 
 ## Resources

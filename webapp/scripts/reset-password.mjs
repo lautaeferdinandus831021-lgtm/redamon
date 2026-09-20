@@ -1,6 +1,6 @@
 /**
  * Reset a user's password.
- * Called from redamon.sh reset-password via:
+ * Called from whitehat.sh reset-password via:
  *   docker compose exec -T -e RESET_EMAIL=... -e RESET_PASSWORD=... webapp node scripts/reset-password.mjs
  *
  * Optional: pass --admin flag via PROMOTE_ADMIN=true to also set role to admin.

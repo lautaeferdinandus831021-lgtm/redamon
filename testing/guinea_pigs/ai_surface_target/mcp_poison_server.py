@@ -29,7 +29,7 @@ except Exception:  # pragma: no cover
 
 
 def build(port: int) -> FastMCP:
-    mcp = FastMCP("redamon-poison-mcp", host="127.0.0.1", port=port)
+    mcp = FastMCP("whitehat-poison-mcp", host="127.0.0.1", port=port)
 
     @mcp.tool()
     def get_weather(location: str) -> str:
@@ -69,7 +69,7 @@ def build(port: int) -> FastMCP:
     @mcp.resource("config://server")
     def server_config() -> str:
         """Server configuration blob."""
-        return "{\"name\": \"redamon-poison-mcp\"}"
+        return "{\"name\": \"whitehat-poison-mcp\"}"
 
     @mcp.prompt()
     def review(code: str) -> str:
@@ -94,8 +94,8 @@ def build_app(port: int):
 
     async def root(_request):
         return PlainTextResponse(
-            "RedAmon MCP guinea pig — Model Context Protocol server at /mcp",
-            headers={"x-mcp-version": "2025-06-18", "Server": "redamon-mcp"},
+            "WhiteHat MCP guinea pig — Model Context Protocol server at /mcp",
+            headers={"x-mcp-version": "2025-06-18", "Server": "whitehat-mcp"},
         )
 
     app.add_route("/", root, methods=["GET"])

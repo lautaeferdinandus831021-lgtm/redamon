@@ -78,7 +78,7 @@ function errorName(err: unknown): string | undefined {
 }
 
 const CHECK_IT = 'Check it with "docker compose ps -a agent" and '
-  + '"docker compose logs --tail=100 agent", then run "./redamon.sh up".'
+  + '"docker compose logs --tail=100 agent", then run "./whitehat.sh up".'
 
 /**
  * Turn a transport-level failure into a sentence naming the RIGHT service.
@@ -88,9 +88,9 @@ export function describeAgentFailure(
   err: unknown,
   ctx: AgentFailureContext = {},
 ): string {
-  const where = `the RedAmon agent service at ${agentBaseUrl()}`
+  const where = `the WhiteHat agent service at ${agentBaseUrl()}`
   const notYourEndpoint =
-    'The request never left RedAmon, so this is not a problem with the endpoint you configured.'
+    'The request never left WhiteHat, so this is not a problem with the endpoint you configured.'
 
   switch (errorCode(err)) {
     case 'ENOTFOUND':

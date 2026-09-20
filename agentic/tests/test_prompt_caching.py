@@ -46,7 +46,7 @@ class PromptCachingMarkerTests(unittest.TestCase):
         self.assertGreater(len(suffix), 0)
 
         # Static prefix should contain the stable sections.
-        self.assertIn("You are RedAmon", prefix)
+        self.assertIn("You are WhiteHat", prefix)
         self.assertIn("Your Operating Model", prefix)
         self.assertIn("Available Tools", prefix)
         self.assertIn("{available_tools}", prefix)

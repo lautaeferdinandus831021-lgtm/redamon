@@ -37,33 +37,33 @@ const PATHS = [
 
 describe('buildAgentWsUrl -- NEXT_PUBLIC_AGENT_WS_URL baked (deploy.sh single-origin)', () => {
   test('swaps the /ws/agent suffix for the caller path (wss domain)', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/ws/agent'
-    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://redamon.example.com/ws/kali-terminal')
-    expect(buildAgentWsUrl('/ws/cypherfix-triage')).toBe('wss://redamon.example.com/ws/cypherfix-triage')
-    expect(buildAgentWsUrl('/ws/cypherfix-codefix')).toBe('wss://redamon.example.com/ws/cypherfix-codefix')
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/ws/agent'
+    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://whitehat.example.com/ws/kali-terminal')
+    expect(buildAgentWsUrl('/ws/cypherfix-triage')).toBe('wss://whitehat.example.com/ws/cypherfix-triage')
+    expect(buildAgentWsUrl('/ws/cypherfix-codefix')).toBe('wss://whitehat.example.com/ws/cypherfix-codefix')
   })
 
   test('/ws/agent path is a no-op replace, returns the configured URL verbatim', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/ws/agent'
-    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://redamon.example.com/ws/agent')
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/ws/agent'
+    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://whitehat.example.com/ws/agent')
   })
 
   test('honours ws:// (http-mode deploy)', () => {
-    process.env[ENV_KEY] = 'ws://redamon.example.com/ws/agent'
-    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('ws://redamon.example.com/ws/kali-terminal')
+    process.env[ENV_KEY] = 'ws://whitehat.example.com/ws/agent'
+    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('ws://whitehat.example.com/ws/kali-terminal')
   })
 
   test('the env branch never injects a :8090 port', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/ws/agent'
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/ws/agent'
     for (const p of PATHS) {
       expect(buildAgentWsUrl(p)).not.toContain(':8090')
     }
   })
 
   test('env branch wins even when a window is present', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/ws/agent'
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/ws/agent'
     stubLocation({ protocol: 'https:', hostname: 'someotherhost', port: '' })
-    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://redamon.example.com/ws/kali-terminal')
+    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://whitehat.example.com/ws/kali-terminal')
   })
 })
 
@@ -82,23 +82,23 @@ describe('buildAgentWsUrl -- browser auto-detect, local dev keeps :8090', () => 
 
 describe('buildAgentWsUrl -- browser auto-detect, proxied deploy uses same origin (the fix)', () => {
   test('custom domain over https -> wss same-origin, NO :8090', () => {
-    stubLocation({ protocol: 'https:', hostname: 'redamon.example.com', port: '' })
+    stubLocation({ protocol: 'https:', hostname: 'whitehat.example.com', port: '' })
     const url = buildAgentWsUrl('/ws/kali-terminal')
-    expect(url).toBe('wss://redamon.example.com/ws/kali-terminal')
+    expect(url).toBe('wss://whitehat.example.com/ws/kali-terminal')
     expect(url).not.toContain(':8090')
   })
 
   test('custom domain over http -> ws same-origin, NO :8090', () => {
-    stubLocation({ protocol: 'http:', hostname: 'redamon.example.com', port: '' })
+    stubLocation({ protocol: 'http:', hostname: 'whitehat.example.com', port: '' })
     const url = buildAgentWsUrl('/ws/agent')
-    expect(url).toBe('ws://redamon.example.com/ws/agent')
+    expect(url).toBe('ws://whitehat.example.com/ws/agent')
     expect(url).not.toContain(':8090')
   })
 
   test('non-default proxy port is preserved (e.g. :8443)', () => {
-    stubLocation({ protocol: 'https:', hostname: 'redamon.example.com', port: '8443' })
+    stubLocation({ protocol: 'https:', hostname: 'whitehat.example.com', port: '8443' })
     expect(buildAgentWsUrl('/ws/cypherfix-codefix')).toBe(
-      'wss://redamon.example.com:8443/ws/cypherfix-codefix',
+      'wss://whitehat.example.com:8443/ws/cypherfix-codefix',
     )
   })
 
@@ -110,7 +110,7 @@ describe('buildAgentWsUrl -- browser auto-detect, proxied deploy uses same origi
   })
 
   test('no WS path across the four sockets leaks :8090 on a proxied host', () => {
-    stubLocation({ protocol: 'https:', hostname: 'redamon.example.com', port: '' })
+    stubLocation({ protocol: 'https:', hostname: 'whitehat.example.com', port: '' })
     for (const p of PATHS) {
       expect(buildAgentWsUrl(p)).not.toContain(':8090')
     }
@@ -119,7 +119,7 @@ describe('buildAgentWsUrl -- browser auto-detect, proxied deploy uses same origi
 
 describe('buildAgentWsUrl -- runtime routing hint (issue #159: no-reverse-proxy deploy)', () => {
   function stubWindow(loc: { protocol: string; hostname: string; port: string }, hint: unknown) {
-    vi.stubGlobal('window', { location: loc, __REDAMON_WS__: hint })
+    vi.stubGlobal('window', { location: loc, __WHITEHAT_WS__: hint })
   }
 
   test('agent-port hint over a LAN IP dials the agent port on the browser host (THE FIX)', () => {
@@ -144,8 +144,8 @@ describe('buildAgentWsUrl -- runtime routing hint (issue #159: no-reverse-proxy 
   })
 
   test('full-URL hint swaps the /ws/agent suffix', () => {
-    stubWindow({ protocol: 'http:', hostname: '10.0.0.5', port: '3000' }, { url: 'wss://redamon.lan/ws/agent' })
-    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://redamon.lan/ws/kali-terminal')
+    stubWindow({ protocol: 'http:', hostname: '10.0.0.5', port: '3000' }, { url: 'wss://whitehat.lan/ws/agent' })
+    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://whitehat.lan/ws/kali-terminal')
   })
 
   test('NEXT_PUBLIC_AGENT_WS_URL still wins over the runtime hint (single-host untouched)', () => {
@@ -158,28 +158,28 @@ describe('buildAgentWsUrl -- runtime routing hint (issue #159: no-reverse-proxy 
     // Proxied deploys don't set the hint (or they set NEXT_PUBLIC_*). Must stay
     // same-origin so nginx on :8443 keeps routing /ws/* — the case the port
     // heuristic would have broken.
-    stubWindow({ protocol: 'https:', hostname: 'redamon.example.com', port: '8443' }, undefined)
-    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://redamon.example.com:8443/ws/agent')
+    stubWindow({ protocol: 'https:', hostname: 'whitehat.example.com', port: '8443' }, undefined)
+    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://whitehat.example.com:8443/ws/agent')
     expect(buildAgentWsUrl('/ws/agent')).not.toContain(':8090')
   })
 })
 
 describe('buildAgentWsUrl -- base URL without the /ws/agent suffix (robustness)', () => {
   test('NEXT_PUBLIC base without /ws/agent still appends the path (never drops it)', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com'
-    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://redamon.example.com/ws/kali-terminal')
-    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://redamon.example.com/ws/agent')
+    process.env[ENV_KEY] = 'wss://whitehat.example.com'
+    expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('wss://whitehat.example.com/ws/kali-terminal')
+    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://whitehat.example.com/ws/agent')
   })
 
   test('trailing slash on the base is not doubled', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/'
-    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://redamon.example.com/ws/agent')
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/'
+    expect(buildAgentWsUrl('/ws/agent')).toBe('wss://whitehat.example.com/ws/agent')
   })
 
   test('runtime url hint WITHOUT the suffix appends the path (AGENT_WS_PUBLIC_URL footgun)', () => {
     vi.stubGlobal('window', {
       location: { protocol: 'http:', hostname: '10.0.0.5', port: '3000' },
-      __REDAMON_WS__: { url: 'ws://10.0.0.5:8090' },
+      __WHITEHAT_WS__: { url: 'ws://10.0.0.5:8090' },
     })
     expect(buildAgentWsUrl('/ws/kali-terminal')).toBe('ws://10.0.0.5:8090/ws/kali-terminal')
     expect(buildAgentWsUrl('/ws/agent')).toBe('ws://10.0.0.5:8090/ws/agent')
@@ -187,11 +187,11 @@ describe('buildAgentWsUrl -- base URL without the /ws/agent suffix (robustness)'
 
   test('empty hint object falls back to same-origin (no crash, no :8090 leak)', () => {
     vi.stubGlobal('window', {
-      location: { protocol: 'https:', hostname: 'redamon.example.com', port: '' },
-      __REDAMON_WS__: {},
+      location: { protocol: 'https:', hostname: 'whitehat.example.com', port: '' },
+      __WHITEHAT_WS__: {},
     })
     const url = buildAgentWsUrl('/ws/agent')
-    expect(url).toBe('wss://redamon.example.com/ws/agent')
+    expect(url).toBe('wss://whitehat.example.com/ws/agent')
     expect(url).not.toContain(':8090')
   })
 })
@@ -232,16 +232,16 @@ describe('buildAgentWsUrl -- SSR fallback (no window)', () => {
 
 describe('buildAgentWsUrl -- ticket query param (STRIDE S3/S4)', () => {
   test('appends ticket with ? on a portless proxied URL', () => {
-    stubLocation({ protocol: 'https:', hostname: 'redamon.example.com', port: '' })
+    stubLocation({ protocol: 'https:', hostname: 'whitehat.example.com', port: '' })
     expect(buildAgentWsUrl('/ws/kali-terminal', 'abc.def.ghi')).toBe(
-      'wss://redamon.example.com/ws/kali-terminal?ticket=abc.def.ghi',
+      'wss://whitehat.example.com/ws/kali-terminal?ticket=abc.def.ghi',
     )
   })
 
   test('URL-encodes ticket values that contain reserved chars', () => {
-    process.env[ENV_KEY] = 'wss://redamon.example.com/ws/agent'
+    process.env[ENV_KEY] = 'wss://whitehat.example.com/ws/agent'
     const url = buildAgentWsUrl('/ws/cypherfix-triage', 'a b+c/d=e')
-    expect(url).toBe('wss://redamon.example.com/ws/cypherfix-triage?ticket=a%20b%2Bc%2Fd%3De')
+    expect(url).toBe('wss://whitehat.example.com/ws/cypherfix-triage?ticket=a%20b%2Bc%2Fd%3De')
   })
 
   test('no ticket -> no query string', () => {

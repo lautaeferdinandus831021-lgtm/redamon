@@ -210,14 +210,14 @@ class McpTestEndpointTests(unittest.TestCase):
             "transport": "stdio",
             "command": "python",
             "args": ["-m", "cve_mcp_server"],
-            "cwd": "/tmp/does-not-exist-redamon-165",
+            "cwd": "/tmp/does-not-exist-whitehat-165",
             "tools": [],
         })
         self.assertEqual(r.status_code, 200)
         data = r.json()
         self.assertFalse(data["ok"])
         self.assertIn("does not exist", data["error"])
-        self.assertIn("/tmp/does-not-exist-redamon-165", data["error"])
+        self.assertIn("/tmp/does-not-exist-whitehat-165", data["error"])
         self.assertNotIn("FileNotFoundError", data["error"])
         self.assertEqual(data["discovered_tools"], [])
 

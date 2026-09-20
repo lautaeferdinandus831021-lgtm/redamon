@@ -20,7 +20,7 @@ its statements from it. This file pins the two things that makes safe:
 
 Run:
     docker run --rm --entrypoint python3 -v "$PWD:/work:ro" -w /work \\
-        redamon-recon:latest recon/tests/test_schema_constraints_generated.py
+        whitehat-recon:latest recon/tests/test_schema_constraints_generated.py
 """
 from __future__ import annotations
 

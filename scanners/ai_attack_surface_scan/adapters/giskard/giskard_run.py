@@ -85,7 +85,7 @@ def main():
         return [call(q) for q in df["question"].values]
 
     model = giskard.Model(
-        model=predict, model_type="text_generation", name="redamon-target",
+        model=predict, model_type="text_generation", name="whitehat-target",
         description=cfg.get("description", "A general-purpose LLM chat assistant."),
         feature_names=["question"])
 

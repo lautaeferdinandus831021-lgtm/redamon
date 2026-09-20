@@ -1,5 +1,5 @@
 """
-RedAmon - Masscan Integration Tests
+WhiteHat - Masscan Integration Tests
 ====================================
 Tests for the masscan port scanner module and its pipeline integration:
 

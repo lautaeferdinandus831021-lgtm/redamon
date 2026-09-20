@@ -32,7 +32,7 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(ap.build_auth_headers({"authType": "cookie", "authValue": "a\r\nX: 1"}), {})
         self.assertEqual(ap.build_auth_headers({"authType": "cookie", "authValue": "a;;b"}), {})
         self.assertEqual(ap.build_auth_headers({"authType": "header", "authValue": "v",
-                                                "authHeaderName": "x-redamon-ctx"}), {})
+                                                "authHeaderName": "x-whitehat-ctx"}), {})
         self.assertEqual(ap.build_auth_headers(None), {})
 
 

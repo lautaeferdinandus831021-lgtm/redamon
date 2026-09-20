@@ -115,8 +115,8 @@ def _mgr(logs=b"", code=0, raises=None, volume_exists=True):
         containers=_FakeContainers(logs, code, raises),
         volumes=_FakeVolumes(volume_exists),
     )
-    m.supply_chain_analyzer_image = "redamon-supply-chain-analyzer:latest"
-    m.sca_intel_volume = "redamon-sca-intel"
+    m.supply_chain_analyzer_image = "whitehat-supply-chain-analyzer:latest"
+    m.sca_intel_volume = "whitehat-sca-intel"
     m.sca_intel_refresh_timeout = 120
     m._sca_intel_refresh_lock = threading.Lock()
     m.recon_host_path = "/host/repo/recon"
@@ -180,7 +180,7 @@ class TestScaIntelRefresh(unittest.TestCase):
         m = _mgr(logs=b"__DID_SYNC__")
         m.ensure_sca_intel_fresh()
         volumes = _kwargs_of(m)["volumes"]
-        self.assertEqual(volumes["redamon-sca-intel"],
+        self.assertEqual(volumes["whitehat-sca-intel"],
                          {"bind": "/sca-intel", "mode": "rw"})
 
     # -- hardening ----------------------------------------------------------
@@ -354,8 +354,8 @@ class TestIngestSpawnMounts(unittest.TestCase):
 
     def test_ingest_mounts_the_intel_volume_read_only(self):
         m = _mgr()
-        vols = m._ingest_volumes({"redamon_capture_spool": {"bind": "/spool", "mode": "rw"}})
-        self.assertEqual(vols["redamon-sca-intel"], {"bind": "/sca-intel", "mode": "ro"})
+        vols = m._ingest_volumes({"whitehat_capture_spool": {"bind": "/spool", "mode": "rw"}})
+        self.assertEqual(vols["whitehat-sca-intel"], {"bind": "/sca-intel", "mode": "ro"})
 
     def test_ingest_mounts_supply_chain_common(self):
         m = _mgr()
@@ -367,8 +367,8 @@ class TestIngestSpawnMounts(unittest.TestCase):
 
     def test_spool_mounts_are_preserved(self):
         m = _mgr()
-        spool = {"redamon_capture_spool": {"bind": "/spool", "mode": "rw"},
-                 "redamon_capture_bodies": {"bind": "/bodies", "mode": "rw"}}
+        spool = {"whitehat_capture_spool": {"bind": "/spool", "mode": "rw"},
+                 "whitehat_capture_bodies": {"bind": "/bodies", "mode": "rw"}}
         vols = m._ingest_volumes(spool)
         for k, v in spool.items():
             self.assertEqual(vols[k], v)
@@ -381,7 +381,7 @@ class TestIngestSpawnMounts(unittest.TestCase):
         vols = m._ingest_volumes({})
         self.assertNotIn("/app/supply_chain_common", {v["bind"] for v in vols.values()})
         # The catalog volume is still mounted; only the matcher module is absent.
-        self.assertIn("redamon-sca-intel", vols)
+        self.assertIn("whitehat-sca-intel", vols)
 
     def test_ingest_volumes_never_raises_on_a_partial_manager(self):
         """start_capture_proxy serves the Global Settings toggle.
@@ -396,4 +396,4 @@ class TestIngestSpawnMounts(unittest.TestCase):
         del m.recon_host_path
         vols = m._ingest_volumes({"spool": {"bind": "/spool", "mode": "rw"}})
         self.assertIn("spool", vols)
-        self.assertIn("redamon-sca-intel", vols)   # falls back to the default name
+        self.assertIn("whitehat-sca-intel", vols)   # falls back to the default name

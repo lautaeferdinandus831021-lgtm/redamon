@@ -1,13 +1,13 @@
 # =============================================================================
-# RedAmon - Web Cache Vulnerability Scanner (WCVS) image
+# WhiteHat - Web Cache Vulnerability Scanner (WCVS) image
 # =============================================================================
 # Builds Hackmanit's WCVS (https://github.com/Hackmanit/Web-Cache-Vulnerability-Scanner)
-# from source. There is no official prebuilt image on a registry, so RedAmon
-# builds a local image tagged `redamon-wcvs:latest` and runs it docker-in-docker
+# from source. There is no official prebuilt image on a registry, so WhiteHat
+# builds a local image tagged `whitehat-wcvs:latest` and runs it docker-in-docker
 # from the recon container (see recon/cache_scan/wcvs_runner.py).
 #
 # Build:  docker compose --profile tools build wcvs
-# Run:    docker run --rm --net=host redamon-wcvs /wcvs -u https://example.com -gr
+# Run:    docker run --rm --net=host whitehat-wcvs /wcvs -u https://example.com -gr
 #
 # Pin WCVS_REF to a release tag/commit for reproducible builds.
 # -----------------------------------------------------------------------------

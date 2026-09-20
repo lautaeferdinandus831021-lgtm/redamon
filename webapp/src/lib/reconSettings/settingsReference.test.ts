@@ -27,13 +27,13 @@ import {
 } from './settingsReference'
 
 const WIKI_DIR = process.env.MCP_DOCS_WIKI_DIR
-  || fileURLToPath(new URL('../../../../redamon.wiki/', import.meta.url))
+  || fileURLToPath(new URL('../../../../whitehat.wiki/', import.meta.url))
 const WRITE = process.env.MCP_DOCS_WRITE === '1'
 
 /**
  * A real wiki checkout, not merely the directory. The main repo records the
  * wiki as a submodule pointer with no .gitmodules, so a fresh clone creates
- * redamon.wiki/ EMPTY and comparing an empty page against the render would fail
+ * whitehat.wiki/ EMPTY and comparing an empty page against the render would fail
  * on every fresh clone.
  */
 const hasWikiCheckout = () => existsSync(path.join(WIKI_DIR, 'Home.md'))

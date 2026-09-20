@@ -1,5 +1,5 @@
 """
-RedAmon - CVE Lookup Helpers
+WhiteHat - CVE Lookup Helpers
 ============================
 Functions for looking up CVEs from NVD and Vulners APIs based on detected technologies.
 """

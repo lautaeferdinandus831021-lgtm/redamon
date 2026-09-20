@@ -16,7 +16,7 @@ Run:
   docker run --rm --network host -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://localhost:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_cert_constraint_live -v
+    whitehat-agent python -m unittest tests.test_cert_constraint_live -v
 """
 
 import os
@@ -131,7 +131,7 @@ class CertificateConstraintLive(unittest.TestCase):
     def test_the_backfill_marker_was_recorded_so_it_does_not_rescan_forever(self):
         from graph_db.schema import CERT_KEY_BACKFILL_MARKER
         n = self.session.run(
-            "MATCH (m:RedamonSchemaMigration {id: $id}) RETURN count(m) AS n",
+            "MATCH (m:WhiteHatSchemaMigration {id: $id}) RETURN count(m) AS n",
             id=CERT_KEY_BACKFILL_MARKER).single()["n"]
         self.assertEqual(n, 1, "cert_key backfill marker missing: it will re-scan "
                                "every Certificate on every client construction")

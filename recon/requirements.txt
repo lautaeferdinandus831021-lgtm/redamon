@@ -1,4 +1,4 @@
-# RedAmon Reconnaissance Module - Python Dependencies
+# WhiteHat Reconnaissance Module - Python Dependencies
 # ====================================================
 # Install with: pip install -r requirements.txt
 
@@ -46,7 +46,7 @@ prance>=23.6.21.0           # OpenAPI/Swagger $ref-resolving parser; MIT
 openapi-spec-validator>=0.7.1,<0.8  # prance validation backend (OpenAPI 2.0/3.0/3.1); Apache-2.0. Pinned <0.8 to match prance's osv extra (~=0.7.1); newer osv breaks prance's validator import.
 jq>=1.6.0                    # jq.py — Julius models.extract expressions; BSD-2 (bundles libjq)
 
-# Test toolchain (baked so `redamon.sh test` needs no runtime install).
+# Test toolchain (baked so `whitehat.sh test` needs no runtime install).
 # Kept in sync with the root requirements-test.txt. See docs/readmes/README.TESTING.md.
 pytest>=8
 pytest-cov>=5

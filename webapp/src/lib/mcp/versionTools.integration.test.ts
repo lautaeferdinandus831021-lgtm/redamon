@@ -21,9 +21,9 @@
  * Neo4j and no snapshot slot is taken.
  *
  * Auto-skips unless DATABASE_URL is set. To run it:
- *   docker run --rm --network redamon-network -v "$PWD/webapp:/app" -w /app \
- *     -e DATABASE_URL='postgresql://redamon:<pw>@postgres:5432/redamon' \
- *     --entrypoint sh redamon-webapp -c \
+ *   docker run --rm --network whitehat-network -v "$PWD/webapp:/app" -w /app \
+ *     -e DATABASE_URL='postgresql://whitehat:<pw>@postgres:5432/whitehat' \
+ *     --entrypoint sh whitehat-webapp -c \
  *     'node_modules/.bin/vitest run src/lib/mcp/versionTools.integration.test.ts'
  */
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'

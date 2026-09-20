@@ -10,9 +10,9 @@ Start the lab and point the test at it:
     cd testing/guinea_pigs/vhost_target && docker compose up -d --build
     VHOST_LAB_IP=$(docker inspect -f \
       '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
-      redamon-vhost-target)
+      whitehat-vhost-target)
 
-then run this file from a container attached to redamon-vhostlab with
+then run this file from a container attached to whitehat-vhostlab with
 VHOST_LAB_IP and the NEO4J_* variables set. It skips when either is missing.
 """
 

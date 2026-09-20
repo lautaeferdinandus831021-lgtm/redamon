@@ -1,4 +1,4 @@
-# RedAmon — AI surface recon guinea pig
+# WhiteHat — AI surface recon guinea pig
 #
 # Single-image, all-Python target that binds to 18 ports on host loopback
 # and emits every signal the lap-1 AI surface catalog tries to detect.

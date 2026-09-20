@@ -7,8 +7,8 @@ LLM plan with two metasploit_console steps would run both against the single
 persistent msfconsole, interleaving stdin/stdout and racing session tracking.
 
 Run:
-    docker run --rm -v "/home/samuele/Progetti didattici/redamon/agentic:/app" \
-        -w /app redamon-agent python -m unittest tests.test_plan_mutex -v
+    docker run --rm -v "/home/samuele/Progetti didattici/whitehat/agentic:/app" \
+        -w /app whitehat-agent python -m unittest tests.test_plan_mutex -v
 """
 
 from __future__ import annotations

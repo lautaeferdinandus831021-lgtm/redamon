@@ -28,5 +28,5 @@ docker run --rm --network host \
   -v "$ROOT/graph_db":/app/graph_db:ro \
   -v "$HERE":/app/guinea_pigs/supply_chain_target:ro \
   --entrypoint python3 \
-  redamon-recon:latest \
+  whitehat-recon:latest \
   /app/guinea_pigs/supply_chain_target/validate_supply_chain_recon.py "$@"

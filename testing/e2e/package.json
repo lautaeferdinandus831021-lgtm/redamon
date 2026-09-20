@@ -1,5 +1,5 @@
 {
-  "name": "redamon-e2e",
+  "name": "whitehat-e2e",
   "private": true,
   "description": "Browser end-to-end tests. Kept out of webapp/ because that node_modules is root-owned by the Docker build.",
   "scripts": {

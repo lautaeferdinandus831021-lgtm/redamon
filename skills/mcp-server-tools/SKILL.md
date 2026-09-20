@@ -1,7 +1,7 @@
 ---
 name: mcp-server-tools
 description: >
-  Adding, removing or changing a tool on RedAmon's INBOUND MCP server, where external
+  Adding, removing or changing a tool on WhiteHat's INBOUND MCP server, where external
   agents connect in with a personal access token. The wiki API reference is generated
   from the server's live tools/list and goes stale silently, and each tool's annotations
   and declared scopes are published to connected clients.
@@ -10,7 +10,7 @@ description: >
   scope list, default scopes, expiry presets or token prefix in webapp/src/lib/mcpAuth.ts.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [webapp]
   auto_invoke:
@@ -24,7 +24,7 @@ metadata:
   arguments, annotations or scopes.
 - Changing a token scope, its label or blurb, the expiry presets or the token prefix.
 
-For a tool RedAmon's OWN agent calls (outbound, `mcp/servers/`), use
+For a tool WhiteHat's OWN agent calls (outbound, `mcp/servers/`), use
 `agentic-tool-integration`. For making a recon setting writable over MCP, use
 `project-settings-cascade`. The tools that exist are listed by the server itself and by
 the generated reference page, never by this skill.
@@ -34,7 +34,7 @@ the generated reference page, never by this skill.
 ## Critical Rules
 
 - **ALWAYS run `npm run docs:mcp` in `webapp/` after any change this skill's trigger
-  names, and commit `MCP-API-Reference.md` inside the `redamon.wiki` repo.** A main-repo
+  names, and commit `MCP-API-Reference.md` inside the `whitehat.wiki` repo.** A main-repo
   commit moves only the submodule pointer. The page is rendered by
   [apiReference.ts](../../webapp/src/lib/mcp/apiReference.ts); a hand edit is overwritten
   by the next run.
@@ -77,10 +77,10 @@ particular argument goes under `conditional`, and the arguments that trigger it 
 
 ```bash
 cd webapp
-npm run docs:mcp                 # rewrites ../redamon.wiki/MCP-API-Reference.md
+npm run docs:mcp                 # rewrites ../whitehat.wiki/MCP-API-Reference.md
 npx vitest run src/lib/mcp/      # scope, example-call, onboarding-coverage and stale-page checks
 
-cd ../redamon.wiki
+cd ../whitehat.wiki
 git add MCP-API-Reference.md
 git commit -m "docs: regenerate MCP API reference"
 ```
@@ -89,6 +89,6 @@ git commit -m "docs: regenerate MCP API reference"
 
 ## Resources
 
-- [MCP-Server.md](../../redamon.wiki/MCP-Server.md), section "Regenerating the API reference" - what the page is built from, and the stale-page test
+- [MCP-Server.md](../../whitehat.wiki/MCP-Server.md), section "Regenerating the API reference" - what the page is built from, and the stale-page test
 - [README.MCP.SERVER.md](../../docs/readmes/README.MCP.SERVER.md) - security model, settings allowlist, deploy wiring; §3.1-3.2 cover Agent Profiles (never an authorization input) and how the onboarding pack is generated
-- Related skills: `agentic-tool-integration`, `project-settings-cascade`, `redamon-testing`
+- Related skills: `agentic-tool-integration`, `project-settings-cascade`, `whitehat-testing`

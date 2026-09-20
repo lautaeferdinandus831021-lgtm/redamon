@@ -1,5 +1,5 @@
 """
-RedAmon Denial of Service (DoS) Prompts
+WhiteHat Denial of Service (DoS) Prompts
 
 Prompts for DoS attack workflows including known CVE DoS, HTTP application DoS
 (slowloris/slow POST), Layer 4 flooding, application logic DoS, and single-request crashes.

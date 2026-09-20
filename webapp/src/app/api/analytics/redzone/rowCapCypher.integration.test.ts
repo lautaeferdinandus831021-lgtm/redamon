@@ -129,7 +129,7 @@ describe.skipIf(!live)('generated Cypher parses on a real Neo4j', () => {
   test.each(['0.5', '0', '-3', '1e21', '999999999999999999999', 'lots', ''])(
     'a hostile override (%j) still yields plannable, non-empty-by-construction Cypher',
     async raw => {
-      process.env.REDAMON_REDZONE_ROW_CAP = raw
+      process.env.WHITEHAT_REDZONE_ROW_CAP = raw
       try {
         const queries = await cypherFor('killChain')
         expect(queries.length).toBeGreaterThan(0)
@@ -143,7 +143,7 @@ describe.skipIf(!live)('generated Cypher parses on a real Neo4j', () => {
           ).resolves.toBeUndefined()
         }
       } finally {
-        delete process.env.REDAMON_REDZONE_ROW_CAP
+        delete process.env.WHITEHAT_REDZONE_ROW_CAP
       }
     },
   )

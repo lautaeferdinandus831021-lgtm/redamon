@@ -75,7 +75,7 @@ def _html(title: str, body: str = "") -> str:
         f"<title>{title}</title>"
         "<meta charset='utf-8'></head><body>"
         f"<h1>{title}</h1><pre>{body}</pre>"
-        "<p>RedAmon AI surface guinea pig — deterministic stub.</p>"
+        "<p>WhiteHat AI surface guinea pig — deterministic stub.</p>"
         "</body></html>"
     )
 
@@ -319,7 +319,7 @@ def make_endpoint_ai_classifier_app() -> web.Application:
             )
         body = (
             "<!DOCTYPE html><html><head>"
-            "<title>RedAmon Endpoint AI Classifier Showroom</title>"
+            "<title>WhiteHat Endpoint AI Classifier Showroom</title>"
             "</head><body>"
             "<h1>Endpoint AI Classifier Showroom</h1>"
             "<p>Katana discovers these links. The resource_enum AI classifier "
@@ -414,7 +414,7 @@ def make_js_recon_ai_sdk_app() -> web.Application:
             )
         body = (
             "<!DOCTYPE html><html><head>"
-            "<title>RedAmon JS Recon AI SDK Showroom</title>"
+            "<title>WhiteHat JS Recon AI SDK Showroom</title>"
             "<meta charset='utf-8'>"
             "<style>table{border-collapse:collapse;font-family:monospace;}"
             "th,td{border:1px solid #444;padding:6px;text-align:left;vertical-align:top;}"
@@ -474,7 +474,7 @@ def make_zap_ajax_showroom_app() -> web.Application:
     - GraphQL POST from a button
     - Form submission via onsubmit
     - Auth-aware flow: on load, fetch /api/me. If the server returns
-      `x-redamon-authed: true` (which it does only when an Authorization header
+      `x-whitehat-authed: true` (which it does only when an Authorization header
       arrives via ZAP's Replacer), inject an admin link and fetch /api/admin/audit-log
 
     Logout link and a static-asset img are included to verify:
@@ -568,11 +568,11 @@ def make_zap_ajax_showroom_app() -> web.Application:
     }
 
     // 6. Auth-aware probe — runs on load. Server only returns the
-    // x-redamon-authed header when an Authorization request header was
+    // x-whitehat-authed header when an Authorization request header was
     // present (ZAP injects this via Replacer; a static crawler does not).
     (async () => {
       const r = await fetch('/api/me');
-      const authed = r.headers.get('x-redamon-authed') === 'true';
+      const authed = r.headers.get('x-whitehat-authed') === 'true';
       const area = document.getElementById('auth-area');
       if (authed) {
         area.innerHTML = '<a id="admin-link" href="/api/admin/users">Admin Users (auth-only)</a>';
@@ -623,7 +623,7 @@ def make_zap_ajax_showroom_app() -> web.Application:
         # ZAP's Replacer injects Authorization on every request when
         # zapAjaxSpiderCustomHeaders is configured.
         has_auth = bool(request.headers.get("Authorization"))
-        headers = {"x-redamon-authed": "true" if has_auth else "false"}
+        headers = {"x-whitehat-authed": "true" if has_auth else "false"}
         return web.json_response(
             {"user_id": 1 if has_auth else None},
             headers=headers,
@@ -679,7 +679,7 @@ def make_jsluice_target_app() -> web.Application:
     async def index(_r: web.Request) -> web.Response:
         body = (
             "<!DOCTYPE html><html><head>"
-            "<title>RedAmon jsluice verifier target</title>"
+            "<title>WhiteHat jsluice verifier target</title>"
             "<script src='/static/app.js'></script>"
             "</head><body><h1>jsluice target</h1>"
             "<p>Katana follows the script tag; jsluice extracts the URLs.</p>"
@@ -823,7 +823,7 @@ async def main() -> None:
     runners: list[web.AppRunner] = []
 
     log.info("=" * 60)
-    log.info("RedAmon AI surface guinea pig starting")
+    log.info("WhiteHat AI surface guinea pig starting")
     log.info("=" * 60)
 
     # 1. Per-product ports

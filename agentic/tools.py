@@ -1,5 +1,5 @@
 """
-RedAmon Agent Tools
+WhiteHat Agent Tools
 
 MCP tools and Neo4j graph query tool definitions.
 Includes phase-aware tool management.
@@ -120,7 +120,7 @@ from agent_context import (  # noqa: E402
 # Target-facing agent tools whose traffic should route through the capture proxy
 # when enabled (plan §9.1 allowlist). Deliberately excludes OSINT / API-key tools
 # (cve_intel, shodan, execute_gau, web_search, …) so their keys never touch the
-# proxy (§15.4). The kali MCP servers add the proxy flag + X-Redamon-Ctx header.
+# proxy (§15.4). The kali MCP servers add the proxy flag + X-WhiteHat-Ctx header.
 # The HTTP recon/exploit tools below mirror the recon pipeline's routing so the
 # agent's own crawl/fuzz/scan traffic is captured, searchable, and replayable.
 _CAPTURE_ROUTED_TOOLS = frozenset({
@@ -2169,8 +2169,8 @@ class PhaseAwareToolExecutor:
         """Per-project HTTP-capture routing gate for the agent's target tools."""
         self._capture_proxy_enabled = bool(enabled)
 
-    def _build_redamon_ctx(self, tool_name: str) -> str:
-        """Sign an X-Redamon-Ctx tag for the current tool call (plan §10.1/§20.4).
+    def _build_whitehat_ctx(self, tool_name: str) -> str:
+        """Sign an X-WhiteHat-Ctx tag for the current tool call (plan §10.1/§20.4).
 
         The agent holds INTERNAL_API_KEY and signs here; the kali MCP server only
         carries the opaque token (adds the proxy flag + header when routing), so
@@ -2178,7 +2178,7 @@ class PhaseAwareToolExecutor:
         from ContextVars, never from LLM args. Returns "" if we can't/shouldn't tag.
         """
         try:
-            from redamon_ctx import sign_tag
+            from whitehat_ctx import sign_tag
             key = os.environ.get("INTERNAL_API_KEY", "")
             if not key:
                 return ""
@@ -2388,15 +2388,15 @@ class PhaseAwareToolExecutor:
             }
 
         # HTTP traffic capture (Phase 1): for target-facing tools, inject a signed,
-        # opaque X-Redamon-Ctx tag as a stripped arg the LLM never sees. The kali
+        # opaque X-WhiteHat-Ctx tag as a stripped arg the LLM never sees. The kali
         # MCP tool turns it into the proxy flag + header ONLY when the proxy is
         # reachable (§20.2 no-leak). Gated on the per-project capture flag; NEVER
         # added to API-key/OSINT tools (§15.4).
         if (tool_name in _CAPTURE_ROUTED_TOOLS
                 and bool(get_setting('CAPTURE_PROXY_ENABLED', False))):
-            _redamon_ctx = self._build_redamon_ctx(tool_name)
-            if _redamon_ctx:
-                tool_args = {**tool_args, "_redamon_ctx": _redamon_ctx}
+            _whitehat_ctx = self._build_whitehat_ctx(tool_name)
+            if _whitehat_ctx:
+                tool_args = {**tool_args, "_whitehat_ctx": _whitehat_ctx}
 
         # Opt-in authenticated identity for execute_curl. Injected here so the raw
         # session value never reaches the LLM (mirrors the ctx tag), and only for
@@ -2404,19 +2404,19 @@ class PhaseAwareToolExecutor:
         if tool_name == "execute_curl":
             tool_args = _maybe_attach_curl_session(tool_args)
 
-        # proxy_brain: the signed tenant/session tag is how its kali `redamon` SDK
+        # proxy_brain: the signed tenant/session tag is how its kali `whitehat` SDK
         # reaches the corpus (/traffic/exec) and the replay path (/traffic/replay),
         # so it is injected UNCONDITIONALLY — independent of the capture-proxy
         # toggle — and the LLM never sees it. Fail closed if we can't mint it: a
         # tag-less run would be a request the agent cannot tenant-scope.
         if tool_name == "proxy_brain":
-            _pb_ctx = self._build_redamon_ctx("proxy_brain")
+            _pb_ctx = self._build_whitehat_ctx("proxy_brain")
             if not _pb_ctx:
                 return {
                     "success": False, "output": None,
                     "error": "proxy_brain: no tenant/session context — cannot mint the traffic tag.",
                 }
-            tool_args = {**tool_args, "_redamon_ctx": _pb_ctx}
+            tool_args = {**tool_args, "_whitehat_ctx": _pb_ctx}
 
         # Dispatch logic pulled into a closure so we can re-invoke with a
         # fresh tool reference after an MCP reconnect.

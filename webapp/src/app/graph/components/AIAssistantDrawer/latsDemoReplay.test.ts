@@ -6,7 +6,7 @@
  * the backend persists and what the UI renders, for all 7 states at once.
  *
  * Fixture is exported from the DB to webapp/.lats_demo_fixture.json:
- *   docker exec redamon-postgres psql ... > webapp/.lats_demo_fixture.json
+ *   docker exec whitehat-postgres psql ... > webapp/.lats_demo_fixture.json
  *
  * Run: npx vitest run --no-file-parallelism \
  *   src/app/graph/components/AIAssistantDrawer/latsDemoReplay.test.ts

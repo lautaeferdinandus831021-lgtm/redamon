@@ -10,7 +10,7 @@ description: >
   community-skills catalog or its README.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [agentic]
   auto_invoke:

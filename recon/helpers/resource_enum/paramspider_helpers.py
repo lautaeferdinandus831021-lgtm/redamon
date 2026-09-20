@@ -1,5 +1,5 @@
 """
-RedAmon - ParamSpider Helpers
+WhiteHat - ParamSpider Helpers
 =============================
 Passive URL parameter discovery from Wayback Machine using ParamSpider.
 """
@@ -18,8 +18,8 @@ from .gau_helpers import parse_gau_url_to_endpoint
 
 
 def _create_temp_dir() -> Path:
-    """Create a temp directory under /tmp/redamon for ParamSpider output files."""
-    temp_dir = Path(f"/tmp/redamon/.paramspider_{uuid.uuid4().hex[:8]}")
+    """Create a temp directory under /tmp/whitehat for ParamSpider output files."""
+    temp_dir = Path(f"/tmp/whitehat/.paramspider_{uuid.uuid4().hex[:8]}")
     temp_dir.mkdir(parents=True, exist_ok=True)
     return temp_dir
 

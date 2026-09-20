@@ -1,5 +1,5 @@
 #!/bin/bash
-# RedAmon Reconnaissance Module - Docker Entrypoint
+# WhiteHat Reconnaissance Module - Docker Entrypoint
 # ==================================================
 # Handles initialization and executes the recon pipeline
 
@@ -109,24 +109,24 @@ IMAGES=(
     "projectdiscovery/uncover:latest"
     "dolevf/graphql-cop:1.14"
     "ghcr.io/zaproxy/zaproxy:stable"
-    "redamon-wcvs:latest"
+    "whitehat-wcvs:latest"
     # Locally built, like WCVS. It was absent from this list entirely, so a
     # missing baddns image was discovered mid-scan rather than at startup where
     # every other tool's is.
-    "redamon-baddns:latest"
+    "whitehat-baddns:latest"
 )
 
 for IMAGE in "${IMAGES[@]}"; do
     if docker images -q "$IMAGE" 2>/dev/null | grep -q .; then
         echo -e "${GREEN}[+] $IMAGE already pulled${NC}"
-    elif [[ "$IMAGE" == redamon-* ]]; then
+    elif [[ "$IMAGE" == whitehat-* ]]; then
         # Locally-built image (WCVS, BadDNS) — never pull from a registry.
         # The compose SERVICE name is not the image name, so it is looked up
-        # rather than derived: `redamon-baddns` builds from `baddns-scanner`.
+        # rather than derived: `whitehat-baddns` builds from `baddns-scanner`.
         case "$IMAGE" in
-            redamon-wcvs:*)   SERVICE="wcvs" ;;
-            redamon-baddns:*) SERVICE="baddns-scanner" ;;
-            *)                SERVICE="${IMAGE#redamon-}"; SERVICE="${SERVICE%%:*}" ;;
+            whitehat-wcvs:*)   SERVICE="wcvs" ;;
+            whitehat-baddns:*) SERVICE="baddns-scanner" ;;
+            *)                SERVICE="${IMAGE#whitehat-}"; SERVICE="${SERVICE%%:*}" ;;
         esac
         echo -e "${YELLOW}[!] $IMAGE not found locally — build with: docker compose --profile tools build ${SERVICE}${NC}"
     else

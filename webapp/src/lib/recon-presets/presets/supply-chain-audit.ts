@@ -21,7 +21,7 @@ The verdict step is **fully offline** - it reads a local OSV database volume and
 The offline OSV database must be populated once on the host:
 
 \`\`\`bash
-./redamon.sh supply-chain-sync npm     # add PyPI, Go, ... as needed
+./whitehat.sh supply-chain-sync npm     # add PyPI, Go, ... as needed
 \`\`\`
 
 Without it the scan reports a clear error instead of a misleading clean result. After that, the feed auto-refreshes when it is older than 24h.

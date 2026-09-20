@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature or enhancement for RedAmon
+description: Suggest a new feature or enhancement for WhiteHat
 title: "[Feature] "
 labels: ["enhancement"]
 body:
@@ -7,7 +7,7 @@ body:
     id: component
     attributes:
       label: Component
-      description: Which part of RedAmon would this affect?
+      description: Which part of WhiteHat would this affect?
       options:
         - webapp (Next.js frontend)
         - recon-orchestrator (Python backend)

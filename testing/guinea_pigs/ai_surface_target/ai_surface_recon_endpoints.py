@@ -80,7 +80,7 @@ def _body(d):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "RedAmonAISurfaceTarget/1.0"
+    server_version = "WhiteHatAISurfaceTarget/1.0"
 
     def log_message(self, *a):  # silence
         pass

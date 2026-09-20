@@ -14,7 +14,7 @@ We DO test:
   - Status + size are returned for an HTTPS endpoint
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_tls_smoke.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_tls_smoke.py -v
 """
 
 from __future__ import annotations

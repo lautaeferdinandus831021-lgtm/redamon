@@ -1,7 +1,7 @@
 """
 Cache Poisoning Scanner — main orchestrator.
 
-Runs the WCVS breadth engine + the RedAmon-native 5-phase confirmation engine and
+Runs the WCVS breadth engine + the WhiteHat-native 5-phase confirmation engine and
 writes combined_result["cache_scan"]. Registered in GROUP 6 Phase A of the recon
 pipeline (recon/main.py) via run_cache_scan_isolated, alongside Nuclei and GraphQL.
 
@@ -42,7 +42,7 @@ def _build_retry_session(retry_count: int = 1, backoff: float = 0.5) -> requests
     session = requests.Session()
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    session.headers.update({"User-Agent": "RedAmon-CachePoison/1.0"})
+    session.headers.update({"User-Agent": "WhiteHat-CachePoison/1.0"})
     return session
 
 
@@ -153,7 +153,7 @@ def run_cache_scan(combined_result: dict, settings: dict) -> dict:
         "scan_timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "duration_seconds": duration,
         "engine": "wcvs+native-confirm",
-        "docker_image": settings.get("WEB_CACHE_POISON_DOCKER_IMAGE", "redamon-wcvs:latest"),
+        "docker_image": settings.get("WEB_CACHE_POISON_DOCKER_IMAGE", "whitehat-wcvs:latest"),
         "scan_profile": settings.get("WEB_CACHE_POISON_SCAN_PROFILE", "safe-confirm"),
         "min_confidence": min_conf,
         "total_urls_scanned": len(target_urls),

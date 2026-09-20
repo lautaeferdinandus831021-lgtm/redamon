@@ -43,8 +43,8 @@ def deny(desc, body, must_mention=None):
 NAABU = "projectdiscovery/naabu:latest"
 
 print("=== T1/T2: compound mode fields (SELinux :z/:Z relabel suffixes) ===")
-broker.ALLOWED_BIND_PREFIXES = ["/tmp/redamon", "/repo"]
-broker.ALLOWED_RW_PREFIXES = ["/tmp/redamon"]
+broker.ALLOWED_BIND_PREFIXES = ["/tmp/whitehat", "/repo"]
+broker.ALLOWED_RW_PREFIXES = ["/tmp/whitehat"]
 # ':ro,z' must still read as read-only -> source-tree bind allowed
 allow("source tree ro,z (relabel + ro)",
       {"Image": NAABU, "HostConfig": {"Binds": ["/repo/recon:/app:ro,z"]}})
@@ -57,7 +57,7 @@ deny("source tree rw,z (relabel + rw)",
 deny("source tree Z-only (relabel, implicit rw)",
      {"Image": NAABU, "HostConfig": {"Binds": ["/repo/recon:/app:Z"]}}, "read-write")
 # scratch prefix rw,z stays allowed
-allow("scratch rw,z", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/o:/o:rw,z"]}})
+allow("scratch rw,z", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/o:/o:rw,z"]}})
 
 print("=== T1/T2: ALLOWED_RW_VOLUMES gate for named volumes ===")
 broker.ALLOWED_VOLUMES = {"nuclei-templates", "writable-vol"}
@@ -79,22 +79,22 @@ broker.ALLOWED_VOLUMES = {"nuclei-templates"}
 broker.ALLOWED_RW_VOLUMES = set()
 
 print("=== T1/T2: helper units ===")
-broker.ALLOWED_RW_PREFIXES = ["/tmp/redamon"]
+broker.ALLOWED_RW_PREFIXES = ["/tmp/whitehat"]
 check("_bind_is_readonly('ro') True", broker._bind_is_readonly("ro") is True)
 check("_bind_is_readonly('rw') False", broker._bind_is_readonly("rw") is False)
 check("_bind_is_readonly('') False (default rw)", broker._bind_is_readonly("") is False)
 check("_bind_is_readonly('ro,z') True", broker._bind_is_readonly("ro,z") is True)
 check("_bind_is_readonly('z,ro') True", broker._bind_is_readonly("z,ro") is True)
 check("_bind_is_readonly('Z') False", broker._bind_is_readonly("Z") is False)
-check("_rw_host_path_allowed('/tmp/redamon/x') True", broker._rw_host_path_allowed("/tmp/redamon/x") is True)
-check("_rw_host_path_allowed('/tmp/redamon') True (exact)", broker._rw_host_path_allowed("/tmp/redamon") is True)
+check("_rw_host_path_allowed('/tmp/whitehat/x') True", broker._rw_host_path_allowed("/tmp/whitehat/x") is True)
+check("_rw_host_path_allowed('/tmp/whitehat') True (exact)", broker._rw_host_path_allowed("/tmp/whitehat") is True)
 check("_rw_host_path_allowed('/repo/recon') False", broker._rw_host_path_allowed("/repo/recon") is False)
 # a traversal that normalizes out of the rw prefix must NOT be treated as rw-allowed
 check("_rw_host_path_allowed traversal escapes -> False",
-      broker._rw_host_path_allowed("/tmp/redamon/../etc") is False)
-# a sibling that merely shares the prefix string must not match (/tmp/redamon-evil)
+      broker._rw_host_path_allowed("/tmp/whitehat/../etc") is False)
+# a sibling that merely shares the prefix string must not match (/tmp/whitehat-evil)
 check("_rw_host_path_allowed prefix-adjacent sibling -> False",
-      broker._rw_host_path_allowed("/tmp/redamon-evil/x") is False)
+      broker._rw_host_path_allowed("/tmp/whitehat-evil/x") is False)
 
 
 def test_all_policy_checks_pass():

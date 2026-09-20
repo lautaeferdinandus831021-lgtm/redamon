@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
 NEO4J_USER = os.environ.get("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "redamon_neo4j")
+NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "whitehat_neo4j")
 
 
 class TriageNeo4jToolManager:

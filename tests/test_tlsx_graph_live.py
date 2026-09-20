@@ -14,7 +14,7 @@ Skipped unless the neo4j driver is importable AND a database answers. To run it:
   docker run --rm --network host -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://localhost:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_tlsx_graph_live -v
+    whitehat-agent python -m unittest tests.test_tlsx_graph_live -v
 
 Everything is scoped to throwaway project ids and deleted in tearDown, so it is
 safe against a populated database.

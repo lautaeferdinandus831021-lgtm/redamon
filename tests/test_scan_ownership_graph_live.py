@@ -12,7 +12,7 @@ Skipped unless the neo4j driver is importable AND a database answers. To run it:
   docker run --rm --network host -v "$PWD:/repo" -w /repo \\
     -e PYTHONPATH=/repo -e NEO4J_URI=bolt://localhost:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_scan_ownership_graph_live -v
+    whitehat-agent python -m unittest tests.test_scan_ownership_graph_live -v
 
 Everything it creates is scoped to throwaway project ids and a reserved CVE id,
 and is deleted in tearDown, so it is safe against a populated database.
@@ -271,7 +271,7 @@ class TestReferenceTenantStripMigration(LiveGraphCase):
             "CREATE (c:CVE {id:$c, user_id:'legacy', project_id:'legacy'})", c=self.cve)
         # The marker is written once per database; drop it so the step runs here.
         self.session.run(
-            "MATCH (m:RedamonSchemaMigration {id:'strip-reference-node-tenant-v1'}) DELETE m")
+            "MATCH (m:WhiteHatSchemaMigration {id:'strip-reference-node-tenant-v1'}) DELETE m")
         strip_reference_node_tenant(self.session)
         row = self.session.run(
             "MATCH (c:CVE {id:$c}) RETURN c.user_id AS u, c.project_id AS p",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-file-isolated pytest runner (the RedAmon test gate engine).
+"""Per-file-isolated pytest runner (the WhiteHat test gate engine).
 
 Runs each test FILE in its own pytest subprocess, in parallel, and aggregates
 the results. This reproduces the isolation the legacy per-file
@@ -104,7 +104,7 @@ def collect_files(testpaths, want, exclude=()):
     return sorted(set(files))
 
 
-_PER_FILE_TIMEOUT = int(os.environ.get("REDAMON_TEST_FILE_TIMEOUT", "600"))
+_PER_FILE_TIMEOUT = int(os.environ.get("WHITEHAT_TEST_FILE_TIMEOUT", "600"))
 
 
 # The pytest marker expression for a tier. Mirrors the conftest auto-marking, so
@@ -135,7 +135,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("tier", choices=["unit", "integration", "live", "all"])
     ap.add_argument("testdirs", nargs="+", help="directories and/or explicit test files")
-    ap.add_argument("--parallel", type=int, default=int(os.environ.get("REDAMON_TEST_PARALLEL", "8")))
+    ap.add_argument("--parallel", type=int, default=int(os.environ.get("WHITEHAT_TEST_PARALLEL", "8")))
     ap.add_argument("--cov", default=None, help="package/path to measure coverage for")
     ap.add_argument("--cov-floor", type=float, default=None)
     ap.add_argument("--exclude", default="", help="comma-separated basenames to skip")
@@ -150,7 +150,7 @@ def main() -> int:
     # Coverage: run SERIALLY with --cov-append into one data file (parallel
     # appends can corrupt it), then report + enforce the floor.
     if args.cov:
-        cov_file = os.environ.get("COVERAGE_FILE", "/tmp/redamon.coverage")
+        cov_file = os.environ.get("COVERAGE_FILE", "/tmp/whitehat.coverage")
         for suffix in ("", *(f".{i}" for i in range(64))):
             try:
                 os.remove(cov_file + suffix)

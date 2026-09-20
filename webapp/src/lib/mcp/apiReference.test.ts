@@ -47,13 +47,13 @@ import { buildMcpServer } from './server'
 import { API_REFERENCE_PAGE, exampleArgs, listAdvertisedTools, renderApiReference, toolScopes } from './apiReference'
 
 const WIKI_DIR = process.env.MCP_DOCS_WIKI_DIR
-  || fileURLToPath(new URL('../../../../redamon.wiki/', import.meta.url))
+  || fileURLToPath(new URL('../../../../whitehat.wiki/', import.meta.url))
 const WRITE = process.env.MCP_DOCS_WRITE === '1'
 
 /**
  * A real wiki checkout, not merely the directory. The main repo records the wiki
  * as a submodule pointer with no .gitmodules, so a fresh clone creates
- * redamon.wiki/ EMPTY: checking the directory alone compared an empty page
+ * whitehat.wiki/ EMPTY: checking the directory alone compared an empty page
  * against the render and failed on every fresh clone.
  */
 const hasWikiCheckout = () => existsSync(path.join(WIKI_DIR, 'Home.md'))
@@ -214,7 +214,7 @@ describe(`the wiki page (${API_REFERENCE_PAGE})`, () => {
 
   test.runIf(WRITE)('is written', () => {
     if (!hasWikiCheckout()) {
-      throw new Error(`No wiki checkout at ${WIKI_DIR}. Clone redamon.wiki there or set MCP_DOCS_WIKI_DIR.`)
+      throw new Error(`No wiki checkout at ${WIKI_DIR}. Clone whitehat.wiki there or set MCP_DOCS_WIKI_DIR.`)
     }
     writeFileSync(pagePath, renderApiReference(tools))
     console.info(`[docs:mcp] wrote ${pagePath}`)

@@ -1,12 +1,12 @@
 """
-Web Cache Poisoning Scanner package for RedAmon.
+Web Cache Poisoning Scanner package for WhiteHat.
 
 Active GROUP 6 vulnerability scanner that detects web cache poisoning and web
 cache deception. Two stacked engines:
 
   Phase 1 (breadth)   WCVS (Hackmanit Web Cache Vulnerability Scanner), run
                       docker-in-docker, for wide technique coverage.
-  Phase 2 (depth)     RedAmon-native 5-phase confirmation engine:
+  Phase 2 (depth)     WhiteHat-native 5-phase confirmation engine:
                         1. cache oracle      (is there a cache? hit/miss signal)
                         2. cache-buster      (safe isolated test placement)
                         3. hypotheses        (generic + framework packs)

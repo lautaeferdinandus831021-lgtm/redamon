@@ -9,7 +9,7 @@
  *
  * Kept as a tiny pure module so it can be unit-tested without React.
  */
-const KEY_PREFIX = 'redamon-current-session-'
+const KEY_PREFIX = 'whitehat-current-session-'
 
 function keyFor(projectId: string): string {
   return KEY_PREFIX + projectId

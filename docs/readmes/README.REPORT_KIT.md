@@ -1,4 +1,4 @@
-# RedAmon Report Discipline (report_kit)
+# WhiteHat Report Discipline (report_kit)
 
 The evidence bar the agent is held to while it investigates and when it writes
 up: never invent facts, never claim impact that was not demonstrated, prove the
@@ -7,7 +7,7 @@ primitive instead of exercising it, and score CVSS 3.1 with base metrics only.
 It follows the model of YesWeHack's
 [claude-kit](https://github.com/yeswehack/claude-kit) — an always-on discipline
 layer plus on-demand `write` / `triage` / `gotchas` skills — implemented
-agent-side so it needs no new dependency in the baked `redamon-agent` image and
+agent-side so it needs no new dependency in the baked `whitehat-agent` image and
 no external service to work.
 
 ```
@@ -96,15 +96,15 @@ service has an `env_file`, so a value set in `.env` reaches it:
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `REDAMON_REPORT_DISCIPLINE` | `true` | Inject the always-on rules into the think prompt |
-| `REDAMON_REPORT_DISCIPLINE_REPORT_BLOCK` | `true` | Append structure + gotchas to the report prompt |
-| `REDAMON_REPORT_DISCIPLINE_AUTOCHECK` | `true` | Append the machine self-check to the finished report |
-| `REDAMON_REPORT_DISCIPLINE_MAX_FLAGS` | `12` | Cap on flags the self-check renders |
+| `WHITEHAT_REPORT_DISCIPLINE` | `true` | Inject the always-on rules into the think prompt |
+| `WHITEHAT_REPORT_DISCIPLINE_REPORT_BLOCK` | `true` | Append structure + gotchas to the report prompt |
+| `WHITEHAT_REPORT_DISCIPLINE_AUTOCHECK` | `true` | Append the machine self-check to the finished report |
+| `WHITEHAT_REPORT_DISCIPLINE_MAX_FLAGS` | `12` | Cap on flags the self-check renders |
 
 ## Testing
 
 ```bash
-./agentic/run_tests.sh              # the gate, inside redamon-agent
+./agentic/run_tests.sh              # the gate, inside whitehat-agent
 ```
 
 * `tests/test_report_kit.py` — the rules text, the class reference and its

@@ -88,13 +88,13 @@ Inference signals to mine:
 
 If HTTP Traffic Capture is enabled, source and drive these probes from the recorded `/graphql` POSTs instead of rebuilding queries by hand. proxy_brain tools only see traffic that went through the capture proxy, so run the app's GraphQL calls through it first.
 
-- `redamon.search({"q":"graphql","method":"POST"})` lists the captured operations; `redamon.get(id,"both")` shows the exact query body and auth context to mutate.
-- Aliased dual-fetch auth-swap: take a captured single-object query and replay it with both aliases plus a swapped identity: `redamon.replay(<query_txn>, {"body":"{\"query\":\"query { own: order(id:\\\"OWN\\\"){id owner{email}} foreign: order(id:\\\"FOREIGN\\\"){id owner{email}} }\"}","headers":{"Authorization":"Bearer <userB>"}})`, then `redamon.diff(<owner_txn>, <replay_txn>)` to prove missing per-edge authorization.
-- Body-mutation probes on a captured POST: over-posting (add `isAdmin:true` / `role:"admin"` / `tenantId` to the input object), the federation `_entities` probe, and persisted-query replay all go through `redamon.replay(<graphql_txn>, {"body":"<mutated JSON>"})`, one shape per replay.
-- `redamon.grep("persistedQuery")` and `redamon.grep("sha256Hash")` pull persisted-query hashes out of captured JS bundles / responses, feeding the persisted-query replay in the attack matrix.
-- `redamon.to_curl(id)` renders the winning operation for the report.
+- `whitehat.search({"q":"graphql","method":"POST"})` lists the captured operations; `whitehat.get(id,"both")` shows the exact query body and auth context to mutate.
+- Aliased dual-fetch auth-swap: take a captured single-object query and replay it with both aliases plus a swapped identity: `whitehat.replay(<query_txn>, {"body":"{\"query\":\"query { own: order(id:\\\"OWN\\\"){id owner{email}} foreign: order(id:\\\"FOREIGN\\\"){id owner{email}} }\"}","headers":{"Authorization":"Bearer <userB>"}})`, then `whitehat.diff(<owner_txn>, <replay_txn>)` to prove missing per-edge authorization.
+- Body-mutation probes on a captured POST: over-posting (add `isAdmin:true` / `role:"admin"` / `tenantId` to the input object), the federation `_entities` probe, and persisted-query replay all go through `whitehat.replay(<graphql_txn>, {"body":"<mutated JSON>"})`, one shape per replay.
+- `whitehat.grep("persistedQuery")` and `whitehat.grep("sha256Hash")` pull persisted-query hashes out of captured JS bundles / responses, feeding the persisted-query replay in the attack matrix.
+- `whitehat.to_curl(id)` renders the winning operation for the report.
 
-Caveat: redamon.replay pins host/scheme/port to the origin, so probing a subgraph on a different internal host, or the WebSocket subscription transport, still needs execute_curl / execute_code. redamon.fuzz only iterates a query-string parameter, so alias / batch brute force is done by iterating redamon.replay bodies.
+Caveat: whitehat.replay pins host/scheme/port to the origin, so probing a subgraph on a different internal host, or the WebSocket subscription transport, still needs execute_curl / execute_code. whitehat.fuzz only iterates a query-string parameter, so alias / batch brute force is done by iterating whitehat.replay bodies.
 
 ## Attack matrix
 

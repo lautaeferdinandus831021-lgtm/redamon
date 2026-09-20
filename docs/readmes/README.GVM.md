@@ -27,9 +27,9 @@
 3. **Compliance Checking** - Validates against security standards (CIS, DISA STIG)
 4. **Risk Assessment** - Assigns severity scores (CVSS) to findings
 
-### RedAmon Integration
+### WhiteHat Integration
 
-RedAmon uses GVM in **headless API mode** (no web GUI) to:
+WhiteHat uses GVM in **headless API mode** (no web GUI) to:
 - Consume reconnaissance data (IPs, hostnames from recon output)
 - Automatically create scan targets and tasks via the Python GMP API
 - Execute vulnerability scans and stream logs in real-time to the webapp
@@ -38,7 +38,7 @@ RedAmon uses GVM in **headless API mode** (no web GUI) to:
 
 **Webapp integration:** GVM scans are triggered from the Graph page via a dedicated "GVM Scan" button. The button is only enabled when recon data exists for the project. Logs stream in real-time to a log drawer with 4-phase progress (Loading Recon Data → Connecting to GVM → Scanning IPs → Scanning Hostnames). Results can be downloaded as JSON from the toolbar.
 
-**Architecture:** The scan flow mirrors the recon pipeline: Webapp API → Recon Orchestrator → Docker container (`redamon-vuln-scanner`) → SSE log streaming → graph update.
+**Architecture:** The scan flow mirrors the recon pipeline: Webapp API → Recon Orchestrator → Docker container (`whitehat-vuln-scanner`) → SSE log streaming → graph update.
 
 > **Note:** The GVM infrastructure (`docker-compose.yml` for gvmd, ospd-openvas, redis, pg-gvm, etc.) is located in the `scanners/gvm_scan/` directory and runs separately. The Python scanner container is built and managed by the main `docker-compose.yml` at the project root.
 
@@ -50,7 +50,7 @@ RedAmon uses GVM in **headless API mode** (no web GUI) to:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              RedAmon GVM Architecture                               │
+│                              WhiteHat GVM Architecture                               │
 ├─────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                     │
 │   ┌─────────────────┐                                                               │
@@ -61,7 +61,7 @@ RedAmon uses GVM in **headless API mode** (no web GUI) to:
 │            ▼                                                                        │
 │   ┌─────────────────┐     Unix Socket      ┌─────────────────┐                      │
 │   │  PYTHON SCANNER │────────────────────▶│      GVMD       │                      │
-│   │   (redamon-     │   GMP Protocol       │   (Manager)     │                      │
+│   │   (whitehat-     │   GMP Protocol       │   (Manager)     │                      │
 │   │  vuln-scanner)  │   /run/gvmd/         │                 │                      │
 │   └─────────────────┘   gvmd.sock          └────────┬────────┘                      │
 │            │                                        │                               │
@@ -104,7 +104,7 @@ RedAmon uses GVM in **headless API mode** (no web GUI) to:
 
 ### Runtime Containers (Always Running)
 
-#### 1. **redamon-gvm-gvmd** (Greenbone Vulnerability Manager Daemon)
+#### 1. **whitehat-gvm-gvmd** (Greenbone Vulnerability Manager Daemon)
 
 | Property | Value |
 |----------|-------|
@@ -136,7 +136,7 @@ gvmd (main process)
 
 ---
 
-#### 2. **redamon-gvm-ospd** (OSPd-OpenVAS Scanner Daemon)
+#### 2. **whitehat-gvm-ospd** (OSPd-OpenVAS Scanner Daemon)
 
 | Property | Value |
 |----------|-------|
@@ -176,7 +176,7 @@ security_opt:
 
 ---
 
-#### 3. **redamon-gvm-postgres** (PostgreSQL Database)
+#### 3. **whitehat-gvm-postgres** (PostgreSQL Database)
 
 | Property | Value |
 |----------|-------|
@@ -205,7 +205,7 @@ security_opt:
 
 ---
 
-#### 4. **redamon-gvm-redis** (Redis Cache)
+#### 4. **whitehat-gvm-redis** (Redis Cache)
 
 | Property | Value |
 |----------|-------|
@@ -226,7 +226,7 @@ security_opt:
 
 ---
 
-#### 5. **redamon-gvm-notus-scanner** (Notus Scanner)
+#### 5. **whitehat-gvm-notus-scanner** (Notus Scanner)
 
 | Property | Value |
 |----------|-------|
@@ -730,7 +730,7 @@ GVM does **NOT calculate CVSS scores** - it retrieves pre-calculated scores from
 
 ### Feed Architecture in Docker
 
-RedAmon uses **data containers** that download feeds once and populate Docker volumes:
+WhiteHat uses **data containers** that download feeds once and populate Docker volumes:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -999,13 +999,13 @@ Unauthorized vulnerability scanning may violate:
 ## File Structure
 
 ```
-redamon/
+whitehat/
 ├── .env                              # Secrets (GVM_PASSWORD, NEO4J_PASSWORD, etc.)
 ├── docker-compose.yml                # Main stack (includes vuln-scanner build target)
 │
 ├── scanners/gvm_scan/
 │   ├── docker-compose.yml            # GVM infrastructure (gvmd, ospd-openvas, redis, pg-gvm)
-│   ├── Dockerfile                    # Python scanner image (redamon-vuln-scanner)
+│   ├── Dockerfile                    # Python scanner image (whitehat-vuln-scanner)
 │   ├── project_settings.py           # Per-project settings (fetched from webapp API)
 │   ├── __init__.py                   # Package marker
 │   ├── main.py                       # Entry point (reads PROJECT_ID from env)

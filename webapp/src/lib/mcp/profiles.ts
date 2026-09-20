@@ -8,7 +8,7 @@
  *    enrichment" does not have to work out that the safe answer is two read
  *    permissions and nothing else;
  *  - it selects the editorial lens of the generated onboarding pack, so the
- *    agent is taught the half of RedAmon its job actually uses.
+ *    agent is taught the half of WhiteHat its job actually uses.
  *
  * It is NEVER an authorization input. `resolveMcpToken`, `requireScope` and
  * every tool body read `scopes` and nothing else; a token's power is exactly its
@@ -249,7 +249,7 @@ export interface ProfileOnboarding {
   posture: string
   primaryLoop: LoopStep[]
   leansOn: LeansOn[]
-  /** The parts of RedAmon that are not this job, so the agent does not wander. */
+  /** The parts of WhiteHat that are not this job, so the agent does not wander. */
   ignore: string[]
   /** The output format this consumer expects. */
   reportAs: string
@@ -591,7 +591,7 @@ export const PROFILE_ONBOARDING: Record<ProfileId, ProfileOnboarding> = {
       'most serious findings with evidence, and an explicit section on what you could not see and ' +
       'why.',
     gotchas: [
-      'You cannot change what RedAmon points at, and you must not try. The scope was set by a human who confirmed the authorisation to scan this estate.',
+      'You cannot change what WhiteHat points at, and you must not try. The scope was set by a human who confirmed the authorisation to scan this estate.',
       'A freshly-started scan takes a long time. Poll the status rather than assuming it finished, and wait for the graph to settle before reading counts.',
       'Absence of findings in a layer that was never scanned is not a clean bill of health. Say which layers you actually have.',
     ],

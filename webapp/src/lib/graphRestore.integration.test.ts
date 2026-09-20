@@ -15,7 +15,7 @@
  * Skipped unless a Neo4j answers. To run it:
  *   docker run --rm --network host -v "$PWD/webapp:/app" -w /app \
  *     -e NEO4J_URI=bolt://localhost:7687 -e NEO4J_USER -e NEO4J_PASSWORD \
- *     --entrypoint sh redamon-webapp -c \
+ *     --entrypoint sh whitehat-webapp -c \
  *     'node_modules/.bin/vitest run src/lib/graphRestore.integration.test.ts'
  */
 import { describe, test, expect, beforeAll, afterAll, afterEach } from 'vitest'

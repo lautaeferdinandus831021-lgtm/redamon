@@ -1,5 +1,5 @@
 """
-RedAmon - VHost & SNI Enumeration Module
+WhiteHat - VHost & SNI Enumeration Module
 =========================================
 
 Discovers hidden virtual hosts on every target IP by sending crafted curl
@@ -81,7 +81,7 @@ def run_vhost_sni_enrichment(
     returns combined_result.
     """
     print("\n" + "=" * 70)
-    print("[*][VhostSni] RedAmon - VHost & SNI Enumeration")
+    print("[*][VhostSni] WhiteHat - VHost & SNI Enumeration")
     print("=" * 70)
 
     settings = settings or {}

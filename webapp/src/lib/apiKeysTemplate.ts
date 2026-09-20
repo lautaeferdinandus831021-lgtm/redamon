@@ -180,7 +180,7 @@ export function buildTemplate(
   }
 
   return {
-    _instructions: 'Fill in your API keys below. Each name is the one shown in Settings > API Keys. Leave empty strings for keys you don\'t use. For key rotation, add multiple keys to the array. Upload this file back to RedAmon at Settings > API Keys & Tunneling.',
+    _instructions: 'Fill in your API keys below. Each name is the one shown in Settings > API Keys. Leave empty strings for keys you don\'t use. For key rotation, add multiple keys to the array. Upload this file back to WhiteHat at Settings > API Keys & Tunneling.',
     keys,
     rotation,
     tunneling,

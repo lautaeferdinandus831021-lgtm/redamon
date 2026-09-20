@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS memories (
     created_at   REAL NOT NULL,
     updated_at   REAL NOT NULL,
     last_used_at REAL NOT NULL DEFAULT 0,
-    source       TEXT NOT NULL DEFAULT 'redamon',
+    source       TEXT NOT NULL DEFAULT 'whitehat',
     external_id  TEXT NOT NULL DEFAULT ''
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_memories_dedup
@@ -242,7 +242,7 @@ class MemoryStore:
         entities: Iterable[str] = (),
         tags: Iterable[str] = (),
         confidence: Optional[float] = None,
-        source: str = "redamon",
+        source: str = "whitehat",
         external_id: str = "",
     ) -> tuple[MemoryRecord, bool]:
         """Create or reinforce a memory. Returns (record, created).
@@ -279,7 +279,7 @@ class MemoryStore:
                         if confidence is None else max(0.0, min(1.0, confidence))
                     ),
                     state=STATE_CANDIDATE,
-                    source=source or "redamon",
+                    source=source or "whitehat",
                     external_id=external_id,
                 )
                 record.state = scoring.next_state(record.confidence, 0, 0.0)

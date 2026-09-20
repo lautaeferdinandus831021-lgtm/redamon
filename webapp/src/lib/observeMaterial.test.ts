@@ -20,7 +20,7 @@ describe('parseObservedMaterial', () => {
 
   test('drops a bad extra header but keeps good material', () => {
     const m = parseObservedMaterial(
-      { cookie: 'sid=a', extra: { 'X-Ok': 'v', 'Bad Name': 'v', 'x-redamon-ctx': 'x' } }, 'h')
+      { cookie: 'sid=a', extra: { 'X-Ok': 'v', 'Bad Name': 'v', 'x-whitehat-ctx': 'x' } }, 'h')
     expect(m?.cookie).toBe('sid=a')
     expect(m?.extra).toEqual({ 'X-Ok': 'v' })
   })

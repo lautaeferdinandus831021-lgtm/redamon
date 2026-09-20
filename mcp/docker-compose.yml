@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: kali-sandbox/Dockerfile
       network: host
-    container_name: redamon-kali
+    container_name: whitehat-kali
     dns:
       - 8.8.8.8
       - 8.8.4.4

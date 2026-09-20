@@ -44,7 +44,7 @@ class TestProjectIdInjection(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-inject-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-inject-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
 
@@ -101,7 +101,7 @@ class TestSymlinkTocTou(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-toctou-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-toctou-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
         agent_context.current_project_id.set("toctou")
@@ -145,7 +145,7 @@ class TestUnboundedCaches(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-leak-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-leak-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
         workspace_fs._last_read_contents.clear()
@@ -199,7 +199,7 @@ class TestEntryShapeContract(unittest.TestCase):
     EXPECTED_KEYS = {"name", "path", "isDir", "isSymlink", "size", "mtime"}
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-contract-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-contract-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
 
@@ -257,7 +257,7 @@ class TestFireteamContextIsolation(unittest.IsolatedAsyncioTestCase):
     """
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-fireteam-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-fireteam-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
         agent_context.current_project_id.set("")

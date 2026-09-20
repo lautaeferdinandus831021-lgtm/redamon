@@ -199,7 +199,7 @@ describe('POST /api/users/[id]/llm-providers — I1 ownership', () => {
   })
 })
 
-// Issue #173: an admin whose browser held a stale `redamon-current-user` wrote
+// Issue #173: an admin whose browser held a stale `whitehat-current-user` wrote
 // providers against a user id that no longer existed. The admin bypass let the
 // request through, prisma raised P2003 on user_llm_providers_user_id_fkey and the
 // catch-all turned it into an opaque 500 ("Failed to save provider" in the UI).

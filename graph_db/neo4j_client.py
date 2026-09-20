@@ -1,5 +1,5 @@
 """
-Neo4j Graph Database Client for RedAmon Reconnaissance Data
+Neo4j Graph Database Client for WhiteHat Reconnaissance Data
 
 Usage:
     from graph_db import Neo4jClient
@@ -22,7 +22,7 @@ from graph_db.mixins.supply_chain_mixin import SupplyChainMixin
 
 class Neo4jClient(BaseMixin, ReconMixin, GvmMixin, SecretMixin, OsintMixin, GraphQLMixin, CacheMixin, SupplyChainMixin):
     """
-    Public Neo4j client for RedAmon. All methods provided by mixins.
+    Public Neo4j client for WhiteHat. All methods provided by mixins.
 
     Connection lifecycle and schema initialization: BaseMixin
     Core recon pipeline (domain, IP, port, HTTP, vuln, resource): ReconMixin

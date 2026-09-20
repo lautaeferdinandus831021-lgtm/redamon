@@ -154,13 +154,13 @@ class ScoringTests(unittest.TestCase):
 
     def test_a_distilled_lesson_starts_above_a_raw_observation(self):
         lesson = scoring.initial_confidence(KIND_LESSON, "heuristic", "nuclei is unreliable here")
-        observation = scoring.initial_confidence(KIND_OBSERVATION, "redamon", "nuclei ran")
+        observation = scoring.initial_confidence(KIND_OBSERVATION, "whitehat", "nuclei ran")
         self.assertGreater(lesson, observation)
 
     def test_an_empty_memory_starts_weaker(self):
         self.assertLess(
-            scoring.initial_confidence(KIND_OBSERVATION, "redamon", "hi"),
-            scoring.initial_confidence(KIND_OBSERVATION, "redamon", "a real observation"),
+            scoring.initial_confidence(KIND_OBSERVATION, "whitehat", "hi"),
+            scoring.initial_confidence(KIND_OBSERVATION, "whitehat", "a real observation"),
         )
 
     def test_weak_memory_is_archived_and_used_memory_becomes_active(self):
@@ -373,9 +373,9 @@ class ConfigTests(unittest.TestCase):
     def test_the_db_path_can_be_pinned(self):
         old = os.environ.get("MEMORY_DB_PATH")
         try:
-            os.environ["MEMORY_DB_PATH"] = "/tmp/redamon-memory-test.db"
+            os.environ["MEMORY_DB_PATH"] = "/tmp/whitehat-memory-test.db"
             from memory.config import load_config
-            self.assertEqual(load_config().db_path, "/tmp/redamon-memory-test.db")
+            self.assertEqual(load_config().db_path, "/tmp/whitehat-memory-test.db")
         finally:
             if old is None:
                 os.environ.pop("MEMORY_DB_PATH", None)

@@ -21,8 +21,8 @@ import { signIn, mintToken } from './auth'
  * Run: cd testing/e2e && npx playwright test trufflehogGitlab
  */
 
-const PROJECT = process.env.REDAMON_PROJECT || 'e651f859c3114faf94196ab02'
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROJECT = process.env.WHITEHAT_PROJECT || 'e651f859c3114faf94196ab02'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 const TOKEN_KEY = 'trufflehogGitlabToken'
 const SOURCE = 'gitlab'
 const LABEL = 'GitLab'
@@ -63,22 +63,22 @@ test.beforeEach(async ({ context, baseURL, playwright }) => {
   // costs one request per test and makes each one independent of the last.
   const ctx = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   await ctx.put(`/api/users/${USER}/settings`, { data: { [TOKEN_KEY]: fixtureToken() } })
   await ctx.dispose()
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
   // ProjectProvider resolves the current project from localStorage first; without
   // it the graph header reads "No Project" and the Red Zone queries run with no
   // project id, so a populated table looks empty.
   await context.addInitScript(([u, p]) => {
-    localStorage.setItem('redamon-current-user', u)
-    localStorage.setItem('redamon-current-project', p)
+    localStorage.setItem('whitehat-current-user', u)
+    localStorage.setItem('whitehat-current-project', p)
   }, [USER, PROJECT])
 })
 
@@ -90,7 +90,7 @@ test.afterAll(async ({ playwright, baseURL }) => {
   // which is how a failed run leaves the account's real token cleared.
   const ctx = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await ctx.put(`/api/users/${USER}/settings`, {
     data: { [TOKEN_KEY]: fixtureToken() },

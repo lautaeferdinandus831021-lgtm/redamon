@@ -1,5 +1,5 @@
 """
-RedAmon - Project AuthProfile header builder
+WhiteHat - Project AuthProfile header builder
 =============================================
 Turns the project's single AuthProfile (manual entry or a recorded browser
 session) into HTTP headers for every recon tool and the agent.
@@ -9,7 +9,7 @@ Two controls live here and nowhere else, so every consumer gets them:
 * Sanitizing. A recorded value is target-controlled (the target sets the
   Set-Cookie) and ends up in each tool's ``-H``. Values carrying CR/LF split the
   request (header injection / smuggling), and hakrawler (``;;``) and arjun
-  (``\\n``) pack every header, including the internal ``X-Redamon-Ctx`` tag, into
+  (``\\n``) pack every header, including the internal ``X-WhiteHat-Ctx`` tag, into
   one joined argument, so those delimiters could split or spoof the tag. A bad
   value is rejected outright rather than stripped: a stripped cookie is a
   different, silently broken cookie.
@@ -37,7 +37,7 @@ _HEADER_NAME_RE = re.compile(r"^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$")
 _CONTROL_CHARS_RE = re.compile(r'[\x00-\x08\x0a-\x1f\x7f]')
 _TOOL_JOIN_DELIMITERS = (';;',)
 # Set only by the capture-proxy routing branch; a profile must never spoof it.
-_RESERVED_HEADER_NAMES = frozenset({'x-redamon-ctx'})
+_RESERVED_HEADER_NAMES = frozenset({'x-whitehat-ctx'})
 
 
 def mask_auth_value(auth_value: str, auth_type: str = '') -> str:
@@ -296,7 +296,7 @@ def merge_auth_headers(custom_headers: Optional[Iterable[str]], settings: Option
     out-of-scope host means no auth at all (fail closed), never a cross-origin
     leak. Auth lines go FIRST so a tool that packs headers into one delimited
     argument (hakrawler ``;;``, arjun ``\\n``) keeps them ahead of, and separate
-    from, the ``X-Redamon-Ctx`` tag it appends last.
+    from, the ``X-WhiteHat-Ctx`` tag it appends last.
     """
     base = [h for h in (custom_headers or []) if h]
     profile = profile_from_settings(settings)

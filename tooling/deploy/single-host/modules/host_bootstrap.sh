@@ -13,8 +13,8 @@
 bootstrap_base_packages() {
   step "Host bootstrap: base packages"
   # git-lfs intentionally NOT installed (.gitattributes only sets eol=lf, no LFS objects).
-  # `expect` drives redamon.sh's interactive admin prompt non-interactively during init.
-  # `make` is required by redamon.sh's KB bootstrap (make -C services/knowledge_base ...) when
+  # `expect` drives whitehat.sh's interactive admin prompt non-interactively during init.
+  # `make` is required by whitehat.sh's KB bootstrap (make -C services/knowledge_base ...) when
   # ENABLE_KB=true; without it the initial ingestion fails and the agent starts empty.
   install_if_missing git make openssl curl jq ca-certificates gnupg lsb-release expect
   success "Base packages present"
@@ -189,9 +189,9 @@ bootstrap_docker_dns() {
 }
 
 # --- 12. BuildKit cache cap (bound build-cache disk growth across updates) ---
-# redamon.sh reuses the build cache for fast incremental rebuilds, and since
+# whitehat.sh reuses the build cache for fast incremental rebuilds, and since
 # compose_build's Layer 3 it also drops the cache each build ORPHANS, so the
-# RedAmon-driven growth is already bounded. This ceiling is the second line of
+# WhiteHat-driven growth is already bounded. This ceiling is the second line of
 # defence: it covers cache the daemon accumulates outside those builds (other
 # projects, manual `docker build`) and caps the total regardless of what wrote
 # it. DOCKER_BUILD_CACHE_MAX_GB makes the daemon auto-GC to that size.
@@ -227,7 +227,7 @@ bootstrap_inotify_limits() {
   fi
   step "Host bootstrap: raising inotify limits"
   echo "fs.inotify.max_user_instances = ${want_instances}
-fs.inotify.max_user_watches = ${want_watches}" | run_sudo_tee /etc/sysctl.d/99-redamon.conf
+fs.inotify.max_user_watches = ${want_watches}" | run_sudo_tee /etc/sysctl.d/99-whitehat.conf
   run_sudo sysctl --system >/dev/null 2>&1 || true
   success "inotify limits raised"
 }

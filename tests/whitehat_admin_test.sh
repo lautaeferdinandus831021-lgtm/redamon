@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the admin-account creation logic in redamon.sh (issue #156).
+# Test suite for the admin-account creation logic in whitehat.sh (issue #156).
 #   - _wait_for_webapp        -> returns 0 when healthy, 1 on timeout (no dead-end)
 #   - _admin_exists           -> parses check-admin.mjs count robustly
 #   - _prompt_and_create_admin-> non-interactive env path + min-length gate
@@ -9,7 +9,7 @@
 #   - dispatch + help wiring   for `create-admin`
 #
 # Pure unit tests: `docker`/`sleep` are stubbed, no daemon needed, CI-friendly.
-# Run:  bash tests/redamon_admin_test.sh
+# Run:  bash tests/whitehat_admin_test.sh
 # =============================================================================
 set -uo pipefail
 
@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Source the script (BASH_SOURCE guard prevents command dispatch).
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -82,7 +82,7 @@ echo "== ensure_admin: webapp never ready -> actionable skip (points at create-a
 docker() { return 1; }   # health probe never succeeds -> _wait_for_webapp fails
 out="$(ensure_admin 2>&1)"; rc=$?
 assert_eq   "ensure_admin returns (does not abort the caller)" "$rc" "0"
-assert_true "tells the user to run create-admin" "echo \"\$out\" | grep -q './redamon.sh create-admin'"
+assert_true "tells the user to run create-admin" "echo \"\$out\" | grep -q './whitehat.sh create-admin'"
 assert_false "no cryptic dead-end 'skipping admin check'" "echo \"\$out\" | grep -qi 'skipping admin check'"
 unset -f docker
 
@@ -106,20 +106,20 @@ check_prerequisites() { :; }
 _wait_for_webapp() { return 1; }           # never comes up
 out="$(cmd_create_admin 2>&1)"; rc=$?
 assert_eq   "exits non-zero when webapp is down"     "$rc" "1"
-assert_true "tells the operator to start the stack"  "echo \"\$out\" | grep -q './redamon.sh up'"
+assert_true "tells the operator to start the stack"  "echo \"\$out\" | grep -q './whitehat.sh up'"
 unset -f print_banner check_prerequisites _wait_for_webapp
 
 echo "== dispatch + help wiring for create-admin =="
-SRC="$REPO_ROOT/redamon.sh"
+SRC="$REPO_ROOT/whitehat.sh"
 assert_true "dispatch has a create-admin) arm"       "grep -qE '^\s*create-admin\)\s*cmd_create_admin' '$SRC'"
 assert_true "cmd_create_admin is defined"            "grep -q '^cmd_create_admin()' '$SRC'"
 # Capture FIRST, then grep. Piping the script straight into `grep -q` is a race:
-# grep exits the instant it matches and closes the pipe, `redamon.sh help` is
+# grep exits the instant it matches and closes the pipe, `whitehat.sh help` is
 # still writing its ~40 lines and dies with SIGPIPE (141), and `set -o pipefail`
 # then reports the whole pipeline as failed. On an idle box the writer finishes
 # first and it passes; under load it loses the race. Measured before this fix:
 # 40/40 pass serially, 14/24 FAIL when run concurrently.
-HELP_OUT="$(cd "$REPO_ROOT" && ./redamon.sh help 2>/dev/null || true)"
+HELP_OUT="$(cd "$REPO_ROOT" && ./whitehat.sh help 2>/dev/null || true)"
 assert_true "help lists create-admin"                "echo \"\$HELP_OUT\" | grep -qi 'create-admin'"
 
 echo

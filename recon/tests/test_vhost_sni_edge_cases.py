@@ -41,7 +41,7 @@ Internal-keyword matching:
   - case insensitivity
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_edge_cases.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_edge_cases.py -v
 """
 
 from __future__ import annotations

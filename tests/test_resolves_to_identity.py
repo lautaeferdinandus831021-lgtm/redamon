@@ -208,7 +208,7 @@ class TestConsolidationMigration(unittest.TestCase):
 _WRITE = re.compile(
     r"^\s*(?P<verb>MERGE|CREATE)\b[^\n]*?-\[\s*\w*\s*:RESOLVES_TO\s*(?P<props>\{[^}]*\})?\s*\]",
     re.MULTILINE)
-_SKIP_DIRS = {"tests", "node_modules", "_local", ".next", ".git", "redamon.wiki"}
+_SKIP_DIRS = {"tests", "node_modules", "_local", ".next", ".git", "whitehat.wiki"}
 
 
 def _writers():

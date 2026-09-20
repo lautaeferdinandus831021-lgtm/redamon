@@ -1,4 +1,4 @@
-# RedAmon AI surface recon — guinea pig expected results
+# WhiteHat AI surface recon — guinea pig expected results
 #
 # This is the CONTRACT the e2e driver tests against. After a scan of the
 # guinea pig at 127.0.0.1 (ipMode=true, custom-ports + httpx-paths set from
@@ -61,7 +61,7 @@ disambiguate_skipped:
   - 8001   # triton-or-vllm
   - 8080   # open-webui — promoted via http_probe title regex instead, see below
   # NOTE: catalog ports 8000, 8002 and 3000 (also disambiguate) are NOT
-  # exercised here because Redamon services own them on the host:
+  # exercised here because WhiteHat services own them on the host:
   #   - 8000 / 8002: kali-sandbox MCP network-recon and nuclei
   #   - 3000:        webapp UI
   # The disambiguate behaviour is still validated against the listed ports

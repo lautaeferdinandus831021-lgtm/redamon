@@ -7,7 +7,7 @@
  * recon/main_recon_modules/supply_chain_recon.py, so casing matters: "pypi"
  * would silently filter everything out. These are the same names as
  * SEED_MANIFESTS in scanners/supply_chain_common/osv_db_sync.py - the only
- * ecosystems `./redamon.sh supply-chain-sync` can populate offline.
+ * ecosystems `./whitehat.sh supply-chain-sync` can populate offline.
  */
 export const SUPPLY_CHAIN_ECOSYSTEMS = [
   'npm',

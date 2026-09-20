@@ -1,5 +1,5 @@
 # ============================================
-# RedAmon Web Application - Production Dockerfile
+# WhiteHat Web Application - Production Dockerfile
 # Multi-stage build for optimized production image
 # ============================================
 
@@ -28,8 +28,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . ./
 
-ARG REDAMON_VERSION=0.0.0
-ENV NEXT_PUBLIC_REDAMON_VERSION=$REDAMON_VERSION
+ARG WHITEHAT_VERSION=0.0.0
+ENV NEXT_PUBLIC_WHITEHAT_VERSION=$WHITEHAT_VERSION
 # Single-origin deploy: bake the same-origin agent WebSocket URL so the browser
 # never targets a public :8090. NEXT_PUBLIC_* is inlined by Next.js at build time,
 # so this MUST be set before `npm run build`. Empty by default => runtime auto-detect

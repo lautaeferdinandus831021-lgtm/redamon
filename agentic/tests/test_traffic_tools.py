@@ -7,8 +7,8 @@ spec can't reach another table, add OR-escapes, or reference the tenant columns
 (project_id/user_id are hard-forced by the tool, NOT allowlisted here). Plus the
 curl-render shell-quoting and the param classifier.
 
-Runs in the redamon-agent image (needs psycopg + langchain_core):
-  docker run --rm --entrypoint python3 -v "$PWD:/work:ro" -w /work redamon-agent:latest \
+Runs in the whitehat-agent image (needs psycopg + langchain_core):
+  docker run --rm --entrypoint python3 -v "$PWD:/work:ro" -w /work whitehat-agent:latest \
     -m unittest agentic.tests.test_traffic_tools
 """
 from __future__ import annotations

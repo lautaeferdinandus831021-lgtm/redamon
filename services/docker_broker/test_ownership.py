@@ -47,7 +47,7 @@ async def mock_upstream(reader, writer):
     m = re.match(r"GET /(?:v[\d.]+/)?containers/([^/]+)/json", line)
     if m:
         cid = m.group(1)
-        labels = {"redamon.broker-owned": "1"} if "owned" in cid else {"role": "infra"}
+        labels = {"whitehat.broker-owned": "1"} if "owned" in cid else {"role": "infra"}
         body = json.dumps({"Config": {"Labels": labels}}).encode()
     else:
         body = b'{"Id":"deadbeef"}'
@@ -108,12 +108,12 @@ async def main():
         received.clear()
         await send(make_request("POST", "/v1.43/containers/create",
                                 {"Image": "projectdiscovery/naabu:latest"}))
-        check("create injects redamon.broker-owned label",
-              len(received) == 1 and b"redamon.broker-owned" in received[0])
+        check("create injects whitehat.broker-owned label",
+              len(received) == 1 and b"whitehat.broker-owned" in received[0])
 
         # test_exec_denied_on_unlabelled
         received.clear()
-        resp = await send(make_request("POST", "/v1.43/containers/redamon-recon-orchestrator/exec",
+        resp = await send(make_request("POST", "/v1.43/containers/whitehat-recon-orchestrator/exec",
                                        {"Cmd": ["sh"]}))
         check("exec on unlabelled infra -> 403", b"403" in resp)
         check("exec on unlabelled infra -> NOT forwarded", not _forwarded_op("/exec"))
@@ -126,13 +126,13 @@ async def main():
 
         # attach (hijack) on unlabelled -> denied
         received.clear()
-        resp = await send(make_request("POST", "/v1.43/containers/redamon-docker-broker/attach"))
+        resp = await send(make_request("POST", "/v1.43/containers/whitehat-docker-broker/attach"))
         check("attach on unlabelled infra -> 403", b"403" in resp)
         check("attach on unlabelled infra -> NOT forwarded", not _forwarded_op("/attach"))
 
         # kill on unlabelled -> denied; on labelled -> forwarded
         received.clear()
-        resp = await send(make_request("POST", "/v1.43/containers/redamon-postgres/kill"))
+        resp = await send(make_request("POST", "/v1.43/containers/whitehat-postgres/kill"))
         check("kill on unlabelled infra -> 403", b"403" in resp)
         received.clear()
         resp = await send(make_request("POST", "/v1.43/containers/owned-scan-9/kill"))
@@ -140,15 +140,15 @@ async def main():
 
         # archive read on unlabelled -> denied
         received.clear()
-        resp = await send(make_request("GET", "/v1.43/containers/redamon-agent/archive?path=/etc"))
+        resp = await send(make_request("GET", "/v1.43/containers/whitehat-agent/archive?path=/etc"))
         check("archive on unlabelled infra -> 403", b"403" in resp)
 
         # test_list_scoped_to_owned
         received.clear()
         await send(make_request("GET", "/v1.43/containers/json?all=1"))
         check("list forwarded with ownership label filter",
-              len(received) == 1 and b"redamon.broker-owned%3D1" in received[0] or
-              (len(received) == 1 and b"redamon.broker-owned=1" in received[0]))
+              len(received) == 1 and b"whitehat.broker-owned%3D1" in received[0] or
+              (len(received) == 1 and b"whitehat.broker-owned=1" in received[0]))
 
     print()
     print(f"RESULT: PASS={PASS} FAIL={FAIL}")

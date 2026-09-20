@@ -23,7 +23,7 @@ export function SettingsModal({
   updateProjectField,
 }: SettingsModalProps) {
   // Suggested LHOST for the Agent Behaviour form (issue #180). Fetch only while the
-  // agent modal is open; refetches each open so it tracks the last `redamon.sh up`.
+  // agent modal is open; refetches each open so it tracks the last `whitehat.sh up`.
   const detectedHostIp = useDetectedHostIp(settingsModal === 'agent')
   if (!settingsModal) return null
 

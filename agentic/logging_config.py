@@ -1,5 +1,5 @@
 """
-RedAmon Agent Logging Configuration
+WhiteHat Agent Logging Configuration
 
 Configures logging with file rotation, console output, and proper formatting.
 """
@@ -220,7 +220,7 @@ def setup_logging(
     log_to_file: bool = True,
 ) -> None:
     """
-    Configure logging for the RedAmon agent.
+    Configure logging for the WhiteHat agent.
 
     Args:
         log_level: Minimum log level for console output

@@ -1,22 +1,22 @@
 ---
-name: redamon-testing
+name: whitehat-testing
 description: >
-  How RedAmon tests actually run and how to author them: the per-file Docker
+  How WhiteHat tests actually run and how to author them: the per-file Docker
   gate, the unit/integration/live tiers, and the failure modes that make a
   green run a lie.
   Trigger: editing any test_*.py, *.test.ts(x) or tests/*.sh; a test that is
   red, skipped or xfailed; a request to "run the tests", "make it green" or
-  check coverage; editing redamon.sh cmd_test, tooling/scripts/pytest_isolated.py, any
+  check coverage; editing whitehat.sh cmd_test, tooling/scripts/pytest_isolated.py, any
   conftest.py or any pytest.ini.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [root]
   auto_invoke:
     - "Adding or editing a test file in any section"
     - "Investigating a red, skipped or xfailed test"
-    - "Changing test tiers, conftest.py, pytest.ini, or the runner in redamon.sh"
+    - "Changing test tiers, conftest.py, pytest.ini, or the runner in whitehat.sh"
     - "Checking or ratcheting a coverage floor"
 ---
 
@@ -38,7 +38,7 @@ in the root [AGENTS.md](../../AGENTS.md) CRITICAL RULES; this skill is everythin
   `langchain`/`langgraph` into `sys.modules` and bake tool objects against a fake
   `@tool` at import time, so whichever file collects first decides for all of
   them. You get **phantom failures in files you never touched** (classically
-  `a coroutine was expected, got <MagicMock>`). Run `./redamon.sh test`, or one
+  `a coroutine was expected, got <MagicMock>`). Run `./whitehat.sh test`, or one
   file / node id. The gate exists for this: [tooling/scripts/pytest_isolated.py](../../tooling/scripts/pytest_isolated.py)
   runs each FILE in its own subprocess.
 - **NEVER "fix" source because a test went red in a multi-file run.** Re-run that
@@ -60,7 +60,7 @@ in the root [AGENTS.md](../../AGENTS.md) CRITICAL RULES; this skill is everythin
   it `@pytest.mark.xfail(strict=True, reason=...)` and say so. Tests must not enshrine bugs.
 - **NEVER put a recon test in the root [tests/](../../tests/) folder.** Root
   `tests/` runs in the **agent** image; recon files there must be listed in
-  `_ROOT_RECON_TESTS` at [redamon.sh:4476](../../redamon.sh#L4476) or they run
+  `_ROOT_RECON_TESTS` at [whitehat.sh:4476](../../whitehat.sh#L4476) or they run
   against the wrong image and fail on imports. New recon tests go in [recon/tests/](../../recon/tests/).
 - **NEVER add a third-party import to a test without checking it is in the section
   image.** Only `pytest`, `pytest-cov`, `pytest-xdist`, `pytest-asyncio`
@@ -108,7 +108,7 @@ unit-named file really is skipped:
 | recon module / tool wrapper | `recon/tests/` | unit |
 | agent graph, nodes, tools, prompts | `agentic/tests/` | unit |
 | `graph_db`, `knowledge_base`, `supply_chain_*`, `mcp` | root `tests/` | unit |
-| `redamon.sh` / compose / deploy shell logic | `tests/*_test.sh` | bash, **in the gate** (`shell` section) |
+| `whitehat.sh` / compose / deploy shell logic | `tests/*_test.sh` | bash, **in the gate** (`shell` section) |
 | webapp React/TS | next to the source `*.test.ts(x)` | vitest |
 
 ---
@@ -116,9 +116,9 @@ unit-named file really is skipped:
 ## Commands
 
 ```bash
-./redamon.sh test                 # unit gate, every section + webapp vitest; must be 100% green
-./redamon.sh test all             # unit + integration (NOT live)
-./redamon.sh test coverage        # per-section floor via REDAMON_COV_FLOOR
+./whitehat.sh test                 # unit gate, every section + webapp vitest; must be 100% green
+./whitehat.sh test all             # unit + integration (NOT live)
+./whitehat.sh test coverage        # per-section floor via WHITEHAT_COV_FLOOR
 ./agentic/run_tests.sh            # agent section only; per-file isolated
 ./agentic/run_tests.sh tests/test_foo.py::TestX::test_y   # single node id (already isolated)
 ```
@@ -132,5 +132,5 @@ trusting "all green".
 
 - [docs/readmes/README.TESTING.md](../../docs/readmes/README.TESTING.md) - full testing guide + coverage ratchet
 - [tooling/scripts/pytest_isolated.py](../../tooling/scripts/pytest_isolated.py) - the per-file isolation gate
-- [redamon.sh:4479](../../redamon.sh#L4479) - `_TEST_SECTIONS`, section/image map, shell + webapp hooks
+- [whitehat.sh:4479](../../whitehat.sh#L4479) - `_TEST_SECTIONS`, section/image map, shell + webapp hooks
 - Related: root [AGENTS.md](../../AGENTS.md) for the host-pytest / Docker-gate rule

@@ -3,7 +3,7 @@
 # Issue #175: the browser -> agent WebSocket routing hint must survive a
 # PRODUCTION build and reach the browser.
 #
-# app/layout.tsx injects window.__REDAMON_WS__ from process.env (AGENT_WS_MODE /
+# app/layout.tsx injects window.__WHITEHAT_WS__ from process.env (AGENT_WS_MODE /
 # AGENT_WS_PORT / AGENT_WS_PUBLIC_URL). Every page under it is a 'use client'
 # shell, so unless the layout forces dynamic rendering Next prerenders them into
 # static .next/server/app/*.html at build time - where those vars do not exist -
@@ -51,10 +51,10 @@ if [[ -z "$HTML" ]]; then
     exit 0
 fi
 
-if grep -qF '__REDAMON_WS__' <<<"$HTML"; then
-    pass "served HTML carries window.__REDAMON_WS__"
+if grep -qF '__WHITEHAT_WS__' <<<"$HTML"; then
+    pass "served HTML carries window.__WHITEHAT_WS__"
 else
-    fail "served HTML has NO window.__REDAMON_WS__ (layout was prerendered at build time; issue #175)"
+    fail "served HTML has NO window.__WHITEHAT_WS__ (layout was prerendered at build time; issue #175)"
 fi
 
 # The hint is worthless if it does not carry the value the container is running

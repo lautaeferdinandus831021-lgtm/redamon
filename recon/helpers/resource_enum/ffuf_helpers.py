@@ -1,5 +1,5 @@
 """
-RedAmon - FFuf Directory Fuzzer Helpers for Resource Enumeration
+WhiteHat - FFuf Directory Fuzzer Helpers for Resource Enumeration
 ================================================================
 Active endpoint/directory discovery using FFuf (Fuzz Faster U Fool).
 Brute-forces common directory and file paths using wordlists to find
@@ -85,7 +85,7 @@ def _fuzz_single_target(
     from helpers.proxy_routing import get_capture_routing
     _cap_url, _cap_token = get_capture_routing("ffuf")
     if _cap_url and _cap_token:
-        cmd.extend(["-x", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_token}"])
+        cmd.extend(["-x", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_token}"])
 
     cmd.extend(["-of", "json", "-o", output_file])
     cmd.extend(["-s"])  # Silent mode (no banner/progress)
@@ -215,7 +215,7 @@ def run_ffuf_discovery(
     fuzz_targets = _build_fuzz_targets(target_urls, discovered_base_paths)
     print(f"[*][FFuf] Fuzz targets (root + base paths): {len(fuzz_targets)}")
 
-    output_dir = tempfile.mkdtemp(prefix="redamon_ffuf_")
+    output_dir = tempfile.mkdtemp(prefix="whitehat_ffuf_")
 
     try:
         effective_threads = max(threads // parallelism, 5)

@@ -17,7 +17,7 @@ import unittest
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Vulnerable guinea-pig targets are built for x86 on purpose and never ship.
-SKIP_DIRS = {".git", "node_modules", "guinea_pigs", ".next", "redamon.wiki"}
+SKIP_DIRS = {".git", "node_modules", "guinea_pigs", ".next", "whitehat.wiki"}
 
 _URL = re.compile(r"https?://\S+")
 _X86_ASSET = re.compile(r"amd64|x86_64|x86-64", re.IGNORECASE)

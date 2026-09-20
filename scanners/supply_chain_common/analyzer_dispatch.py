@@ -46,7 +46,7 @@ def _env(name, default):
 
 
 ANALYZER_IMAGE = _env("SUPPLY_CHAIN_ANALYZER_IMAGE",
-                      "redamon-supply-chain-analyzer:latest")
+                      "whitehat-supply-chain-analyzer:latest")
 
 # Modes scanners/supply_chain_analyzer/entrypoint.py understands.
 JOB_MODES = {"lockfile", "sbom", "dir", "js-dir", "purls"}
@@ -54,7 +54,7 @@ JOB_MODES = {"lockfile", "sbom", "dir", "js-dir", "purls"}
 # Dedicated bridge the analyzer runs on - the SAME name and driver the
 # orchestrator uses (ContainerManager._ensure_supply_chain_network).
 #
-# "Isolated" here means NO RedAmon SERVICE IS ATTACHED, not "no internet". That
+# "Isolated" here means NO WhiteHat SERVICE IS ATTACHED, not "no internet". That
 # is the documented CodeFix-sandbox pattern (README.TM.SYSTEM_OVERVIEW.md): the
 # sandbox is "ephemeral, secret-free, network-isolated" and still downloads
 # build dependencies. The controls that matter are no secrets, cap_drop=ALL,
@@ -66,9 +66,9 @@ JOB_MODES = {"lockfile", "sbom", "dir", "js-dir", "purls"}
 #
 # Omitting --network entirely would be worse still: docker's DEFAULT bridge is
 # shared by every container that does not ask for one, so the analyzer could
-# reach RedAmon peers - exactly the property this network exists to remove.
+# reach WhiteHat peers - exactly the property this network exists to remove.
 ANALYZER_NETWORK = _env("SUPPLY_CHAIN_ANALYZER_NETWORK",
-                        "redamon-supply-chain-net")
+                        "whitehat-supply-chain-net")
 
 # Mirrors ContainerManager.run_supply_chain_analyzer (plan section 5.2).
 # Last-resort literal: used only when the operator set nothing AND the governor
@@ -88,7 +88,7 @@ def _governed_mem():
     WHY: this container is spawned from three processes and only ONE of them
     (the orchestrator) could reach the governor, so this module used to hardcode
     a fixed "1500m" that never shrank on a memory-starved host while every other
-    RedAmon container did. Resolving it here makes the SDK path and the broker
+    WhiteHat container did. Resolving it here makes the SDK path and the broker
     path agree by construction, which is what this module exists to guarantee.
 
     Fail-soft and lazy on purpose: the analyzer image itself mounts this package
@@ -120,7 +120,7 @@ def _resolve_mem():
 
 
 def analyzer_docker_argv(job_scratch_host_path, sc_common_host_path, *,
-                         image=None, osv_db_volume="redamon-osv-db",
+                         image=None, osv_db_volume="whitehat-osv-db",
                          network=None, allow_registry_egress=False,
                          mem=None, pids=None, tmpfs=_DEFAULT_TMPFS):
     """Build the hardened `docker run` argv for one analyzer job.
@@ -210,14 +210,14 @@ def ensure_network(name=None, runner=None):
 
 def run_analyzer_job(job, work_dir, sc_common_host_path, *,
                      job_scratch_host_path=None, image=None,
-                     osv_db_volume="redamon-osv-db", network=None,
+                     osv_db_volume="whitehat-osv-db", network=None,
                      allow_registry_egress=False, timeout=600, runner=None):
     """Write the job, run the analyzer, return {artifact, exit_code, error}.
 
     `work_dir` is where THIS process writes job.json / reads out.json.
     `job_scratch_host_path` is the same directory as the DOCKER DAEMON sees it
     (they differ under docker-in-docker); defaults to work_dir when identical -
-    which is the case for /tmp/redamon, bind-mounted at the same path in the
+    which is the case for /tmp/whitehat, bind-mounted at the same path in the
     recon container and on the host.
 
     `artifact` is None when the analyzer produced nothing usable; the caller
@@ -250,7 +250,7 @@ def run_analyzer_job(job, work_dir, sc_common_host_path, *,
     return {"artifact": artifact, "exit_code": res.get("exit_code"), "error": error}
 
 
-def new_work_dir(root="/tmp/redamon", prefix="sc-job"):
+def new_work_dir(root="/tmp/whitehat", prefix="sc-job"):
     """A fresh scratch dir under the path both the container and the host see.
 
     Made world-writable on purpose: the analyzer runs as NON-ROOT (uid 1001,

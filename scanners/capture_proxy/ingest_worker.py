@@ -1,7 +1,7 @@
 """
 traffic-ingest — trusted spool consumer (plan §11.2b, §15.2, §15.4).
 
-Runs on redamon-network (NOT pentest-net). It is the only capture component
+Runs on whitehat-network (NOT pentest-net). It is the only capture component
 that holds a DB credential, and only a scoped role granted INSERT on exactly
 `captured_http_transactions`. It:
 
@@ -35,7 +35,7 @@ from typing import Any, Dict, Optional
 
 from capture_lib import ensure_dir_writable
 from ioc_match import match_transaction
-from redamon_ctx import verify_tag
+from whitehat_ctx import verify_tag
 
 # Header/param names whose values are masked when redaction is on. A salted hash
 # is kept so identical secrets still correlate without storing the plaintext.
@@ -44,7 +44,7 @@ _SENSITIVE_HEADERS = frozenset({
     "proxy-authorization",
 })
 
-_REDACT_SALT = os.environ.get("CAPTURE_REDACT_SALT", "redamon-capture")
+_REDACT_SALT = os.environ.get("CAPTURE_REDACT_SALT", "whitehat-capture")
 
 
 def _mask(value: Any) -> str:

@@ -1,7 +1,7 @@
 # The unit gate from the repo ruleset (AGENTS.md QA checklist, and
 # docs/readmes/README.TESTING.md): every section's tests run INSIDE its own
 # image, each test file isolated in its own pytest subprocess. This job runs the
-# canonical entry point exactly as documented, `./redamon.sh test unit`, with no
+# canonical entry point exactly as documented, `./whitehat.sh test unit`, with no
 # tier or skip overrides - webapp vitest and the shell suites included.
 #
 # It is ONE job rather than a matrix of sections because the gate does not offer
@@ -12,11 +12,11 @@
 #     be built first - they are not pulled from anywhere.
 #   * The unit tier also bundles the host suites (shell + webapp), and the gate
 #     guard suite asserts that a missing webapp is a failure, not a skip. So
-#     REDAMON_TEST_ALLOW_MISSING cannot be used to carve out a single-section leg
-#     without breaking that guard (tests/redamon_gate_unskippable_test.sh).
+#     WHITEHAT_TEST_ALLOW_MISSING cannot be used to carve out a single-section leg
+#     without breaking that guard (tests/whitehat_gate_unskippable_test.sh).
 #
 # The runner has ~106 GB free, which fits all six images. The section list is
-# READ FROM redamon.sh (`_TEST_SECTIONS`), never duplicated here, so a section
+# READ FROM whitehat.sh (`_TEST_SECTIONS`), never duplicated here, so a section
 # that is added or renamed cannot silently drop out of CI: the plan job fails
 # loudly if the block cannot be parsed, or if an entry yields no usable
 # name/image/service.
@@ -36,12 +36,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # The gate looks sections up by tag (redamon-agent, redamon-recon, ...), and
-  # compose only produces those tags when the project is named redamon - the
+  # The gate looks sections up by tag (whitehat-agent, whitehat-recon, ...), and
+  # compose only produces those tags when the project is named whitehat - the
   # default project name is the checkout directory.
-  COMPOSE_PROJECT_NAME: redamon
+  COMPOSE_PROJECT_NAME: whitehat
   # compose VALIDATES the whole file before building any one service, and two of
-  # its variables are required (`:?` rather than a default), because redamon.sh
+  # its variables are required (`:?` rather than a default), because whitehat.sh
   # normally generates them into .env. A CI checkout has no .env, so without
   # these every `docker compose` command fails on interpolation. They are
   # placeholders: the gate runs its sections with `docker run`, not `compose up`,
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - id: plan
-        name: Derive the section images from redamon.sh
+        name: Derive the section images from whitehat.sh
         shell: bash
         run: |
           python3 - <<'PY' > "$RUNNER_TEMP/plan.json"
@@ -69,10 +69,10 @@ jobs:
           import re
           import sys
 
-          text = pathlib.Path("redamon.sh").read_text(encoding="utf-8")
+          text = pathlib.Path("whitehat.sh").read_text(encoding="utf-8")
           block = re.search(r"^_TEST_SECTIONS=\(\n(.*?)^\)\n", text, re.S | re.M)
           if not block:
-              sys.exit("could not find the _TEST_SECTIONS block in redamon.sh")
+              sys.exit("could not find the _TEST_SECTIONS block in whitehat.sh")
 
           entries = [line.strip() for line in block.group(1).splitlines() if line.strip()]
           if not entries:
@@ -84,15 +84,15 @@ jobs:
               if len(fields) < 7:
                   sys.exit(f"unexpected section spec ({len(fields)} fields): {entry}")
               name, image = fields[0], fields[1]
-              if not name or not image.startswith("redamon-"):
+              if not name or not image.startswith("whitehat-"):
                   sys.exit(f"unexpected section spec: {entry}")
-              # redamon-<service>:latest -> <service>: every section image is
+              # whitehat-<service>:latest -> <service>: every section image is
               # built by the compose service of that name.
               sections.append(
                   {
                       "section": name,
                       "image": image,
-                      "service": image.split(":")[0].replace("redamon-", "", 1),
+                      "service": image.split(":")[0].replace("whitehat-", "", 1),
                   }
               )
 
@@ -105,13 +105,13 @@ jobs:
           print(json.dumps({"sections": sections, "services": services}))
           PY
           if [[ ! -s "$RUNNER_TEMP/plan.json" ]]; then
-            echo "::error::could not derive the section images from redamon.sh"
+            echo "::error::could not derive the section images from whitehat.sh"
             exit 1
           fi
 
           echo "sections: $(python3 -c 'import json;print(", ".join(e["section"] for e in json.load(open("'$RUNNER_TEMP'/plan.json"))["sections"]))')"
           services="$(python3 -c 'import json;print(" ".join(json.load(open("'$RUNNER_TEMP'/plan.json"))["services"]))')"
-          images="$(python3 -c 'import json;print(" ".join("redamon-"+s+":latest" for s in json.load(open("'$RUNNER_TEMP'/plan.json"))["services"]))')"
+          images="$(python3 -c 'import json;print(" ".join("whitehat-"+s+":latest" for s in json.load(open("'$RUNNER_TEMP'/plan.json"))["services"]))')"
           echo "services: $services"
 
           # Every derived service must exist in the compose file, or the build
@@ -164,7 +164,7 @@ jobs:
 
       - name: Build the section images
         # ${{ needs.plan.outputs.images }} is built by the services in
-        # ${{ needs.plan.outputs.services }}; both come from redamon.sh.
+        # ${{ needs.plan.outputs.services }}; both come from whitehat.sh.
         #
         # COMPOSE_PARALLEL_LIMIT caps concurrent builds so the agent image's
         # builds cannot OOM a 16 GB runner.
@@ -176,8 +176,8 @@ jobs:
 
       - name: Unit gate
         # The canonical entry point, unmodified: all sections + shell suites +
-        # webapp. No REDAMON_TEST_ALLOW_MISSING - a missing input is a failure.
+        # webapp. No WHITEHAT_TEST_ALLOW_MISSING - a missing input is a failure.
         env:
           # The gate runs each test FILE in its own pytest subprocess in parallel.
-          REDAMON_TEST_PARALLEL: "4"
-        run: ./redamon.sh test unit
+          WHITEHAT_TEST_PARALLEL: "4"
+        run: ./whitehat.sh test unit

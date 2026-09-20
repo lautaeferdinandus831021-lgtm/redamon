@@ -56,7 +56,7 @@ def ensure_dir_writable(path: str) -> str:
             f"root-owned writer most likely initialised the named volume before this "
             f"container first mounted it, so Docker never applied the image's "
             f"ownership. Repair without data loss:\n"
-            f"  docker run --rm -v redamon_capture_spool:/spool alpine chmod 0777 /spool"
+            f"  docker run --rm -v whitehat_capture_spool:/spool alpine chmod 0777 /spool"
         ) from e
     return path
 

@@ -9,7 +9,7 @@ Python wiring, so the contract under test is:
   3. The first non-heading line is a sensible auto-description (drives the
      classifier when no operator-supplied description exists; agentic/api.py
      extracts the first 200 chars).
-  4. Every tool name referenced is a real RedAmon tool (no invented tools).
+  4. Every tool name referenced is a real WhiteHat tool (no invented tools).
   5. The "When to Classify Here" section disambiguates from neighboring
      skills (built-ins + adjacent community skills).
   6. No em dashes, no Shannon-specific paths or CLI references.
@@ -34,7 +34,7 @@ _COMMUNITY_DIR = _AGENTIC_DIR / "community-skills"
 _SKILL_ID = "idor_bola_exploitation"
 _SKILL_PATH = _COMMUNITY_DIR / f"{_SKILL_ID}.md"
 _README_PATH = _COMMUNITY_DIR / "README.md"
-_WIKI_PATH = _REPO_ROOT / "redamon.wiki" / "Agent-Skills.md"
+_WIKI_PATH = _REPO_ROOT / "whitehat.wiki" / "Agent-Skills.md"
 
 # Cap enforced at webapp/src/app/api/users/[id]/attack-skills/route.ts (POST handler).
 _IMPORT_CAP_BYTES = 50_000
@@ -170,7 +170,7 @@ class TestNoWhiteBoxLeakage(unittest.TestCase):
         self.text = _SKILL_PATH.read_text(encoding="utf-8")
 
     def test_no_shannon_deliverable_paths(self):
-        # Shannon writes to .shannon/deliverables/*. RedAmon agents have no
+        # Shannon writes to .shannon/deliverables/*. WhiteHat agents have no
         # such filesystem; surfacing this string would confuse the agent.
         self.assertNotIn(".shannon/deliverables", self.text)
 
@@ -179,12 +179,12 @@ class TestNoWhiteBoxLeakage(unittest.TestCase):
 
     def test_no_task_agent_code_analysis(self):
         # Shannon's "Task Agent (Code Analysis)" is a white-box code-review
-        # tool RedAmon does not have.
+        # tool WhiteHat does not have.
         self.assertNotRegex(self.text, r"Task Agent\s*\(.*Code Analysis.*\)")
 
     def test_no_playwright_cli_skill_handoff(self):
         # Shannon's "playwright-cli skill" is a Shannon-specific abstraction.
-        # RedAmon uses execute_playwright directly.
+        # WhiteHat uses execute_playwright directly.
         self.assertNotIn("playwright-cli skill", self.text)
 
     def test_no_white_box_source_review_directives(self):
@@ -369,7 +369,7 @@ class TestWikiIndex(unittest.TestCase):
 
     def test_wiki_table_lists_idor_bola(self):
         if not _WIKI_PATH.is_file():
-            self.skipTest("redamon.wiki not checked out locally")
+            self.skipTest("whitehat.wiki not checked out locally")
         wiki = _WIKI_PATH.read_text(encoding="utf-8")
         self.assertIn(f"{_SKILL_ID}.md", wiki,
                       "wiki community-skills table must reference the new file")

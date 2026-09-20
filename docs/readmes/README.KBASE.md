@@ -1,6 +1,6 @@
 # Knowledge Base (RAG-Enhanced Pentesting Knowledge)
 
-The Knowledge Base (KB) adds offline, retrieval-augmented search to the RedAmon agent. Instead of relying solely on Tavily web search, the agent queries a local vector index (FAISS) and graph database (Neo4j) populated with curated security datasets. When the local KB produces high-confidence results, Tavily is skipped entirely. When confidence is low, KB and Tavily results are merged.
+The Knowledge Base (KB) adds offline, retrieval-augmented search to the WhiteHat agent. Instead of relying solely on Tavily web search, the agent queries a local vector index (FAISS) and graph database (Neo4j) populated with curated security datasets. When the local KB produces high-confidence results, Tavily is skipped entirely. When confidence is low, KB and Tavily results are merged.
 
 ---
 
@@ -147,7 +147,7 @@ The ingestion pipeline downloads, parses, chunks, embeds, and indexes security d
 
 ```mermaid
 flowchart TD
-    CLI["CLI / Makefile / redamon.sh<br/>python -m knowledge_base.curation.data_ingestion"]
+    CLI["CLI / Makefile / whitehat.sh<br/>python -m knowledge_base.curation.data_ingestion"]
     LOCK["Acquire exclusive ingest lock<br/>fcntl.flock on .ingest.lock"]
     INIT["Initialize components<br/>Embedder + FAISSIndexer + Neo4jLoader"]
 
@@ -350,12 +350,12 @@ graph TD
     subgraph "Docker Compose Stack"
 
         subgraph "Always Running"
-            AGENT["agent<br/>redamon-agent<br/>Port 8090:8080"]
-            NEO4J["neo4j<br/>redamon-neo4j<br/>Port 7474, 7687"]
+            AGENT["agent<br/>whitehat-agent<br/>Port 8090:8080"]
+            NEO4J["neo4j<br/>whitehat-neo4j<br/>Port 7474, 7687"]
         end
 
         subgraph "Opt-in (profile: kb-refresh)"
-            REFRESH["kb-refresh<br/>redamon-kb-refresh<br/>Shell sleep-loop scheduler"]
+            REFRESH["kb-refresh<br/>whitehat-kb-refresh<br/>Shell sleep-loop scheduler"]
         end
 
         VOL_DATA["Volume: kb_data<br/>FAISS index, caches"]
@@ -371,7 +371,7 @@ graph TD
 
 ### Agent Container
 
-- **Image**: `redamon-agent` (built from `agentic/Dockerfile`)
+- **Image**: `whitehat-agent` (built from `agentic/Dockerfile`)
 - **Build context**: project root (so `services/knowledge_base/` is included)
 - **Pre-cached models**: `intfloat/e5-large-v2` (~1.3 GB) and `BAAI/bge-reranker-base` (~568 MB) downloaded at build time
 - **KB volumes**:
@@ -387,7 +387,7 @@ Shared between the recon graph, agent graph queries, and the KB. KB creates `KBC
 ### kb-refresh (Opt-in Sidecar)
 
 - **Profile**: `kb-refresh` (must be explicitly enabled)
-- **Image**: Same `redamon-agent` image, different entrypoint
+- **Image**: Same `whitehat-agent` image, different entrypoint
 - **Schedule**:
   - Daily: NVD incremental update
   - Mondays: ExploitDB + Nuclei
@@ -531,16 +531,16 @@ make kb-clean-full          # remove venv + caches
 make kb-test                # run pytest on KB tests
 ```
 
-### redamon.sh Commands
+### whitehat.sh Commands
 
 ```bash
-./redamon.sh kb build [lite|standard|full]     # build with profile
-./redamon.sh kb update [source|all]            # incremental update
-./redamon.sh kb rebuild [lite|standard|full]   # wipe + rebuild
-./redamon.sh kb stats                          # show statistics
+./whitehat.sh kb build [lite|standard|full]     # build with profile
+./whitehat.sh kb update [source|all]            # incremental update
+./whitehat.sh kb rebuild [lite|standard|full]   # wipe + rebuild
+./whitehat.sh kb stats                          # show statistics
 ```
 
-The `kb build` command is automatically triggered during `./redamon.sh install`, `up`, and `restart` with the `lite` profile. Build failure is non-fatal -- the agent starts without KB.
+The `kb build` command is automatically triggered during `./whitehat.sh install`, `up`, and `restart` with the `lite` profile. Build failure is non-fatal -- the agent starts without KB.
 
 ---
 
@@ -740,7 +740,7 @@ The KB uses vector embeddings to convert text into searchable vectors. How embed
 
 ### Automatic Detection
 
-During `./redamon.sh install` (and `up`/`restart`), RedAmon automatically detects your capabilities:
+During `./whitehat.sh install` (and `up`/`restart`), WhiteHat automatically detects your capabilities:
 
 | Hardware | What Happens | Ingestion Speed | Profile |
 |---|---|---|---|
@@ -815,12 +815,12 @@ There are **four ways** ingestion can start. Each ultimately calls the same Pyth
 
 ```mermaid
 flowchart TD
-    subgraph "Entry Point 1: redamon.sh install / up / restart"
-        CMD1["./redamon.sh install<br/>./redamon.sh up<br/>./redamon.sh restart"]
+    subgraph "Entry Point 1: whitehat.sh install / up / restart"
+        CMD1["./whitehat.sh install<br/>./whitehat.sh up<br/>./whitehat.sh restart"]
         CHK1["is_kb_enabled()?<br/>reads KB_ENABLED env or<br/>kb_config.yaml"]
         BOOT["_kb_bootstrap lite<br/>non-fatal on failure"]
         MAKE1["make kb-build-lite<br/>MODE=docker"]
-        EXEC1["docker exec redamon-agent<br/>python -m knowledge_base<br/>.curation.data_ingestion<br/>--profile lite"]
+        EXEC1["docker exec whitehat-agent<br/>python -m knowledge_base<br/>.curation.data_ingestion<br/>--profile lite"]
 
         CMD1 --> CHK1
         CHK1 -->|yes| BOOT
@@ -831,9 +831,9 @@ flowchart TD
 
     subgraph "Entry Point 2: Manual CLI"
         CMD2A["make kb-build-standard<br/>make kb-update-nvd<br/>make kb-rebuild-full"]
-        CMD2B["./redamon.sh kb build standard<br/>./redamon.sh kb update nvd"]
+        CMD2B["./whitehat.sh kb build standard<br/>./whitehat.sh kb update nvd"]
 
-        CMD2A --> EXEC2["docker exec redamon-agent<br/>python -m knowledge_base<br/>.curation.data_ingestion<br/>--profile/--source args"]
+        CMD2A --> EXEC2["docker exec whitehat-agent<br/>python -m knowledge_base<br/>.curation.data_ingestion<br/>--profile/--source args"]
         CMD2B --> CMD2A
     end
 
@@ -850,7 +850,7 @@ flowchart TD
 
     subgraph "Entry Point 4: Direct Python (local dev)"
         PY["python -m knowledge_base<br/>.curation.data_ingestion<br/>--profile lite<br/>--neo4j-uri bolt://localhost:7687"]
-        VENV["Requires: .redamon-venv or<br/>active virtualenv with deps"]
+        VENV["Requires: .whitehat-venv or<br/>active virtualenv with deps"]
         PY --- VENV
     end
 
@@ -903,7 +903,7 @@ flowchart TD
 
 | Step | What runs | Where | Code location |
 |---|---|---|---|
-| User runs `./redamon.sh install` | Starts containers, then calls `_kb_bootstrap lite` | Host shell | `redamon.sh:364-374` |
+| User runs `./whitehat.sh install` | Starts containers, then calls `_kb_bootstrap lite` | Host shell | `whitehat.sh:364-374` |
 | `_kb_bootstrap` calls `make kb-build-lite` | Runs `docker exec` into agent container | Host -> container | `Makefile:132-140` |
 | `data_ingestion.main()` starts | Parses CLI args, acquires lock | Agent container | `data_ingestion.py:580-640` |
 | `Embedder()` created | Loads `intfloat/e5-large-v2` model (pre-cached in image) | Agent container | `embedder.py:60-70` |
@@ -1047,13 +1047,13 @@ The LLM can specify `include_sources` to target specific KB sources (e.g., `["gt
 
 ```bash
 # Check if KB is enabled
-docker exec redamon-agent env | grep KB_ENABLED
+docker exec whitehat-agent env | grep KB_ENABLED
 
 # Check if index files exist
 ls -la services/knowledge_base/data/index.faiss services/knowledge_base/data/chunk_ids.json
 
 # Check agent logs for KB init
-docker logs redamon-agent 2>&1 | grep -i "knowledge\|kb\|faiss"
+docker logs whitehat-agent 2>&1 | grep -i "knowledge\|kb\|faiss"
 ```
 
 ### Rebuild the index from scratch
@@ -1081,7 +1081,7 @@ If a build/refresh logs `... sha256 ... does not match pinned ...` and skips a f
 ```bash
 make kb-stats
 # or
-docker exec redamon-agent python -c "
+docker exec whitehat-agent python -c "
 from knowledge_base.faiss_indexer import FAISSIndexer
 idx = FAISSIndexer('/app/knowledge_base/data')
 idx.load()
@@ -1092,7 +1092,7 @@ print(f'Vectors: {idx.count()}')
 ### Test KB query manually
 
 ```bash
-docker exec -it redamon-agent python -c "
+docker exec -it whitehat-agent python -c "
 import asyncio
 from tools import WebSearchToolManager
 from knowledge_base import PentestKnowledgeBase

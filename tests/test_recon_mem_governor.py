@@ -55,7 +55,7 @@ def _reset_governors():
 
 class ReconGovTestBase(unittest.TestCase):
     def setUp(self):
-        for k in ("REDAMON_MEM_GOVERNOR", "MEM_BUDGET_FRACTION", "RESOURCE_PROFILE_PATH"):
+        for k in ("WHITEHAT_MEM_GOVERNOR", "MEM_BUDGET_FRACTION", "RESOURCE_PROFILE_PATH"):
             os.environ.pop(k, None)
         _reset_governors()
 
@@ -102,7 +102,7 @@ class TestByteBudget(ReconGovTestBase):
 
 class TestGuards(ReconGovTestBase):
     def test_governor_off_no_change(self):
-        os.environ['REDAMON_MEM_GOVERNOR'] = 'false'
+        os.environ['WHITEHAT_MEM_GOVERNOR'] = 'false'
         _set_mem(32 * GB, 1 * GB)
         s = {'NUCLEI_CONCURRENCY': 25, 'KATANA_MAX_URLS': 300000}
         out = ps.apply_memory_governor(dict(s))

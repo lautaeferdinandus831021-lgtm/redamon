@@ -22,7 +22,7 @@ import secrets
 
 # Benign marker host: RFC 2606 reserved TLD, guaranteed not to resolve to a real
 # host. Reflecting this proves the vector without pointing victims anywhere live.
-_CANARY_SUFFIX = "redamon-poc.invalid"
+_CANARY_SUFFIX = "whitehat-poc.invalid"
 
 
 def new_canary_token() -> str:

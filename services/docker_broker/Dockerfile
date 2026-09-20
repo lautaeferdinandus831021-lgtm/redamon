@@ -1,4 +1,4 @@
-# RedAmon Docker broker (V4)
+# WhiteHat Docker broker (V4)
 #
 # A filtering reverse proxy for the Docker Engine API. It mounts the REAL
 # /var/run/docker.sock (it is a trusted component, like the orchestrator) and

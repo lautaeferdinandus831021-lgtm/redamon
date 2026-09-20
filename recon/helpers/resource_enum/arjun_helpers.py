@@ -1,5 +1,5 @@
 """
-RedAmon - Arjun Parameter Discovery Helpers for Resource Enumeration
+WhiteHat - Arjun Parameter Discovery Helpers for Resource Enumeration
 =====================================================================
 Active/passive HTTP parameter discovery using Arjun.
 Tests common parameter names against endpoints to find hidden query/body
@@ -50,7 +50,7 @@ def _run_arjun_single_method(
     Returns:
         Tuple of (results_list, external_domains_list)
     """
-    tmp_dir = tempfile.mkdtemp(prefix="redamon_arjun_")
+    tmp_dir = tempfile.mkdtemp(prefix="whitehat_arjun_")
     results = []
     external_domains = []
 
@@ -92,7 +92,7 @@ def _run_arjun_single_method(
             pass
         _hdrs = [h.strip() for h in custom_headers if h.strip()]
         if _cap_url and _cap_token:
-            _hdrs.append(f"X-Redamon-Ctx: {_cap_token}")
+            _hdrs.append(f"X-WhiteHat-Ctx: {_cap_token}")
         headers_str = '\n'.join(_hdrs)
         if headers_str:
             cmd.extend(['--headers', headers_str])

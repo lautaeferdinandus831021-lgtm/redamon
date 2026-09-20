@@ -8,13 +8,13 @@ import { mintToken, signIn } from './auth'
  * was removed (recording now lives only in the auth section).
  */
 
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
 let projectId = ''
 let api: APIRequestContext
 
 test.beforeAll(async ({ playwright, baseURL }) => {
   api = await playwright.request.newContext({
-    baseURL, extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    baseURL, extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await api.post('/api/projects', {
     data: { name: `e2e-auth-gates-${Date.now()}`, targetDomain: 'authpig.test' },
@@ -31,10 +31,10 @@ test.afterAll(async () => {
 test.beforeEach(async ({ context, baseURL }) => {
   await signIn(context, USER, baseURL!)
   await context.addInitScript(() => {
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   })
 })
 

@@ -1,4 +1,4 @@
-# RedAmon tlsx / TLS Certificate Grab guinea pig
+# WhiteHat tlsx / TLS Certificate Grab guinea pig
 #
 # Bring up:   docker compose up -d --build
 # Bring down: docker compose down
@@ -32,10 +32,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: redamon-tls-target:latest
-    container_name: redamon-tls-target
+    image: whitehat-tls-target:latest
+    container_name: whitehat-tls-target
     restart: unless-stopped
-    # Its own caps: this is a separate compose PROJECT, so redamon.sh's
+    # Its own caps: this is a separate compose PROJECT, so whitehat.sh's
     # export_resource_caps never reaches it and the memory governor does not
     # know it exists. It shares the host with Neo4j and Postgres.
     mem_limit: ${TLS_TARGET_MEM:-128m}
@@ -53,7 +53,7 @@ services:
 
 networks:
   tls_lab:
-    name: redamon_tls_lab
+    name: whitehat_tls_lab
     driver: bridge
     ipam:
       config:

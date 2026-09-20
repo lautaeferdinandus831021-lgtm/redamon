@@ -28,7 +28,7 @@ Discover every subdomain that exists and squeeze every possible takeover finding
   - \`cname\`, \`ns\`, \`mx\`, \`txt\`, \`spf\` (same coverage as Subjack, different detection logic -- runs both for belt-and-suspenders)
   - \`dmarc\` (missing / misconfigured DMARC)
   - \`wildcard\` (wildcard DNS enabling broad takeovers)
-  - Runs in its own Docker image (\`redamon-baddns:latest\`), zero license contagion.
+  - Runs in its own Docker image (\`whitehat-baddns:latest\`), zero license contagion.
 - **Subjack with EVERY optional check**:
   - Default CNAME takeover
   - \`-a\` probe every URL, not just identified CNAMEs
@@ -66,7 +66,7 @@ Discover every subdomain that exists and squeeze every possible takeover finding
 8. **Graph write**: every finding becomes a \`Vulnerability\` node with \`source="takeover_scan"\`, linked to its Subdomain via \`HAS_VULNERABILITY\`.
 
 ### What to watch out for
-- **\`subjackCheckAr\`** (stale A record detection) probes cloud IP ranges and historically needed root/ICMP. RedAmon's recon container runs with the right privileges so this is fine, but expect some false positives -- those are exactly the findings the manual-review queue is for.
+- **\`subjackCheckAr\`** (stale A record detection) probes cloud IP ranges and historically needed root/ICMP. WhiteHat's recon container runs with the right privileges so this is fine, but expect some false positives -- those are exactly the findings the manual-review queue is for.
 - **High discovery breadth** can produce thousands of subdomains on large targets. Puredns filters wildcards but the downstream Nuclei pass can still take 30+ minutes. Run timeouts are set to 30 min (Subjack) and 40 min (Nuclei takeover pass).
 - **Manual-review noise**: auto-publish is ON, so stale-A and low-confidence findings appear as \`severity: medium\`. Filter by \`verdict\` in the Findings table to triage -- \`confirmed\` first, then \`likely\`, then \`manual_review\`.`,
   targetProfile: 'domain',
@@ -190,8 +190,8 @@ Discover every subdomain that exists and squeeze every possible takeover finding
     vhostSniConcurrency: 30,            // Aggressive on a takeover-hunting preset
 
     // BadDNS AGPL-3.0 sidecar -- deep DNS coverage across all high-value modules.
-    // Runs in its own Docker image (redamon-baddns:latest); no license contagion
-    // since RedAmon never imports baddns and communicates over stdout only.
+    // Runs in its own Docker image (whitehat-baddns:latest); no license contagion
+    // since WhiteHat never imports baddns and communicates over stdout only.
     // MTA-STS is intentionally omitted (upstream CLI validator rejects it).
     baddnsEnabled: true,
     baddnsModules: ['cname', 'ns', 'mx', 'txt', 'spf', 'dmarc', 'wildcard'],

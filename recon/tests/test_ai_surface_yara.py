@@ -6,7 +6,7 @@ and respects the placeholder-negation guard.
 
 Requires yara-python (not in the base recon image — install before running):
     docker run --rm --entrypoint sh -v "$PWD/recon:/app/recon:ro" -w /app \
-      redamon-recon:latest -c "pip install -q yara-python && \
+      whitehat-recon:latest -c "pip install -q yara-python && \
       python3 recon/tests/test_ai_surface_yara.py"
 """
 from __future__ import annotations

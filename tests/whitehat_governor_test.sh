@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Unit tests for the memory-governor bash helpers in redamon.sh:
+# Unit tests for the memory-governor bash helpers in whitehat.sh:
 #   _size_to_mb / preflight_ram_gate / allocate_memory (the proportional
 #   allocator: weights, tiers, floors, burst, blast bound) / export_cpu_caps
-# Run:  bash tests/redamon_governor_test.sh
+# Run:  bash tests/whitehat_governor_test.sh
 # detect_build_resources is stubbed so the gate/export logic is deterministic and
 # needs no real Docker daemon.
 # =============================================================================
@@ -11,8 +11,8 @@ set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
-set +e   # redamon.sh turns on `set -e`; relax it so a non-zero return under test
+source "$REPO_ROOT/whitehat.sh"
+set +e   # whitehat.sh turns on `set -e`; relax it so a non-zero return under test
          # (e.g. the gate returning 1) does not abort the harness.
 
 PASS=0; FAIL=0
@@ -41,7 +41,7 @@ echo "== preflight_ram_gate =="
 STUB_MEM=0
 detect_build_resources() { BUILD_MEM_MB="$STUB_MEM"; BUILD_RES_SOURCE="stub"; BUILD_NCPU=4; }
 
-STUB_MEM=4096; unset REDAMON_MIN_RAM_MB REDAMON_SKIP_RAM_GATE SERVICE_BASELINE_MEM OS_HEADROOM_MEM
+STUB_MEM=4096; unset WHITEHAT_MIN_RAM_MB WHITEHAT_SKIP_RAM_GATE SERVICE_BASELINE_MEM OS_HEADROOM_MEM
 preflight_ram_gate; eq "4GB host fails default 8GB gate" "$?" "1"
 
 STUB_MEM=16384
@@ -50,13 +50,13 @@ preflight_ram_gate; eq "16GB host passes gate" "$?" "0"
 STUB_MEM=7700   # physical 8GB host reads ~7.7GB via docker info -> should pass (tolerance)
 preflight_ram_gate; eq "8GB host (7700MB) passes via tolerance" "$?" "0"
 
-STUB_MEM=4096; REDAMON_SKIP_RAM_GATE=1
+STUB_MEM=4096; WHITEHAT_SKIP_RAM_GATE=1
 preflight_ram_gate; eq "skip flag overrides" "$?" "0"
-unset REDAMON_SKIP_RAM_GATE
+unset WHITEHAT_SKIP_RAM_GATE
 
-STUB_MEM=10240; REDAMON_MIN_RAM_MB=12288
+STUB_MEM=10240; WHITEHAT_MIN_RAM_MB=12288
 preflight_ram_gate; eq "explicit MIN_RAM_MB enforced" "$?" "1"
-unset REDAMON_MIN_RAM_MB
+unset WHITEHAT_MIN_RAM_MB
 
 STUB_MEM=0   # undetectable -> do not block
 preflight_ram_gate; eq "undetectable RAM does not block" "$?" "0"
@@ -204,22 +204,22 @@ BURST_FACTOR=1.75 alloc_at 16384; eq "allocation is idempotent" "$(sum_alloc)" "
 
 # --- per-service weight override changes only that service's SHARE.
 BURST_FACTOR=1.75 alloc_at 16384; base_web="$(mb "$WEBAPP_MEM")"; base_kali="$(mb "$KALI_MEM")"
-REDAMON_WEIGHT_WEBAPP=400 BURST_FACTOR=1.75 alloc_at 16384
+WHITEHAT_WEIGHT_WEBAPP=400 BURST_FACTOR=1.75 alloc_at 16384
 if [[ "$(mb "$WEBAPP_MEM")" -gt "$base_web" && "$(mb "$KALI_MEM")" -lt "$base_kali" ]]; then
-    ok "REDAMON_WEIGHT_WEBAPP raises webapp and renormalises the rest down"
+    ok "WHITEHAT_WEIGHT_WEBAPP raises webapp and renormalises the rest down"
 else
-    bad "REDAMON_WEIGHT_WEBAPP renormalises" "web $base_web->$(mb "$WEBAPP_MEM") kali $base_kali->$(mb "$KALI_MEM")" "web up, kali down"
+    bad "WHITEHAT_WEIGHT_WEBAPP renormalises" "web $base_web->$(mb "$WEBAPP_MEM") kali $base_kali->$(mb "$KALI_MEM")" "web up, kali down"
 fi
-unset REDAMON_WEIGHT_WEBAPP
+unset WHITEHAT_WEIGHT_WEBAPP
 
 # --- blast bound: a pathological weight cannot hand one service the whole host.
-REDAMON_WEIGHT_WEBAPP=100000 BURST_FACTOR=2.5 alloc_at 16384
+WHITEHAT_WEIGHT_WEBAPP=100000 BURST_FACTOR=2.5 alloc_at 16384
 if [[ "$(mb "$WEBAPP_MEM")" -le $(( 16384 * 55 / 100 )) ]]; then
     ok "blast bound caps a runaway weight at 55% of the host"
 else
     bad "blast bound caps a runaway weight" "$(mb "$WEBAPP_MEM")" "<= $(( 16384 * 55 / 100 ))"
 fi
-unset REDAMON_WEIGHT_WEBAPP
+unset WHITEHAT_WEIGHT_WEBAPP
 
 # --- the scan governor is fed from the SAME computation (no second guess).
 BURST_FACTOR=1.75 alloc_at 16384
@@ -235,16 +235,16 @@ else
 fi
 
 echo "== operator pins are never overwritten =="
-# The bug this suite exists to prevent: redamon.sh does not source .env, so
+# The bug this suite exists to prevent: whitehat.sh does not source .env, so
 # exporting a computed value silently overrode a hand-pinned one on every `up`
 # (compose gives the shell environment priority over .env).
 alloc_at 16384; unpinned_web="$WEBAPP_MEM"
 
-# Each of these models a FRESH `./redamon.sh up`. Within one process the
+# Each of these models a FRESH `./whitehat.sh up`. Within one process the
 # allocator deliberately does not mistake its own earlier exports for operator
 # pins (otherwise cmd_update's second pass would own nothing and write an empty
 # managed block), so the marker has to be cleared to simulate a new run.
-# tests/redamon_env_block_test.sh covers the same ground with real subprocesses.
+# tests/whitehat_env_block_test.sh covers the same ground with real subprocesses.
 fresh_process() { _MEM_SELF_EXPORTED=" "; unset "${MEM_VARS[@]}"; }
 
 fresh_process; WEBAPP_MEM="9g"; STUB_MEM=16384; allocate_memory
@@ -281,7 +281,7 @@ eq "a second pass in the same process still owns every var" "${#_ALLOC_OWNED[@]}
 # --- a host whose RAM cannot be read must FAIL OPEN, never block.
 alloc_at 0; eq "undetectable RAM does not fail" "$?" "0"
 
-echo "== knobs set in .env are honoured (redamon.sh does NOT source .env) =="
+echo "== knobs set in .env are honoured (whitehat.sh does NOT source .env) =="
 # BUG: every tuning knob was read from the SHELL environment only. .env.example
 # documents them, so an operator setting SERVICES_PCT=70 in .env saw no effect
 # and no explanation -- the same silent-inertness this whole feature exists to
@@ -293,7 +293,7 @@ OS_RESERVE_PCT=12
 SERVICES_PCT=42
 BURST_FACTOR=2.0
 BLAST_PCT=80
-REDAMON_WEIGHT_WEBAPP=400
+WHITEHAT_WEIGHT_WEBAPP=400
 ENVKNOBS
 unset BURST_FACTOR
 eq "OS_RESERVE_PCT read from .env" "$(_pct_env OS_RESERVE_PCT 8 1 50)"   "12"
@@ -303,7 +303,7 @@ eq "BURST_FACTOR read from .env"   "$(BUILD_MEM_MB=16384 _burst_pct)"    "200"
 STUB_MEM=16384; allocate_memory
 for i in "${!_ALLOC_NAMES[@]}"; do
     [[ "${_ALLOC_NAMES[$i]}" == "WEBAPP" ]] && \
-        eq "REDAMON_WEIGHT_WEBAPP read from .env" "${_ALLOC_WEIGHTS[$i]}" "400"
+        eq "WHITEHAT_WEIGHT_WEBAPP read from .env" "${_ALLOC_WEIGHTS[$i]}" "400"
 done
 # The shell environment must still win over .env.
 eq "a shell value overrides .env" "$(SERVICES_PCT=77 _pct_env SERVICES_PCT 65 10 95)" "77"
@@ -382,7 +382,7 @@ inv_check 8192 0 1 1 "8G noswap +gvm+kb (tightest)"
 if [[ "$_ALLOC_BURST_PCT" -ge 100 ]]; then ok "burst never drops below 100%"
 else bad "burst never drops below 100%" "$_ALLOC_BURST_PCT" ">= 100"; fi
 # Keep a deterministic stub for the remainder of the suite: `unset -f` would
-# DELETE redamon.sh's own implementation for every later assertion.
+# DELETE whitehat.sh's own implementation for every later assertion.
 _swap_total_mb() { printf '%s' "${STUB_SWAP_MB:-0}"; }
 STUB_SWAP_MB=0
 WANT_GVM=0; WANT_KB=0; export BURST_FACTOR=1.75
@@ -475,9 +475,9 @@ export BURST_FACTOR=1.75
 # fair shares are all 0 and the floor-redistribution pass has nobody to take from.
 # No service may be left below the minimum its software needs to boot.
 fresh_process
-REDAMON_WEIGHT_NEO4J=x REDAMON_WEIGHT_POSTGRES=x REDAMON_WEIGHT_AGENT=x REDAMON_WEIGHT_WEBAPP=x \
-REDAMON_WEIGHT_KALI=x REDAMON_WEIGHT_RECON_ORCHESTRATOR=x REDAMON_WEIGHT_CAPTURE_PROXY=x \
-REDAMON_WEIGHT_DOCKER_BROKER=x REDAMON_WEIGHT_TRAFFIC_INGEST=x STUB_MEM=16384 allocate_memory
+WHITEHAT_WEIGHT_NEO4J=x WHITEHAT_WEIGHT_POSTGRES=x WHITEHAT_WEIGHT_AGENT=x WHITEHAT_WEIGHT_WEBAPP=x \
+WHITEHAT_WEIGHT_KALI=x WHITEHAT_WEIGHT_RECON_ORCHESTRATOR=x WHITEHAT_WEIGHT_CAPTURE_PROXY=x \
+WHITEHAT_WEIGHT_DOCKER_BROKER=x WHITEHAT_WEIGHT_TRAFFIC_INGEST=x STUB_MEM=16384 allocate_memory
 below=0
 for i in "${!_ALLOC_MB[@]}"; do
     [[ "${_ALLOC_MB[$i]}" -lt "${_ALLOC_FLOORS[$i]}" ]] && below=$(( below + 1 ))
@@ -547,15 +547,15 @@ unset "${CPU_VARS[@]}"; STUB_MEM=32000
 
 echo "== setup_zram guards =="
 # Default off -> pure no-op (returns 0, does nothing).
-unset REDAMON_ENABLE_ZRAM
+unset WHITEHAT_ENABLE_ZRAM
 setup_zram; eq "disabled by default -> no-op" "$?" "0"
 
 # Enabled but stub uname to non-Linux -> skips cleanly.
-REDAMON_ENABLE_ZRAM=1
+WHITEHAT_ENABLE_ZRAM=1
 uname() { echo "Darwin"; }
 setup_zram; eq "non-Linux host -> skip ok" "$?" "0"
 unset -f uname
-unset REDAMON_ENABLE_ZRAM
+unset WHITEHAT_ENABLE_ZRAM
 
 echo
 echo "RESULT: $PASS passed, $FAIL failed"

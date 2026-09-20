@@ -44,11 +44,11 @@ const LIB_MCP_DIR = fileURLToPath(new URL('.', import.meta.url))
 const MCP_AUTH = fileURLToPath(new URL('../mcpAuth.ts', import.meta.url))
 
 const WIKI_DIR = process.env.MCP_DOCS_WIKI_DIR
-  || fileURLToPath(new URL('../../../../redamon.wiki/', import.meta.url))
+  || fileURLToPath(new URL('../../../../whitehat.wiki/', import.meta.url))
 /**
  * A real wiki CHECKOUT, not merely the directory: the main repo records the
  * wiki as a submodule pointer with no .gitmodules, so a fresh clone leaves
- * redamon.wiki/ empty. Same guard apiReference.test.ts uses.
+ * whitehat.wiki/ empty. Same guard apiReference.test.ts uses.
  */
 const hasWikiCheckout = () => existsSync(path.join(WIKI_DIR, 'Home.md'))
 
@@ -316,7 +316,7 @@ describe('the onboarding table', () => {
     // exec tools: recommended by the profile, ticked only by a human.
     const tools = await listAdvertisedTools()
     const scopesOf = new Map(tools.map(t => {
-      const meta = t._meta?.['org.redamon/scopes'] as { required: McpScope[] } | undefined
+      const meta = t._meta?.['org.whitehat/scopes'] as { required: McpScope[] } | undefined
       return [t.name, meta?.required ?? []]
     }))
     for (const p of PROFILE_LIST) {
@@ -363,7 +363,7 @@ describe('the published profile table matches the registry', () => {
    * `MCP-Server.md` lists every profile and the permissions it ticks, by hand.
    * It is the only place an operator can see the recommended set for their job,
    * so a registry change that does not reach it publishes a permission model
-   * RedAmon does not implement. Nothing else notices: the page is prose, not
+   * WhiteHat does not implement. Nothing else notices: the page is prose, not
    * generated like MCP-API-Reference.md.
    */
   test.skipIf(!hasWikiCheckout())('every documented row equals scopesForProfile(id)', () => {

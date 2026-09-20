@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Test suite for the host-LAN-IP detection/export in redamon.sh
+# Test suite for the host-LAN-IP detection/export in whitehat.sh
 # (detect_host_lan_ip / export_host_lan_ip), added for issue #180 so the agent
 # can suggest the reverse-shell LHOST instead of guessing the sandbox's 172.x.
 #
 # Pure unit test: `ip` and `hostname` are stubbed as bash functions, so it runs
-# anywhere with no network and no Docker.  Run:  bash tests/redamon_host_ip_test.sh
+# anywhere with no network and no Docker.  Run:  bash tests/whitehat_host_ip_test.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"   # BASH_SOURCE guard blocks command dispatch
+source "$REPO_ROOT/whitehat.sh"   # BASH_SOURCE guard blocks command dispatch
 set +e
 
 PASS=0; FAIL=0
@@ -21,7 +21,7 @@ fail() { FAIL=$((FAIL+1)); printf '  \033[0;31mFAIL\033[0m %s\n' "$1"; }
 assert_eq() { if [[ "$2" == "$3" ]]; then pass "$1 ($2)"; else fail "$1 (got='$2' expected='$3')"; fi; }
 section() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 
-# Silence redamon's info/warn (the empty-detection warn would pollute output).
+# Silence whitehat's info/warn (the empty-detection warn would pollute output).
 info() { :; }
 warn() { :; }
 

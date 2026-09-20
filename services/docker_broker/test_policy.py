@@ -39,29 +39,29 @@ def deny(desc, body, must_mention=None):
     check(f"DENY  {desc} (reason={reason!r})", cond)
 
 
-# Make the test independent of env: pin the bind allowlist to /tmp/redamon.
-broker.ALLOWED_BIND_PREFIXES = ["/tmp/redamon"]
-# T1/T2: only /tmp/redamon is writable by default (source-tree binds must be ro).
-broker.ALLOWED_RW_PREFIXES = ["/tmp/redamon"]
+# Make the test independent of env: pin the bind allowlist to /tmp/whitehat.
+broker.ALLOWED_BIND_PREFIXES = ["/tmp/whitehat"]
+# T1/T2: only /tmp/whitehat is writable by default (source-tree binds must be ro).
+broker.ALLOWED_RW_PREFIXES = ["/tmp/whitehat"]
 
 NAABU = "projectdiscovery/naabu:latest"
 
 print("=== ALLOW: legitimate tool runs ===")
 allow("plain tool image", {"Image": NAABU})
 allow("net=host (needed for SYN/loopback)", {"Image": NAABU, "HostConfig": {"NetworkMode": "host"}})
-allow("bind under allowed prefix", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/x:/targets:ro"]}})
+allow("bind under allowed prefix", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/x:/targets:ro"]}})
 allow("named volume on allowlist", {"Image": "projectdiscovery/nuclei:latest",
       "HostConfig": {"Mounts": [{"Type": "volume", "Source": "nuclei-templates", "Target": "/root/nuclei-templates"}]}})
 allow("NET_RAW capability", {"Image": NAABU, "HostConfig": {"CapAdd": ["NET_RAW"]}})
-allow("alpine cleanup helper", {"Image": "alpine", "HostConfig": {"Binds": ["/tmp/redamon/c:/cleanup"]}})
+allow("alpine cleanup helper", {"Image": "alpine", "HostConfig": {"Binds": ["/tmp/whitehat/c:/cleanup"]}})
 allow("bind via Mounts type=bind under prefix", {"Image": NAABU,
-      "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/tmp/redamon/o", "Target": "/output"}]}})
+      "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/tmp/whitehat/o", "Target": "/output"}]}})
 # Supply-chain feature (plan Phase 0.5): the DIRTY analyzer image + the offline
 # OSV DB volume are allowlisted; a look-alike image is not.
-allow("supply-chain analyzer image", {"Image": "redamon-supply-chain-analyzer:latest"})
-allow("supply-chain clean scanner image", {"Image": "redamon-supply-chain:latest"})
-allow("offline OSV DB volume (ro)", {"Image": "redamon-supply-chain-analyzer:latest",
-      "HostConfig": {"Mounts": [{"Type": "volume", "Source": "redamon-osv-db", "Target": "/osv-db", "ReadOnly": True}]}})
+allow("supply-chain analyzer image", {"Image": "whitehat-supply-chain-analyzer:latest"})
+allow("supply-chain clean scanner image", {"Image": "whitehat-supply-chain:latest"})
+allow("offline OSV DB volume (ro)", {"Image": "whitehat-supply-chain-analyzer:latest",
+      "HostConfig": {"Mounts": [{"Type": "volume", "Source": "whitehat-osv-db", "Target": "/osv-db", "ReadOnly": True}]}})
 
 print("=== DENY: host-escape attempts ===")
 deny("mount host root /", {"Image": NAABU, "HostConfig": {"Binds": ["/:/host"]}}, "bind")
@@ -74,8 +74,8 @@ deny("cap SYS_ADMIN", {"Image": NAABU, "HostConfig": {"CapAdd": ["SYS_ADMIN"]}},
 deny("cap ALL", {"Image": NAABU, "HostConfig": {"CapAdd": ["ALL"]}}, "capability")
 deny("device passthrough", {"Image": NAABU, "HostConfig": {"Devices": [{"PathOnHost": "/dev/sda"}]}}, "device")
 deny("pid=host", {"Image": NAABU, "HostConfig": {"PidMode": "host"}}, "PidMode")
-deny("pid=container:other (join another ns)", {"Image": NAABU, "HostConfig": {"PidMode": "container:redamon-recon-orchestrator"}}, "PidMode")
-deny("net=container:orchestrator (join its netns)", {"Image": NAABU, "HostConfig": {"NetworkMode": "container:redamon-recon-orchestrator"}}, "NetworkMode")
+deny("pid=container:other (join another ns)", {"Image": NAABU, "HostConfig": {"PidMode": "container:whitehat-recon-orchestrator"}}, "PidMode")
+deny("net=container:orchestrator (join its netns)", {"Image": NAABU, "HostConfig": {"NetworkMode": "container:whitehat-recon-orchestrator"}}, "NetworkMode")
 deny("ipc=host", {"Image": NAABU, "HostConfig": {"IpcMode": "host"}}, "IpcMode")
 deny("userns=host", {"Image": NAABU, "HostConfig": {"UsernsMode": "host"}}, "UsernsMode")
 deny("seccomp unconfined", {"Image": NAABU, "HostConfig": {"SecurityOpt": ["seccomp=unconfined"]}}, "SecurityOpt")
@@ -88,27 +88,27 @@ deny("bind sneaking root via Mounts", {"Image": NAABU,
      "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/", "Target": "/host"}]}}, "bind")
 
 print("=== BYPASS attempts (adversarial) ===")
-# A. path traversal in the bind source: starts with /tmp/redamon but escapes to /
-deny("traversal bind /tmp/redamon/../../etc",
-     {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/../../etc:/e"]}}, "bind")
-deny("traversal bind /tmp/redamon/../../",
-     {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/../..:/host"]}}, "bind")
+# A. path traversal in the bind source: starts with /tmp/whitehat but escapes to /
+deny("traversal bind /tmp/whitehat/../../etc",
+     {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/../../etc:/e"]}}, "bind")
+deny("traversal bind /tmp/whitehat/../../",
+     {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/../..:/host"]}}, "bind")
 deny("traversal via Mounts source",
-     {"Image": NAABU, "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/tmp/redamon/../../", "Target": "/h"}]}}, "bind")
+     {"Image": NAABU, "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/tmp/whitehat/../../", "Target": "/h"}]}}, "bind")
 # B. VolumesFrom: inherit another container's mounts (e.g. the orchestrator's docker.sock)
 deny("VolumesFrom inherits another container's mounts",
-     {"Image": NAABU, "HostConfig": {"VolumesFrom": ["redamon-recon-orchestrator"]}}, "VolumesFrom")
+     {"Image": NAABU, "HostConfig": {"VolumesFrom": ["whitehat-recon-orchestrator"]}}, "VolumesFrom")
 # C. emptying the default masked/readonly /proc paths
 deny("MaskedPaths emptied (unmask /proc)",
      {"Image": NAABU, "HostConfig": {"MaskedPaths": []}}, "MaskedPaths")
 
 print("=== T1/T2: mount-MODE enforcement (source-tree binds must be ro) ===")
 # Add the source tree ($PWD) as an allowed *read* prefix, as compose does.
-broker.ALLOWED_BIND_PREFIXES = ["/tmp/redamon", "/repo"]
-broker.ALLOWED_RW_PREFIXES = ["/tmp/redamon"]
+broker.ALLOWED_BIND_PREFIXES = ["/tmp/whitehat", "/repo"]
+broker.ALLOWED_RW_PREFIXES = ["/tmp/whitehat"]
 # rw of the writable scratch prefix stays allowed
-allow("rw bind of /tmp/redamon (explicit)", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/o:/o:rw"]}})
-allow("rw bind of /tmp/redamon (default mode)", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/redamon/o:/o"]}})
+allow("rw bind of /tmp/whitehat (explicit)", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/o:/o:rw"]}})
+allow("rw bind of /tmp/whitehat (default mode)", {"Image": NAABU, "HostConfig": {"Binds": ["/tmp/whitehat/o:/o"]}})
 # ro of the source tree is fine (tools read wordlists/templates from it)
 allow("ro bind of source tree", {"Image": NAABU, "HostConfig": {"Binds": ["/repo/recon:/app/recon:ro"]}})
 allow("ro source tree via Mounts (ReadOnly=true)", {"Image": NAABU,
@@ -123,8 +123,8 @@ deny("rw source tree via Mounts (ReadOnly=false)",
 deny("rw source tree via Mounts (ReadOnly explicitly false)",
      {"Image": NAABU, "HostConfig": {"Mounts": [{"Type": "bind", "Source": "/repo", "Target": "/r", "ReadOnly": False}]}}, "read-write")
 # restore defaults for any later tests
-broker.ALLOWED_BIND_PREFIXES = ["/tmp/redamon"]
-broker.ALLOWED_RW_PREFIXES = ["/tmp/redamon"]
+broker.ALLOWED_BIND_PREFIXES = ["/tmp/whitehat"]
+broker.ALLOWED_RW_PREFIXES = ["/tmp/whitehat"]
 
 print("=== pull policy ===")
 ok, _ = broker.validate_pull("/v1.43/images/create?fromImage=projectdiscovery/naabu&tag=latest")

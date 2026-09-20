@@ -1,6 +1,6 @@
 # Browser end-to-end tests
 
-Drives the real RedAmon web app in Chromium against the running stack.
+Drives the real WhiteHat web app in Chromium against the running stack.
 
 ```bash
 cd testing/e2e
@@ -24,13 +24,13 @@ it is meant to exercise the built image, so **rebuild after changing
 `webapp/src`** (`docker compose build webapp && docker compose up -d webapp`)
 or the tests will run against the previous bundle.
 
-Override the target with `REDAMON_BASE_URL`, and the fixtures with
-`REDAMON_PROJECT` / `REDAMON_USER`.
+Override the target with `WHITEHAT_BASE_URL`, and the fixtures with
+`WHITEHAT_PROJECT` / `WHITEHAT_USER`.
 
 ## Auth
 
 `tests/auth.ts` signs the app's own session JWT with `AUTH_SECRET` from the
-repo `.env` and sets it as the `redamon-auth` cookie. No password is stored
+repo `.env` and sets it as the `whitehat-auth` cookie. No password is stored
 here, and the tests do not depend on the login page's markup.
 
 The onboarding gate and the GitHub star banner are full-screen overlays keyed

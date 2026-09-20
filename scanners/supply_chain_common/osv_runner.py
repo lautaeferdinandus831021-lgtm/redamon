@@ -62,7 +62,7 @@ def run_osv_scan(target, *, mode="lockfile", db_path=None, offline=True,
 
     if offline:
         # F5: running --offline with no local DB (missing dir OR an empty volume
-        # that was created but never populated by `redamon.sh supply-chain-sync`)
+        # that was created but never populated by `whitehat.sh supply-chain-sync`)
         # returns an EMPTY result with exit 0 - a silent false-clean where a
         # genuinely malicious package passes. Fail hard with an actionable error
         # instead of reporting a misleading clean verdict.
@@ -70,7 +70,7 @@ def run_osv_scan(target, *, mode="lockfile", db_path=None, offline=True,
         if not db or not os.path.isdir(db) or not os.listdir(db):
             return {"raw": None, "parsed": _empty_parsed(), "exit_code": None,
                     "error": ("offline OSV DB missing or empty at {!r}; run "
-                              "'./redamon.sh supply-chain-sync <ecosystems>' "
+                              "'./whitehat.sh supply-chain-sync <ecosystems>' "
                               "first".format(db_path))}
 
     argv = [binary, "scan", "source"]
@@ -116,7 +116,7 @@ def run_osv_scan(target, *, mode="lockfile", db_path=None, offline=True,
     missing = _missing_ecosystems(res["stderr"])
     if error is None and missing:
         error = ("offline OSV database has no {} ecosystem(s); those packages "
-                 "were NOT checked - run './redamon.sh supply-chain-sync {}'"
+                 "were NOT checked - run './whitehat.sh supply-chain-sync {}'"
                  .format(", ".join("'{}'".format(e) for e in missing),
                          " ".join(missing)))
     elif error is None and res["exit_code"] not in OSV_OK_EXIT_CODES:
@@ -170,7 +170,7 @@ def _explain_osv_stderr(stderr, exit_code):
     missing = _missing_ecosystems(text)
     if missing:
         return ("offline OSV database has no {} ecosystem(s); run "
-                "'./redamon.sh supply-chain-sync {}' to add them"
+                "'./whitehat.sh supply-chain-sync {}' to add them"
                 .format(", ".join("'{}'".format(e) for e in missing),
                         " ".join(missing)))
     meaningful = [ln.strip() for ln in text.splitlines()

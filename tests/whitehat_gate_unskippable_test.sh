@@ -7,7 +7,7 @@
 #   _test_run_webapp   returned 0 when webapp/node_modules was absent
 #   _test_run_section  returned 0 when the section's image was not built
 #
-# The second is the wider hole: a missing `redamon-recon` image skipped every
+# The second is the wider hole: a missing `whitehat-recon` image skipped every
 # runtime test that protects the engagement rate ceiling. Most of the recon
 # settings registry's enforcement is TypeScript, so the first skip made the rest
 # of that layer unverified too.
@@ -16,14 +16,14 @@
 # helpers with their inputs missing. They run on the host with no image and no
 # node_modules, which is exactly the situation they describe.
 #
-# Run:  bash tests/redamon_gate_unskippable_test.sh
+# Run:  bash tests/whitehat_gate_unskippable_test.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1090
-source "$REPO_ROOT/redamon.sh"
+source "$REPO_ROOT/whitehat.sh"
 set +e
 
 PASS=0; FAIL=0
@@ -46,7 +46,7 @@ assert_eq "unit tier returns non-zero" "$rc" "1"
 assert_contains "names the section" "$out" "demo"
 assert_contains "says it cannot run" "$out" "CANNOT RUN"
 assert_contains "gives the fix" "$out" "build it"
-assert_contains "names the opt-out" "$out" "REDAMON_TEST_ALLOW_MISSING"
+assert_contains "names the opt-out" "$out" "WHITEHAT_TEST_ALLOW_MISSING"
 
 out="$(_test_missing_input demo "not built" "build it" all 2>&1)"
 assert_eq "all tier also fails" "$?" "1"
@@ -62,23 +62,23 @@ assert_eq "live tier still skips" "$?" "0"
 section "T26: the opt-out is deliberate, named, and loud"
 # =============================================================================
 
-out="$(REDAMON_TEST_ALLOW_MISSING=demo _test_missing_input demo "not built" "build it" unit 2>&1)"
+out="$(WHITEHAT_TEST_ALLOW_MISSING=demo _test_missing_input demo "not built" "build it" unit 2>&1)"
 assert_eq "an allowed section returns 0" "$?" "0"
 assert_contains "but prints SKIPPED" "$out" "SKIPPED"
-assert_contains "and names the opt-out that allowed it" "$out" "REDAMON_TEST_ALLOW_MISSING"
+assert_contains "and names the opt-out that allowed it" "$out" "WHITEHAT_TEST_ALLOW_MISSING"
 
-out="$(REDAMON_TEST_ALLOW_MISSING=other _test_missing_input demo "not built" "build it" unit 2>&1)"
+out="$(WHITEHAT_TEST_ALLOW_MISSING=other _test_missing_input demo "not built" "build it" unit 2>&1)"
 assert_eq "a DIFFERENT section in the opt-out does not allow this one" "$?" "1"
 
-out="$(REDAMON_TEST_ALLOW_MISSING=all _test_missing_input demo "not built" "build it" unit 2>&1)"
+out="$(WHITEHAT_TEST_ALLOW_MISSING=all _test_missing_input demo "not built" "build it" unit 2>&1)"
 assert_eq "'all' allows any section" "$?" "0"
 
-out="$(REDAMON_TEST_ALLOW_MISSING="webapp, demo ,recon" _test_missing_input demo "not built" "build it" unit 2>&1)"
+out="$(WHITEHAT_TEST_ALLOW_MISSING="webapp, demo ,recon" _test_missing_input demo "not built" "build it" unit 2>&1)"
 assert_eq "a comma list tolerates spaces" "$?" "0"
 
 # An empty opt-out is not an opt-out. This is the case a CI config reaches by
 # exporting the variable unset, and it must not silently open the gate.
-out="$(REDAMON_TEST_ALLOW_MISSING= _test_missing_input demo "not built" "build it" unit 2>&1)"
+out="$(WHITEHAT_TEST_ALLOW_MISSING= _test_missing_input demo "not built" "build it" unit 2>&1)"
 assert_eq "an empty opt-out still fails" "$?" "1"
 
 # =============================================================================
@@ -103,9 +103,9 @@ SCRIPT_DIR="$_saved_dir"
 
 # section: an image that cannot exist -> non-zero for the gate tier.
 if command -v docker >/dev/null 2>&1; then
-    out="$(_test_run_section demo redamon-no-such-image-xyz /repo /repo tests . "" unit 2>&1)"
+    out="$(_test_run_section demo whitehat-no-such-image-xyz /repo /repo tests . "" unit 2>&1)"
     assert_eq "_test_run_section fails on an unbuilt image" "$?" "1"
-    assert_contains "names the image" "$out" "redamon-no-such-image-xyz"
+    assert_contains "names the image" "$out" "whitehat-no-such-image-xyz"
 else
     pass "docker absent, section-image case not exercised (helper covered above)"
 fi

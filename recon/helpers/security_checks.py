@@ -1,5 +1,5 @@
 """
-RedAmon - Vulnerability Scan Helper Functions
+WhiteHat - Vulnerability Scan Helper Functions
 =============================================
 Security check functions for detecting misconfigurations and vulnerabilities.
 These are custom checks that complement Nuclei template scanning.

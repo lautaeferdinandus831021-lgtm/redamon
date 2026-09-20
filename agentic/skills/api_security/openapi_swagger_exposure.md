@@ -21,7 +21,7 @@ Reference for finding API specs leaked in production and converting them into a 
 
 ### Captured-traffic workflow (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, redamon.grep over captured response bodies can catch a spec leaked inline (`{"openapi":` or `{"swagger":`) that a fixed path sweep misses, and redamon.get reads it. redamon.sitemap (endpoints actually observed in traffic) diffed against the spec's declared paths is a direct spec-drift and hidden-operation detector, and redamon.params compares declared parameters against the ones the handler actually accepts. redamon.replay probes operations marked `security: []` for real unauth access. Where the proxy stops: the core workflow stays fetch-and-parse plus execute_ffuf / execute_arjun / execute_nuclei against the parsed spec.
+When HTTP Traffic Capture is enabled, whitehat.grep over captured response bodies can catch a spec leaked inline (`{"openapi":` or `{"swagger":`) that a fixed path sweep misses, and whitehat.get reads it. whitehat.sitemap (endpoints actually observed in traffic) diffed against the spec's declared paths is a direct spec-drift and hidden-operation detector, and whitehat.params compares declared parameters against the ones the handler actually accepts. whitehat.replay probes operations marked `security: []` for real unauth access. Where the proxy stops: the core workflow stays fetch-and-parse plus execute_ffuf / execute_arjun / execute_nuclei against the parsed spec.
 
 ## Discovery paths
 

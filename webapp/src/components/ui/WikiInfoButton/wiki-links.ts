@@ -1,6 +1,6 @@
 // Centralized map of every webapp section/tool to its wiki page (and optional anchor).
 // Wiki source lives at https://github.com/samugit83/redamon/wiki and locally at
-// `redamon.wiki/`. Page filenames there map 1:1 to URLs (without the `.md`).
+// `whitehat.wiki/`. Page filenames there map 1:1 to URLs (without the `.md`).
 
 const WIKI_BASE = 'https://github.com/samugit83/redamon/wiki'
 

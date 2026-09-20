@@ -13,10 +13,10 @@ every state the census claims to exclude.
 
 Skipped unless the neo4j driver is importable AND a database answers. To run it:
 
-  docker run --rm --network redamon-network -v "$PWD:/repo" -w /repo \\
-    -e PYTHONPATH=/repo -e NEO4J_URI=bolt://redamon-neo4j:7687 \\
+  docker run --rm --network whitehat-network -v "$PWD:/repo" -w /repo \\
+    -e PYTHONPATH=/repo -e NEO4J_URI=bolt://whitehat-neo4j:7687 \\
     -e NEO4J_USER -e NEO4J_PASSWORD \\
-    redamon-agent python -m unittest tests.test_mcp_analytics_graph_live -v
+    whitehat-agent python -m unittest tests.test_mcp_analytics_graph_live -v
 
 Everything it creates is scoped to a throwaway tenant and deleted in tearDown,
 so it is safe against a populated database.

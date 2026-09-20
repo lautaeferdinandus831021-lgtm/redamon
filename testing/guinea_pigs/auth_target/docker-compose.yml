@@ -1,4 +1,4 @@
-# RedAmon auth_target guinea pig — Authenticated Session Recording
+# WhiteHat auth_target guinea pig — Authenticated Session Recording
 #
 # Bring up:    docker compose up -d --build
 # Bring down:  docker compose down
@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: redamon-auth-target:latest
+    image: whitehat-auth-target:latest
     container_name: authpig
     restart: unless-stopped
     # The in-container port MUST equal the published port. Recon tools run with
@@ -41,4 +41,4 @@ services:
 networks:
   pentest:
     external: true
-    name: redamon_pentest-net
+    name: whitehat_pentest-net

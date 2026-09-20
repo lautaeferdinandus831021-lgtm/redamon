@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BloodHound JSON → NetworkX path-finder for the RedAmon AD kill-chain skill.
+"""BloodHound JSON → NetworkX path-finder for the WhiteHat AD kill-chain skill.
 
 No Neo4j. State persists in a JSON file between calls.
 Edges carry a `weight` reflecting exploitation difficulty so shortest_path

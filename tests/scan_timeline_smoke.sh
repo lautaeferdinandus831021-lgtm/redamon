@@ -22,17 +22,17 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.."
 
-BASE="${REDAMON_WEBAPP_URL:-http://localhost:3000}"
+BASE="${WHITEHAT_WEBAPP_URL:-http://localhost:3000}"
 JAR="$(mktemp -d)/cookies.txt"
 
-PSQL=(docker compose exec -T postgres psql -U redamon -d redamon -qtAX)
+PSQL=(docker compose exec -T postgres psql -U whitehat -d whitehat -qtAX)
 pass=0; fail=0
 ok()  { echo "  PASS  $1"; pass=$((pass + 1)); }
 bad() { echo "  FAIL  $1"; echo "        $2"; fail=$((fail + 1)); }
 expect_eq() { if [ "$2" = "$3" ]; then ok "$1"; else bad "$1" "expected '$2' got '$3'"; fi; }
 
 q()      { "${PSQL[@]}" -c "$1" 2>&1; }
-cypher() { docker compose exec -T neo4j cypher-shell -u neo4j -p "${NEO4J_PASSWORD:-redamon123}" --format plain "$1" 2>&1; }
+cypher() { docker compose exec -T neo4j cypher-shell -u neo4j -p "${NEO4J_PASSWORD:-whitehat123}" --format plain "$1" 2>&1; }
 # Evaluate a python expression over the JSON body on stdin; `d` is the document.
 jqf()    { python3 -c 'import json,sys; print(eval(sys.argv[1], {"d": json.load(sys.stdin)}))' "$1" 2>/dev/null; }
 

@@ -1,10 +1,10 @@
-# RedAmon Recon Orchestrator Docker Compose (standalone)
+# WhiteHat Recon Orchestrator Docker Compose (standalone)
 # For full stack, use the root docker-compose.yml instead.
 
 services:
   recon-orchestrator:
     build: .
-    container_name: redamon-recon-orchestrator
+    container_name: whitehat-recon-orchestrator
     ports:
       - "8010:8010"
     volumes:
@@ -19,11 +19,11 @@ services:
       - ${HOST_RECON_PATH:-../recon}/output:/app/recon/output:rw
     environment:
       # Host paths are auto-detected from container mounts (no hardcoded paths needed)
-      - RECON_IMAGE=redamon-recon:latest
+      - RECON_IMAGE=whitehat-recon:latest
       # Forwarded to spawned recon containers (host network, so localhost)
       - NEO4J_URI=bolt://localhost:7687
       - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
@@ -34,5 +34,5 @@ services:
 
 networks:
   default:
-    name: redamon-network
+    name: whitehat-network
     external: true

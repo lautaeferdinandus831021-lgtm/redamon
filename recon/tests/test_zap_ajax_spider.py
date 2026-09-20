@@ -67,17 +67,17 @@ def test_zap_ajax_automation_plan_contains_replacer_spider_and_export_jobs():
         scope_check="Strict",
     )
 
-    assert 'name: "redamon-zap-ajax"' in plan
+    assert 'name: "whitehat-zap-ajax"' in plan
     assert "env:" in plan
     assert "  contexts:" in plan
-    assert '    - name: "redamon-zap-ajax-context"' in plan
+    assert '    - name: "whitehat-zap-ajax-context"' in plan
     assert '        - "/logout"' in plan
     assert 'type: "replacer"' in plan
     assert 'matchString: "Authorization"' in plan
     assert 'replacementString: "Bearer secret-token"' in plan
     assert "enabled: true" not in plan
     assert 'type: "spiderAjax"' in plan
-    assert 'context: "redamon-zap-ajax-context"' in plan
+    assert 'context: "whitehat-zap-ajax-context"' in plan
     assert 'url: "https://app.example.com/dashboard"' in plan
     assert "maxDuration: 7" in plan
     assert "maxCrawlDepth: 4" in plan

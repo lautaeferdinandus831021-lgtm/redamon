@@ -11,7 +11,7 @@ the Neo4j creds in env and host networking:
     docker run --rm --network host \
       -e NEO4J_URI=bolt://localhost:7687 -e NEO4J_USER=neo4j -e NEO4J_PASSWORD=changeme123 \
       -v "$PWD/ai_attack_surface_scan:/app/ai_attack_surface_scan" \
-      redamon-ai-attack-surface:latest \
+      whitehat-ai-attack-surface:latest \
       python -m unittest ai_attack_surface_scan.tests.test_integration_graph -v
 """
 import unittest

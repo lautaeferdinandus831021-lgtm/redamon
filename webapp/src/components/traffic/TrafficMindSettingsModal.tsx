@@ -38,7 +38,7 @@ type EgressToggleKey =
 
 const EGRESS_TOGGLES: { key: EgressToggleKey; title: string; tip: string; danger?: boolean }[] = [
   { key: 'captureEgressBlockPrivate', title: 'Private IPs (RFC1918)', danger: true,
-    tip: 'Refuse 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 and IPv6 ULA (fc00::/7). Turn OFF to let the proxy reach internal / lab targets on a private network (e.g. Docker 172.x). WARNING: this also exposes RedAmon’s own services on those ranges; keep their IPs in the always-on blocked-IPs denylist (CAPTURE_BLOCKED_IPS) so they stay refused.' },
+    tip: 'Refuse 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 and IPv6 ULA (fc00::/7). Turn OFF to let the proxy reach internal / lab targets on a private network (e.g. Docker 172.x). WARNING: this also exposes WhiteHat’s own services on those ranges; keep their IPs in the always-on blocked-IPs denylist (CAPTURE_BLOCKED_IPS) so they stay refused.' },
   { key: 'captureEgressBlockLinkLocal', title: 'Link-local IPs',
     tip: 'Refuse 169.254.0.0/16 and fe80::/10. Includes the cloud metadata endpoint 169.254.169.254, a classic SSRF credential-theft target. Leave on unless you specifically need it.' },
   { key: 'captureEgressBlockLoopback', title: 'Loopback IPs',
@@ -359,7 +359,7 @@ export function TrafficMindSettingsModal({ isOpen, onClose, userId }: {
             <div style={{ marginTop: 18, borderTop: '1px solid var(--border-default)', paddingTop: 16 }}>
               <h4 style={{ margin: '0 0 4px', color: 'var(--text-primary)', fontSize: 'var(--text-md, 14px)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 Egress guard
-                <Tooltip content="The egress guard stops the capture proxy becoming an SSRF pivot into RedAmon's internal network. Each condition below is REFUSED (returns 403, nothing forwarded). All default to block; relaxing one lets the proxy reach that class of destination. RedAmon's own service IPs stay blocked via the separate blocked-IPs denylist regardless." position="top" maxWidth={520}>
+                <Tooltip content="The egress guard stops the capture proxy becoming an SSRF pivot into WhiteHat's internal network. Each condition below is REFUSED (returns 403, nothing forwarded). All default to block; relaxing one lets the proxy reach that class of destination. WhiteHat's own service IPs stay blocked via the separate blocked-IPs denylist regardless." position="top" maxWidth={520}>
                   <Info size={14} style={{ color: 'var(--text-tertiary)', cursor: 'help' }} />
                 </Tooltip>
               </h4>

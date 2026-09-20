@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-const SESSION_STORAGE_KEY = 'redamon-session-id'
+const SESSION_STORAGE_KEY = 'whitehat-session-id'
 
 // STRIDE S7: use a CSPRNG, not Math.random(), and widen the id to 128 bits so a
 // session id cannot be guessed/predicted (which, combined with S6, would allow

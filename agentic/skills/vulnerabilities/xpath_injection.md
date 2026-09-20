@@ -72,10 +72,10 @@ XPath 2.0+ gives richer extraction (`doc()`, `unparsed-text()`, regex). XPath 1.
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history (proxy_brain only see traffic that crossed the capture proxy).
 
-- `redamon.grep "Saxon"` (also `Xalan`, `lxml`, `DOMXPath`) reads verbatim XPath engine errors already sitting in captured response bodies, fingerprinting engine and version.
-- For a GET search param, `redamon.fuzz id "q" [...]` drives the boolean-blind `substring()` binary search over one captured QUERY param, iterating the character-position payload sets.
-- For login / search body params (redamon.fuzz is query-only), `redamon.replay id mutate:{param:{"username":"' or '1'='1"}}` mutates the field with quote-flip payloads.
-- `redamon.diff id_legit id_injected` exposes the success-versus-failure oracle between a legitimate and an injected response.
+- `whitehat.grep "Saxon"` (also `Xalan`, `lxml`, `DOMXPath`) reads verbatim XPath engine errors already sitting in captured response bodies, fingerprinting engine and version.
+- For a GET search param, `whitehat.fuzz id "q" [...]` drives the boolean-blind `substring()` binary search over one captured QUERY param, iterating the character-position payload sets.
+- For login / search body params (whitehat.fuzz is query-only), `whitehat.replay id mutate:{param:{"username":"' or '1'='1"}}` mutates the field with quote-flip payloads.
+- `whitehat.diff id_legit id_injected` exposes the success-versus-failure oracle between a legitimate and an injected response.
 
 ## Attack matrix
 

@@ -1199,7 +1199,7 @@ class TestBuildBaddnsCommand:
         # Default targets filename passed positionally
         assert "/work/baddns_targets.txt" in cmd
         # Default image
-        assert "redamon-baddns:latest" in cmd
+        assert "whitehat-baddns:latest" in cmd
         # Default modules emitted as comma-separated positional arg
         assert "cname,ns,mx,txt,spf" in cmd
 
@@ -1246,7 +1246,7 @@ class TestBuildBaddnsCommand:
     def test_custom_image_overrides_default(self):
         cmd = build_baddns_command("/tmp/work", docker_image="custom/baddns:v2")
         assert "custom/baddns:v2" in cmd
-        assert "redamon-baddns:latest" not in cmd
+        assert "whitehat-baddns:latest" not in cmd
 
     def test_extra_docker_args_inserted_before_image(self):
         cmd = build_baddns_command(
@@ -1255,19 +1255,19 @@ class TestBuildBaddnsCommand:
         )
         # `--network host` should appear between `--rm` and the image name
         network_idx = cmd.index("--network")
-        image_idx = cmd.index("redamon-baddns:latest")
+        image_idx = cmd.index("whitehat-baddns:latest")
         assert network_idx < image_idx
 
     def test_container_name_via_extra_docker_args(self):
         # Verifies the runner's orphan-cleanup pattern can inject --name
         cmd = build_baddns_command(
             "/tmp/work",
-            extra_docker_args=["--name", "redamon-baddns-1234-5678"],
+            extra_docker_args=["--name", "whitehat-baddns-1234-5678"],
         )
         name_idx = cmd.index("--name")
-        image_idx = cmd.index("redamon-baddns:latest")
+        image_idx = cmd.index("whitehat-baddns:latest")
         assert name_idx < image_idx
-        assert "redamon-baddns-1234-5678" in cmd
+        assert "whitehat-baddns-1234-5678" in cmd
 
     def test_module_registry_contains_the_10_cli_addressable_modules(self):
         # Guards the research finding: upstream ships 11 modules but only 10

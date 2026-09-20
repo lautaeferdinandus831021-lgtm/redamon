@@ -1,5 +1,5 @@
 """
-RedAmon Agent WebSocket API
+WhiteHat Agent WebSocket API
 
 FastAPI application providing WebSocket endpoint for real-time agent communication.
 Supports session-based conversation continuity and phase-based approval flow.
@@ -72,7 +72,7 @@ async def lifespan(app: FastAPI):
     # rm/edit them. Ownership still root, but mode 666/777 makes that OK.
     os.umask(0)
 
-    logger.info("Starting RedAmon Agent API...")
+    logger.info("Starting WhiteHat Agent API...")
 
     # Initialize orchestrator
     orchestrator = AgentOrchestrator()
@@ -116,17 +116,17 @@ async def lifespan(app: FastAPI):
     else:
         logger.info(f"RoE parse prompt matches the loaded registry ({_boot_digest[:12]})")
 
-    logger.info("RedAmon Agent API ready (WebSocket)")
+    logger.info("WhiteHat Agent API ready (WebSocket)")
 
     yield
 
-    logger.info("Shutting down RedAmon Agent API...")
+    logger.info("Shutting down WhiteHat Agent API...")
     if orchestrator:
         await orchestrator.close()
 
 
 app = FastAPI(
-    title="RedAmon Agent API",
+    title="WhiteHat Agent API",
     description="WebSocket API for real-time agent communication with phase tracking, MCP tools, and Neo4j integration",
     version="3.0.0",
     lifespan=lifespan
@@ -1158,7 +1158,7 @@ async def health():
 async def get_host_ip():
     """The Docker host's LAN IP, for the UI to suggest as the reverse-shell LHOST.
 
-    Detected on the host by redamon.sh (export_host_lan_ip) and passed in via the
+    Detected on the host by whitehat.sh (export_host_lan_ip) and passed in via the
     HOST_LAN_IP env var, because a container cannot discover the host's routable
     address from inside the 172.x sandbox (issue #180). Empty string when
     detection failed or a HOST_LAN_IP override is unset; the caller then simply
@@ -3278,7 +3278,7 @@ async def graph_triage(body: GraphTriageRequest):
     if master_key_is_weak():
         return JSONResponse(status_code=503, content={
             "error": "INTERNAL_API_KEY is not configured; triage operations are "
-                     "disabled. Generate the secret via redamon.sh.",
+                     "disabled. Generate the secret via whitehat.sh.",
         })
 
     if not body.user_id or not body.project_id:
@@ -3519,11 +3519,11 @@ def _graph_exec_respond(final: str, params: dict) -> JSONResponse:
 
 
 # =============================================================================
-# TRAFFIC — proxy_brain broker endpoints (kali `redamon` SDK -> agent)
+# TRAFFIC — proxy_brain broker endpoints (kali `whitehat` SDK -> agent)
 # =============================================================================
 #
 # The kali sandbox runs agent-authored code (`proxy_brain`) but holds NO
-# DATABASE_URL. Its `redamon` SDK reaches the captured-traffic corpus and the
+# DATABASE_URL. Its `whitehat` SDK reaches the captured-traffic corpus and the
 # active replay path ONLY through these two endpoints — the mirror of the
 # redagraph -> /graph/exec pattern. Tenant identity is NOT taken from the body:
 # it is derived from a signed `ctx` tag (source=agent) that only the agent could
@@ -3616,7 +3616,7 @@ def _replay_budget() -> int:
 
 
 class TrafficExecRequest(BaseModel):
-    """kali redamon SDK -> agent, read-only corpus access. `ctx` is the signed
+    """kali whitehat SDK -> agent, read-only corpus access. `ctx` is the signed
     agent tag; tenant is derived from it (never from the body). `op` selects a
     fixed read operation; `args` are the op's parameters."""
     ctx: str
@@ -3625,7 +3625,7 @@ class TrafficExecRequest(BaseModel):
 
 
 class TrafficReplayRequest(BaseModel):
-    """kali redamon SDK -> agent, ACTIVE replay PREPARE. The agent validates
+    """kali whitehat SDK -> agent, ACTIVE replay PREPARE. The agent validates
     tenant + phase, reads the origin (tenant-scoped), builds the HOST-PINNED curl
     and signs the replay lineage tag, then returns them for the worker to send
     through the capture proxy. The agent never reaches the target itself."""
@@ -3644,7 +3644,7 @@ def _verify_traffic_ctx(ctx: str) -> Optional[dict]:
     hold, so it can present the scoped SCANNER_API_KEY for transport auth yet
     cannot mint a tag for a tenant it was not issued for."""
     try:
-        from redamon_ctx import verify_tag
+        from whitehat_ctx import verify_tag
     except Exception:  # noqa: BLE001
         return None
     key = os.environ.get("INTERNAL_API_KEY", "")
@@ -3675,7 +3675,7 @@ def _apply_traffic_tenant(claims: dict) -> None:
 
 @app.post("/traffic/exec", tags=["Traffic"], dependencies=[Depends(require_internal_auth_only)])
 async def traffic_exec(body: TrafficExecRequest):
-    """Read-only corpus access for the kali `redamon` SDK. Constrained ops only;
+    """Read-only corpus access for the kali `whitehat` SDK. Constrained ops only;
     tenant from the verified tag; every underlying query hard-injects the tenant
     filter (traffic_tools). Returns the tool's formatted text under `result`."""
     claims = _verify_traffic_ctx(body.ctx)
@@ -3743,7 +3743,7 @@ async def traffic_replay(body: TrafficReplayRequest):
     # Sign the replay lineage tag (source=agent, is_replay, origin_id) so the
     # ingest attributes the re-captured row from the VERIFIED tag, not the body.
     try:
-        from redamon_ctx import sign_tag
+        from whitehat_ctx import sign_tag
         replay_tag = sign_tag({
             "source": "agent",
             "project_id": claims["project_id"],
@@ -3792,7 +3792,7 @@ async def traffic_replay(body: TrafficReplayRequest):
 
 
 # Per-session browser-action budget for /traffic/browser. proxy_brain's
-# `redamon.browser` drives a real chromium in the kali sandbox; its page loads
+# `whitehat.browser` drives a real chromium in the kali sandbox; its page loads
 # fan out to sub-requests the /traffic/replay send-budget never sees (they go
 # kali -> capture proxy directly), so a separate counter caps browser ACTIONS
 # (goto/click/eval). Same in-process single-worker model as _TRAFFIC_REPLAY_SENDS.
@@ -3807,7 +3807,7 @@ def _browser_budget() -> int:
 
 
 class TrafficBrowserRequest(BaseModel):
-    """kali `redamon.browser` -> agent, browser PREPARE. `open` mints one signed
+    """kali `whitehat.browser` -> agent, browser PREPARE. `open` mints one signed
     capture tag pinned to the origin transaction's host; `navigate`/`interact`/
     `eval` enforce the per-session action budget, and `navigate` additionally
     refuses any URL whose host is not the pinned origin host. The kali worker
@@ -3820,7 +3820,7 @@ class TrafficBrowserRequest(BaseModel):
 
 @app.post("/traffic/browser", tags=["Traffic"], dependencies=[Depends(require_internal_auth_only)])
 async def traffic_browser(body: TrafficBrowserRequest):
-    """Browser PREPARE for the kali `redamon.browser` SDK. Mirrors /traffic/replay:
+    """Browser PREPARE for the kali `whitehat.browser` SDK. Mirrors /traffic/replay:
     validates tenant + phase, re-reads the origin transaction tenant-scoped to pin
     the host, and (for `open`) signs the capture-lineage tag the browser stamps on
     every request. Active navigation is exploitation-phase only and per-session
@@ -3881,10 +3881,10 @@ async def traffic_browser(body: TrafficBrowserRequest):
 
     if body.action == "open":
         # Sign ONE capture tag for the browser's lifetime. The browser stamps it
-        # as X-Redamon-Ctx so every re-captured row is attributed from the VERIFIED
+        # as X-WhiteHat-Ctx so every re-captured row is attributed from the VERIFIED
         # tag (tool=proxy_brain_browser), not from anything the target controls.
         try:
-            from redamon_ctx import sign_tag
+            from whitehat_ctx import sign_tag
             cap_tag = sign_tag({
                 "source": "agent",
                 "project_id": claims["project_id"],
@@ -3959,7 +3959,7 @@ async def kali_toolbox():
     note = (
         "\n\n---\n\n"
         "NOTE FOR MCP CALLERS: the line above about preferring dedicated tools "
-        "(execute_nmap, execute_nuclei, execute_curl and so on) applies to RedAmon's "
+        "(execute_nmap, execute_nuclei, execute_curl and so on) applies to WhiteHat's "
         "IN-APP agent, which has them. You do not. On this surface `kali_exec` is the "
         "only way to run anything, so use it for every tool listed here, including "
         "curl, nmap, nuclei, httpx, ffuf, subfinder, katana and the rest.\n\n"
@@ -4083,7 +4083,7 @@ def _kali_job_view(state: dict, cursor: int, project_id: str, job_id: str) -> di
         # and nothing propagates the cancellation to it, so the command itself
         # can keep running against the target for up to its own 300s timeout.
         view["note"] = (
-            "Cancelled on RedAmon's side. The sandbox command may still be running at "
+            "Cancelled on WhiteHat's side. The sandbox command may still be running at "
             "the target until its own timeout; output after this point is not collected."
         )
     return view

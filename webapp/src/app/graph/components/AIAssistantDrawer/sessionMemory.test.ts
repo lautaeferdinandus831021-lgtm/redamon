@@ -46,6 +46,6 @@ describe('sessionMemory — per-project session persistence', () => {
 
   it('uses a project-scoped storage key', () => {
     saveProjectSession('proj-123', 'conv-9')
-    expect(localStorage.getItem('redamon-current-session-proj-123')).toBe('conv-9')
+    expect(localStorage.getItem('whitehat-current-session-proj-123')).toBe('conv-9')
   })
 })

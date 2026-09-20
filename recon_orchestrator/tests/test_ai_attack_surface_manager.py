@@ -130,7 +130,7 @@ class TestStartStop(unittest.IsolatedAsyncioTestCase):
         self.mgr.client.containers.run.return_value = fake_container()
 
     def tearDown(self):
-        for f in glob.glob("/tmp/redamon/ai_attack_p_*.json"):
+        for f in glob.glob("/tmp/whitehat/ai_attack_p_*.json"):
             try:
                 os.unlink(f)
             except OSError:
@@ -186,17 +186,17 @@ class TestStartStop(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(state.llm_leased)   # judge lease released on cleanup
 
     async def test_config_filename_sanitizes_project_id(self):
-        # A project_id with path chars must not escape /tmp/redamon.
+        # A project_id with path chars must not escape /tmp/whitehat.
         state = await self.mgr.start_ai_attack_surface(
             project_id="p/../x", user_id="u", webapp_api_url="",
             run_config={"tool": "skeleton", "bounds": {}, "roe_confirmed": True},
             ai_attack_path="/host/ai_attack_surface_scan")
         cfg = self.mgr.client.containers.run.call_args.kwargs["environment"]["AI_ATTACK_CONFIG"]
-        self.assertTrue(cfg.startswith("/tmp/redamon/ai_attack_"))
+        self.assertTrue(cfg.startswith("/tmp/whitehat/ai_attack_"))
         # The real safety property: no '/' in the filename portion, so it can't
-        # escape /tmp/redamon (a literal '..' mid-filename is harmless without a
+        # escape /tmp/whitehat (a literal '..' mid-filename is harmless without a
         # surrounding separator). And the env path must equal the file we write.
-        self.assertNotIn("/", cfg[len("/tmp/redamon/"):])
+        self.assertNotIn("/", cfg[len("/tmp/whitehat/"):])
         # cleanup the sanitized file
         try:
             Path(cfg).unlink(missing_ok=True)
@@ -232,7 +232,7 @@ class TestStartStop(unittest.IsolatedAsyncioTestCase):
     async def test_start_failure_cleans_config_file(self):
         self.mgr.client.containers.run.side_effect = RuntimeError("docker boom")
         state = await self._start()
-        cfg = Path(f"/tmp/redamon/ai_attack_p_{state.run_id}.json")
+        cfg = Path(f"/tmp/whitehat/ai_attack_p_{state.run_id}.json")
         self.assertFalse(cfg.exists(), "config file must be cleaned on failed spawn")
 
     async def test_two_tools_share_then_release_judge(self):

@@ -4,7 +4,7 @@ the agent container against the real DB. Bypasses the LLM: it seeds rows in two
 tenants, sets the ContextVars, calls each tool via .ainvoke(), and asserts both
 the results AND tenant isolation (tenant A never sees tenant B's rows).
 
-Run: docker exec redamon-agent python /app/agentic/tests/live_traffic_tools_probe.py
+Run: docker exec whitehat-agent python /app/agentic/tests/live_traffic_tools_probe.py
 (or with the agentic dir on sys.path). Exits non-zero on any failure. Self-cleans.
 """
 import asyncio

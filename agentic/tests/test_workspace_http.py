@@ -34,7 +34,7 @@ import workspace_fs  # noqa: E402
 
 class HttpHelperTestBase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-ws-http-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-ws-http-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)
 

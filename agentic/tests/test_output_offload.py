@@ -31,7 +31,7 @@ import tool_offload_policy  # noqa: E402
 
 class OffloadTestBase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-offload-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-offload-")
         self._orig_root = output_offload.WORKSPACE_ROOT
         output_offload.WORKSPACE_ROOT = Path(self.tmp)
 

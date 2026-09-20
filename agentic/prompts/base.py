@@ -1,5 +1,5 @@
 """
-RedAmon Agent Base Prompts
+WhiteHat Agent Base Prompts
 
 Common prompts used across all attack paths.
 """
@@ -576,7 +576,7 @@ def build_attack_path_behavior(attack_path_type):
         return (
             "In informational phase: inventory every attacker-controllable value the server decrypts "
             "or verifies (cookies, tokens, signatures, MACs, ciphertext params) with query_graph / "
-            "redamon.search, decode each, and fingerprint the construction (block size, ECB block "
+            "whitehat.search, decode each, and fingerprint the construction (block size, ECB block "
             "repeats, JWT alg, a MAC/hash trailer, an RSA n/e/c triple, or a predictable token), "
             "then act.\n"
             "In exploitation: follow the crypto workflow. Probe the decrypt/verify endpoint for an "
@@ -838,7 +838,7 @@ def build_informational_guidance(phase):
 Classify the user request by intent, then act:
 
 - **Exploitation intent** ("exploit", "pwn", "run exploit", "use metasploit", "test vulnerability"): query the graph ONCE for target info (IP/port/service/CVE), then request `transition_phase` to exploitation. Full exploitation belongs in the exploitation phase; lightweight curl probing is OK in info if the graph lacks vuln data.
-- **Payload/handler intent** ("generate", "payload", "reverse shell", "msfvenom", "handler", "listener", "one-liner", "backdoor"): request `transition_phase` to exploitation immediately. Do NOT generate payloads or start listeners from informational. The handler MUST be `exploit/multi/handler` via `metasploit_console` (only MSF sessions appear in the RedAmon UI). msfvenom generation via `kali_shell` is fine.
+- **Payload/handler intent** ("generate", "payload", "reverse shell", "msfvenom", "handler", "listener", "one-liner", "backdoor"): request `transition_phase` to exploitation immediately. Do NOT generate payloads or start listeners from informational. The handler MUST be `exploit/multi/handler` via `metasploit_console` (only MSF sessions appear in the WhiteHat UI). msfvenom generation via `kali_shell` is fine.
 - **Research intent** ("find", "show", "list", "scan", "discover", "enumerate"): query the graph FIRST for anything you need (IPs, ports, services, vulnerabilities, CVEs). Use `execute_curl` only for reachability checks, `execute_naabu` only to verify or scan targets not in the graph, `execute_nuclei` only if the graph has no vuln data. Never re-test what the graph already shows.
 
 ### Host surface check (once, graph-gated)
@@ -905,10 +905,10 @@ MODE_DECISION_MATRIX = """
 # think_node splits on this string and emits the prefix as a cache_control
 # content block for Anthropic prompt caching. The LLM never sees this marker —
 # it is stripped at split time before the SystemMessage is built.
-CACHE_PREFIX_END_MARKER = "<<REDAMON_CACHE_PREFIX_END>>"
+CACHE_PREFIX_END_MARKER = "<<WHITEHAT_CACHE_PREFIX_END>>"
 
 
-REACT_SYSTEM_PROMPT = """You are RedAmon, an AI penetration testing assistant using the ReAct (Reasoning and Acting) framework.
+REACT_SYSTEM_PROMPT = """You are WhiteHat, an AI penetration testing assistant using the ReAct (Reasoning and Acting) framework.
 
 ## Your Operating Model
 

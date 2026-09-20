@@ -1,5 +1,5 @@
 """
-Neo4j Schema: Constraints and Indexes for RedAmon Graph Database
+Neo4j Schema: Constraints and Indexes for WhiteHat Graph Database
 
 All DDL statements use IF NOT EXISTS / IF EXISTS guards, making them
 fully idempotent — safe to run multiple times without side effects.
@@ -320,7 +320,7 @@ MIGRATION_BATCH = 10_000
 def _migration_applied(session, marker=MIGRATION_MARKER) -> bool:
     try:
         row = session.run(
-            "MATCH (m:RedamonSchemaMigration {id: $id}) RETURN count(m) AS c",
+            "MATCH (m:WhiteHatSchemaMigration {id: $id}) RETURN count(m) AS c",
             id=marker).single()
         return bool(row and row["c"])
     except Exception:
@@ -332,7 +332,7 @@ def _migration_applied(session, marker=MIGRATION_MARKER) -> bool:
 def _mark_migration_applied(session, marker=MIGRATION_MARKER) -> None:
     try:
         session.run(
-            "MERGE (m:RedamonSchemaMigration {id: $id}) "
+            "MERGE (m:WhiteHatSchemaMigration {id: $id}) "
             "ON CREATE SET m.applied_at = datetime()", id=marker)
     except Exception as e:
         print(f"[!][graph-db] could not record migration marker: {e}")

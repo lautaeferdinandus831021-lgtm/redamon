@@ -53,11 +53,11 @@ curl -v "https://gpigs.devergolabs.com/admin/"
 
 ---
 
-## Metasploit (via RedAmon Kali Container)
+## Metasploit (via WhiteHat Kali Container)
 
 ```bash
 # Enter Kali container with Metasploit
-docker exec -it redamon-kali msfconsole
+docker exec -it whitehat-kali msfconsole
 
 # Search for CVE-2017-3167 module
 msf6 > search CVE-2017-3167

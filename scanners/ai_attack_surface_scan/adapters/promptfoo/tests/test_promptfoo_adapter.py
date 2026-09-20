@@ -100,7 +100,7 @@ class TestProviderConfig(unittest.TestCase):
         prov = pc.build_target_provider(self._t(), auth_header="Authorization",
                                         auth_scheme="Bearer")
         h = prov["config"]["headers"]
-        self.assertEqual(h["Authorization"], "Bearer {{env.REDAMON_TARGET_KEY}}")
+        self.assertEqual(h["Authorization"], "Bearer {{env.WHITEHAT_TARGET_KEY}}")
 
     def test_interface_from_path_ollama(self):
         prov = pc.build_target_provider(self._t(path="/api/chat", it=""))
@@ -162,7 +162,7 @@ class TestProviderConfig(unittest.TestCase):
         self.assertEqual(set(round["redteam"]) >= {"purpose", "numTests", "plugins",
                                                    "strategies", "provider"}, True)
         self.assertEqual(round["targets"][0]["config"]["headers"]["Authorization"],
-                         "Bearer {{env.REDAMON_TARGET_KEY}}")
+                         "Bearer {{env.WHITEHAT_TARGET_KEY}}")
 
 
 FIXTURE = os.path.join(os.path.dirname(__file__), "fixtures", "promptfoo_results.json")
@@ -396,7 +396,7 @@ class TestAdapterFindings(unittest.TestCase):
         self.assertNotIn("OPENAI_API_KEY", env)
         self.assertEqual(env["PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION"], "true")
         self.assertEqual(env["PROMPTFOO_DISABLE_TELEMETRY"], "true")
-        self.assertEqual(env["REDAMON_TARGET_KEY"], "sk-target")
+        self.assertEqual(env["WHITEHAT_TARGET_KEY"], "sk-target")
 
     def test_invoke_passes_timeout_to_run_streamed(self):
         # The generate step runs first; assert it gets our timeout. (No gen file
@@ -679,7 +679,7 @@ class TestExpandRedteamFile(unittest.TestCase):
 
     REAL_YAML = (
         "# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json\n"
-        "description: redamon run\n"
+        "description: whitehat run\n"
         "targets:\n"
         "  - id: http\n"
         "    config: {}\n"

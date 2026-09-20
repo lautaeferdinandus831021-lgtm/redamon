@@ -39,7 +39,7 @@ Every step uses tools already available to the agent. The only new install is `t
 
 ### Captured-traffic workflow (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, redamon.fuzz sprays the arithmetic and polyglot probes (`{{7*7}}`, `${7*7}`, the `${{<%[%'"}}%\` polyglot) over one captured query param and reports per-payload status/length; redamon.grep then scans response bodies for a tell-tale `49` or an engine parse-error (`jinja2.exceptions.TemplateSyntaxError`, `freemarker.core.ParseException`, `Twig\Error\SyntaxError`). Once the engine is fingerprinted, redamon.replay fires an engine-specific gadget from a captured request. Where the proxy stops: sandbox-escape to RCE still runs through sstimap/tplmap plus OOB confirmation and shell staging; redamon.fuzz iterates only a query param, so body/header injection points need iterated redamon.replay.
+When HTTP Traffic Capture is enabled, whitehat.fuzz sprays the arithmetic and polyglot probes (`{{7*7}}`, `${7*7}`, the `${{<%[%'"}}%\` polyglot) over one captured query param and reports per-payload status/length; whitehat.grep then scans response bodies for a tell-tale `49` or an engine parse-error (`jinja2.exceptions.TemplateSyntaxError`, `freemarker.core.ParseException`, `Twig\Error\SyntaxError`). Once the engine is fingerprinted, whitehat.replay fires an engine-specific gadget from a captured request. Where the proxy stops: sandbox-escape to RCE still runs through sstimap/tplmap plus OOB confirmation and shell staging; whitehat.fuzz iterates only a query param, so body/header injection points need iterated whitehat.replay.
 
 ## Workflow
 
@@ -145,7 +145,7 @@ Pick the engine-specific track that matches the Phase 1 fingerprint and run it f
    ```
    tplmap -u "https://target.tld/path?inj=test" --os-shell
    ```
-6. **Validation**: capture `id`, `hostname`, `cat /etc/hostname`, and a UUID written into `/tmp/redamon-<random>.txt`. Re-read via the same gadget to prove process identity.
+6. **Validation**: capture `id`, `hostname`, `cat /etc/hostname`, and a UUID written into `/tmp/whitehat-<random>.txt`. Re-read via the same gadget to prove process identity.
 
 #### 2.B Twig (Symfony / Drupal / Craft / OctoberCMS)
 

@@ -11,7 +11,7 @@ fetches anything, so it adds no target traffic and no SSRF surface.
 Scope, worth being precise about in any report: of the 364 incidents carrying
 attacker domains, roughly 74 are browser-side (compromised script, CDN hijack,
 skimmer) and ~89 are install-time (a postinstall calling home during
-`npm install`). RedAmon observes browser traffic and the JS recon downloads, so
+`npm install`). WhiteHat observes browser traffic and the JS recon downloads, so
 it catches the browser-side class. This is NOT "detecting supply-chain attacks"
 in general.
 """

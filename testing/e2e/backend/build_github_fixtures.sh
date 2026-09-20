@@ -36,7 +36,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 WORK="$ROOT/_local/gh_fixture_build"
 MANIFEST="$ROOT/_local/github_fixtures.json"
-PREFIX="${REDAMON_FIXTURE_PREFIX:-redamon-th}"
+PREFIX="${WHITEHAT_FIXTURE_PREFIX:-whitehat-th}"
 UPSTREAM_FORK="trufflesecurity/test_keys"
 
 TOKEN="${GITHUB_FIXTURE_TOKEN:-}"
@@ -114,7 +114,7 @@ ensure_repo() {
   api POST /user/repos "$(jq -nc \
     --arg n "$name" --argjson p "$private" --argjson w "$wiki" \
     '{name:$n, private:$p, has_wiki:$w, has_issues:true, auto_init:false,
-      description:"RedAmon Secret Multiscanner test fixture. Synthetic secrets only."}')" \
+      description:"WhiteHat Secret Multiscanner test fixture. Synthetic secrets only."}')" \
     | jq -r '"  + created " + (.full_name // .message)'
   relax_push_protection "$name"
   return 0
@@ -145,9 +145,9 @@ if ensure_repo "$ALPHA" true; then
   D="$WORK/$ALPHA"
   git_init "$D"
   cat > "$D/README.md" <<'EOF'
-# redamon-th-alpha
+# whitehat-th-alpha
 
-RedAmon Secret Multiscanner fixture. Every credential-shaped string here is
+WhiteHat Secret Multiscanner fixture. Every credential-shaped string here is
 fabricated and has never been valid anywhere.
 EOF
   # Split from its tail because GitHub's push protection rejects a commit
@@ -184,7 +184,7 @@ echo "[beta] $OWNER/$BETA (private)"
 if ensure_repo "$BETA" true; then
   D="$WORK/$BETA"
   git_init "$D"
-  printf '# redamon-th-beta\n\nA finding here proves the GitHub token was injected.\n' > "$D/README.md"
+  printf '# whitehat-th-beta\n\nA finding here proves the GitHub token was injected.\n' > "$D/README.md"
   # `datadog_api_key=`, NOT `dd_api_key=`: TruffleHog prefilters candidate
   # chunks by detector KEYWORD before the pattern runs, and the Datadog
   # detector's keyword is "datadog". The abbreviated spelling this used to carry
@@ -206,7 +206,7 @@ echo "[gamma] $OWNER/$GAMMA (private, archived)"
 if ensure_repo "$GAMMA" true; then
   D="$WORK/$GAMMA"
   git_init "$D"
-  printf '# redamon-th-gamma\n\nArchived fixture, for the "Exclude archived" toggle.\n' > "$D/README.md"
+  printf '# whitehat-th-gamma\n\nArchived fixture, for the "Exclude archived" toggle.\n' > "$D/README.md"
   # Split for the same push-protection reason as alpha's Slack webhook.
   SHIPPO_TAIL='a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0'
   printf 'SHIPPO_TOKEN=shippo_live_%s\n' "$SHIPPO_TAIL" > "$D/shipping.env"
@@ -229,9 +229,9 @@ if ensure_repo "$DELTA" false true; then
   D="$WORK/$DELTA"
   git_init "$D"
   cat > "$D/README.md" <<'EOF'
-# redamon-th-delta
+# whitehat-th-delta
 
-RedAmon Secret Multiscanner fixture. This repository's CODE contains no
+WhiteHat Secret Multiscanner fixture. This repository's CODE contains no
 credentials of any kind, on purpose: its wiki does. That contrast is what the
 "Include wikis" test measures.
 EOF
@@ -349,11 +349,11 @@ fi
 
 echo "[gist] $OWNER"
 GIST="$(api GET "/gists?per_page=100" \
-  | jq -r '[.[] | select(.description | startswith("RedAmon"))]
+  | jq -r '[.[] | select(.description | startswith("WhiteHat"))]
            | sort_by(.created_at) | .[0].id // empty')"
 if [[ -z "$GIST" ]]; then
   GIST="$(api POST /gists "$(jq -nc \
-    '{description:"RedAmon Secret Multiscanner fixture", public:true,
+    '{description:"WhiteHat Secret Multiscanner fixture", public:true,
       files:{"notes.md":{content:"Issue tracker integration key (synthetic):\n\nlin_api_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0\n"}}}')" \
     | jq -r '.id // empty')"
   echo "  + gist $GIST"

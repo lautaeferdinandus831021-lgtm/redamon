@@ -273,20 +273,20 @@ def test_parse_export_urls_deduplicates_preserving_order(tmp_path):
 def test_debug_env_var_truthy_values(monkeypatch):
     zap = _load_zap_module()
     for v in ("1", "true", "TRUE", "yes", "on", "  ON  "):
-        monkeypatch.setenv("REDAMON_ZAP_AJAX_DEBUG", v)
+        monkeypatch.setenv("WHITEHAT_ZAP_AJAX_DEBUG", v)
         assert zap._zap_ajax_debug_enabled() is True, f"Failed for {v!r}"
 
 
 def test_debug_env_var_falsy_values(monkeypatch):
     zap = _load_zap_module()
     for v in ("0", "false", "FALSE", "no", "off", "", "anything-else"):
-        monkeypatch.setenv("REDAMON_ZAP_AJAX_DEBUG", v)
+        monkeypatch.setenv("WHITEHAT_ZAP_AJAX_DEBUG", v)
         assert zap._zap_ajax_debug_enabled() is False, f"Failed for {v!r}"
 
 
 def test_debug_env_var_unset(monkeypatch):
     zap = _load_zap_module()
-    monkeypatch.delenv("REDAMON_ZAP_AJAX_DEBUG", raising=False)
+    monkeypatch.delenv("WHITEHAT_ZAP_AJAX_DEBUG", raising=False)
     assert zap._zap_ajax_debug_enabled() is False
 
 

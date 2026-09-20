@@ -17,7 +17,7 @@ Four things are pinned, each of which fails SILENTLY when it breaks:
    anything invoked them, so "nothing calls it" is the failure mode to pin:
    a digest nobody injects, and a decay/reflection pass that never runs.
 
-Runs with the agent's real dependency set (redamon-agent image), per the repo
+Runs with the agent's real dependency set (whitehat-agent image), per the repo
 testing rules - not on the host.
 """
 import os

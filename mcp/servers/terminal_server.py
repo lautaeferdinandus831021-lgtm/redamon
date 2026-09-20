@@ -1,8 +1,8 @@
 """
-RedAmon Terminal Server — WebSocket PTY for Kali Sandbox
+WhiteHat Terminal Server — WebSocket PTY for Kali Sandbox
 
 Provides a WebSocket endpoint that spawns an interactive bash shell
-with full PTY support. Used by the RedAmon Terminal tab in the webapp.
+with full PTY support. Used by the WhiteHat Terminal tab in the webapp.
 
 Runs on port 8016 inside the kali-sandbox container.
 """
@@ -100,9 +100,9 @@ async def _read_init_frame(ws, timeout: float = 0.5):
                 user_id = str(msg.get("user_id", "")).strip()
                 project_id = str(msg.get("project_id", "")).strip()
                 if user_id:
-                    tenant_env["REDAMON_USER_ID"] = user_id
+                    tenant_env["WHITEHAT_USER_ID"] = user_id
                 if project_id:
-                    tenant_env["REDAMON_PROJECT_ID"] = project_id
+                    tenant_env["WHITEHAT_PROJECT_ID"] = project_id
                 logger.info(
                     "Init frame received (user=%s project=%s)",
                     user_id or "<none>", project_id or "<none>",
@@ -141,7 +141,7 @@ async def _run_pty_session(ws):
         env = os.environ.copy()
         env["TERM"] = "xterm-256color"
         env["SHELL"] = "/bin/bash"
-        env["PS1"] = r"\[\033[1;31m\]redamon\[\033[0m\]@\[\033[1;36m\]kali\[\033[0m\]:\[\033[1;33m\]\w\[\033[0m\]$ "
+        env["PS1"] = r"\[\033[1;31m\]whitehat\[\033[0m\]@\[\033[1;36m\]kali\[\033[0m\]:\[\033[1;33m\]\w\[\033[0m\]$ "
         env.update(tenant_env)
 
         os.execvpe("/bin/bash", ["/bin/bash", "--login"], env)

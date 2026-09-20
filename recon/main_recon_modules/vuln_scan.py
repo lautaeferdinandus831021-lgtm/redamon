@@ -1,5 +1,5 @@
 """
-RedAmon - Vulnerability Scanner Module
+WhiteHat - Vulnerability Scanner Module
 ======================================
 Template-based vulnerability scanning.
 Enriches reconnaissance data with comprehensive web application vulnerability detection:
@@ -176,7 +176,7 @@ def run_vuln_scan(recon_data: dict, output_file: Path = None, settings: dict = N
         Updated recon_data with nuclei results added
     """
     print("\n" + "=" * 70)
-    print("[*][Nuclei] RedAmon - Nuclei Vulnerability Scanner")
+    print("[*][Nuclei] WhiteHat - Nuclei Vulnerability Scanner")
     print("=" * 70)
 
     # Use passed settings or empty dict as fallback
@@ -504,8 +504,8 @@ def run_vuln_scan(recon_data: dict, output_file: Path = None, settings: dict = N
         print("=" * 70 + "\n")
     
         # Create a temporary directory for nuclei files
-        # Use /tmp/redamon to avoid spaces in paths (snap Docker issue)
-        nuclei_temp_dir = Path("/tmp/redamon/.nuclei_temp")
+        # Use /tmp/whitehat to avoid spaces in paths (snap Docker issue)
+        nuclei_temp_dir = Path("/tmp/whitehat/.nuclei_temp")
         nuclei_temp_dir.mkdir(parents=True, exist_ok=True)
     
         # Two-pass design:

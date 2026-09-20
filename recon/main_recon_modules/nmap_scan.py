@@ -1,5 +1,5 @@
 """
-RedAmon - Nmap Scanner Module
+WhiteHat - Nmap Scanner Module
 
 Service version detection and NSE vulnerability scanning for discovered ports.
 Runs AFTER the port_scan merge step, targeting only ports already found open
@@ -450,7 +450,7 @@ def run_nmap_scan(recon_data: dict, output_file: Path = None, settings: dict = N
     print(f"[*][Nmap] Parallelism: {nmap_parallelism} concurrent IPs")
 
     scan_id = uuid.uuid4().hex[:12]
-    scan_temp_dir = Path(f"/tmp/redamon/.nmap_scan_{scan_id}")
+    scan_temp_dir = Path(f"/tmp/whitehat/.nmap_scan_{scan_id}")
     scan_temp_dir.mkdir(parents=True, exist_ok=True)
 
     def _scan_single_ip(target_ip, idx, total, port_string, nmap_timeout, output_dir):

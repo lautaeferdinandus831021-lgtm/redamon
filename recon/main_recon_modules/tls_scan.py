@@ -402,7 +402,7 @@ def run_tlsx_enrichment(combined_result: dict, settings: dict) -> dict:
     settings = settings or {}
     combined_result.setdefault("metadata", {})
     scan_id = uuid.uuid4().hex[:12]
-    scan_temp_dir = Path(f"/tmp/redamon/.tlsx_scan_{scan_id}")
+    scan_temp_dir = Path(f"/tmp/whitehat/.tlsx_scan_{scan_id}")
 
     try:
         lines, meta = _build_tlsx_targets(combined_result, settings)

@@ -1,5 +1,5 @@
 """
-RedAmon - jsluice Helpers for Resource Enumeration
+WhiteHat - jsluice Helpers for Resource Enumeration
 ===================================================
 JavaScript analysis using jsluice to extract URLs, paths, and secrets.
 jsluice is compiled into the recon container (no Docker image needed).
@@ -57,8 +57,8 @@ def _split_exclude_patterns(exclude_patterns: List[str]) -> Tuple[List[str], Lis
 
 
 def _create_temp_dir(prefix: str = "jsluice_verify") -> Path:
-    """Create a temp directory under /tmp/redamon for Docker-in-Docker compatibility."""
-    temp_dir = Path(f"/tmp/redamon/.{prefix}_{uuid.uuid4().hex[:8]}")
+    """Create a temp directory under /tmp/whitehat for Docker-in-Docker compatibility."""
+    temp_dir = Path(f"/tmp/whitehat/.{prefix}_{uuid.uuid4().hex[:8]}")
     temp_dir.mkdir(parents=True, exist_ok=True)
     return temp_dir
 
@@ -302,7 +302,7 @@ def run_jsluice_analysis(
     js_urls = js_urls[:max_files]
     print(f"\n[*][jsluice] Analyzing {len(js_urls)} JavaScript files...")
 
-    work_dir = Path(f"/tmp/redamon/jsluice_{os.getpid()}")
+    work_dir = Path(f"/tmp/whitehat/jsluice_{os.getpid()}")
     work_dir.mkdir(parents=True, exist_ok=True)
 
     result = {"urls": [], "secrets": [], "external_domains": []}

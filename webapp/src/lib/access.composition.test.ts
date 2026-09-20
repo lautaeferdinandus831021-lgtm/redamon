@@ -20,8 +20,8 @@ let actAsCookie: string | undefined
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => ({
     get: (name: string) => {
-      if (name === 'redamon-auth' && authCookie) return { value: authCookie }
-      if (name === 'redamon-act-as' && actAsCookie) return { value: actAsCookie }
+      if (name === 'whitehat-auth' && authCookie) return { value: authCookie }
+      if (name === 'whitehat-act-as' && actAsCookie) return { value: actAsCookie }
       return undefined
     },
   })),

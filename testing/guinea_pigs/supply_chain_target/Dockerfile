@@ -1,4 +1,4 @@
-# RedAmon Supply-Chain recon (L2) guinea pig.
+# WhiteHat Supply-Chain recon (L2) guinea pig.
 # Pure stdlib Python: no pip install, no deps to drift, ~55 MB, boots in ~1s.
 FROM python:3.11-alpine
 

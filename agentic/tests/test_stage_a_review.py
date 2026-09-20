@@ -30,7 +30,7 @@ import workspace_fs  # noqa: E402
 
 class StageAReviewBase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-stagea-rev-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-stagea-rev-")
         self._orig_root = workspace_fs.WORKSPACE_ROOT
         self._orig_umask = os.umask(0)
         workspace_fs.WORKSPACE_ROOT = Path(self.tmp)

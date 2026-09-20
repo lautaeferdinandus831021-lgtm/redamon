@@ -139,8 +139,8 @@ def test_integration_naabu_docker_argv_uses_sanitized_image(monkeypatch):
 
     settings = {"NAABU_DOCKER_IMAGE": EVIL}
     ps.sanitize_image_settings(settings)  # the chokepoint
-    # /tmp/redamon paths are passed through get_host_path unchanged (no env dep).
-    cmd = build_naabu_command("/tmp/redamon/targets.txt", "/tmp/redamon/out.json", settings)
+    # /tmp/whitehat paths are passed through get_host_path unchanged (no env dep).
+    cmd = build_naabu_command("/tmp/whitehat/targets.txt", "/tmp/whitehat/out.json", settings)
 
     assert "docker" in cmd and "run" in cmd
     assert SAFE_NAABU in cmd

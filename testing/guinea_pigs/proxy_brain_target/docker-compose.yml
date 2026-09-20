@@ -14,4 +14,4 @@ services:
 networks:
   pentest:
     external: true
-    name: redamon_pentest-net
+    name: whitehat_pentest-net

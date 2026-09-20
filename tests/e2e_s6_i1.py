@@ -42,7 +42,7 @@ check("fixture user seeded (standard)", bool(EMAIL), f"email={EMAIL}")
 
 lg = s.post(f"{WEB}/api/auth/login", headers=H(),
             data=json.dumps({"email": EMAIL, "password": PW}))
-check("login sets session cookie", lg.status_code == 200 and "redamon-auth" in s.cookies.get_dict(),
+check("login sets session cookie", lg.status_code == 200 and "whitehat-auth" in s.cookies.get_dict(),
       f"status {lg.status_code}")
 uid = lg.json().get("id")
 check("have authenticated userId", bool(uid), f"uid={uid}")

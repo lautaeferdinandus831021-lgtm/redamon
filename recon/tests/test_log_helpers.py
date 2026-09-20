@@ -5,7 +5,7 @@ Tests every formatting branch + the credential-redaction contract that
 keeps API keys out of the Recon Logs Drawer.
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_log_helpers.py -v
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_log_helpers.py -v
 """
 
 from __future__ import annotations

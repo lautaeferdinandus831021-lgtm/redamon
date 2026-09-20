@@ -261,7 +261,7 @@ def setup_llm(
             temperature=0,
             default_headers={
                 "HTTP-Referer": "https://redamon.dev",
-                "X-Title": "RedAmon Agent",
+                "X-Title": "WhiteHat Agent",
             },
         )
 

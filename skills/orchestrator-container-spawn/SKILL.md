@@ -10,7 +10,7 @@ description: >
   cap_drop, security_opt, or a bind mount for a spawned container.
 license: MIT
 metadata:
-  author: redamon
+  author: whitehat
   version: "1.0.0"
   scope: [recon_orchestrator]
   auto_invoke:
@@ -109,7 +109,7 @@ defaults" a reviewer would add are exactly what broke production twice.
 
 ```bash
 docker compose restart recon-orchestrator     # container_manager.py is volume-mounted
-./redamon.sh test unit                        # recon_orchestrator section
+./whitehat.sh test unit                        # recon_orchestrator section
 ```
 
 ## Resources

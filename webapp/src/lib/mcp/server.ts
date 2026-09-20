@@ -88,7 +88,7 @@ import {
   readCommandOutput,
 } from '@/lib/mcp/kaliTools'
 
-export const MCP_SERVER_NAME = 'redamon'
+export const MCP_SERVER_NAME = 'whitehat'
 
 /** The usage rule, identical here and in the agent's TOOL_REGISTRY (plan 7.7). */
 export const GRAPH_TOOL_USAGE = `Use graph_summary first, as a general rule: it tells you what this project actually contains.
@@ -109,7 +109,7 @@ const UNTRUSTED_DATA_NOTE =
  * generated API reference reads. apiReference.test.ts calls every tool with each
  * declared scope withheld, so this declaration cannot drift from the check.
  */
-export const SCOPES_META_KEY = 'org.redamon/scopes'
+export const SCOPES_META_KEY = 'org.whitehat/scopes'
 
 export interface ToolScopes {
   /** Needed for any call to the tool. */
@@ -122,7 +122,7 @@ function scopesMeta(scopes: ToolScopes): Record<string, unknown> {
   return { [SCOPES_META_KEY]: scopes }
 }
 
-/** Reads only this token owner's own data; nothing outside RedAmon is touched. */
+/** Reads only this token owner's own data; nothing outside WhiteHat is touched. */
 const READ_ONLY: ToolAnnotations = { readOnlyHint: true, openWorldHint: false }
 
 /**
@@ -245,7 +245,7 @@ export function disabledToolNames(): ReadonlySet<string> {
 
 export function buildMcpServer(ctx: McpContext, instructions?: string): McpServer {
   const server = new McpServer(
-    { name: MCP_SERVER_NAME, version: process.env.NEXT_PUBLIC_REDAMON_VERSION || '0.0.0' },
+    { name: MCP_SERVER_NAME, version: process.env.NEXT_PUBLIC_WHITEHAT_VERSION || '0.0.0' },
     // `instructions` reaches the client at `initialize` and is the only
     // onboarding most of them ever get: outside the Claude family, no client
     // loads a SKILL.md. Built by instructions.ts from the same source as the
@@ -278,7 +278,7 @@ export function buildMcpServer(ctx: McpContext, instructions?: string): McpServe
     {
       title: 'List projects',
       description:
-        'List the RedAmon projects this token can reach. The token belongs to one user and ' +
+        'List the WhiteHat projects this token can reach. The token belongs to one user and ' +
         'only ever sees that user\'s own projects. Start here to discover a projectId; every ' +
         'other tool needs one. This does not report scan state - use get_recon_status for that.',
       annotations: READ_ONLY,
@@ -456,7 +456,7 @@ export function buildMcpServer(ctx: McpContext, instructions?: string): McpServe
     {
       title: 'List remediations',
       description:
-        'The fix-side corpus: what RedAmon proposes should be DONE about this project\'s ' +
+        'The fix-side corpus: what WhiteHat proposes should be DONE about this project\'s ' +
         'findings, with priority, severity, CVSS, CVE/CWE/CAPEC ids, whether a public exploit ' +
         'exists, whether CISA lists it as known-exploited, and the estimated fix complexity.\n\n' +
         'Use it to open tickets or plan work: each row links back to the findings it covers via ' +
@@ -867,7 +867,7 @@ export function buildMcpServer(ctx: McpContext, instructions?: string): McpServe
         'scanning, DNS, Windows/AD, API and GraphQL, secrets, tunnelling, the wordlist paths ' +
         'with their sizes, and the pre-staged post-exploitation toolkits.\n\n' +
         'ALL OF IT IS RUNNABLE through kali_exec, which is a real shell. Build commands ' +
-        'straight from this list. It is the same catalogue RedAmon\'s own in-app agent is ' +
+        'straight from this list. It is the same catalogue WhiteHat\'s own in-app agent is ' +
         'given, so it describes the actual image rather than what a stock Kali install ' +
         'usually has - niche tools are frequently absent, and checking here first is cheaper ' +
         'than a failed command.\n\n' +
@@ -973,8 +973,8 @@ export function buildMcpServer(ctx: McpContext, instructions?: string): McpServe
     {
       title: 'Run a shell command in the Kali sandbox',
       description:
-        'Run a shell command in RedAmon\'s Kali sandbox. This is `bash -c` with the sandbox\'s ' +
-        'full toolset - the SAME access RedAmon\'s own in-app agent has.\n\n' +
+        'Run a shell command in WhiteHat\'s Kali sandbox. This is `bash -c` with the sandbox\'s ' +
+        'full toolset - the SAME access WhiteHat\'s own in-app agent has.\n\n' +
         'Pipelines, redirection, command substitution, chained commands and shell syntax all ' +
         'work: `subfinder -d target -silent | httpx -silent -sc | tee /tmp/live.txt` is one ' +
         'call. Every program in kali_toolbox is available. Call kali_toolbox first to see what ' +
@@ -993,7 +993,7 @@ export function buildMcpServer(ctx: McpContext, instructions?: string): McpServe
         `${UNTRUSTED_DATA_NOTE}`,
       annotations: {
         readOnlyHint: false,
-        // A full shell on a target-facing container: it can change RedAmon's
+        // A full shell on a target-facing container: it can change WhiteHat's
         // sandbox state AND the target's. Unambiguously destructive, and
         // clients use this flag to decide when to ask the user first.
         destructiveHint: true,

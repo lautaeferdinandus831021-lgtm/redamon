@@ -1,4 +1,4 @@
-# RedAmon Knowledge Base — Makefile
+# WhiteHat Knowledge Base — Makefile
 # Configuration defaults are sourced from kb_config.yaml (this directory).
 
 # =============================================================================
@@ -17,14 +17,14 @@ endef
 MODE ?= $(call _kb_yaml_get,runtime.mode,local)
 
 # Container name (must match docker-compose service)
-AGENT_CONTAINER ?= redamon-agent
+AGENT_CONTAINER ?= whitehat-agent
 
 # Default Neo4j connection (override with env vars)
 # In docker mode: connects to neo4j service via internal network
 # In local mode: connects to localhost
 NEO4J_URI ?= bolt://localhost:7687
 NEO4J_USER ?= neo4j
-# No insecure default (#160): the real password is passed by ./redamon.sh (from
+# No insecure default (#160): the real password is passed by ./whitehat.sh (from
 # .env) via _kb_make. A bare `make` without it fails auth loudly instead of
 # silently connecting with a well-known default that mismatches a rotated or
 # custom-password database.
@@ -44,13 +44,13 @@ NVD_DAYS ?= $(call _kb_yaml_get,ingestion.nvd_lookback_days,90)
 #   1. $(VIRTUAL_ENV) if set — any venv the user has activated (venv, uv,
 #      poetry, conda, pyenv-virtualenv, etc — all export VIRTUAL_ENV).
 #      Trusted as-is; user is responsible for having deps installed.
-#   2. .redamon-venv/ if it exists — auto-bootstrapped from a previous run.
-#   3. Otherwise → bootstrap .redamon-venv on first kb-* invocation.
+#   2. .whitehat-venv/ if it exists — auto-bootstrapped from a previous run.
+#   3. Otherwise → bootstrap .whitehat-venv on first kb-* invocation.
 #
 # In docker mode, everything runs via `docker exec` so none of this applies.
 
 MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-VENV_DIR := $(MAKEFILE_DIR).redamon-venv
+VENV_DIR := $(MAKEFILE_DIR).whitehat-venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 VENV_MARKER := $(VENV_DIR)/.installed
@@ -65,12 +65,12 @@ else
     _NEEDS_BOOTSTRAP := no
     _ACTIVE_VENV_INFO := active: $(VIRTUAL_ENV)
   else ifneq ($(shell test -x "$(VENV_PYTHON)" && echo yes),)
-    # Previously bootstrapped .redamon-venv exists on disk — use it
+    # Previously bootstrapped .whitehat-venv exists on disk — use it
     PYTHON := $(VENV_PYTHON)
     _NEEDS_BOOTSTRAP := no
     _ACTIVE_VENV_INFO := using: $(VENV_DIR)
   else
-    # Nothing available — bootstrap .redamon-venv on first kb-* invocation
+    # Nothing available — bootstrap .whitehat-venv on first kb-* invocation
     PYTHON := $(VENV_PYTHON)
     _NEEDS_BOOTSTRAP := yes
     _ACTIVE_VENV_INFO := will bootstrap: $(VENV_DIR)
@@ -297,7 +297,7 @@ help: kb-help
 
 kb-help: ## Show this help
 	@echo ""
-	@echo "RedAmon Knowledge Base — Makefile targets"
+	@echo "WhiteHat Knowledge Base — Makefile targets"
 	@echo ""
 	@echo "Initial setup (first run):"
 	@echo "  make kb-build-lite                Build minimal KB (~3 min)"
@@ -319,7 +319,7 @@ kb-help: ## Show this help
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Modes:"
-	@echo "  MODE=docker                       Run inside redamon-agent container"
+	@echo "  MODE=docker                       Run inside whitehat-agent container"
 	@echo "  MODE=local (default)              Run on host (requires local Python deps)"
 	@echo ""
 	@echo "Environment variables:"
@@ -328,7 +328,7 @@ kb-help: ## Show this help
 	@echo "  NVD_API_KEY                       NVD API key (for kb-update-nvd-key)"
 	@echo "  NEO4J_URI                         Neo4j URI (default: bolt://localhost:7687)"
 	@echo "  NEO4J_USER, NEO4J_PASSWORD        Neo4j credentials"
-	@echo "  AGENT_CONTAINER                   Container name (default: redamon-agent)"
+	@echo "  AGENT_CONTAINER                   Container name (default: whitehat-agent)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make kb-build-standard NVD_DAYS=90       Fast test (3 months of CVEs)"

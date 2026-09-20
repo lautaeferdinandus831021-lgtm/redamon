@@ -44,7 +44,7 @@ describe('an agent 4xx reaches the caller', () => {
 
   test('a 5xx still degrades to a fixed line', async () => {
     // Those bodies are raw exception text: host paths and image names.
-    agentSays(500, "FileNotFoundError: /opt/redamon/agentic/api.py line 42")
+    agentSays(500, "FileNotFoundError: /opt/whitehat/agentic/api.py line 42")
     await expect(kaliJobStatus('p1', 'a'.repeat(32), 0))
       .rejects.toThrow(/The command could not be run\./)
     await expect(kaliJobStatus('p1', 'a'.repeat(32), 0))

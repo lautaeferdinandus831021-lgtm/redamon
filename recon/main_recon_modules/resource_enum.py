@@ -1,5 +1,5 @@
 """
-RedAmon - Resource Enumeration Module
+WhiteHat - Resource Enumeration Module
 =====================================
 Comprehensive endpoint discovery and classification.
 Discovers all endpoints (GET, POST, APIs) and organizes them by base URL.
@@ -235,7 +235,7 @@ def run_resource_enum(recon_data: dict, output_file: Optional[Path] = None, sett
         Updated recon_data with resource_enum results
     """
     print("\n" + "=" * 70)
-    print("[*][ResourceEnum] RedAmon - Resource Enumeration")
+    print("[*][ResourceEnum] WhiteHat - Resource Enumeration")
     print("[*][ResourceEnum] (Katana + Hakrawler + GAU + jsluice + FFuf + ZAP Ajax Spider + Kiterunner + Arjun)")
     print("=" * 70)
 
@@ -564,7 +564,7 @@ def run_resource_enum(recon_data: dict, output_file: Optional[Path] = None, sett
     # to every crawl/fuzz tool's own custom-header list, so post-login surface is
     # reachable. merge_auth_headers is a no-op unless a profile is set and EVERY
     # target host is in scope (fail closed, never a cross-origin leak); the lines
-    # lead so they stay ahead of each tool's X-Redamon-Ctx tag.
+    # lead so they stay ahead of each tool's X-WhiteHat-Ctx tag.
     from recon.helpers.auth_profile import merge_auth_headers as _merge_auth
     _auth_hosts = sorted(target_domains)
     KATANA_CUSTOM_HEADERS = _merge_auth(KATANA_CUSTOM_HEADERS, settings, _auth_hosts)

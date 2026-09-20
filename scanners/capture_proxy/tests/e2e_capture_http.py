@@ -3,7 +3,7 @@
 REAL end-to-end capture-proxy test: launches an actual `mitmdump -s
 capture_addon.py`, sends live HTTP through it, and asserts the resulting spool
 record's inline / offload / metadata-only decision. Validates the WHOLE chain:
-    CAPTURE_* env -> RedamonCapture.__init__ -> request/response hooks ->
+    CAPTURE_* env -> WhiteHatCapture.__init__ -> request/response hooks ->
     classify_family -> decide_body -> _offload -> spool JSON + /bodies blob.
 
 Structure:
@@ -13,7 +13,7 @@ Structure:
   PART B  Full content-type family coverage: one request per family, asserting
           each family's Recommended-default destination over the wire.
 
-Runs INSIDE the redamon-capture-proxy image (needs mitmproxy). See
+Runs INSIDE the whitehat-capture-proxy image (needs mitmproxy). See
 run_e2e_capture_http.sh. Standalone: exits 0 (all pass) / 1 (any fail).
 
 The target is 127.0.0.1, so each proxy relaxes the loopback + private egress

@@ -87,7 +87,7 @@ def env_bytes(name: str, default_bytes: Optional[int]) -> Optional[int]:
 
 
 def governor_enabled() -> bool:
-    return _env_bool("REDAMON_MEM_GOVERNOR", True)
+    return _env_bool("WHITEHAT_MEM_GOVERNOR", True)
 
 
 def _scale_high() -> float:

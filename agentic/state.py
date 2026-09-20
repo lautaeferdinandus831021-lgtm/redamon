@@ -1,5 +1,5 @@
 """
-RedAmon Agent State Management
+WhiteHat Agent State Management
 
 LangGraph state and Pydantic models for the ReAct agent orchestrator.
 Supports iterative Thought-Tool-Output pattern with phase tracking.

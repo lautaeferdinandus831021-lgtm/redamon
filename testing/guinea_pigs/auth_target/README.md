@@ -52,7 +52,7 @@ the session therefore cannot discover them at all — which is exactly what make
 | Endpoint | Exercises |
 |---|---|
 | `GET /login`, `POST /login` | recording flow: hidden CSRF field + `Set-Cookie` |
-| `GET /whoami` | echoes which auth headers arrived; also asserts `X-Redamon-Ctx` never leaks to the target |
+| `GET /whoami` | echoes which auth headers arrived; also asserts `X-WhiteHat-Ctx` never leaks to the target |
 | `POST /auth/token`, `GET /auth/bearer` | `bearer` mode |
 | `GET /auth/basic` | `basic` mode (401 + `WWW-Authenticate`) |
 | `GET /auth/apikey` | `apikey` mode (`X-API-Key`) |
@@ -68,13 +68,13 @@ Credentials are deliberately trivial: `operator` / `hunter2`, CSRF
 
 ## Validation
 
-Recon-side, using RedAmon's own builder (not a reimplementation):
+Recon-side, using WhiteHat's own builder (not a reimplementation):
 
 ```bash
-docker run --rm --network redamon_pentest-net \
+docker run --rm --network whitehat_pentest-net \
   -v "$PWD":/repo -w /repo \
   -e PYTHONPATH=/repo/recon:/repo:/repo/scanners/capture_proxy \
-  --entrypoint python redamon-recon:latest \
+  --entrypoint python whitehat-recon:latest \
   testing/guinea_pigs/auth_target/validate_auth_recording.py
 ```
 

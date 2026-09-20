@@ -49,7 +49,7 @@ class ToolDocsClient(BaseClient):
                              are flattened into /app by the Dockerfile COPY)
                           3. /app/agentic/skills (nested Docker layout, if
                              ever introduced)
-                          4. <repo>/redamon/agentic/skills (source-tree layout)
+                          4. <repo>/whitehat/agentic/skills (source-tree layout)
                         and uses the first one that exists.
         """
 

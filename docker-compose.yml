@@ -1,5 +1,5 @@
 # =============================================================================
-# RedAmon - Unified Docker Compose
+# WhiteHat - Unified Docker Compose
 # =============================================================================
 # Start:  docker compose up -d
 # Stop:   docker compose down
@@ -7,7 +7,7 @@
 # Build:  docker compose --profile tools build
 # GVM:    Starts automatically with `docker compose up -d`
 #         (first run takes ~10-15 min for feed sync)
-#         Credentials: gvmd auto-creates admin/admin, then `redamon.sh install
+#         Credentials: gvmd auto-creates admin/admin, then `whitehat.sh install
 #         --gvm` rotates it to a strong GVM_PASSWORD (pinned in .env) that the app
 #         also uses. Both sides read GVM_PASSWORD, so keep them in sync.
 #         Change password: docker compose exec -u gvmd gvmd gvmd --user=admin --new-password='<password>'
@@ -22,16 +22,16 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: redamon-postgres
-    mem_limit: ${POSTGRES_MEM:-1g}          # sized from host RAM by redamon.sh
+    container_name: whitehat-postgres
+    mem_limit: ${POSTGRES_MEM:-1g}          # sized from host RAM by whitehat.sh
     pids_limit: ${POSTGRES_PIDS:-512}       # D1: fork-bomb ceiling (generous)
     cpus: ${POSTGRES_CPUS:-4}               # D1: CPU cap (generous; host has more)
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-redamon}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run redamon.sh (STRIDE S13)}
-      POSTGRES_DB: ${POSTGRES_DB:-redamon}
+      POSTGRES_USER: ${POSTGRES_USER:-whitehat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
+      POSTGRES_DB: ${POSTGRES_DB:-whitehat}
     ports:
-      # Loopback-only: app tier reaches Postgres over the internal `redamon`
+      # Loopback-only: app tier reaches Postgres over the internal `whitehat`
       # bridge (postgres:5432); host publish is debug-only. Prevents LAN/remote
       # reach to a default-credentialed DB (STRIDE S13). Override via .env if you
       # genuinely need host access (e.g. POSTGRES_PORT=0.0.0.0:5432 is NOT valid;
@@ -41,24 +41,24 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-redamon} -d ${POSTGRES_DB:-redamon}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-whitehat} -d ${POSTGRES_DB:-whitehat}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - redamon
+      - whitehat
 
   neo4j:
     image: neo4j:5.26-community
-    container_name: redamon-neo4j
+    container_name: whitehat-neo4j
     # Memory governor (Part 4): container hard cap MUST exceed heap + pagecache or
-    # the JVM is OOM-killed. redamon.sh export_resource_caps sizes these to the
+    # the JVM is OOM-killed. whitehat.sh export_resource_caps sizes these to the
     # host; the defaults keep heap+pagecache (3G) well inside the 4.5G limit.
     mem_limit: ${NEO4J_MEM:-4608m}
     pids_limit: ${NEO4J_PIDS:-1024}         # D1: fork-bomb ceiling (generous)
     cpus: ${NEO4J_CPUS:-8}                   # D1: CPU cap (generous)
     environment:
-      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
       NEO4J_dbms_security_procedures_allowlist: apoc.*
@@ -66,7 +66,7 @@ services:
       NEO4J_server_memory_heap_initial__size: ${NEO4J_HEAP:-2g}
       NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE:-1g}
     ports:
-      # Loopback-only: the agent/webapp reach Neo4j over the internal `redamon`
+      # Loopback-only: the agent/webapp reach Neo4j over the internal `whitehat`
       # bridge (neo4j:7687); host publish is debug-only. Prevents LAN/remote reach
       # to a default-credentialed graph DB (STRIDE S13).
       - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
@@ -84,10 +84,10 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - redamon
+      - whitehat
       # Also on the orchestrator's isolated net so the clean half of the
       # TruffleHog split can write the graph. Narrower than putting the
-      # privileged orchestrator on redamon-network: only Neo4j becomes
+      # privileged orchestrator on whitehat-network: only Neo4j becomes
       # reachable, and nothing new can reach the orchestrator's :8010.
       - orchestrator-net
 
@@ -104,8 +104,8 @@ services:
 
   gvm-vt:
     image: registry.community.greenbone.net/community/vulnerability-tests
-    container_name: redamon-gvm-vt
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-vt
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     environment:
       FEED_RELEASE: "24.10"
@@ -114,32 +114,32 @@ services:
 
   gvm-notus-data:
     image: registry.community.greenbone.net/community/notus-data
-    container_name: redamon-gvm-notus-data
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-notus-data
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     volumes:
       - notus_data:/mnt
 
   gvm-scap-data:
     image: registry.community.greenbone.net/community/scap-data
-    container_name: redamon-gvm-scap-data
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-scap-data
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     volumes:
       - scap_data:/mnt
 
   gvm-cert-bund-data:
     image: registry.community.greenbone.net/community/cert-bund-data
-    container_name: redamon-gvm-cert-data
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-cert-data
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     volumes:
       - cert_data:/mnt
 
   gvm-dfn-cert-data:
     image: registry.community.greenbone.net/community/dfn-cert-data
-    container_name: redamon-gvm-dfn-cert
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-dfn-cert
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     volumes:
       - cert_data:/mnt
@@ -148,8 +148,8 @@ services:
 
   gvm-data-objects:
     image: registry.community.greenbone.net/community/data-objects
-    container_name: redamon-gvm-data-objects
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-data-objects
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     environment:
       FEED_RELEASE: "24.10"
@@ -158,8 +158,8 @@ services:
 
   gvm-report-formats:
     image: registry.community.greenbone.net/community/report-formats
-    container_name: redamon-gvm-report-formats
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-report-formats
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     environment:
       FEED_RELEASE: "24.10"
@@ -170,8 +170,8 @@ services:
 
   gvm-gpg-data:
     image: registry.community.greenbone.net/community/gpg-data
-    container_name: redamon-gvm-gpg-data
-    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; redamon.sh floors it at 512m (the feed copy OOMs below ~128m)
+    container_name: whitehat-gvm-gpg-data
+    mem_limit: ${GVM_DATA_MEM:-1g}    # per-loader cap; whitehat.sh floors it at 512m (the feed copy OOMs below ~128m)
     restart: on-failure:5
     volumes:
       - gpg_data:/mnt
@@ -180,16 +180,16 @@ services:
 
   gvm-redis:
     image: registry.community.greenbone.net/community/redis-server:stable
-    container_name: redamon-gvm-redis
-    mem_limit: ${GVM_REDIS_MEM:-1g}   # sized from host RAM by redamon.sh (holds the whole VT feed; routinely multi-GB)
+    container_name: whitehat-gvm-redis
+    mem_limit: ${GVM_REDIS_MEM:-1g}   # sized from host RAM by whitehat.sh (holds the whole VT feed; routinely multi-GB)
     restart: on-failure
     volumes:
       - gvm_redis_socket:/run/redis/
 
   gvm-postgres:
     image: registry.community.greenbone.net/community/pg-gvm:stable
-    container_name: redamon-gvm-postgres
-    mem_limit: ${GVM_POSTGRES_MEM:-1g}   # sized from host RAM by redamon.sh (GVM's own database)
+    container_name: whitehat-gvm-postgres
+    mem_limit: ${GVM_POSTGRES_MEM:-1g}   # sized from host RAM by whitehat.sh (GVM's own database)
     restart: on-failure
     # The stale-lock cleanup runs INSIDE this container, right before postgres
     # starts. It used to be a sibling one-shot sharing the socket volume, which
@@ -219,8 +219,8 @@ services:
 
   gvmd:
     image: registry.community.greenbone.net/community/gvmd:stable
-    container_name: redamon-gvm-gvmd
-    mem_limit: ${GVMD_MEM:-3g}              # sized from host RAM by redamon.sh (gvm profile)
+    container_name: whitehat-gvm-gvmd
+    mem_limit: ${GVMD_MEM:-3g}              # sized from host RAM by whitehat.sh (gvm profile)
     restart: on-failure
     volumes:
       - gvmd_data:/var/lib/gvm
@@ -248,8 +248,8 @@ services:
 
   gvm-ospd:
     image: registry.community.greenbone.net/community/ospd-openvas:stable
-    container_name: redamon-gvm-ospd
-    mem_limit: ${GVM_OSPD_MEM:-2g}   # sized from host RAM by redamon.sh (the actual OpenVAS scanner: heaviest of the stack)
+    container_name: whitehat-gvm-ospd
+    mem_limit: ${GVM_OSPD_MEM:-2g}   # sized from host RAM by whitehat.sh (the actual OpenVAS scanner: heaviest of the stack)
     restart: on-failure
     hostname: ospd-openvas.local
     cap_add:
@@ -300,28 +300,28 @@ services:
       context: .
       dockerfile: recon/Dockerfile
       network: host
-    image: redamon-recon:latest
+    image: whitehat-recon:latest
     profiles: ["tools"]
 
   vuln-scanner:
     build:
       context: .
       dockerfile: scanners/gvm_scan/Dockerfile
-    image: redamon-vuln-scanner:latest
+    image: whitehat-vuln-scanner:latest
     profiles: ["tools"]
 
   github-secret-hunter:
     build:
       context: .
       dockerfile: scanners/github_secret_hunt/Dockerfile
-    image: redamon-github-hunter:latest
+    image: whitehat-github-hunter:latest
     profiles: ["tools"]
 
   trufflehog-scanner:
     build:
       context: .
       dockerfile: scanners/trufflehog_scan/Dockerfile
-    image: redamon-trufflehog:latest
+    image: whitehat-trufflehog:latest
     profiles: ["tools"]
 
   # WCVS (Web Cache Vulnerability Scanner) — breadth engine for the cache
@@ -331,19 +331,19 @@ services:
     build:
       context: ./scanners/wcvs
       dockerfile: Dockerfile
-    image: redamon-wcvs:latest
+    image: whitehat-wcvs:latest
     profiles: ["tools"]
 
   # CodeFix build sandbox: runs the UNTRUSTED clone+build+test step of the
   # CypherFix agent in isolation (threats T6/E10). Spawned ephemerally per job by
   # recon_orchestrator/container_manager.py with no secrets, cap_drop=ALL,
   # no-new-privileges, read-only rootfs, resource limits, on codefix-net (no
-  # RedAmon peer). Build-only here; never run as a long-lived compose service.
+  # WhiteHat peer). Build-only here; never run as a long-lived compose service.
   codefix-sandbox:
     build:
       context: .
       dockerfile: scanners/codefix_sandbox/Dockerfile
-    image: redamon-codefix-sandbox:latest
+    image: whitehat-codefix-sandbox:latest
     profiles: ["tools"]
 
   # Supply-chain DIRTY analyzer (plan Phase 0.5): the secret-free box that
@@ -353,7 +353,7 @@ services:
     build:
       context: .
       dockerfile: scanners/supply_chain_analyzer/Dockerfile
-    image: redamon-supply-chain-analyzer:latest
+    image: whitehat-supply-chain-analyzer:latest
     profiles: ["tools"]
 
   # Supply-Chain scan (L1 "Other Scans") CLEAN writer. Build-only; spawned per
@@ -362,10 +362,10 @@ services:
     build:
       context: .
       dockerfile: scanners/supply_chain_scan/Dockerfile
-    image: redamon-supply-chain:latest
+    image: whitehat-supply-chain:latest
     profiles: ["tools"]
 
-  # BadDNS (AGPL-3.0) runs isolated in its own container. RedAmon never
+  # BadDNS (AGPL-3.0) runs isolated in its own container. WhiteHat never
   # imports or links against it -- the recon container spawns this image
   # via Docker-in-Docker and receives NDJSON on stdout. See baddns_scan/
   # Dockerfile and THIRD-PARTY-LICENSES.md for the license boundary.
@@ -373,7 +373,7 @@ services:
     build:
       context: .
       dockerfile: scanners/baddns_scan/Dockerfile
-    image: redamon-baddns:latest
+    image: whitehat-baddns:latest
     profiles: ["tools"]
 
   # AI Attack Surface — deterministic offensive testing of the discovered AI
@@ -383,7 +383,7 @@ services:
     build:
       context: .
       dockerfile: scanners/ai_attack_surface_scan/Dockerfile
-    image: redamon-ai-attack-surface:latest
+    image: whitehat-ai-attack-surface:latest
     profiles: ["tools"]
 
   # ===========================================================================
@@ -395,21 +395,21 @@ services:
   # /var/run/docker.sock, so a compromised recon container cannot escape to the
   # host (no -v /:/host, no --privileged, no non-allowlisted image). The broker
   # holds the REAL socket (it is trusted, like the orchestrator) and serves its
-  # filtered socket on the redamon_broker_socket named volume (which lives inside
+  # filtered socket on the whitehat_broker_socket named volume (which lives inside
   # the Linux VM, so the unix socket is shareable on macOS + Linux). See
   # services/docker_broker/.
   docker-broker:
     build: ./services/docker_broker
-    image: redamon-docker-broker:latest
-    container_name: redamon-docker-broker
+    image: whitehat-docker-broker:latest
+    container_name: whitehat-docker-broker
     restart: unless-stopped
-    mem_limit: ${DOCKER_BROKER_MEM:-512m}   # sized from host RAM by redamon.sh
+    mem_limit: ${DOCKER_BROKER_MEM:-512m}   # sized from host RAM by whitehat.sh
     pids_limit: ${DOCKER_BROKER_PIDS:-256}  # D1: fork-bomb ceiling
     cpus: ${DOCKER_BROKER_CPUS:-2}          # D1: CPU cap (generous)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock          # real socket (forward target)
-      - redamon_broker_socket:/var/run/broker              # named volume; lives in the Linux VM so the unix socket is shareable on macOS + Linux
-      - /tmp/redamon:/tmp/redamon                           # shared scratch dir (recon output, temp files)
+      - whitehat_broker_socket:/var/run/broker              # named volume; lives in the Linux VM so the unix socket is shareable on macOS + Linux
+      - /tmp/whitehat:/tmp/whitehat                           # shared scratch dir (recon output, temp files)
     environment:
       DOCKER_BROKER_UPSTREAM: /var/run/docker.sock
       DOCKER_BROKER_LISTEN: /var/run/broker/docker.sock
@@ -419,7 +419,7 @@ services:
       # Host bind sources the tools legitimately mount: the shared scratch dir and
       # anything under the repo root (recon output, wordlists, custom templates).
       # Everything else (/, /etc, /root, the docker socket) is denied.
-      DOCKER_BROKER_ALLOWED_BIND_PREFIXES: /tmp/redamon,${PWD:-/home/samuele/Progetti didattici/redamon}
+      DOCKER_BROKER_ALLOWED_BIND_PREFIXES: /tmp/whitehat,${PWD:-/home/samuele/Progetti didattici/whitehat}
       DOCKER_BROKER_ALLOWED_VOLUMES: nuclei-templates
       # Memory governor (Part 4d): hard memory cap injected into every sibling
       # tool container (katana/nuclei/httpx/...). Default ~2g; PIDS 0 = unset.
@@ -432,7 +432,7 @@ services:
       # parallel scans (each spawns a dozen tools) hit it.
       BROKER_MAX_CONTAINERS: ${BROKER_MAX_CONTAINERS:-48}
       # T1/T2: extra host prefixes a tool bind may mount READ-WRITE. Empty passes
-      # through so broker.py keeps its restrictive default (["/tmp/redamon"] only);
+      # through so broker.py keeps its restrictive default (["/tmp/whitehat"] only);
       # every other source-tree bind is forced :ro. Wired here (broker has no
       # env_file) so setting it in .env actually reaches the broker.
       DOCKER_BROKER_ALLOWED_RW_PREFIXES: ${DOCKER_BROKER_ALLOWED_RW_PREFIXES:-}
@@ -445,8 +445,8 @@ services:
 
   recon-orchestrator:
     build: ./recon_orchestrator
-    container_name: redamon-recon-orchestrator
-    mem_limit: ${RECON_ORCHESTRATOR_MEM:-1g}   # sized from host RAM by redamon.sh
+    container_name: whitehat-recon-orchestrator
+    mem_limit: ${RECON_ORCHESTRATOR_MEM:-1g}   # sized from host RAM by whitehat.sh
     pids_limit: ${RECON_ORCHESTRATOR_PIDS:-512}  # D1: fork-bomb ceiling
     cpus: ${RECON_ORCHESTRATOR_CPUS:-4}          # D1: CPU cap (generous)
     ports:
@@ -492,7 +492,7 @@ services:
       - ./scanners/supply_chain_scan/output:/app/supply_chain_scan/output:rw
       - ./scanners/ai_attack_surface_scan:/app/ai_attack_surface_scan:ro
       - ./mcp/nuclei-templates:/app/nuclei-templates:ro
-      - /tmp/redamon:/tmp/redamon:rw
+      - /tmp/whitehat:/tmp/whitehat:rw
       # Shared with the agent: the orchestrator resolves this volume's host path
       # (via mount auto-detection) to bind per-job worktrees into the CodeFix build
       # sandbox it spawns (T6/E10).
@@ -503,14 +503,14 @@ services:
       - capture_spool:/spool
     environment:
       # Host paths are auto-detected from container mounts (no hardcoded paths needed)
-      RECON_IMAGE: redamon-recon:latest
-      GVM_IMAGE: redamon-vuln-scanner:latest
-      GITHUB_HUNT_IMAGE: redamon-github-hunter:latest
-      TRUFFLEHOG_IMAGE: redamon-trufflehog:latest
-      AI_ATTACK_SURFACE_IMAGE: redamon-ai-attack-surface:latest
+      RECON_IMAGE: whitehat-recon:latest
+      GVM_IMAGE: whitehat-vuln-scanner:latest
+      GITHUB_HUNT_IMAGE: whitehat-github-hunter:latest
+      TRUFFLEHOG_IMAGE: whitehat-trufflehog:latest
+      AI_ATTACK_SURFACE_IMAGE: whitehat-ai-attack-surface:latest
       # CodeFix build sandbox image + the docker network it attaches to (T6/E10).
-      CODEFIX_SANDBOX_IMAGE: redamon-codefix-sandbox:latest
-      CODEFIX_SANDBOX_NETWORK: redamon-codefix-net
+      CODEFIX_SANDBOX_IMAGE: whitehat-codefix-sandbox:latest
+      CODEFIX_SANDBOX_NETWORK: whitehat-codefix-net
       # Auth (forwarded to spawned containers)
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-changeme}
       SCANNER_API_KEY: ${SCANNER_API_KEY:-changeme}  # S3/E6 scoped scanner token
@@ -531,7 +531,7 @@ services:
       # ingest (role created once via capture_proxy/sql/001). The proxy stays
       # credential-free; the orchestrator never puts DB creds on it.
       TRAFFIC_INGEST_DATABASE_URL: ${TRAFFIC_INGEST_DATABASE_URL:-}
-      CAPTURE_PROXY_IMAGE: ${CAPTURE_PROXY_IMAGE:-redamon-capture-proxy:latest}
+      CAPTURE_PROXY_IMAGE: ${CAPTURE_PROXY_IMAGE:-whitehat-capture-proxy:latest}
       CAPTURE_PROXY_PORT: ${CAPTURE_PROXY_PORT:-8888}
       CAPTURE_PROXY_MAX_BODY_KB: ${CAPTURE_PROXY_MAX_BODY_KB:-64}
       CAPTURE_PROXY_STORE_BODIES: ${CAPTURE_PROXY_STORE_BODIES:-true}
@@ -637,7 +637,7 @@ services:
       # (resource_governor.py + resource_profile.default.json). RECON_JOB_ENVELOPE_MEM
       # is the documented lever a small host lowers when a scan is wrongly refused
       # for "not enough free memory" — it MUST reach the orchestrator to work.
-      REDAMON_MEM_GOVERNOR: ${REDAMON_MEM_GOVERNOR:-}
+      WHITEHAT_MEM_GOVERNOR: ${WHITEHAT_MEM_GOVERNOR:-}
       OS_HEADROOM_MEM: ${OS_HEADROOM_MEM:-}
       SERVICE_BASELINE_MEM: ${SERVICE_BASELINE_MEM:-}
       # Caps for the containers the ORCHESTRATOR spawns itself. The orchestrator
@@ -661,7 +661,7 @@ services:
       # it reaches Neo4j by service name, not localhost.
       ORCHESTRATOR_NEO4J_URI: ${ORCHESTRATOR_NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       # Agent API for AI hooks in recon (e.g., FFuf AI-extension inference).
       # Spawned recon containers run on host network, so reach the agent via
       # its host-mapped port (default 8090) rather than the docker-network name.
@@ -672,7 +672,7 @@ services:
       GVM_PASSWORD: ${GVM_PASSWORD:-admin}
       # On-demand local LLM (Ollama) judge/attacker for the AI Attack Surface
       # layer. Spawned on scan launch, torn down when the last job finishes;
-      # weights persist in the redamon_llm_models volume. Host network -> the
+      # weights persist in the whitehat_llm_models volume. Host network -> the
       # spawned scan containers reach it at localhost:11434.
       LOCAL_LLM_IMAGE: ${LOCAL_LLM_IMAGE:-ollama/ollama:latest}
       LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen2.5:7b}
@@ -683,7 +683,7 @@ services:
       LOCAL_LLM_MEM: ${LOCAL_LLM_MEM:-8g}
       # V1 isolation: the on-demand Ollama judge must spawn on the orchestrator's
       # own (worker-isolated) network so the orchestrator reaches it by DNS.
-      LOCAL_LLM_NETWORK: redamon-orchestrator-net
+      LOCAL_LLM_NETWORK: whitehat-orchestrator-net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
@@ -691,7 +691,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-    # V1 isolation: orchestrator lives on its own network, NOT on `redamon`, so a
+    # V1 isolation: orchestrator lives on its own network, NOT on `whitehat`, so a
     # compromised worker cannot reach the privileged orchestration API. Only the
     # webapp (multi-homed) and the Ollama judge share this network.
     networks:
@@ -702,8 +702,8 @@ services:
       context: ./mcp
       dockerfile: kali-sandbox/Dockerfile
       network: host
-    container_name: redamon-kali
-    mem_limit: ${KALI_MEM:-1g}              # sized from host RAM by redamon.sh
+    container_name: whitehat-kali
+    mem_limit: ${KALI_MEM:-1g}              # sized from host RAM by whitehat.sh
     # D1 owns the Kali sandbox's pids/cpu ceiling (E1 was removed). Very
     # generous because the interactive terminal runs arbitrary tools that may
     # spawn many procs; still finite, so a fork bomb via kali_shell is bounded.
@@ -726,7 +726,7 @@ services:
     ports:
       # SECURITY (STRIDE S10/E1/I9): the MCP tool servers, progress streams,
       # tunnel-manager and ngrok API are consumed ONLY by the agent/webapp over
-      # the internal `redamon` bridge (http://kali-sandbox:PORT) — never from the
+      # the internal `whitehat` bridge (http://kali-sandbox:PORT) — never from the
       # host. They are published on 127.0.0.1 for local debugging only, so a
       # LAN/remote client can no longer reach the unauthenticated tool surface.
       # The container still binds 0.0.0.0 INSIDE the netns (MCP_HOST below), so
@@ -760,7 +760,7 @@ services:
       # Shared agent workspace — agent writes tool-outputs / jobs here; kali tools can read
       - ./agentic/agent-workspace:/workspace
       # Offline OSV database (supply-chain L3 execute_osv_scanner). Read-only:
-      # populate it with `./redamon.sh supply-chain-sync`, never from here.
+      # populate it with `./whitehat.sh supply-chain-sync`, never from here.
       - osv_db:/osv-db:ro
     environment:
       PYTHONUNBUFFERED: "1"
@@ -804,7 +804,7 @@ services:
       # worker holds NO Neo4j credentials. The agent enforces read-only + tenant
       # scoping server-side. Do not re-add NEO4J_PASSWORD here: a compromised
       # worker would otherwise get master read/write access to the whole graph.
-      REDAMON_AGENT_URL: http://agent:8080
+      WHITEHAT_AGENT_URL: http://agent:8080
       # S8/I8: /graph/exec now requires internal auth. The worker presents the
       # SCOPED SCANNER_API_KEY (inbound-validation token, same category as
       # MCP_AUTH_TOKEN) — NOT the master INTERNAL_API_KEY — so the "worker holds
@@ -818,7 +818,7 @@ services:
       retries: 3
       start_period: 180s
     networks:
-      redamon:
+      whitehat:
       pentest-net:
 
   agent:
@@ -828,8 +828,8 @@ services:
       args:
         SKIP_KB: "${SKIP_KB:-false}"
         TORCH_INDEX_URL: "${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}"
-    container_name: redamon-agent
-    mem_limit: ${AGENT_MEM:-3g}             # sized from host RAM by redamon.sh
+    container_name: whitehat-agent
+    mem_limit: ${AGENT_MEM:-3g}             # sized from host RAM by whitehat.sh
     pids_limit: ${AGENT_PIDS:-1024}         # D1: fork-bomb ceiling (generous)
     cpus: ${AGENT_CPUS:-8}                   # D1: CPU cap (generous)
     env_file:
@@ -841,7 +841,7 @@ services:
       # Neo4j (internal docker network)
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       # WebSocket config
       WS_HEARTBEAT_INTERVAL: "30"
       WS_TIMEOUT: "300"
@@ -868,7 +868,7 @@ services:
       AGENT_WS_TICKET_SECRET: "${AGENT_WS_TICKET_SECRET:-}"
       # Webapp API (internal docker network)
       WEBAPP_API_URL: http://webapp:3000
-      # Docker host's LAN IP, detected by redamon.sh (export_host_lan_ip). The
+      # Docker host's LAN IP, detected by whitehat.sh (export_host_lan_ip). The
       # agent suggests it as the reverse-shell LHOST since it cannot discover the
       # host's routable address from inside the 172.x sandbox (issue #180). Empty
       # when detection fails -> the agent asks the operator instead.
@@ -880,7 +880,7 @@ services:
       KB_PATH: /app/knowledge_base/data
       # Fireteam requires AsyncPostgresSaver for safe mid-wave checkpointing.
       PERSISTENT_CHECKPOINTER: "true"
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-redamon}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run redamon.sh (STRIDE S13)}@postgres:5432/${POSTGRES_DB:-redamon}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-whitehat}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run whitehat.sh (STRIDE S13)}@postgres:5432/${POSTGRES_DB:-whitehat}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -911,7 +911,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - redamon
+      - whitehat
 
   # ===========================================================================
   # Knowledge Base Refresh Sidecar
@@ -928,7 +928,7 @@ services:
   # Enable with:
   #   KB_REFRESH_ENABLED=true docker compose --profile kb-refresh up -d kb-refresh
   #
-  # Or via redamon.sh once that integration lands. Default is OFF — users opt in.
+  # Or via whitehat.sh once that integration lands. Default is OFF — users opt in.
   # ===========================================================================
 
   kb-refresh:
@@ -938,12 +938,12 @@ services:
       dockerfile: agentic/Dockerfile
       args:
         TORCH_INDEX_URL: "${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}"
-    image: redamon-agent
-    container_name: redamon-kb-refresh
+    image: whitehat-agent
+    container_name: whitehat-kb-refresh
     environment:
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       KB_PATH: /app/knowledge_base/data
       NVD_API_KEY: "${NVD_API_KEY:-}"
     volumes:
@@ -953,12 +953,12 @@ services:
       neo4j:
         condition: service_healthy
     restart: unless-stopped
-    mem_limit: ${KB_REFRESH_MEM:-4g}        # sized from host RAM by redamon.sh (kb profile)
+    mem_limit: ${KB_REFRESH_MEM:-4g}        # sized from host RAM by whitehat.sh (kb profile)
     pids_limit: ${KB_REFRESH_PIDS:-512}
     cap_drop:
       - ALL
     networks:
-      - redamon
+      - whitehat
     # Sleep loop scheduler — runs source updates on cadence.
     # Production setups should replace this with a real cron container or
     # external scheduler (host cron, systemd timer, GitHub Actions).
@@ -1012,16 +1012,16 @@ services:
     build:
       context: ./webapp
       args:
-        REDAMON_VERSION: "${REDAMON_VERSION:-0.0.0}"
-    container_name: redamon-webapp
-    mem_limit: ${WEBAPP_MEM:-1g}            # sized from host RAM by redamon.sh
+        WHITEHAT_VERSION: "${WHITEHAT_VERSION:-0.0.0}"
+    container_name: whitehat-webapp
+    mem_limit: ${WEBAPP_MEM:-1g}            # sized from host RAM by whitehat.sh
     pids_limit: ${WEBAPP_PIDS:-512}         # D1: fork-bomb ceiling (generous)
     cpus: ${WEBAPP_CPUS:-4}                  # D1: CPU cap (generous)
     ports:
       - "${WEBAPP_PORT:-3000}:3000"
     environment:
       # PostgreSQL (Prisma)
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-redamon}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run redamon.sh (STRIDE S13)}@postgres:5432/${POSTGRES_DB:-redamon}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-whitehat}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - run whitehat.sh (STRIDE S13)}@postgres:5432/${POSTGRES_DB:-whitehat}"
       # HTTP traffic capture: body full-text search (Phase 3). Off by default —
       # the GIN-over-bodies index is sizable vs the 1g Postgres cap (§6.3/§15.8).
       # Applied idempotently by the entrypoint after `db push`; drops when off.
@@ -1029,12 +1029,12 @@ services:
       # HTTP traffic capture: the ingest worker's scoped DSN. Passed to the webapp
       # ONLY so the entrypoint (scripts/apply-ingest-role.mjs) can provision the
       # matching INSERT-only `traffic_ingest` Postgres role and keep its password in
-      # sync. Generated by redamon.sh; without the role the ingest can't write.
+      # sync. Generated by whitehat.sh; without the role the ingest can't write.
       TRAFFIC_INGEST_DATABASE_URL: ${TRAFFIC_INGEST_DATABASE_URL:-}
       # Neo4j (server-side graph queries)
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       # Ceiling on a single Cypher query. The driver's connection timeouts only
       # bound ACQUIRING a connection, so without this a whole-graph read on a very
       # large project leaves the request pending forever and pins a pooled
@@ -1062,9 +1062,9 @@ services:
       SCAN_SCHEDULE_MIN_INTERVAL_MINUTES: ${SCAN_SCHEDULE_MIN_INTERVAL_MINUTES:-}
       SCAN_SCHEDULE_ASSUMED_RUN_MINUTES: ${SCAN_SCHEDULE_ASSUMED_RUN_MINUTES:-}
       # Inbound MCP server (/api/mcp-server): an external AI agent connecting IN
-      # and acting as one RedAmon user. DEFAULT OFF - a new authenticated inbound
+      # and acting as one WhiteHat user. DEFAULT OFF - a new authenticated inbound
       # surface must be switched on deliberately, never inherited by upgrading.
-      # redamon.sh refuses to enable it while INTERNAL_API_KEY is unset or
+      # whitehat.sh refuses to enable it while INTERNAL_API_KEY is unset or
       # `changeme`, because the agent's auth (and so the whole graph-isolation
       # story) fails open in that state and its port is on 0.0.0.0 in this file.
       # Every knob below passes through EMPTY so unset keeps the safe code
@@ -1095,7 +1095,7 @@ services:
       # memory-tight host: the Neo4j driver buffers a whole result set before the
       # route maps it, inside this service's 1g mem_limit. Wired here because the
       # webapp has NO env_file, so a value set only in .env would be inert.
-      REDAMON_REDZONE_ROW_CAP: ${REDAMON_REDZONE_ROW_CAP:-}
+      WHITEHAT_REDZONE_ROW_CAP: ${WHITEHAT_REDZONE_ROW_CAP:-}
       # A1 (supply-chain incident match) on the TypeScript ingest path. Same
       # env_file caveat as every knob above: the webapp has NO env_file.
       SCA_INTEL_PATH: /sca-intel
@@ -1181,10 +1181,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Multi-homed: `redamon` for the worker/agent/db, `orchestrator-net` so the
+    # Multi-homed: `whitehat` for the worker/agent/db, `orchestrator-net` so the
     # webapp (the only legitimate caller) can still reach the isolated orchestrator.
     networks:
-      - redamon
+      - whitehat
       - orchestrator-net
 
   # ===========================================================================
@@ -1200,8 +1200,8 @@ services:
     build:
       context: .
       dockerfile: scanners/capture_proxy/Dockerfile
-    image: redamon-capture-proxy:latest
-    container_name: redamon-capture-proxy
+    image: whitehat-capture-proxy:latest
+    container_name: whitehat-capture-proxy
     # confdir=/ca keeps the mitmproxy CA (a forge-anything key, §15.9) on a
     # restricted volume readable only by this container; the private key never
     # leaves it. stream_large_bodies bounds memory on huge responses.
@@ -1216,11 +1216,11 @@ services:
       # CLOSED (every egress class blocked) — a stale/compose env can no longer drift
       # the running policy.
       #
-      # Extra RedAmon service IPs the proxy must never reach: a SECURITY invariant,
+      # Extra WhiteHat service IPs the proxy must never reach: a SECURITY invariant,
       # NOT a DB-tunable knob (never gated by the egress toggles), so it stays on the
       # env and is always enforced.
       CAPTURE_BLOCKED_IPS: "${CAPTURE_BLOCKED_IPS:-}"
-    # Target-facing plane ONLY. No redamon-network -> structurally cannot reach
+    # Target-facing plane ONLY. No whitehat-network -> structurally cannot reach
     # Postgres/Neo4j/agent/webapp/orchestrator. Holds NO DB creds, NO signing key.
     networks:
       - pentest-net
@@ -1239,7 +1239,7 @@ services:
     # NOTE: no `no-new-privileges` here — it breaks execve on this project's
     # Docker/AppArmor hosts (see container_manager.py). setuid/setgid bits are
     # stripped in the image instead (capture_proxy/Dockerfile).
-    mem_limit: ${CAPTURE_PROXY_MEM:-384m}   # sized from host RAM by redamon.sh
+    mem_limit: ${CAPTURE_PROXY_MEM:-384m}   # sized from host RAM by whitehat.sh
     pids_limit: 256
     restart: "no"
 
@@ -1248,22 +1248,22 @@ services:
     build:
       context: .
       dockerfile: scanners/capture_proxy/Dockerfile
-    image: redamon-capture-proxy:latest
-    container_name: redamon-traffic-ingest
+    image: whitehat-capture-proxy:latest
+    container_name: whitehat-traffic-ingest
     command: ["python","/app/ingest_worker.py"]
     environment:
       CAPTURE_SPOOL_DIR: /spool
       CAPTURE_BODIES_DIR: /bodies
       CAPTURE_PROXY_REDACT_SECRETS: "${CAPTURE_PROXY_REDACT_SECRETS:-true}"
-      CAPTURE_REDACT_SALT: "${CAPTURE_REDACT_SALT:-redamon-capture}"
+      CAPTURE_REDACT_SALT: "${CAPTURE_REDACT_SALT:-whitehat-capture}"
       # Scoped INSERT-only role (scanners/capture_proxy/sql/001_traffic_ingest_role.sql).
-      TRAFFIC_INGEST_DATABASE_URL: "${TRAFFIC_INGEST_DATABASE_URL:-postgresql://traffic_ingest:changeme@postgres:5432/${POSTGRES_DB:-redamon}}"
+      TRAFFIC_INGEST_DATABASE_URL: "${TRAFFIC_INGEST_DATABASE_URL:-postgresql://traffic_ingest:changeme@postgres:5432/${POSTGRES_DB:-whitehat}}"
       # Tag-verification keys: source=recon -> SCANNER_API_KEY,
       # source=agent|operator -> INTERNAL_API_KEY.
       SCANNER_API_KEY: "${SCANNER_API_KEY:-}"
       INTERNAL_API_KEY: "${INTERNAL_API_KEY:-}"
       # Operator-recording session extraction POSTs to the webapp observe endpoint
-      # (INTERNAL key). Trusted plane already reaches the webapp on the redamon net.
+      # (INTERNAL key). Trusted plane already reaches the webapp on the whitehat net.
       WEBAPP_API_URL: "${WEBAPP_API_URL:-http://webapp:3000}"
       # A1 (supply-chain incident match). PYTHONPATH so the bind-mounted
       # supply_chain_common is importable; the ignore list suppresses the
@@ -1275,7 +1275,7 @@ services:
       CAPTURE_IOC_IGNORE_SUFFIXES: "${CAPTURE_IOC_IGNORE_SUFFIXES:-}"
     # Trusted plane: needs Postgres. NO pentest-net -> no target egress at all.
     networks:
-      - redamon
+      - whitehat
     volumes:
       - capture_spool:/spool
       - capture_bodies:/bodies
@@ -1295,7 +1295,7 @@ services:
     # NOTE: no `no-new-privileges` here — it breaks execve on this project's
     # Docker/AppArmor hosts (see container_manager.py). setuid/setgid bits are
     # stripped in the image instead (capture_proxy/Dockerfile).
-    mem_limit: ${TRAFFIC_INGEST_MEM:-256m}  # sized from host RAM by redamon.sh
+    mem_limit: ${TRAFFIC_INGEST_MEM:-256m}  # sized from host RAM by whitehat.sh
     pids_limit: 256
     depends_on:
       postgres:
@@ -1307,14 +1307,14 @@ services:
 # =============================================================================
 
 networks:
-  redamon:
-    name: redamon-network
+  whitehat:
+    name: whitehat-network
     driver: bridge
   # V1 isolation: dedicated network for the privileged orchestrator. Explicit
   # name so LOCAL_LLM_NETWORK (orchestrator env) matches the spawned Ollama's net.
   # The worker (kali-sandbox) is NOT on this network and so cannot reach :8010.
   orchestrator-net:
-    name: redamon-orchestrator-net
+    name: whitehat-orchestrator-net
     driver: bridge
     # Explicit subnet so Docker never auto-assigns this net the same /16 that
     # pentest-net reserves below. Without it, orchestrator-net (created first)
@@ -1328,14 +1328,14 @@ networks:
       config:
         - subnet: 172.28.0.0/16
   # CodeFix build sandboxes attach here at spawn. Deliberately a plain bridge with
-  # NAT egress (builds fetch npm/pip deps) but NO RedAmon service joins it, so a
+  # NAT egress (builds fetch npm/pip deps) but NO WhiteHat service joins it, so a
   # malicious build has internet but cannot reach webapp/neo4j/postgres/agent.
   # Because no service is attached, Compose never creates it — the recon
   # orchestrator creates it on demand (`_ensure_codefix_network`) with an
   # auto-assigned subnet. This declaration documents intent and keeps
   # `docker compose config` aware of it.
   codefix-net:
-    name: redamon-codefix-net
+    name: whitehat-codefix-net
     driver: bridge
 
 # =============================================================================
@@ -1352,74 +1352,74 @@ volumes:
   neo4j_import:
   neo4j_plugins:
   kb_data:
-    name: redamon_kb_data
+    name: whitehat_kb_data
   tradecraft_cache:
-    name: redamon_tradecraft_cache
+    name: whitehat_tradecraft_cache
   # On-demand local LLM (Ollama) model weights for the AI Attack Surface layer.
   # The container is spawned/torn down per scan; this volume persists the pulled
   # judge/attacker models so restarts reload from RAM, not a re-download.
   # Name must match LLM_MODELS_VOLUME in recon_orchestrator/local_llm_manager.py.
   llm_models:
-    name: redamon_llm_models
+    name: whitehat_llm_models
   # GVM volumes (names must match container_manager.py references)
   vt_data:
-    name: redamon_vt_data
+    name: whitehat_vt_data
   notus_data:
-    name: redamon_notus_data
+    name: whitehat_notus_data
   scap_data:
-    name: redamon_scap_data
+    name: whitehat_scap_data
   cert_data:
-    name: redamon_cert_data
+    name: whitehat_cert_data
   data_objects:
-    name: redamon_data_objects
+    name: whitehat_data_objects
   gpg_data:
-    name: redamon_gpg_data
+    name: whitehat_gpg_data
   gvm_redis_socket:
-    name: redamon_gvm_redis_socket
+    name: whitehat_gvm_redis_socket
   gvm_psql_data:
-    name: redamon_gvm_psql_data
+    name: whitehat_gvm_psql_data
   gvm_psql_socket:
-    name: redamon_gvm_psql_socket
+    name: whitehat_gvm_psql_socket
   gvmd_data:
-    name: redamon_gvmd_data
+    name: whitehat_gvmd_data
   gvmd_socket:
-    name: redamon_gvmd_socket
+    name: whitehat_gvmd_socket
   ospd_socket:
-    name: redamon_ospd_socket
+    name: whitehat_ospd_socket
   cypherfix-repos:  # Temp storage for cloned GitHub repos (CodeFix agent)
   # Shared between the agent (clones here) and the orchestrator (bind-mounts the
   # per-job worktree into the build sandbox). NOT shared with scanners (unlike
-  # /tmp/redamon), so a low-trust scanner cannot tamper with a repo before its PR.
+  # /tmp/whitehat), so a low-trust scanner cannot tamper with a repo before its PR.
   cypherfix-work:
-    name: redamon_cypherfix_work
-  redamon_broker_socket:  # Holds the docker-broker filtered socket; in-VM so it is shareable on macOS + Linux
-    name: redamon_broker_socket
+    name: whitehat_cypherfix_work
+  whitehat_broker_socket:  # Holds the docker-broker filtered socket; in-VM so it is shareable on macOS + Linux
+    name: whitehat_broker_socket
   # HTTP traffic capture (Phase 1): the append-only spool (proxy writes, ingest
   # drains), the content-addressed body store (deduped blobs), and the proxy's
   # restricted mitmproxy CA dir (private key never leaves the proxy, §15.9).
   capture_spool:
-    name: redamon_capture_spool
+    name: whitehat_capture_spool
   capture_bodies:
-    name: redamon_capture_bodies
+    name: whitehat_capture_bodies
   capture_ca:
-    name: redamon_capture_ca
+    name: whitehat_capture_ca
   # Offline OSV vulnerability + malicious-package database (supply-chain feature).
-  # Populated lazily per-ecosystem by `redamon.sh supply-chain-sync` (osv-scanner
+  # Populated lazily per-ecosystem by `whitehat.sh supply-chain-sync` (osv-scanner
   # --download-offline-databases from the official GCS bucket); NOT downloaded at
   # install time. Mounted read-only into every supply-chain scan container and
   # into the dirty analyzer; the sync step is the only writer. The name is
   # referenced by the docker-broker volume allowlist and container_manager.py.
   osv_db:
-    name: redamon-osv-db
+    name: whitehat-osv-db
   # Supply-chain incident intel derived from the supplychainattack.org catalog
   # (attacker domains, bad package names, typosquat pairs + a manifest recording
-  # the feed revision). Populated by `redamon.sh sca-intel-sync` and refreshed
+  # the feed revision). Populated by `whitehat.sh sca-intel-sync` and refreshed
   # TTL-guarded on the scan-spawn path by the orchestrator. Mounted READ-ONLY
   # everywhere; the sync sidecar is the only writer, and it is deliberately NOT
   # on the broker's ALLOWED_RW_VOLUMES so a spawned scanner cannot poison it.
   sca_intel:
-    name: redamon-sca-intel
+    name: whitehat-sca-intel
   # Operator-uploaded SBOMs/lockfiles for L1 supply-chain scans. Shared between
   # the webapp (writes) and the spawned scan container (reads, read-only).
   supply_chain_uploads:
-    name: redamon_supply_chain_uploads
+    name: whitehat_supply_chain_uploads

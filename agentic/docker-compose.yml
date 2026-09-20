@@ -1,4 +1,4 @@
-# RedAmon Agent Docker Compose (standalone)
+# WhiteHat Agent Docker Compose (standalone)
 # For full stack, use the root docker-compose.yml instead.
 # API keys and LLM providers are configured in Global Settings (UI).
 
@@ -7,14 +7,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: redamon-agent
+    container_name: whitehat-agent
     ports:
       - "8090:8080"
     environment:
       # Neo4j (via host network)
       NEO4J_URI: bolt://host.docker.internal:7687
       NEO4J_USER: neo4j
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run redamon.sh (STRIDE S13)}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set - run whitehat.sh (STRIDE S13)}
       # WebSocket config
       WS_HEARTBEAT_INTERVAL: "30"
       WS_TIMEOUT: "300"

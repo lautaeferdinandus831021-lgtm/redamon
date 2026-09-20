@@ -69,7 +69,7 @@ import output_offload  # noqa: E402
 
 class ExecutorWiringTestBase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-exec-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-exec-")
         # Point all workspace modules at the temp root.
         self._orig_ws = workspace_fs.WORKSPACE_ROOT
         self._orig_off = output_offload.WORKSPACE_ROOT

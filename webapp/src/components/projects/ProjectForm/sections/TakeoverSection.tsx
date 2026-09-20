@@ -162,7 +162,7 @@ export function TakeoverSection({ data, updateField, onRun }: TakeoverSectionPro
                   <div>
                     <div className={styles.toggleLabel}>BadDNS</div>
                     <div className={styles.toggleDescription}>
-                      Deep DNS analysis across CNAME / NS / MX / TXT / SPF / DMARC / wildcard / NSEC / zone-transfer modules. Runs in its own isolated Docker image (<code style={codeStyle}>redamon-baddns:latest</code>). Build once with <code style={codeStyle}>docker compose --profile tools build baddns-scanner</code>.
+                      Deep DNS analysis across CNAME / NS / MX / TXT / SPF / DMARC / wildcard / NSEC / zone-transfer modules. Runs in its own isolated Docker image (<code style={codeStyle}>whitehat-baddns:latest</code>). Build once with <code style={codeStyle}>docker compose --profile tools build baddns-scanner</code>.
                     </div>
                   </div>
                   <Toggle

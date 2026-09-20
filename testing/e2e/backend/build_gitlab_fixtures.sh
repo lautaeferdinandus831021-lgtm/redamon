@@ -46,7 +46,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 WORK="$ROOT/_local/gitlab_fixture_build"
 MANIFEST="$ROOT/_local/gitlab_fixtures.json"
 HOST="${GITLAB_HOST:-https://gitlab.com}"
-GROUP_PATH="${REDAMON_FIXTURE_GROUP:-redamon-th-group}"
+GROUP_PATH="${WHITEHAT_FIXTURE_GROUP:-whitehat-th-group}"
 
 TOKEN="${GITLAB_FIXTURE_TOKEN:-}"
 if [[ -z "$TOKEN" && -f "$ROOT/_local/gitlab_fixture_token" ]]; then
@@ -98,13 +98,13 @@ echo
 # ceiling on everything inside it: GitLab refuses a child more visible than its
 # parent, so a private parent forces private fixtures.
 PARENT_ID=""
-if [[ -n "${REDAMON_FIXTURE_PARENT:-}" ]]; then
-  PARENT_ID="$(api GET "/groups/$(urlenc "$REDAMON_FIXTURE_PARENT")" | jq -r '.id // empty')"
+if [[ -n "${WHITEHAT_FIXTURE_PARENT:-}" ]]; then
+  PARENT_ID="$(api GET "/groups/$(urlenc "$WHITEHAT_FIXTURE_PARENT")" | jq -r '.id // empty')"
   if [[ -z "$PARENT_ID" ]]; then
-    echo "parent group '$REDAMON_FIXTURE_PARENT' not found or not readable" >&2
+    echo "parent group '$WHITEHAT_FIXTURE_PARENT' not found or not readable" >&2
     exit 2
   fi
-  GROUP_PATH="$REDAMON_FIXTURE_PARENT/${GROUP_PATH##*/}"
+  GROUP_PATH="$WHITEHAT_FIXTURE_PARENT/${GROUP_PATH##*/}"
 fi
 
 echo "[group] $GROUP_PATH"
@@ -121,12 +121,12 @@ find_owned_group() {
 }
 
 # Try the preferred path, then a per-account one. On gitlab.com a top-level
-# group path is GLOBALLY unique, so `redamon-th-group` is very likely already
+# group path is GLOBALLY unique, so `whitehat-th-group` is very likely already
 # taken by someone else - and a bare `GET /groups/<path>` would return THEIR
 # group happily. `owned=true` is what keeps this to groups this token owns.
 GROUP_ID="$(find_owned_group "$GROUP_PATH")"
-if [[ -z "$GROUP_ID" && -z "${REDAMON_FIXTURE_GROUP:-}" && -n "$USERNAME" ]]; then
-  ALT="redamon-th-$USERNAME"
+if [[ -z "$GROUP_ID" && -z "${WHITEHAT_FIXTURE_GROUP:-}" && -n "$USERNAME" ]]; then
+  ALT="whitehat-th-$USERNAME"
   ALT_ID="$(find_owned_group "$ALT")"
   if [[ -n "$ALT_ID" ]]; then
     GROUP_PATH="$ALT"; GROUP_ID="$ALT_ID"
@@ -143,7 +143,7 @@ GROUP_VISIBILITY=public
 
 # gitlab.com refuses a TOP-LEVEL group to a new free account with a bare
 # "403 Forbidden" and no explanation, while a SUBGROUP under a group the account
-# already owns is allowed. REDAMON_FIXTURE_PARENT names that parent; with it set,
+# already owns is allowed. WHITEHAT_FIXTURE_PARENT names that parent; with it set,
 # GROUP_PATH is the child path and the fixtures land at <parent>/<child>.
 create_group() {
   local path="${1##*/}"
@@ -153,7 +153,7 @@ create_group() {
   fi
   api POST /groups "$(jq -nc --arg p "$path" --arg v "$2" --argjson extra "$parent_arg" \
     '{name:$p, path:$p, visibility:$v,
-      description:"RedAmon Secret Multiscanner test fixtures. Synthetic secrets only."}
+      description:"WhiteHat Secret Multiscanner test fixtures. Synthetic secrets only."}
      + $extra')"
 }
 
@@ -169,9 +169,9 @@ if [[ -z "$GROUP_ID" ]]; then
   fi
 
   # "has already been taken" is the globally-unique-path collision.
-  if [[ -z "$GROUP_ID" && -z "${REDAMON_FIXTURE_GROUP:-}" && -n "$USERNAME" ]]; then
+  if [[ -z "$GROUP_ID" && -z "${WHITEHAT_FIXTURE_GROUP:-}" && -n "$USERNAME" ]]; then
     echo "  ! '$GROUP_PATH' unavailable ($(jq -rc '.message // .error' <<<"$CREATED"))"
-    GROUP_PATH="redamon-th-$USERNAME"
+    GROUP_PATH="whitehat-th-$USERNAME"
     echo "  > retrying as '$GROUP_PATH'"
     CREATED="$(create_group "$GROUP_PATH" public)"
     GROUP_ID="$(jq -r '.id // empty' <<<"$CREATED")"
@@ -185,10 +185,10 @@ if [[ -z "$GROUP_ID" ]]; then
   if [[ -z "$GROUP_ID" ]]; then
     echo "  ! could not create a group: $(jq -rc '.message // .error // .' <<<"$CREATED")" >&2
     echo "    Two fixes, either works:" >&2
-    echo "      - the path is taken: pick another with REDAMON_FIXTURE_GROUP=<path>" >&2
+    echo "      - the path is taken: pick another with WHITEHAT_FIXTURE_GROUP=<path>" >&2
     echo "      - the token may not create groups (a fine-grained token has no" >&2
     echo "        global group-create permission): create the group by hand at" >&2
-    echo "        $HOST/groups/new, then re-run with REDAMON_FIXTURE_GROUP=<its path>" >&2
+    echo "        $HOST/groups/new, then re-run with WHITEHAT_FIXTURE_GROUP=<its path>" >&2
     exit 2
   fi
   echo "  + created group '$GROUP_PATH' id=$GROUP_ID visibility=$GROUP_VISIBILITY"
@@ -240,7 +240,7 @@ ensure_project() {
     --arg n "$name" --arg v "$visibility" --argjson g "$GROUP_ID" \
     '{name:$n, path:$n, namespace_id:$g, visibility:$v,
       initialize_with_readme:false,
-      description:"RedAmon Secret Multiscanner test fixture. Synthetic secrets only."}')" \
+      description:"WhiteHat Secret Multiscanner test fixture. Synthetic secrets only."}')" \
     | jq -r '"  + created " + (.path_with_namespace // (.message | tostring))'
   return 0
 }
@@ -289,7 +289,7 @@ if ensure_project "$ALPHA" private; then
   cat > "$D/README.md" <<'EOF'
 # alpha
 
-RedAmon Secret Multiscanner fixture. Every credential-shaped string here is
+WhiteHat Secret Multiscanner fixture. Every credential-shaped string here is
 fabricated and has never been valid anywhere.
 EOF
   # Split from its tail so no whole webhook literal sits in this builder; the

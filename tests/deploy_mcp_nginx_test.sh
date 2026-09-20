@@ -27,7 +27,7 @@ set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEPLOY="$REPO_ROOT/tooling/deploy/single-host"
-TMPL="$DEPLOY/nginx/redamon.conf.tmpl"
+TMPL="$DEPLOY/nginx/whitehat.conf.tmpl"
 PASS=0; FAIL=0; SKIP=0
 ok()   { PASS=$((PASS+1)); printf '  ok   %s\n' "$1"; }
 bad()  { FAIL=$((FAIL+1)); printf '  FAIL %s (got: %s want: %s)\n' "$1" "$2" "$3"; }
@@ -40,9 +40,9 @@ render() {
       GATE_MODE="$1" MCP_EDGE_ALLOW_BEARER="${2:-false}" \
       MCP_CLIENT_CIDRS="${3:-}" MCP_SERVER_ENABLED=true \
       OPERATOR_ALLOW_CIDRS="1.2.3.4/32" \
-      SERVER_NAME=redamon.example SSL_CERT_REMOTE=/c.pem SSL_KEY_REMOTE=/k.pem \
+      SERVER_NAME=whitehat.example SSL_CERT_REMOTE=/c.pem SSL_KEY_REMOTE=/k.pem \
       CSP_CONNECT="'self'" CSP_HEADER_NAME=Content-Security-Policy \
-      WS_AUTH_REQUEST="" REDIRECT_HOST=redamon.example TLS_MODE=selfsigned \
+      WS_AUTH_REQUEST="" REDIRECT_HOST=whitehat.example TLS_MODE=selfsigned \
       _NGINX_MOD="$DEPLOY/modules/nginx.sh" _TMPL="${4:-$TMPL}" \
       bash -c '
         set -uo pipefail
@@ -99,7 +99,7 @@ echo "== security headers are re-emitted (they are NOT inherited) =="
 HDRS_FILE="$DEPLOY/nginx/snippets/security-headers-only.conf"
 delivers() {  # delivers <block> <header>
     grep -qF "add_header $2" <<<"$1" && return 0
-    grep -qF 'redamon-security-headers-only.conf' <<<"$1" \
+    grep -qF 'whitehat-security-headers-only.conf' <<<"$1" \
         && grep -qF "add_header $2" "$HDRS_FILE"
 }
 for hdr in Strict-Transport-Security X-Frame-Options X-Content-Type-Options \
@@ -165,13 +165,13 @@ else
     render ip_allowlist false "198.51.100.0/24,203.0.113.0/24" > "$WORK/r_cidr.conf"
     # The plaintext vhost: no test in this repo ever handed it to nginx, which
     # is exactly how it shipped with no MCP location at all.
-    render ip_allowlist false "" "$DEPLOY/nginx/redamon-http.conf.tmpl" > "$WORK/r_http.conf"
+    render ip_allowlist false "" "$DEPLOY/nginx/whitehat-http.conf.tmpl" > "$WORK/r_http.conf"
     _VARIANTS="r_ip r_basic r_bearer r_cidr r_http"
     # Mirror what modules/nginx.sh does on the host: EVERY snippet, prefixed.
     # Naming them individually here is what hid the missing install of
     # security-headers-only.conf, which nginx -t treats as fatal.
     for _s in "$DEPLOY"/nginx/snippets/*.conf; do
-        cp "$_s" "$WORK/snip/redamon-$(basename "$_s")"
+        cp "$_s" "$WORK/snip/whitehat-$(basename "$_s")"
     done
     openssl req -x509 -newkey rsa:2048 -nodes -keyout "$WORK/k.pem" -out "$WORK/c.pem" \
         -days 1 -subj "/CN=test" >/dev/null 2>&1
@@ -190,12 +190,12 @@ else
     OUT="$(docker run --rm -v "$WORK:/s:ro" --entrypoint sh nginx:alpine -c '
         mkdir -p /etc/nginx/snippets && cp /s/snip/*.conf /etc/nginx/snippets/
         cp /s/c.pem /c.pem && cp /s/k.pem /k.pem
-        mkdir -p /var/www/certbot; touch /etc/nginx/.redamon_htpasswd
+        mkdir -p /var/www/certbot; touch /etc/nginx/.whitehat_htpasswd
         for f in '"$_VARIANTS"'; do
-            cp /s/$f.conf /etc/nginx/conf.d/redamon.conf
+            cp /s/$f.conf /etc/nginx/conf.d/whitehat.conf
             if nginx -t 2>&1 | grep -q "test is successful"; then echo "$f OK";
             else echo "$f FAIL: $(nginx -t 2>&1 | grep emerg | head -1)"; fi
-            rm -f /etc/nginx/conf.d/redamon.conf
+            rm -f /etc/nginx/conf.d/whitehat.conf
         done' 2>/dev/null)"
     rm -rf "$WORK"
 
@@ -210,12 +210,12 @@ fi
 
 echo
 echo "== the HTTP template has the block too (it had NONE) =="
-# redamon-http.conf.tmpl was rendered by no test in the repo, which is how it
+# whitehat-http.conf.tmpl was rendered by no test in the repo, which is how it
 # shipped with no mcp zone and no location at all: a request to /api/mcp-server
 # fell through to `location /api/` on the UI rate zone, behind a gate that eats
 # the Authorization header. deploy.sh now REFUSES MCP in http-* modes, but the
 # template must still be correct if the flag is ever set by hand on the host.
-HTTP_TMPL="$DEPLOY/nginx/redamon-http.conf.tmpl"
+HTTP_TMPL="$DEPLOY/nginx/whitehat-http.conf.tmpl"
 HTTP_CONF="$(render ip_allowlist false "" "$HTTP_TMPL")"
 if grep -qF 'location = /api/mcp-server {' <<<"$HTTP_CONF"; then
     ok "http template has the exact-match location"
@@ -245,7 +245,7 @@ echo "== the shared headers snippet, not a hand-copied list =="
 # cannot be included there: it ends with `location ~` blocks).
 for label in "https:$BLOCK" "http:$HTTP_BLOCK"; do
     name="${label%%:*}"; body="${label#*:}"
-    grep -qF 'redamon-security-headers-only.conf' <<<"$body" \
+    grep -qF 'whitehat-security-headers-only.conf' <<<"$body" \
         && ok "$name location includes the shared headers snippet" \
         || bad "$name location includes the shared headers snippet" "hand-copied or absent" "include"
 done

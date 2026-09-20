@@ -458,7 +458,7 @@ export function useDownloadMarkdown(deps: DownloadMarkdownDeps) {
       }
     }
     await downloadStreaming(
-      `redamon-session-${timestamp}.md`,
+      `whitehat-session-${timestamp}.md`,
       'text/markdown;charset=utf-8',
       () => sessionChunks(),
     )

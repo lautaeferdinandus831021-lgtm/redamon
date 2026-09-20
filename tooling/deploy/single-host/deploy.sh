@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  RedAmon single-host cloud deploy driver
+#  WhiteHat single-host cloud deploy driver
 # ----------------------------------------------------------------------------
-#  Thin REMOTE DRIVER around the repo's own redamon.sh: prepare a bare Linux host,
-#  get the repo onto it, drive redamon.sh over SSH, and wrap the whole thing in an
+#  Thin REMOTE DRIVER around the repo's own whitehat.sh: prepare a bare Linux host,
+#  get the repo onto it, drive whitehat.sh over SSH, and wrap the whole thing in an
 #  internet-facing security layer (nginx + TLS + firewall + host hardening) that
-#  redamon.sh deliberately does NOT provide (RedAmon is designed local-only).
+#  whitehat.sh deliberately does NOT provide (WhiteHat is designed local-only).
 #
 #  Public surface reduced to ONE PORT: 443. That serves the webapp UI and, when
 #  MCP_SERVER_ENABLED=true, the credentialed inbound MCP endpoint
@@ -22,7 +22,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REMOTE_TMP="/tmp/redamon-deploy"
+REMOTE_TMP="/tmp/whitehat-deploy"
 
 # ------------------------------------------------------------------ logging
 c_reset=$'\e[0m'; c_bold=$'\e[1m'; c_red=$'\e[31m'; c_grn=$'\e[32m'; c_ylw=$'\e[33m'; c_blu=$'\e[34m'
@@ -46,7 +46,7 @@ Usage: ./deploy.sh <MODE> [HOST_IP] [AUTH] [REMOTE_USER] [--env ENV_NAME]
 Examples:
   ./deploy.sh init
   ./deploy.sh update
-  ./deploy.sh init 1.2.3.4 ~/.ssh/redamon.pem ubuntu
+  ./deploy.sh init 1.2.3.4 ~/.ssh/whitehat.pem ubuntu
   ./deploy.sh status --env staging
   ./deploy.sh logs agent
   ./deploy.sh revshell-open      # per-engagement: expose 4444 to REVSHELL_TARGET_CIDRS
@@ -91,7 +91,7 @@ ENV_FILE="${SCRIPT_DIR}/.env"
 LEGACY_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)/deploy/single-host"
 if [[ ! -f "${ENV_FILE}" && -f "${LEGACY_DIR}/$(basename "${ENV_FILE}")" ]]; then
   warn "Found pre-6.9 deploy config at ${LEGACY_DIR}"
-  warn "Run './redamon.sh migrate-layout' from the repo root to move it permanently."
+  warn "Run './whitehat.sh migrate-layout' from the repo root to move it permanently."
   ENV_FILE="${LEGACY_DIR}/$(basename "${ENV_FILE}")"
   # TLS material is resolved relative to SCRIPT_DIR further down; point the
   # relative cert paths at the legacy directory for this run.
@@ -111,7 +111,7 @@ fi
 [[ -n "${CLI_REMOTE_USER}" ]] && { REMOTE_USER="${CLI_REMOTE_USER}"; log "REMOTE_USER from CLI"; }
 
 # Defaults for optional keys (so `set -u` is safe throughout)
-: "${REMOTE_USER:=ubuntu}"; : "${SSH_PORT:=22}"; : "${APP_DIR:=redamon}"
+: "${REMOTE_USER:=ubuntu}"; : "${SSH_PORT:=22}"; : "${APP_DIR:=whitehat}"
 : "${REPO_URL:=https://github.com/samugit83/redamon.git}"; : "${REPO_BRANCH:=master}"
 : "${ACCESS_MODE:=https-domain}"; : "${DOMAIN:=}"; : "${HTTP_PORT:=80}"; : "${HTTPS_PORT:=443}"
 : "${TLS_MODE:=letsencrypt}"; : "${LETSENCRYPT_EMAIL:=}"; : "${LETSENCRYPT_STAGING:=false}"
@@ -124,10 +124,10 @@ CERT_BASE="${LEGACY_CERT_DIR:-$SCRIPT_DIR}"
 : "${WS_REQUIRE_SESSION:=true}"; : "${CSP_ENFORCE:=false}"
 : "${ENABLE_UFW:=true}"; : "${ENABLE_SSH_HARDENING:=true}"; : "${ENABLE_FAIL2BAN:=true}"; : "${ENABLE_UNATTENDED_UPGRADES:=true}"
 : "${ENABLE_GVM:=false}"; : "${ENABLE_KB:=false}"; : "${ENABLE_KB_REFRESH:=false}"; : "${ENABLE_ZRAM:=true}"
-: "${SWAP_PCT:=25}"; : "${SWAP_SIZE_GB:=}"; : "${REDAMON_SKIP_RAM_GATE:=false}"; : "${REDAMON_SKIP_DISK_GATE:=false}"; : "${REDAMON_BUILD_PARALLEL:=}"; : "${DOCKER_DNS:=}"; : "${DOCKER_BUILD_CACHE_MAX_GB:=}"
+: "${SWAP_PCT:=25}"; : "${SWAP_SIZE_GB:=}"; : "${WHITEHAT_SKIP_RAM_GATE:=false}"; : "${WHITEHAT_SKIP_DISK_GATE:=false}"; : "${WHITEHAT_BUILD_PARALLEL:=}"; : "${DOCKER_DNS:=}"; : "${DOCKER_BUILD_CACHE_MAX_GB:=}"
 : "${REVSHELL_TARGET_CIDRS:=}"; : "${TUNNELS_ENABLED:=false}"
 # Inbound MCP server (/api/mcp-server): an external AI agent connects IN with a
-# bearer token and acts as one RedAmon user. OFF by default -- a credentialed
+# bearer token and acts as one WhiteHat user. OFF by default -- a credentialed
 # programmatic surface must be switched on deliberately, never inherited by an
 # upgrade. MCP_CLIENT_CIDRS is separate from OPERATOR_ALLOW_CIDRS because the
 # firewall cannot filter by URL path: without it, ufw drops an agent's packet
@@ -146,7 +146,7 @@ CERT_BASE="${LEGACY_CERT_DIR:-$SCRIPT_DIR}"
 # (refresh on, all 8 ecosystems, 24h TTL). Only an air-gapped host or a
 # bandwidth/disk-constrained one needs to pin these; see README "Supply-chain".
 : "${OSV_DB_AUTO_REFRESH:=}"; : "${OSV_DB_ECOSYSTEMS:=}"; : "${OSV_DB_TTL_SECONDS:=}"; : "${OSV_DB_REFRESH_TIMEOUT:=}"
-: "${REDAMON_VERSION:=}"
+: "${WHITEHAT_VERSION:=}"
 : "${INIT_FORCE:=false}"; : "${BACKUP_BEFORE_UPDATE:=false}"; : "${DRY_RUN:=false}"; : "${VERBOSE:=false}"
 : "${ALLOW_INSECURE:=0}"
 : "${HOST_IP:=}"; : "${SSH_KEY_PATH:=}"; : "${SSH_PASSWORD:=}"
@@ -276,12 +276,12 @@ setup_ssh() {
 # Refuse an undersized target BEFORE provisioning anything.
 #
 # Without this the deploy installs Docker + nginx, clones the repo and drives
-# redamon.sh install -- 30-60 minutes of work -- only for the host to be too
-# small for the stack it just built. redamon.sh gates too, but by then the box
+# whitehat.sh install -- 30-60 minutes of work -- only for the host to be too
+# small for the stack it just built. whitehat.sh gates too, but by then the box
 # has already been mutated. Checking over SSH costs one round trip.
 #
 # The requirement tracks the ENABLED PROFILES, because GVM roughly doubles it.
-# Override with REDAMON_SKIP_RAM_GATE / REDAMON_SKIP_DISK_GATE, exactly as on the
+# Override with WHITEHAT_SKIP_RAM_GATE / WHITEHAT_SKIP_DISK_GATE, exactly as on the
 # host itself.
 # ---------------------------------------------------------------------------
 precheck_target() {
@@ -294,26 +294,26 @@ precheck_target() {
   mem_gb="${probe%% *}"; disk_gb="${probe##* }"
 
   if [[ ! "$mem_gb" =~ ^[0-9]+$ || ! "$disk_gb" =~ ^[0-9]+$ ]]; then
-    warn "Could not read the target's RAM/disk; skipping the precheck (redamon.sh will still gate)."
+    warn "Could not read the target's RAM/disk; skipping the precheck (whitehat.sh will still gate)."
     return 0
   fi
   log "Target: ~${mem_gb}GB RAM, ${disk_gb}GB free disk (need ~${need_gb}GB / ~${need_disk}GB for ${why})"
 
-  if [[ "$mem_gb" -lt "$need_gb" ]] && ! is_true "${REDAMON_SKIP_RAM_GATE}"; then
+  if [[ "$mem_gb" -lt "$need_gb" ]] && ! is_true "${WHITEHAT_SKIP_RAM_GATE}"; then
     err "Target has ~${mem_gb}GB RAM; ${why} needs ~${need_gb}GB."
     err "  Use a bigger instance, disable a profile (ENABLE_GVM/ENABLE_KB=false),"
-    err "  or set REDAMON_SKIP_RAM_GATE=true to proceed anyway (expect OOM kills)."
+    err "  or set WHITEHAT_SKIP_RAM_GATE=true to proceed anyway (expect OOM kills)."
     die "Aborted before touching the host."
   fi
-  if [[ "$disk_gb" -lt "$need_disk" ]] && ! is_true "${REDAMON_SKIP_DISK_GATE}"; then
+  if [[ "$disk_gb" -lt "$need_disk" ]] && ! is_true "${WHITEHAT_SKIP_DISK_GATE}"; then
     err "Target has ${disk_gb}GB free; the ${why} build needs ~${need_disk}GB."
-    err "  Grow the volume, or set REDAMON_SKIP_DISK_GATE=true (the build may fail part-way)."
+    err "  Grow the volume, or set WHITEHAT_SKIP_DISK_GATE=true (the build may fail part-way)."
     die "Aborted before touching the host."
   fi
   ok "Target sizing OK"
 }
 
-  SSH_CONTROL_PATH="/tmp/ssh-redamon-${HOST_IP}-$$"
+  SSH_CONTROL_PATH="/tmp/ssh-whitehat-${HOST_IP}-$$"
   local common="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ServerAliveCountMax=8 -o ControlMaster=auto -o ControlPath=${SSH_CONTROL_PATH} -o ControlPersist=120"
   local scp_common="-P ${SSH_PORT} -o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPath=${SSH_CONTROL_PATH} -o ControlPersist=120"
   if [[ "${AUTH_MODE}" == "key" ]]; then
@@ -363,9 +363,9 @@ build_deploy_env() {
              WS_REQUIRE_SESSION CSP_ENFORCE \
              ENABLE_UFW ENABLE_SSH_HARDENING ENABLE_FAIL2BAN ENABLE_UNATTENDED_UPGRADES \
              ENABLE_GVM ENABLE_KB ENABLE_KB_REFRESH ENABLE_ZRAM \
-             SWAP_SIZE_GB SWAP_PCT REDAMON_SKIP_RAM_GATE REDAMON_SKIP_DISK_GATE REDAMON_BUILD_PARALLEL DOCKER_DNS DOCKER_BUILD_CACHE_MAX_GB \
+             SWAP_SIZE_GB SWAP_PCT WHITEHAT_SKIP_RAM_GATE WHITEHAT_SKIP_DISK_GATE WHITEHAT_BUILD_PARALLEL DOCKER_DNS DOCKER_BUILD_CACHE_MAX_GB \
              OS_RESERVE_PCT SERVICES_PCT BURST_FACTOR BURST_SWAP_MIN_PCT BLAST_PCT DISK_RESERVE_PCT \
-             REDAMON_WEIGHT_WEBAPP REDAMON_WEIGHT_NEO4J REDAMON_WEIGHT_AGENT \
+             WHITEHAT_WEIGHT_WEBAPP WHITEHAT_WEIGHT_NEO4J WHITEHAT_WEIGHT_AGENT \
              REVSHELL_TARGET_CIDRS TUNNELS_ENABLED \
              MCP_SERVER_ENABLED MCP_EDGE_ALLOW_BEARER MCP_CLIENT_CIDRS \
              MCP_TOKEN_RETENTION_DAYS MCP_LLM_DAILY_BUDGET \
@@ -381,7 +381,7 @@ build_deploy_env() {
              SCA_INTEL_AUTO_REFRESH SCA_INTEL_TTL_SECONDS SCA_INTEL_RETRY_SECONDS \
              SCA_INTEL_REFRESH_TIMEOUT SCA_INTEL_BOOTSTRAP_ON_SCAN SCA_INTEL_MATCH_ENABLED \
              CAPTURE_IOC_IGNORE_SUFFIXES \
-             REDAMON_VERSION AUTH_MODE APPLY_SECURE_COOKIE \
+             WHITEHAT_VERSION AUTH_MODE APPLY_SECURE_COOKIE \
              NEXT_PUBLIC_AGENT_WS_URL AGENT_CORS_ORIGINS CSP_CONNECT WEBAPP_NODE_ENV WS_SCHEME HTTP_SCHEME; do
       printf '%s=%q\n' "$k" "${!k:-}"
     done
@@ -414,8 +414,8 @@ ship_assets() {
 
 # common remote preamble (sourced at the top of every remote heredoc).
 # The prod overlay lives at a PERSISTENT ABSOLUTE path OUTSIDE the repo tree
-# ($HOME/.redamon-deploy) so it (a) survives reboots, (b) never dirties the git checkout
-# (so redamon.sh update's `git pull --ff-only` can't be blocked by it), and (c) does not
+# ($HOME/.whitehat-deploy) so it (a) survives reboots, (b) never dirties the git checkout
+# (so whitehat.sh update's `git pull --ff-only` can't be blocked by it), and (c) does not
 # depend on the deploy dir being committed to the cloned branch. docker compose resolves
 # the relative base file from CWD ($APP_PATH) and the absolute overlay from its full path.
 PREAMBLE='set -euo pipefail
@@ -423,7 +423,7 @@ cd '"${REMOTE_TMP}"'
 source modules/_common.sh
 set -a; source deploy.env; set +a
 APP_PATH="$HOME/${APP_DIR}"
-OVERLAY_DIR="$HOME/.redamon-deploy"
+OVERLAY_DIR="$HOME/.whitehat-deploy"
 mkdir -p "$OVERLAY_DIR"
 cp -f '"${REMOTE_TMP}"'/compose/docker-compose.prod.yml "$OVERLAY_DIR/docker-compose.prod.yml" 2>/dev/null || true
 export COMPOSE_FILE="docker-compose.yml:$OVERLAY_DIR/docker-compose.prod.yml"'
@@ -434,7 +434,7 @@ export COMPOSE_FILE="docker-compose.yml:$OVERLAY_DIR/docker-compose.prod.yml"'
 cmd_init() {
   hr "INIT ${HOST_IP}  (DESTRUCTIVE -- wipes ALL Docker state + the checkout)"
   if ! is_true "${INIT_FORCE}"; then
-    echo "This ERASES every container, image, volume and network on ${HOST_IP} (not just RedAmon)."
+    echo "This ERASES every container, image, volume and network on ${HOST_IP} (not just WhiteHat)."
     read -rp "Type INIT to wipe ${HOST_IP}: " confirm
     [[ "${confirm}" == "INIT" ]] || die "Aborted (confirmation not given)"
   fi
@@ -443,9 +443,9 @@ cmd_init() {
   hr "Host teardown"
   remote <<EOF
 ${PREAMBLE}
-step "Teardown: graceful RedAmon purge + full docker prune + remove checkout"
-if [ -x "\$APP_PATH/redamon.sh" ]; then
-  ( cd "\$APP_PATH" && sg docker -c "./redamon.sh purge" <<<"yes" ) || true
+step "Teardown: graceful WhiteHat purge + full docker prune + remove checkout"
+if [ -x "\$APP_PATH/whitehat.sh" ]; then
+  ( cd "\$APP_PATH" && sg docker -c "./whitehat.sh purge" <<<"yes" ) || true
 fi
 sg docker -c 'docker ps -aq | xargs -r docker rm -f' || true
 sg docker -c 'docker system prune -af --volumes' || true
@@ -490,7 +490,7 @@ cd "\$APP_PATH"
 # first-class build ARG in the base webapp/Dockerfile (NEXT_PUBLIC_AGENT_WS_URL),
 # baked from the prod overlay's build-arg. There is nothing to patch or reset, so a
 # rebuild can never silently ship the wrong (localhost:8090) WS URL.
-step "Seed application .env (operator app-config only; secrets are redamon.sh's job)"
+step "Seed application .env (operator app-config only; secrets are whitehat.sh's job)"
 touch .env
 seed() { local k="\$1" v="\$2"; [ -z "\$v" ] && return 0; grep -q "^\$k=" .env && sed -i "s|^\$k=.*|\$k=\$v|" .env || echo "\$k=\$v" >> .env; }
 seed NVD_API_KEY "\${NVD_API_KEY}"
@@ -498,10 +498,10 @@ seed KB_EMBEDDING_USE_API "\${KB_EMBEDDING_USE_API}"
 seed KB_EMBEDDING_API_BASE_URL "\${KB_EMBEDDING_API_BASE_URL}"
 seed KB_EMBEDDING_API_KEY "\${KB_EMBEDDING_API_KEY}"
 seed TUNNELS_ENABLED "\${TUNNELS_ENABLED}"
-# Offline OSV database (supply-chain SCA). redamon.sh install/update/up call
+# Offline OSV database (supply-chain SCA). whitehat.sh install/update/up call
 # ensure_osv_db, which downloads ~280 MB for all 8 ecosystems on a cold host.
 # These are read by recon-orchestrator (explicitly wired in its compose
-# environment block -- it has no env_file) and by redamon.sh's own sync step.
+# environment block -- it has no env_file) and by whitehat.sh's own sync step.
 # Seed BEFORE the install so the very first sync already honours them: an
 # air-gapped host must not spend 15 minutes on a download that cannot succeed.
 seed OSV_DB_AUTO_REFRESH "\${OSV_DB_AUTO_REFRESH}"
@@ -517,7 +517,7 @@ seed SCA_INTEL_REFRESH_TIMEOUT "\${SCA_INTEL_REFRESH_TIMEOUT}"
 seed SCA_INTEL_BOOTSTRAP_ON_SCAN "\${SCA_INTEL_BOOTSTRAP_ON_SCAN}"
 seed SCA_INTEL_MATCH_ENABLED "\${SCA_INTEL_MATCH_ENABLED}"
 seed CAPTURE_IOC_IGNORE_SUFFIXES "\${CAPTURE_IOC_IGNORE_SUFFIXES}"
-# Inbound MCP server. Seeded BEFORE redamon.sh runs: ensure_auth_secrets appends
+# Inbound MCP server. Seeded BEFORE whitehat.sh runs: ensure_auth_secrets appends
 # MCP_SERVER_ENABLED=false when the key is ABSENT, so without this the deployed
 # host actively pins the flag off and the operator's choice is unreachable.
 # seed() overwrites an existing key, so re-running is idempotent either way.
@@ -545,7 +545,7 @@ seed MCP_ALLOWED_ORIGIN "\${MCP_PUBLIC_ORIGIN}"
 # here and is what makes audit records and the login lockout name a real IP.
 seed TRUST_PROXY "true"
 
-# Memory-governor SHARES. Percentages only: redamon.sh computes the actual sizes
+# Memory-governor SHARES. Percentages only: whitehat.sh computes the actual sizes
 # from the remote host's own RAM, so the same values are correct on an 8GB and a
 # 64GB instance. Seeding a size here would defeat the whole point.
 seed OS_RESERVE_PCT "\${OS_RESERVE_PCT}"
@@ -554,9 +554,9 @@ seed BURST_FACTOR "\${BURST_FACTOR}"
 seed BURST_SWAP_MIN_PCT "\${BURST_SWAP_MIN_PCT}"
 seed BLAST_PCT "\${BLAST_PCT}"
 seed DISK_RESERVE_PCT "\${DISK_RESERVE_PCT}"
-seed REDAMON_WEIGHT_WEBAPP "\${REDAMON_WEIGHT_WEBAPP}"
-seed REDAMON_WEIGHT_NEO4J "\${REDAMON_WEIGHT_NEO4J}"
-seed REDAMON_WEIGHT_AGENT "\${REDAMON_WEIGHT_AGENT}"
+seed WHITEHAT_WEIGHT_WEBAPP "\${WHITEHAT_WEIGHT_WEBAPP}"
+seed WHITEHAT_WEIGHT_NEO4J "\${WHITEHAT_WEIGHT_NEO4J}"
+seed WHITEHAT_WEIGHT_AGENT "\${WHITEHAT_WEIGHT_AGENT}"
 
 # Cap each per-service CPU limit to the host's CPU count. compose sets generous
 # \`cpus:\` defaults (neo4j 8, kali 10, agent 8) that assume a big host; Docker
@@ -584,7 +584,7 @@ chmod 600 .env
 success "Checkout ready"
 EOF
 
-  hr "Drive redamon.sh install (builds all images, brings the stack up)  [30-60 min]"
+  hr "Drive whitehat.sh install (builds all images, brings the stack up)  [30-60 min]"
   drive_install
   run_secrets_gate
   bootstrap_admin
@@ -600,17 +600,17 @@ EOF
   echo "   Admin:  ${ADMIN_EMAIL}"
 }
 
-# redamon.sh install driven through a pty (expect) so its interactive admin prompt is
+# whitehat.sh install driven through a pty (expect) so its interactive admin prompt is
 # answered non-interactively from ADMIN_* in .env -- the first admin is created at init.
 drive_install() {
   remote <<EOF
 ${PREAMBLE}
 cd "\$APP_PATH"
 export DOMAIN NEXT_PUBLIC_AGENT_WS_URL AGENT_CORS_ORIGINS WEBAPP_NODE_ENV
-[ -n "\${REDAMON_VERSION}" ] && export REDAMON_VERSION
-is_true "\${ENABLE_ZRAM}" && export REDAMON_ENABLE_ZRAM=1
-[ -n "\${REDAMON_BUILD_PARALLEL}" ] && export REDAMON_BUILD_PARALLEL
-is_true "\${REDAMON_SKIP_RAM_GATE}" && export REDAMON_SKIP_RAM_GATE=1
+[ -n "\${WHITEHAT_VERSION}" ] && export WHITEHAT_VERSION
+is_true "\${ENABLE_ZRAM}" && export WHITEHAT_ENABLE_ZRAM=1
+[ -n "\${WHITEHAT_BUILD_PARALLEL}" ] && export WHITEHAT_BUILD_PARALLEL
+is_true "\${WHITEHAT_SKIP_RAM_GATE}" && export WHITEHAT_SKIP_RAM_GATE=1
 INSTALL_FLAGS=""
 is_true "\${ENABLE_GVM}" && INSTALL_FLAGS="\$INSTALL_FLAGS --gvm"
 is_true "\${ENABLE_KB}"  && INSTALL_FLAGS="\$INSTALL_FLAGS --kbase"
@@ -618,7 +618,7 @@ export INSTALL_FLAGS APP_PATH ADMIN_NAME ADMIN_EMAIL ADMIN_PASSWORD
 cat > "${REMOTE_TMP}/drive_install.exp" <<'EXP'
 #!/usr/bin/expect -f
 set timeout -1
-spawn bash -c "cd \$env(APP_PATH) && ./redamon.sh install \$env(INSTALL_FLAGS)"
+spawn bash -c "cd \$env(APP_PATH) && ./whitehat.sh install \$env(INSTALL_FLAGS)"
 expect {
   -re {Admin name:}                 { send "\$env(ADMIN_NAME)\r";     exp_continue }
   -re {Admin email:}                { send "\$env(ADMIN_EMAIL)\r";    exp_continue }
@@ -630,9 +630,9 @@ expect {
 catch wait result
 exit [lindex \$result 3]
 EXP
-step "redamon.sh install (pty-driven; admin auto-answered from .env)"
+step "whitehat.sh install (pty-driven; admin auto-answered from .env)"
 sg docker -c "expect ${REMOTE_TMP}/drive_install.exp"
-success "redamon.sh install finished"
+success "whitehat.sh install finished"
 EOF
 }
 
@@ -717,14 +717,14 @@ gvm_note() {
   is_true "${ENABLE_GVM}" || return 0
   hr "GVM"
   warn "GVM enabled: feeds sync 10-20 min before scans work."
-  # redamon.sh install (run earlier) is now the single source of truth: it
+  # whitehat.sh install (run earlier) is now the single source of truth: it
   # generates a strong GVM_PASSWORD in the server .env AND applies it to the live
   # gvmd 'admin' user (ensure_gvm_secret + reconcile_gvm_admin_password). We do
   # NOT rotate to a fresh random password here — the old code did exactly that and
   # never persisted it, so the app stayed on admin/admin and every GVM scan failed
   # to authenticate. Instead we RE-APPLY the pinned .env value (idempotent: gvmd
   # --new-password needs no old password), which also converges the case where
-  # redamon.sh's reconcile timed out waiting for a slow first-boot gvmd.
+  # whitehat.sh's reconcile timed out waiting for a slow first-boot gvmd.
   remote <<EOF
 ${PREAMBLE}
 cd "\$APP_PATH"
@@ -734,7 +734,7 @@ if [ -z "\$GVMPW" ]; then
 elif sg docker -c "docker compose exec -T -u gvmd gvmd gvmd --user=admin --new-password='\$GVMPW'" 2>/dev/null; then
   success "GVM admin credentials: admin / \$GVMPW  (also stored as GVM_PASSWORD in \$APP_PATH/.env)"
 else
-  warn "gvmd not ready to apply the password yet; it converges on the next './redamon.sh update'. Password is in \$APP_PATH/.env (GVM_PASSWORD)."
+  warn "gvmd not ready to apply the password yet; it converges on the next './whitehat.sh update'. Password is in \$APP_PATH/.env (GVM_PASSWORD)."
 fi
 EOF
 }
@@ -776,23 +776,23 @@ sg docker -c "docker compose ps" || true
 # in prod: it would report false failures for the very hardening prod requires.
 info "single-origin prod: webapp/agent/4444 loopback by design (dev-only test_port_bindings.sh not run)"
 step "Offline OSV database (supply-chain SCA)"
-# redamon.sh's ensure_osv_db is deliberately best-effort: a network failure warns
+# whitehat.sh's ensure_osv_db is deliberately best-effort: a network failure warns
 # and lets the stack come up. Without a check here, that warning scrolls past in a
 # 40-minute install and the operator only discovers the empty DB when the first
 # supply-chain scan reports "no <ecosystem> ecosystem". Warn, never fail: the rest
 # of the platform is fully functional without it, and an air-gapped host that set
 # OSV_DB_AUTO_REFRESH=false has an empty DB on purpose.
-osv_mp=\$(sg docker -c "docker volume inspect -f '{{.Mountpoint}}' redamon-osv-db" 2>/dev/null || true)
+osv_mp=\$(sg docker -c "docker volume inspect -f '{{.Mountpoint}}' whitehat-osv-db" 2>/dev/null || true)
 if [ -z "\$osv_mp" ]; then
-  warn "redamon-osv-db volume missing -- supply-chain scans cannot verdict anything (run './redamon.sh supply-chain-sync')"
-elif [ "\$(run_sudo ls -1 "\$osv_mp" 2>/dev/null | grep -c '^\.redamon_synced_')" -eq 0 ]; then
+  warn "whitehat-osv-db volume missing -- supply-chain scans cannot verdict anything (run './whitehat.sh supply-chain-sync')"
+elif [ "\$(run_sudo ls -1 "\$osv_mp" 2>/dev/null | grep -c '^\.whitehat_synced_')" -eq 0 ]; then
   if is_true "\${OSV_DB_AUTO_REFRESH:-true}"; then
-    warn "offline OSV database is EMPTY -- supply-chain scans will report a missing ecosystem. Re-run: ./redamon.sh supply-chain-sync"
+    warn "offline OSV database is EMPTY -- supply-chain scans will report a missing ecosystem. Re-run: ./whitehat.sh supply-chain-sync"
   else
     info "offline OSV database empty; OSV_DB_AUTO_REFRESH=false, so this is intentional"
   fi
 else
-  success "OSV database synced: \$(run_sudo ls -1 "\$osv_mp" 2>/dev/null | sed -n 's/^\.redamon_synced_//p' | tr '\n' ' ')"
+  success "OSV database synced: \$(run_sudo ls -1 "\$osv_mp" 2>/dev/null | sed -n 's/^\.whitehat_synced_//p' | tr '\n' ' ')"
 fi
 step "Admin present"
 cnt=\$(sg docker -c "docker compose exec -T webapp node scripts/check-admin.mjs" 2>/dev/null | tr -d '[:space:]')
@@ -859,26 +859,26 @@ EOF
 cmd_update() {
   hr "UPDATE ${HOST_IP} (pull latest ${REPO_BRANCH} HEAD + apply)"
   ship_assets
-  hr "Pull --ff-only + diff-driven rebuild via redamon.sh update"
+  hr "Pull --ff-only + diff-driven rebuild via whitehat.sh update"
   remote <<EOF
 ${PREAMBLE}
 cd "\$APP_PATH"
 [ -d .git ] || { err "no checkout at \$APP_PATH -- run 'init' first"; exit 1; }
 export DOMAIN NEXT_PUBLIC_AGENT_WS_URL AGENT_CORS_ORIGINS WEBAPP_NODE_ENV
-[ -n "\${REDAMON_VERSION}" ] && export REDAMON_VERSION
-is_true "\${ENABLE_ZRAM}" && export REDAMON_ENABLE_ZRAM=1
-[ -n "\${REDAMON_BUILD_PARALLEL}" ] && export REDAMON_BUILD_PARALLEL
+[ -n "\${WHITEHAT_VERSION}" ] && export WHITEHAT_VERSION
+is_true "\${ENABLE_ZRAM}" && export WHITEHAT_ENABLE_ZRAM=1
+[ -n "\${WHITEHAT_BUILD_PARALLEL}" ] && export WHITEHAT_BUILD_PARALLEL
 # No source patches to reset: webapp's single-origin WS URL is a first-class ARG in the
 # base Dockerfile (NEXT_PUBLIC_AGENT_WS_URL), baked from the prod overlay's build-arg, so
-# redamon.sh's own diff-driven webapp rebuild bakes it correctly. The old reset -> pull ->
+# whitehat.sh's own diff-driven webapp rebuild bakes it correctly. The old reset -> pull ->
 # re-apply-patch -> rebuild dance is gone -- it could leave the Dockerfile unpatched and
 # ship the wrong ws://localhost:8090 WS URL (the chat "Connecting..." bug).
 # Preserve the version stamp so the overlay build-arg doesn't default to 0.0.0.
-[ -z "\${REDAMON_VERSION:-}" ] && [ -f VERSION ] && export REDAMON_VERSION="\$(cat VERSION 2>/dev/null || echo)"
+[ -z "\${WHITEHAT_VERSION:-}" ] && [ -f VERSION ] && export WHITEHAT_VERSION="\$(cat VERSION 2>/dev/null || echo)"
 step "Re-seed application .env (operator app-config; init-only before, so update ignored it)"
 touch .env
 seed() { local k="\$1" v="\$2"; [ -z "\$v" ] && return 0; grep -q "^\$k=" .env && sed -i "s|^\$k=.*|\$k=\$v|" .env || echo "\$k=\$v" >> .env; }
-# Inbound MCP server. Seeded BEFORE redamon.sh runs: ensure_auth_secrets appends
+# Inbound MCP server. Seeded BEFORE whitehat.sh runs: ensure_auth_secrets appends
 # MCP_SERVER_ENABLED=false when the key is ABSENT, so without this the deployed
 # host actively pins the flag off and the operator's choice is unreachable.
 # seed() overwrites an existing key, so re-running is idempotent either way.
@@ -906,9 +906,9 @@ seed MCP_ALLOWED_ORIGIN "\${MCP_PUBLIC_ORIGIN}"
 # here and is what makes audit records and the login lockout name a real IP.
 seed TRUST_PROXY "true"
 
-step "redamon.sh update (git pull --ff-only + diff-driven rebuild + secret regen)"
-sg docker -c "cd \$APP_PATH && ./redamon.sh update"
-# redamon.sh rebuilds only what CHANGED. An .env-only edit changes no image, so
+step "whitehat.sh update (git pull --ff-only + diff-driven rebuild + secret regen)"
+sg docker -c "cd \$APP_PATH && ./whitehat.sh update"
+# whitehat.sh rebuilds only what CHANGED. An .env-only edit changes no image, so
 # the webapp would keep running with its old environment; recreate it explicitly.
 step "Recreate webapp so a changed .env actually takes effect"
 sg docker -c "cd \$APP_PATH && docker compose -f docker-compose.yml -f \$OVERLAY_DIR/docker-compose.prod.yml up -d webapp"
@@ -929,7 +929,7 @@ cmd_status() {
   remote <<EOF
 ${PREAMBLE}
 cd "\$APP_PATH" 2>/dev/null || { err "no checkout"; exit 1; }
-sg docker -c "cd \$APP_PATH && ./redamon.sh status" || true
+sg docker -c "cd \$APP_PATH && ./whitehat.sh status" || true
 sg docker -c "docker compose ps" || true
 run_sudo ufw status verbose 2>/dev/null || true
 run_sudo nginx -t 2>&1 || true
@@ -975,7 +975,7 @@ cmd_down() {
   remote <<EOF
 ${PREAMBLE}
 cd "\$APP_PATH" 2>/dev/null || { err "no checkout"; exit 1; }
-sg docker -c "cd \$APP_PATH && ./redamon.sh down"
+sg docker -c "cd \$APP_PATH && ./whitehat.sh down"
 EOF
   ok "Stack stopped (data preserved)"
 }
@@ -1007,17 +1007,17 @@ else
   warn "ENABLE_UFW=false -- 4444 will be reachable from ANY source that can hit \${PRIMARY_IP}. Enforce scoping in your cloud Security Group."
 fi
 step "Start the transient 4444 forwarder (auto-removed on stop/reboot)"
-run_sudo systemctl stop redamon-revshell 2>/dev/null || true
-run_sudo systemctl reset-failed redamon-revshell 2>/dev/null || true
-run_sudo systemd-run --unit=redamon-revshell --collect --description="RedAmon reverse-shell 4444 forwarder" \
+run_sudo systemctl stop whitehat-revshell 2>/dev/null || true
+run_sudo systemctl reset-failed whitehat-revshell 2>/dev/null || true
+run_sudo systemd-run --unit=whitehat-revshell --collect --description="WhiteHat reverse-shell 4444 forwarder" \
   /usr/bin/socat "TCP-LISTEN:4444,bind=\${PRIMARY_IP},fork,reuseaddr" TCP:127.0.0.1:4444
 sleep 1
-if run_sudo systemctl is-active --quiet redamon-revshell; then
+if run_sudo systemctl is-active --quiet whitehat-revshell; then
   success "4444 OPEN on \${PRIMARY_IP} (scoped to \${REVSHELL_TARGET_CIDRS}) -> 127.0.0.1:4444 (kali msf handler)"
-  info "Set your payload LHOST to the host's public IP, LPORT 4444, and start the msf handler in RedAmon."
+  info "Set your payload LHOST to the host's public IP, LPORT 4444, and start the msf handler in WhiteHat."
   warn "Run './deploy.sh revshell-close' when the engagement ends. A reboot also auto-closes it."
 else
-  err "socat forwarder failed to start"; run_sudo journalctl -u redamon-revshell -n 20 --no-pager 2>/dev/null || true; exit 1
+  err "socat forwarder failed to start"; run_sudo journalctl -u whitehat-revshell -n 20 --no-pager 2>/dev/null || true; exit 1
 fi
 EOF
   ok "revshell-open complete"
@@ -1029,8 +1029,8 @@ cmd_revshell_close() {
   remote <<EOF
 ${PREAMBLE}
 step "Stop the 4444 forwarder"
-run_sudo systemctl stop redamon-revshell 2>/dev/null || true
-run_sudo systemctl reset-failed redamon-revshell 2>/dev/null || true
+run_sudo systemctl stop whitehat-revshell 2>/dev/null || true
+run_sudo systemctl reset-failed whitehat-revshell 2>/dev/null || true
 step "Remove ufw 4444 allow rules"
 if is_true "\${ENABLE_UFW}"; then
   IFS=',' read -ra _cidrs <<< "\${REVSHELL_TARGET_CIDRS:-}"

@@ -1,10 +1,10 @@
-# RedAmon MCP Servers
+# WhiteHat MCP Servers
 
 MCP (Model Context Protocol) servers for agentic penetration testing. These servers expose security tools to AI agents via the MCP protocol, enabling autonomous vulnerability discovery and exploitation.
 
 This document describes the **five system MCP servers** that ship inside the kali-sandbox container (`network_recon`, `nmap`, `nuclei`, `metasploit`, `playwright`) and back the agent's built-in pentest toolset.
 
-> **The opposite direction** — letting an *external* agent connect INTO RedAmon
+> **The opposite direction** — letting an *external* agent connect INTO WhiteHat
 > and drive recon as one user — is a separate feature, **MCP Server**.
 > See [README.MCP.SERVER.md](README.MCP.SERVER.md).
 
@@ -75,8 +75,8 @@ These variables are set in `docker-compose.yml` and passed to the container:
 | Variable | Value | Description |
 |----------|-------|-------------|
 | `MCP_TRANSPORT` | `sse` | Transport mode: `stdio` (direct) or `sse` (network) |
-| `MCP_HOST` | `0.0.0.0` | Bind address **inside the container** (so the agent can reach the servers over the internal `redamon` bridge). The *host* port publish is loopback-only — see the security note below. |
-| `MCP_AUTH_TOKEN` | *(generated)* | Bearer token required on every MCP SSE request. Auto-generated into `.env` by `redamon.sh`; the agent sends it, the servers validate it. Empty/unset ⇒ servers **fail closed** (reject with 401/1008); a wrapper-build error no longer falls back to unauthenticated serving. |
+| `MCP_HOST` | `0.0.0.0` | Bind address **inside the container** (so the agent can reach the servers over the internal `whitehat` bridge). The *host* port publish is loopback-only — see the security note below. |
+| `MCP_AUTH_TOKEN` | *(generated)* | Bearer token required on every MCP SSE request. Auto-generated into `.env` by `whitehat.sh`; the agent sends it, the servers validate it. Empty/unset ⇒ servers **fail closed** (reject with 401/1008); a wrapper-build error no longer falls back to unauthenticated serving. |
 | `NETWORK_RECON_PORT` | `8000` | HTTP client + port scanner server |
 | `NUCLEI_PORT` | `8002` | Vulnerability scanner server |
 | `METASPLOIT_PORT` | `8003` | Exploitation framework server |
@@ -472,17 +472,17 @@ default:
 - **Loopback-only host publish.** The MCP servers (`8000/8002/8003/8004/8005`),
   progress streams (`8013/8014`), tunnel-manager (`8015`) and ngrok API (`4040`)
   are published on `127.0.0.1` — never on the LAN. The agent reaches them over
-  the internal `redamon` Docker bridge, so no functionality depends on host
+  the internal `whitehat` Docker bridge, so no functionality depends on host
   reachability. (`4444`, the reverse-shell catcher, is intentionally left
   routable so a real target can connect back in direct/no-tunnel mode.)
 - **Bearer-token auth.** Every MCP SSE request must carry
-  `Authorization: Bearer $MCP_AUTH_TOKEN`. `redamon.sh` generates the token into
+  `Authorization: Bearer $MCP_AUTH_TOKEN`. `whitehat.sh` generates the token into
   `.env`; the agent sends it automatically. If the token is unset (e.g. a manual
-  `docker compose up` without running `redamon.sh`), the servers **fail closed**
+  `docker compose up` without running `whitehat.sh`), the servers **fail closed**
   and reject every request (a token-less request gets 401/1008), and a
   wrapper-build error no longer degrades to serving unauthenticated; the
   loopback bind is defense-in-depth on top of the mandatory bearer. To run the
-  stack at all, set `MCP_AUTH_TOKEN` in `.env` (or just run `redamon.sh`).
+  stack at all, set `MCP_AUTH_TOKEN` in `.env` (or just run `whitehat.sh`).
 
 This closes the unauthenticated-RCE surface tracked as STRIDE **S10 / E1 / I9**
 in `_local/internal/stride/README.TM.STRIDE.md`.

@@ -205,7 +205,7 @@ describe('downloading the pack', () => {
     await generate()
     fireEvent.click(screen.getByText(/Download all 3/))
     await waitFor(() => expect(saved).toHaveLength(1))
-    expect(saved[0].name).toBe('redamon-bug-bounty.zip')
+    expect(saved[0].name).toBe('whitehat-bug-bounty.zip')
   })
 
   test('the archive keeps the references/ folder rather than flattening it', async () => {
@@ -219,9 +219,9 @@ describe('downloading the pack', () => {
     // The install hint tells the operator to put SKILL.md at the root of a
     // profile-named directory with references/ beneath it. The zip must BE that.
     expect(entries.sort()).toEqual([
-      'redamon-bug-bounty/SKILL.md',
-      'redamon-bug-bounty/references/lifecycle-and-scans.md',
-      'redamon-bug-bounty/references/settings.md',
+      'whitehat-bug-bounty/SKILL.md',
+      'whitehat-bug-bounty/references/lifecycle-and-scans.md',
+      'whitehat-bug-bounty/references/settings.md',
     ])
     for (const e of entries) expect(e, 'a path was flattened').not.toContain('references-')
   })
@@ -233,7 +233,7 @@ describe('downloading the pack', () => {
     await waitFor(() => expect(saved).toHaveLength(1))
 
     const zip = await JSZip.loadAsync(saved[0].blob)
-    expect(await zip.file('redamon-bug-bounty/references/settings.md')!.async('string')).toBe('# settings')
+    expect(await zip.file('whitehat-bug-bounty/references/settings.md')!.async('string')).toBe('# settings')
   })
 
   test('a single-file download keeps its basename, unflattened', async () => {

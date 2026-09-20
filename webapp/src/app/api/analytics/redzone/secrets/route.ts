@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
   const session = getGraphSession()
   try {
-    // Secrets in RedAmon always live in the :Secret node. They can be attached via
+    // Secrets in WhiteHat always live in the :Secret node. They can be attached via
     //   (BaseURL)-[:HAS_SECRET]->(Secret)              // resource_mixin
     //   (JsReconFinding {finding_type:'js_file'})-[:HAS_SECRET]->(Secret)  // js_recon_mixin
     // Union both traversals and keep each Secret once.
@@ -338,7 +338,7 @@ export async function GET(request: NextRequest) {
       }
     }))
 
-    // Priority weighting. `secret_type` in RedAmon is the pattern-family name
+    // Priority weighting. `secret_type` in WhiteHat is the pattern-family name
     // (e.g. "AWS Secret Key", "GitHub Token Classic", "JWT Token", ...). Match
     // priority by keyword on the lower-cased label.
     const typePriority = (rawType: string): number => {

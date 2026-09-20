@@ -1,5 +1,5 @@
 # =============================================================================
-# RedAmon TruffleHog Secret Scanner - Container
+# WhiteHat TruffleHog Secret Scanner - Container
 # =============================================================================
 # Runs ONE TruffleHog source per container and writes findings to JSON.
 # Holds no Neo4j credentials and makes no call back to the webapp: it is the
@@ -12,8 +12,8 @@
 # Tighten to a @sha256 digest at deploy time if your registry mirror allows it.
 FROM python:3.12-slim-bookworm
 
-LABEL maintainer="RedAmon Project"
-LABEL description="TruffleHog-based secret scanner for RedAmon"
+LABEL maintainer="WhiteHat Project"
+LABEL description="TruffleHog-based secret scanner for WhiteHat"
 
 WORKDIR /app
 

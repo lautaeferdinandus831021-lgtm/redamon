@@ -32,7 +32,7 @@ import job_runner  # noqa: E402
 
 class JobRunnerTestBase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="redamon-jobs-")
+        self.tmp = tempfile.mkdtemp(prefix="whitehat-jobs-")
         self._orig_root = job_runner.WORKSPACE_ROOT
         job_runner.WORKSPACE_ROOT = Path(self.tmp)
         # Fresh registry per test (the module-level singleton would leak

@@ -396,7 +396,7 @@ _ALIASES: tuple[tuple[str, str], ...] = (
     ("mass_assignment", "IDOR / BOLA"),
 )
 
-# RedAmon attack_path_type -> the classes whose gotchas apply to that technique.
+# WhiteHat attack_path_type -> the classes whose gotchas apply to that technique.
 ATTACK_PATH_CLASSES: dict[str, tuple[str, ...]] = {
     "xss": ("XSS",),
     "sql_injection": ("SQLi",),
@@ -437,7 +437,7 @@ def resolve_class(name: str) -> str | None:
 
 
 def classes_for_attack_path(attack_path_type: str) -> tuple[str, ...]:
-    """Classes whose gotchas apply to a RedAmon attack path (possibly empty)."""
+    """Classes whose gotchas apply to a WhiteHat attack path (possibly empty)."""
     if not attack_path_type:
         return ()
     if ":" in attack_path_type:  # user_skill:<id>

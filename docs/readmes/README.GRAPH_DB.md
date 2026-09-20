@@ -1,4 +1,4 @@
-# Neo4j Graph Database for RedAmon
+# Neo4j Graph Database for WhiteHat
 
 ## Quick Start
 
@@ -76,7 +76,7 @@ docker compose ps
 docker compose restart
 
 # Enter container shell
-docker exec -it redamon-neo4j bash
+docker exec -it whitehat-neo4j bash
 ```
 
 ## Cypher Queries

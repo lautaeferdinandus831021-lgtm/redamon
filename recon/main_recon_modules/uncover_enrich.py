@@ -425,8 +425,8 @@ def run_uncover_expansion(
     print(f"[*][Uncover] Queries: {queries}")
     print(f"[*][Uncover] Max results: {max_results}")
 
-    os.makedirs("/tmp/redamon", exist_ok=True)
-    temp_dir = tempfile.mkdtemp(prefix="redamon_uncover_", dir="/tmp/redamon")
+    os.makedirs("/tmp/whitehat", exist_ok=True)
+    temp_dir = tempfile.mkdtemp(prefix="whitehat_uncover_", dir="/tmp/whitehat")
 
     try:
         # Write provider config (no yaml dependency -- write manually)

@@ -1,5 +1,5 @@
 """
-RedAmon - Target Extraction Helpers
+WhiteHat - Target Extraction Helpers
 ====================================
 Functions for extracting and building target URLs from reconnaissance data.
 """

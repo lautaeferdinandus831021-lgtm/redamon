@@ -1,4 +1,4 @@
-"""Shared pytest configuration for RedAmon (auto-tiering + isolation rules).
+"""Shared pytest configuration for WhiteHat (auto-tiering + isolation rules).
 
 This file is intentionally near-identical at every in-container test root
 (agentic/, recon/, recon_orchestrator/, scanners/ai_attack_surface_scan/,
@@ -33,7 +33,7 @@ per-file ``python -m unittest tests.test_x`` runner, where every file was its
 own process, so many stub langchain/langgraph into ``sys.modules`` at import
 time and (worse) bake real tool objects against a fake decorator during import.
 That is order-dependent in a single pytest process. The canonical gate
-(``redamon.sh test`` / ``run_tests.sh``) therefore runs each test FILE in its
+(``whitehat.sh test`` / ``run_tests.sh``) therefore runs each test FILE in its
 own pytest subprocess (parallelized), which reproduces the isolation these tests
 assume and makes the gate deterministic. Running ``pytest -m unit`` over the
 whole tree in one process is intentionally NOT the gate for that reason — use it

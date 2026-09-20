@@ -21,7 +21,7 @@ run() {
 }
 
 # Unit / integration (no running stack required)
-run "Unit: redamon.sh secret generation"        bash tests/redamon_secrets_test.sh
+run "Unit: whitehat.sh secret generation"        bash tests/whitehat_secrets_test.sh
 run "Integration: host-port publish policy"      bash tests/test_port_bindings.sh
 run "Unit: docker-broker policy (T1/T2 mode)"    python3 services/docker_broker/test_policy.py
 run "Unit: MCP bearer middleware (ASGI)"         python3 mcp/servers/tests/test_auth_middleware.py
@@ -45,16 +45,16 @@ run "Unit: deploy patch integrity (T3)"           bash tests/deploy_patch_integr
 run "Unit: deploy.env cleanup (I7)"               bash tests/deploy_env_cleanup_test.sh
 
 # --- Agent-image-bound suites (need the baked deps; skip if image absent) ---
-if docker image inspect redamon-agent >/dev/null 2>&1; then
+if docker image inspect whitehat-agent >/dev/null 2>&1; then
     agent_test() {
         docker run --rm -v "$REPO_ROOT/agentic:/app" -v "$REPO_ROOT/graph_db:/app/graph_db" \
-            -w /app redamon-agent python3 "$@"
+            -w /app whitehat-agent python3 "$@"
     }
     run "Agent: /graph/exec auth + apoc.atomic (S8)" agent_test tests/test_graph_exec.py
     run "Agent: fs_extract zip caps (D10)"           agent_test tests/test_fs_extract_caps.py
     run "Agent: log redaction + generic error (I5)"  agent_test tests/test_log_redaction.py
 else
-    echo ">> SKIP agent-image suites (redamon-agent image not built)"
+    echo ">> SKIP agent-image suites (whitehat-agent image not built)"
 fi
 
 # --- Webapp vitest suites (run if node_modules present) ---

@@ -14,8 +14,8 @@ import { mintToken, signIn } from './auth'
  * Requires: stack up, and `cd testing/guinea_pigs/auth_target && docker compose up -d --build`.
  */
 
-const USER = process.env.REDAMON_USER || 'cmrzlj3xk0000ob3vo67o3igg'
-const PROXY = process.env.REDAMON_CAPTURE_PROXY || 'http://127.0.0.1:8888'
+const USER = process.env.WHITEHAT_USER || 'cmrzlj3xk0000ob3vo67o3igg'
+const PROXY = process.env.WHITEHAT_CAPTURE_PROXY || 'http://127.0.0.1:8888'
 // Deliberately a SUBDOMAIN: the recording scope must cover it via *.root, not
 // just the apex.
 //
@@ -47,7 +47,7 @@ test.beforeAll(async ({ playwright, baseURL }) => {
 
   api = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { cookie: `redamon-auth=${mintToken(USER)}` },
+    extraHTTPHeaders: { cookie: `whitehat-auth=${mintToken(USER)}` },
   })
   const res = await api!.post('/api/projects', {
     data: {
@@ -71,12 +71,12 @@ test.beforeEach(async ({ context, baseURL }) => {
   test.skip(!pigUp, PIG_HINT)
   await signIn(context, USER, baseURL!)
   await context.addInitScript(([pid, uid]) => {
-    localStorage.setItem('redamon-current-project', pid)
-    localStorage.setItem('redamon-current-user', uid)
-    localStorage.setItem('redamon-v2-onboarding', JSON.stringify({
+    localStorage.setItem('whitehat-current-project', pid)
+    localStorage.setItem('whitehat-current-user', uid)
+    localStorage.setItem('whitehat-v2-onboarding', JSON.stringify({
       version: '2026-03-28-v2', acceptedAt: new Date().toISOString(),
     }))
-    localStorage.setItem('redamon-github-star-dismissed', '1')
+    localStorage.setItem('whitehat-github-star-dismissed', '1')
   }, [projectId, USER])
 })
 

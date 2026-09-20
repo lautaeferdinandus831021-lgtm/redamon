@@ -160,7 +160,7 @@ fi
 
 # The orchestrator bind-mounts /app, so the FILES are already updated, but the
 # long-running uvicorn process keeps the profile cached in memory from boot.
-STARTED=$(docker inspect -f '{{.State.StartedAt}}' redamon-recon-orchestrator 2>/dev/null)
+STARTED=$(docker inspect -f '{{.State.StartedAt}}' whitehat-recon-orchestrator 2>/dev/null)
 if [[ -n "$STARTED" ]]; then
   START_S=$(date -d "$STARTED" +%s 2>/dev/null || echo 0)
   FILE_S=$(stat -c %Y "recon_orchestrator/$PROFILE" 2>/dev/null || echo 0)

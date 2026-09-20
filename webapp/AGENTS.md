@@ -63,7 +63,7 @@ docker compose exec webapp npx prisma db push
 
 - [ ] `npm run type-check` and `npm run lint` clean.
 - [ ] `npm run test` green (with `--no-file-parallelism`).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] Prisma schema edited? Applied with `db push` (not `prisma migrate`) and client regenerated.
 - [ ] UI prompts/alerts use the `useAlertModal` hook, never `window.alert` / `window.confirm`.
 - [ ] Rebuilt the webapp image (prod) or relied on dev hot-reload as appropriate.

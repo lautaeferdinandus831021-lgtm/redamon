@@ -15,7 +15,7 @@ This file complements ``test_ai_settings_scaffold.py``:
 
 Run:
     docker run --rm --network host --entrypoint python3 \\
-        -v "$PWD:/work:ro" -w /work redamon-recon:latest \\
+        -v "$PWD:/work:ro" -w /work whitehat-recon:latest \\
         recon/tests/test_ai_settings_layer_integrity.py
 """
 from __future__ import annotations
@@ -91,8 +91,8 @@ def _query_postgres_ai_columns() -> dict[str, tuple[str, str]] | None:
         "ORDER BY column_name;"
     )
     proc = subprocess.run(
-        ["docker", "exec", "-i", "redamon-postgres",
-         "psql", "-U", "redamon", "-d", "redamon", "-t", "-A", "-F|", "-c", sql],
+        ["docker", "exec", "-i", "whitehat-postgres",
+         "psql", "-U", "whitehat", "-d", "whitehat", "-t", "-A", "-F|", "-c", sql],
         capture_output=True, text=True, timeout=10,
     )
     if proc.returncode != 0:

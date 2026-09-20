@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# The [redamon-mcp-auth] fail2ban filter, matched against real nginx log lines.
+# The [whitehat-mcp-auth] fail2ban filter, matched against real nginx log lines.
 # Run:  bash tests/deploy_mcp_fail2ban_test.sh
 #
 # WHY: a fail2ban failregex fails in two directions and neither is visible on a
@@ -112,13 +112,13 @@ done
 # A correct filter that no jail references bans nothing.
 echo
 echo "== the jail that uses it is wired correctly =="
-JAIL="$(awk '/^\[redamon-mcp-auth\]/,/^$/' "$MODULE")"
-[[ -n "$JAIL" ]] && ok "a [redamon-mcp-auth] jail exists" \
-  || bad "a [redamon-mcp-auth] jail exists" "absent" "present"
+JAIL="$(awk '/^\[whitehat-mcp-auth\]/,/^$/' "$MODULE")"
+[[ -n "$JAIL" ]] && ok "a [whitehat-mcp-auth] jail exists" \
+  || bad "a [whitehat-mcp-auth] jail exists" "absent" "present"
 
-grep -q 'filter *= *redamon-mcp-auth' <<<"$JAIL" \
+grep -q 'filter *= *whitehat-mcp-auth' <<<"$JAIL" \
   && ok "the jail points at this filter by name" \
-  || bad "the jail points at this filter" "wrong name" "redamon-mcp-auth"
+  || bad "the jail points at this filter" "wrong name" "whitehat-mcp-auth"
 
 # access.log, not error.log: the 401 is an application response, and nginx does
 # not write those to the error log at all.
@@ -136,9 +136,9 @@ grep -qE '_MCP_JAIL_ENABLED=false' "$MODULE" \
 
 # The filter file has to be written, or fail2ban refuses to start the jail and
 # takes the sshd jail down with it.
-grep -q '/etc/fail2ban/filter.d/redamon-mcp-auth.conf' "$MODULE" \
+grep -q '/etc/fail2ban/filter.d/whitehat-mcp-auth.conf' "$MODULE" \
   && ok "the filter file is installed where the jail looks for it" \
-  || bad "the filter file is installed" "absent" "/etc/fail2ban/filter.d/redamon-mcp-auth.conf"
+  || bad "the filter file is installed" "absent" "/etc/fail2ban/filter.d/whitehat-mcp-auth.conf"
 
 echo
 printf 'passed %d, failed %d\n' "$PASS" "$FAIL"

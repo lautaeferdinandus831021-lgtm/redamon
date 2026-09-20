@@ -1,6 +1,6 @@
 # Supply-Chain / Malicious-Package Detection
 
-RedAmon detects **known-malicious** (`MAL-`) and **known-vulnerable** (`CVE`/`GHSA`)
+WhiteHat detects **known-malicious** (`MAL-`) and **known-vulnerable** (`CVE`/`GHSA`)
 software packages in a target's dependency surface, **fully offline** against a
 local copy of the [OSV](https://osv.dev) database. It ships as three layers that
 share one engine and one graph model, so a repository scan, a live-target harvest,
@@ -9,7 +9,7 @@ and an agent lookup all dedup into the same nodes.
 This document is the technical reference: how each layer is implemented, how the
 tools work, which Neo4j nodes are generated (and whether they are created or
 enriched), the container topology, and how the feature integrates with the rest
-of RedAmon.
+of WhiteHat.
 
 - [The three layers at a glance](#the-three-layers-at-a-glance)
 - [System architecture](#system-architecture)
@@ -23,7 +23,7 @@ of RedAmon.
 - [The Supply-Chain SCA table](#the-supply-chain-sca-table)
 - [Container topology](#container-topology)
 - [Memory accounting](#memory-accounting)
-- [Integration with RedAmon components](#integration-with-redamon-components)
+- [Integration with WhiteHat components](#integration-with-whitehat-components)
 - [v1 scope and v2 roadmap](#v1-scope-and-v2-roadmap)
 - [Key files](#key-files)
 
@@ -34,8 +34,8 @@ of RedAmon.
 | Layer | Name | What it is | Where it runs | Writes graph nodes? |
 |---|---|---|---|---|
 | **L3** | Agent tools | On-demand tools the AI agent calls mid-engagement | `kali-sandbox` (OSV) + `recon-orchestrator` -> analyzer (GuardDog) | No - returns text to the agent |
-| **L1** | Supply-Chain Scan | Standalone audit of an uploaded SBOM / lockfile | `redamon-supply-chain-PID` (spawned) | Yes - `Package`, `MalPackageFinding` |
-| **L2** | Supply-Chain Recon | Black-box harvest of a live target's served packages | `redamon-recon-PID` (recon GROUP 5.5) | Yes - `Package`, `MalPackageFinding` |
+| **L1** | Supply-Chain Scan | Standalone audit of an uploaded SBOM / lockfile | `whitehat-supply-chain-PID` (spawned) | Yes - `Package`, `MalPackageFinding` |
+| **L2** | Supply-Chain Recon | Black-box harvest of a live target's served packages | `whitehat-recon-PID` (recon GROUP 5.5) | Yes - `Package`, `MalPackageFinding` |
 
 **Tools (pinned):**
 
@@ -73,16 +73,16 @@ flowchart TB
       ORCH[recon-orchestrator - holds Docker socket]
       BROKER[docker-broker - image allowlist]
       NEO[(Neo4j - attack surface graph)]
-      OSVDB[(redamon-osv-db - offline OSV DB volume)]
+      OSVDB[(whitehat-osv-db - offline OSV DB volume)]
     end
 
     subgraph CLEAN[CLEAN zone - holds Neo4j creds]
-      L1C[redamon-supply-chain - L1 scan writer]
-      RECON[redamon-recon - L2 recon pipeline]
+      L1C[whitehat-supply-chain - L1 scan writer]
+      RECON[whitehat-recon - L2 recon pipeline]
     end
 
     subgraph DIRTY[DIRTY zone - no secrets, hardened]
-      ANALYZER[redamon-supply-chain-analyzer]
+      ANALYZER[whitehat-supply-chain-analyzer]
     end
 
     subgraph L3Z[L3 agent tools]
@@ -123,11 +123,11 @@ mounted read-only everywhere except the one-time sync step.
 ## The offline OSV database
 
 The verdict path makes **zero network calls**. A shared Docker volume
-`redamon-osv-db` holds the OSV database, populated lazily per-ecosystem:
+`whitehat-osv-db` holds the OSV database, populated lazily per-ecosystem:
 
 ```bash
-./redamon.sh supply-chain-sync npm           # ~208 MB, first run only
-./redamon.sh supply-chain-sync npm PyPI Go    # add more ecosystems
+./whitehat.sh supply-chain-sync npm           # ~208 MB, first run only
+./whitehat.sh supply-chain-sync npm PyPI Go    # add more ecosystems
 ```
 
 **How the sync works** (`scanners/supply_chain_common/osv_db_sync.py`):
@@ -138,7 +138,7 @@ The verdict path makes **zero network calls**. A shared Docker volume
    runs; osv-scanner recognizes the ecosystem from the seed and downloads *its*
    database into the cache directory. Using the tool's own download step keeps us
    independent of its internal on-disk layout.
-3. Freshness markers (`.redamon_synced_<eco>`) bound refresh to once per 24h.
+3. Freshness markers (`.whitehat_synced_<eco>`) bound refresh to once per 24h.
 4. The DB tree is made world-readable/traversable, because osv-scanner writes it
    `0750` as root but the scan containers run **non-root + read-only** and would
    otherwise silently see an empty DB.
@@ -155,7 +155,7 @@ The verdict path makes **zero network calls**. A shared Docker volume
   the runner returns a hard, actionable error instead of a silent false-clean.
 
 The DB is **not** downloaded at install time (the container images are eager, the
-data is lazy). `redamon.sh purge` removes the volume; `clean` keeps it.
+data is lazy). `whitehat.sh purge` removes the volume; `clean` keeps it.
 
 ### Automatic refresh (lazy-on-scan)
 
@@ -175,7 +175,7 @@ Semantics:
 - **Cold DB (never synced): the scan path does NOT bootstrap it.** The first
   download is ~208 MB and would otherwise block the first recon spawn for minutes
   for a feature that is off by default. Cold population stays explicit
-  (`redamon.sh supply-chain-sync`), matching the "images are eager, the data is
+  (`whitehat.sh supply-chain-sync`), matching the "images are eager, the data is
   lazy" contract. The refresh returns `skipped` in ~0.4s.
 - **Populated + fresh (< TTL, default 24h):** a **~1s no-op** (`skipped`).
 - **Populated + stale (> TTL):** the feed re-downloads before the scan starts
@@ -185,7 +185,7 @@ Semantics:
 - **Serialized:** concurrent scan starts do not spawn two sidecars writing the
   same volume; the second caller gets `skipped` and proceeds.
 
-**Why the orchestrator does it:** `redamon-osv-db` is mounted **read-only** into
+**Why the orchestrator does it:** `whitehat-osv-db` is mounted **read-only** into
 every scan container, which also runs non-root, so a scanner physically cannot
 refresh its own DB. Only the orchestrator holds the Docker socket, so it runs a
 short-lived root sidecar (off the analyzer image) that writes the volume rw, then
@@ -208,12 +208,12 @@ All four are wired explicitly in `docker-compose.yml` (the orchestrator has **no
 A second offline dataset, independent of the OSV DB: the
 [supplychainattack.org](https://supplychainattack.org) incident catalog, holding
 the attacker domains, the remediation text and the typosquat labels that OSV does
-not carry. It lives in the `redamon-sca-intel` volume, mounted **read-only**
+not carry. It lives in the `whitehat-sca-intel` volume, mounted **read-only**
 everywhere, and is written only by the sync.
 
 ```bash
-./redamon.sh sca-intel-sync            # ~5 MB; also refreshed automatically, below
-./redamon.sh sca-intel-sync --force    # ignore the TTL and the retry floor
+./whitehat.sh sca-intel-sync            # ~5 MB; also refreshed automatically, below
+./whitehat.sh sca-intel-sync --force    # ignore the TTL and the retry floor
 ```
 
 The sync fetches the feed host-pinned, byte-capped and envelope-validated, then
@@ -263,7 +263,7 @@ installs this copy instead of leaving the catalog empty, and reports `seeded`.
   no fetch, so a sync skipped by the floor (or by the TTL) still seeds an empty
   volume, without resetting the retry clock.
 - **Air-gapped deploys get it too.** With `SCA_INTEL_AUTO_REFRESH=false`,
-  install/update run `./redamon.sh sca-intel-sync --seed-only`, which installs the
+  install/update run `./whitehat.sh sca-intel-sync --seed-only`, which installs the
   copy into an empty volume inside a `--network none` container and never
   contacts the feed.
 
@@ -327,7 +327,7 @@ Three things this deliberately does **not** do:
 
 Of the 364 incidents carrying attacker domains, roughly 74 are browser-side
 (compromised script, CDN hijack, skimmer) and ~89 are install-time (a
-`postinstall` calling home during `npm install`). RedAmon observes browser traffic
+`postinstall` calling home during `npm install`). WhiteHat observes browser traffic
 and the JS recon downloads, so it catches the **browser-side class**. Do not
 describe this as detecting supply-chain attacks in general.
 
@@ -435,16 +435,16 @@ flowchart LR
 | Control | Where |
 |---|---|
 | **DIRTY sandbox** `cap_drop=ALL`, `read_only` rootfs + tmpfs, non-root, mem/pids/cpu caps, **no secrets** | `run_supply_chain_analyzer` (modeled on `codefix_sandbox`) |
-| **Network isolation** - OSV path zero-egress; GuardDog registry-egress opt-in, fails closed | dedicated `redamon-supply-chain-net` bridge |
+| **Network isolation** - OSV path zero-egress; GuardDog registry-egress opt-in, fails closed | dedicated `whitehat-supply-chain-net` bridge |
 | **NO-INSTALL invariant** - never run `npm/pip/... install` on a target manifest (lifecycle scripts = RCE); static parse only | CI grep test over supply-chain source |
 | **Name sanitization** (S6/S7) - charset allowlist before any subprocess/filename | `sanitize_name` |
 | **DIRTY->CLEAN boundary** (S5) - schema-validate the artifact | `validate_artifact` |
 | **SSRF guard** (S4) - L2 makes no new fetches; it parses data JS-recon already downloaded | `harvest.py` (no `requests.get`) |
 | **Tenant isolation** (S10) - every MERGE key includes `user_id` + `project_id` | `supply_chain_mixin.py` |
-| **Broker allowlist** - `redamon-supply-chain-analyzer` + `redamon-supply-chain` images + `redamon-osv-db` volume | `services/docker_broker/broker.py` |
+| **Broker allowlist** - `whitehat-supply-chain-analyzer` + `whitehat-supply-chain` images + `whitehat-osv-db` volume | `services/docker_broker/broker.py` |
 
-The `redamon-supply-chain-analyzer` and `redamon-supply-chain` images and the
-`redamon-osv-db` volume are on the docker-broker allowlist; a non-allowlisted
+The `whitehat-supply-chain-analyzer` and `whitehat-supply-chain` images and the
+`whitehat-osv-db` volume are on the docker-broker allowlist; a non-allowlisted
 image is denied.
 
 ---
@@ -468,7 +468,7 @@ sequenceDiagram
     participant KALI as kali-sandbox (MCP)
     participant WEB as webapp (internal passthrough)
     participant ORCH as recon-orchestrator (holds Docker socket)
-    participant OSVDB as redamon-osv-db (ro)
+    participant OSVDB as whitehat-osv-db (ro)
     participant AN as supply-chain-analyzer (hardened)
 
     AG->>KALI: execute_osv_scanner("pkg:npm/lodash@4.17.21")
@@ -488,7 +488,7 @@ sequenceDiagram
 
 - **`execute_osv_scanner`** - passive, fully offline. Accepts a purl (synthesized
   into a one-component CycloneDX SBOM), a workspace lockfile path, or an SBOM
-  path. Reads `redamon-osv-db`, zero egress. `MAL-` = terminal malicious verdict;
+  path. Reads `whitehat-osv-db`, zero egress. `MAL-` = terminal malicious verdict;
   `CVE-`/`GHSA-` = known-vulnerable. Parsing is inline in
   `network_recon_server.py` (kali is a separate image that does not import
   `supply_chain_common`).
@@ -524,8 +524,8 @@ sequenceDiagram
     participant UI as Webapp (Other Scans)
     participant WEBROUTE as /api/supply-chain/[pid]/*
     participant ORCH as recon-orchestrator
-    participant SCAN as redamon-supply-chain-PID (CLEAN)
-    participant OSVDB as redamon-osv-db (ro)
+    participant SCAN as whitehat-supply-chain-PID (CLEAN)
+    participant OSVDB as whitehat-osv-db (ro)
     participant NEO as Neo4j
 
     UI->>WEBROUTE: upload SBOM in Project Settings (-> supply_chain_uploads volume)
@@ -556,7 +556,7 @@ sequenceDiagram
   (basename-only, extension allowlist, no traversal), runs osv-scanner offline via
   `supply_chain_common`, assembles + validates the artifact, and writes the graph
   with `Neo4jClient` (it holds the Neo4j creds; the DIRTY analyzer does not).
-- **Input safety:** the uploaded file lands in the `redamon_supply_chain_uploads`
+- **Input safety:** the uploaded file lands in the `whitehat_supply_chain_uploads`
   named volume under a per-project subdir; the scan mounts it **read-only**, so
   project A cannot read project B's SBOM.
 
@@ -776,13 +776,13 @@ flowchart TB
     ORCH[recon-orchestrator - real Docker socket]
     WEBAPP[webapp]
     NEO[(neo4j)]
-    OSVDB[(redamon-osv-db)]
-    UPL[(redamon_supply_chain_uploads)]
+    OSVDB[(whitehat-osv-db)]
+    UPL[(whitehat_supply_chain_uploads)]
 
     subgraph spawned[Spawned per scan]
-      L1[redamon-supply-chain-PID - CLEAN, network=host]
-      RECON[redamon-recon-PID - CLEAN]
-      AN[redamon-supply-chain-analyzer - DIRTY, isolated net]
+      L1[whitehat-supply-chain-PID - CLEAN, network=host]
+      RECON[whitehat-recon-PID - CLEAN]
+      AN[whitehat-supply-chain-analyzer - DIRTY, isolated net]
     end
     KALI[kali-sandbox - L3 MCP tools]
 
@@ -803,13 +803,13 @@ flowchart TB
 
 | Container | Zone | Lifecycle | Holds Neo4j creds? | OSV DB | Network |
 |---|---|---|---|---|---|
-| `redamon-supply-chain-PID` (L1) | CLEAN | spawned per scan, auto-removed | Yes | ro | host (reach Neo4j at `localhost:7687`) |
-| `redamon-recon-PID` (L2) | CLEAN | spawned per recon scan | Yes | ro (mounted at spawn) | host |
-| `redamon-supply-chain-analyzer` | DIRTY | `docker run` per GuardDog call (L2 deep analysis, and L3 `execute_guarddog`) | **No** | ro | registry egress required; `cap_drop=ALL`, read-only rootfs, non-root uid 1001, pid/mem caps |
+| `whitehat-supply-chain-PID` (L1) | CLEAN | spawned per scan, auto-removed | Yes | ro | host (reach Neo4j at `localhost:7687`) |
+| `whitehat-recon-PID` (L2) | CLEAN | spawned per recon scan | Yes | ro (mounted at spawn) | host |
+| `whitehat-supply-chain-analyzer` | DIRTY | `docker run` per GuardDog call (L2 deep analysis, and L3 `execute_guarddog`) | **No** | ro | registry egress required; `cap_drop=ALL`, read-only rootfs, non-root uid 1001, pid/mem caps |
 | `kali-sandbox` (L3) | tool | long-lived | no (uses scoped tokens) | ro | internal |
 
 Build-time: the two supply-chain images build under `--profile tools`
-(`redamon-supply-chain`, `redamon-supply-chain-analyzer`); `osv-scanner` is baked
+(`whitehat-supply-chain`, `whitehat-supply-chain-analyzer`); `osv-scanner` is baked
 into `recon` and `kali-sandbox`; `supply_chain_common` is **mounted** (hot-reload,
 no rebuild) into recon / scan / analyzer at spawn.
 
@@ -817,7 +817,7 @@ no rebuild) into recon / scan / analyzer at spawn.
 
 ## Memory accounting
 
-Supply-chain is the only RedAmon feature that spawns a **second heavy container per
+Supply-chain is the only WhiteHat feature that spawns a **second heavy container per
 job**: the dirty analyzer. That makes it the one place where "the scan container's
 `mem_limit` covers it" is false, so it needs its own accounting in the
 [memory governor](README.MEMORY_GOVERNOR.md).
@@ -859,18 +859,18 @@ budgeted: GuardDog runs the packages sequentially, so that knob bounds wall-cloc
 
 ---
 
-## Integration with RedAmon components
+## Integration with WhiteHat components
 
-| RedAmon component | How supply-chain integrates |
+| WhiteHat component | How supply-chain integrates |
 |---|---|
 | **recon-orchestrator** | Owns the L1 + L2 + analyzer lifecycle via the Docker SDK; `_active_scan_keys` + `_admit_scan` account for the 1.75 GB envelope (and for in-flight L3 GuardDog jobs); `cleanup()` and `refresh_all_scan_states()` sweep supply-chain so containers and reservations never leak. |
 | **Memory governor** | Fully accounted, see [Memory accounting](#memory-accounting): per-scan envelopes for L1 and the supply-chain partial, a `supply_chain_analyzer` **tool** envelope shared by all three analyzer spawn paths, ledger admission for L3 GuardDog, and byte-budgeted import-mining caps. Details in [README.MEMORY_GOVERNOR.md](README.MEMORY_GOVERNOR.md). |
-| **docker-broker** | The two images + the `redamon-osv-db` volume are allowlisted; a look-alike image is denied. |
+| **docker-broker** | The two images + the `whitehat-osv-db` volume are allowlisted; a look-alike image is denied. |
 | **Neo4j / graph_db** | `SupplyChainMixin` is added to `Neo4jClient`; two `CREATE CONSTRAINT`s in `graph_db/schema.py`. The agent's `query_graph` sees `Package` / `MalPackageFinding` like any other node. |
 | **Webapp** | Prisma fields (`supplyChain*`, `supplyChainRecon*`); `/api/supply-chain/[projectId]/*` proxy routes + SBOM upload; `useSupplyChainStatus` / `useSupplyChainSSE` hooks; a Supply Chain card in the Other Scans modal (run controls + logs drawer) and the Supply Chain Scanner settings section that owns its input. |
 | **Graph tables** | The **Supply-Chain SCA** table (`/api/analytics/redzone/supplyChainSca`) reads this model directly: three sheets (Verdicts / Packages / Advisories) over `Package`, `MalPackageFinding` and `Vulnerability {source:'osv'}`. Not to be confused with **JS Dep Signals** (formerly labelled "Supply-Chain"), which reads `JsReconFinding` nodes. See [the table section](#the-supply-chain-sca-table). |
 | **Settings (5 layers)** | Prisma default -> `recon/project_settings.py` (L2) / `scanners/supply_chain_scan/project_settings.py` (L1) -> `/defaults` -> webapp section, using the `x_enabled` / `xEnabled` / `X_ENABLED` naming. |
-| **redamon.sh** | `supply-chain-sync` populates the DB; `TOOL_IMAGES` + `cmd_update` build/rebuild the two images; `cmd_install`/`up` build them via `--profile tools`. |
+| **whitehat.sh** | `supply-chain-sync` populates the DB; `TOOL_IMAGES` + `cmd_update` build/rebuild the two images; `cmd_install`/`up` build them via `--profile tools`. |
 | **SCANNER_API_KEY (S3/E6)** | The L1 scan container fetches settings with the scoped `SCANNER_API_KEY` (falling back to `INTERNAL_API_KEY` on pre-secret installs); the analyzer holds no key at all. |
 
 ---

@@ -4,7 +4,7 @@
  * Deliberately NOT under `/api/mcp-server`, which is public and bearer-only:
  * this is an operator screen doing operator work, so it is judged on the browser
  * session like every other token route. A bearer token must not be able to ask
- * RedAmon to write documentation for a permission set it does not hold.
+ * WhiteHat to write documentation for a permission set it does not hold.
  *
  * The generated content depends on `(profile, scopes, serverUrl, style, layout)`
  * ALONE. It is user-scoped only for consistency with the sibling token routes;
@@ -47,7 +47,7 @@ function resolveServerUrl(raw: unknown): { serverUrl: string | undefined } | { e
   try {
     parsed = new URL(raw)
   } catch {
-    return { error: 'The server URL must be an absolute URL, such as https://redamon.example.' }
+    return { error: 'The server URL must be an absolute URL, such as https://whitehat.example.' }
   }
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     return { error: 'The server URL must use http or https.' }
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     layout,
     // The same stamp buildMcpServer reports as the server version, so a reader
     // can tell which build a downloaded pack describes.
-    version: process.env.NEXT_PUBLIC_REDAMON_VERSION || '0.0.0',
+    version: process.env.NEXT_PUBLIC_WHITEHAT_VERSION || '0.0.0',
   }
 
   try {

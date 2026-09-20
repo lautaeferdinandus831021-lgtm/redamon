@@ -63,7 +63,7 @@ def validate_github(matched_text: str, timeout: int = 5) -> dict:
 
     def do_request(t):
         resp = requests.get('https://api.github.com/user',
-                          headers={'Authorization': f'token {token.group(1)}', 'User-Agent': 'RedAmon-JsRecon'},
+                          headers={'Authorization': f'token {token.group(1)}', 'User-Agent': 'WhiteHat-JsRecon'},
                           timeout=t)
         if resp.status_code == 200:
             data = resp.json()

@@ -120,7 +120,7 @@ because a baseline a test can rewrite is not a baseline:
 
 ```bash
 docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/repo" -w /repo/recon \
-  -e PYTHONPATH=/repo:/repo/recon -e HOME=/tmp --entrypoint sh redamon-recon \
+  -e PYTHONPATH=/repo:/repo/recon -e HOME=/tmp --entrypoint sh whitehat-recon \
   -c 'python /repo/recon/tests/regen_golden_settings.py'
 git diff recon/tests/fixtures/golden_settings/
 ```

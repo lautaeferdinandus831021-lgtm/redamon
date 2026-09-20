@@ -44,7 +44,7 @@ that requires *protocol-aware* probing: send a chat-shaped request and read the
 response shape; perform an MCP handshake; read a vector DB's collection list.
 
 **AI Surface Recon is the module that does exactly that.** It is the
-**detection / fingerprinting half** of RedAmon's adversarial-AI pipeline:
+**detection / fingerprinting half** of WhiteHat's adversarial-AI pipeline:
 
 > It sends *benign* shape-probes, statically analyzes MCP manifests, parses API
 > specs, runs a declarative fingerprint engine, and writes the results onto the
@@ -316,7 +316,7 @@ inject tool arguments.
 #### How it works
 1. **Model-listing paths** → [`_extract_model_ids`](../../recon/main_recon_modules/ai_surface_recon.py#L425): jq `.data[].id` / `.models[].name` / `.models[].details.family`, with a plain-Python fallback when `jq` is unavailable.
 2. **Spec paths** → [`_parse_spec`](../../recon/main_recon_modules/ai_surface_recon.py#L448): `ai-plugin.json` ⇒ `supports_tools`; OpenAPI ⇒ optionally `$ref`-resolved with **prance**, then a lowercased blob scan sets `supports_tools` (`"tools"`/`"function"`/`"input_schema"`), `supports_vision` (`"image_url"`/`"image"`), `supports_streaming` (`"stream"`/`text/event-stream`).
-3. The resolved spec is cached to `/tmp/redamon/ai_surface_recon/<project>/specs/<hash>.json`; the path becomes `tool_schema_ref`.
+3. The resolved spec is cached to `/tmp/whitehat/ai_surface_recon/<project>/specs/<hash>.json`; the path becomes `tool_schema_ref`.
 4. `guess_model_family(model_ids)` → a family token (`gpt`/`claude`/`llama`/…; longest token wins so `codellama` beats `llama`).
 
 #### Output (JSON)
@@ -526,7 +526,7 @@ Tests run **inside the recon image** (they need `mcp`/`yara`/`prance`/`jq`/`yaml
 docker run --rm --entrypoint python3 \
   -v "$PWD/recon:/app/recon:ro" -v "$PWD/graph_db:/app/graph_db:ro" \
   -v "$PWD/agentic:/app/agentic:ro" -v "$PWD/webapp:/app/webapp:ro" \
-  -w /app redamon-recon:latest recon/tests/test_ai_surface_recon_module.py
+  -w /app whitehat-recon:latest recon/tests/test_ai_surface_recon_module.py
 ```
 Key suites: `test_ai_surface_recon_module` (workloads + e2e), `test_ai_surface_catalog`
 (catalog shapes), `test_ai_surface_recon_mixin` (graph writes, fake Neo4j session),

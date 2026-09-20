@@ -63,7 +63,7 @@ Once at least one candidate sink is confirmed (a parameter that accepts a forged
 
 ### Captured-traffic workflow (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, redamon.params and redamon.grep hunt captured cookies and parameters for opaque base64/hex blobs carrying deserializer magic prefixes (`rO0` for Java ObjectInputStream, `gASV`/`gAJ` for Python pickle, `O:` or `a:` for PHP serialized, `__VIEWSTATE` for .NET). redamon.replay then delivers a forged blob by swapping the body or cookie of a captured transaction (for example an Apache Shiro `rememberMe` cookie), recorded as a new replay txn. Where the proxy stops: gadget-chain forging (ysoserial/phpggc), Shiro key brute-force, the LDAP referral server, and OAST confirmation all stay offline/out-of-band; redamon.replay is pinned to the origin host.
+When HTTP Traffic Capture is enabled, whitehat.params and whitehat.grep hunt captured cookies and parameters for opaque base64/hex blobs carrying deserializer magic prefixes (`rO0` for Java ObjectInputStream, `gASV`/`gAJ` for Python pickle, `O:` or `a:` for PHP serialized, `__VIEWSTATE` for .NET). whitehat.replay then delivers a forged blob by swapping the body or cookie of a captured transaction (for example an Apache Shiro `rememberMe` cookie), recorded as a new replay txn. Where the proxy stops: gadget-chain forging (ysoserial/phpggc), Shiro key brute-force, the LDAP referral server, and OAST confirmation all stay offline/out-of-band; whitehat.replay is pinned to the origin host.
 
 ### Phase 2: Exploitation
 

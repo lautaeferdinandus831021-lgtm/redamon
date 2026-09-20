@@ -15,9 +15,9 @@
  * never created" is the way this control fails in practice.
  *
  * Auto-skips unless DATABASE_URL is set. To run it:
- *   docker run --rm --network redamon-network -v "$PWD/webapp:/app" -w /app \
- *     -e DATABASE_URL='postgresql://redamon:<pw>@postgres:5432/redamon' \
- *     --entrypoint sh redamon-webapp -c \
+ *   docker run --rm --network whitehat-network -v "$PWD/webapp:/app" -w /app \
+ *     -e DATABASE_URL='postgresql://whitehat:<pw>@postgres:5432/whitehat' \
+ *     --entrypoint sh whitehat-webapp -c \
  *     'node_modules/.bin/vitest run src/lib/engagementArchive.integration.test.ts'
  */
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
@@ -62,7 +62,7 @@ afterAll(async () => {
   for (const p of await prisma.project.findMany({ where: { userId }, select: { id: true } })) {
     await prisma.$transaction(async tx => {
       await tx.$executeRawUnsafe(
-        `SELECT set_config('redamon.archiving_project', $1, true)`, p.id
+        `SELECT set_config('whitehat.archiving_project', $1, true)`, p.id
       )
       await tx.$executeRawUnsafe(
         `DELETE FROM engagement_authorizations WHERE project_id = $1`, p.id
@@ -187,7 +187,7 @@ describe.skipIf(!HAS_DB)('row 5: the append-only trigger exists and holds', () =
     await expect(
       prisma.$transaction(async tx => {
         await tx.$executeRawUnsafe(
-          `SELECT set_config('redamon.archiving_project', $1, true)`,
+          `SELECT set_config('whitehat.archiving_project', $1, true)`,
           'some-other-project'
         )
         return tx.$executeRawUnsafe(

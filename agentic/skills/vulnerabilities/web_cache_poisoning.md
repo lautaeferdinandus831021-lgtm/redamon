@@ -100,10 +100,10 @@ for h in HEADERS_CANDIDATES:
 
 If HTTP Traffic Capture is enabled, source and drive this from the recorded history (proxy_brain only see traffic that crossed the capture proxy).
 
-- `redamon.query` / `redamon.search` to inventory cacheable or authenticated responses that lack `Vary`, and to pick a real captured path to poison.
-- Paired causality with `redamon.replay`: first `redamon.replay id mutate:{query:"cb=ABC", headers:{"X-Forwarded-Host":"attacker.tld"}}`, then `redamon.replay id mutate:{query:"cb=ABC"}` without the header, reading `X-Cache` / `Age` / `CF-Cache-Status` on the second response. If the header-free replay still serves the poison on the same `cb`, the header is unkeyed and poisoning is live.
-- Iterate the unkeyed-header candidate set the same way, one `redamon.replay` per header.
-- `redamon.grep "attacker.tld"` confirms the reflection landed in the cached body; `redamon.diff id_poisoned id_clean` isolates exactly what changed.
+- `whitehat.query` / `whitehat.search` to inventory cacheable or authenticated responses that lack `Vary`, and to pick a real captured path to poison.
+- Paired causality with `whitehat.replay`: first `whitehat.replay id mutate:{query:"cb=ABC", headers:{"X-Forwarded-Host":"attacker.tld"}}`, then `whitehat.replay id mutate:{query:"cb=ABC"}` without the header, reading `X-Cache` / `Age` / `CF-Cache-Status` on the second response. If the header-free replay still serves the poison on the same `cb`, the header is unkeyed and poisoning is live.
+- Iterate the unkeyed-header candidate set the same way, one `whitehat.replay` per header.
+- `whitehat.grep "attacker.tld"` confirms the reflection landed in the cached body; `whitehat.diff id_poisoned id_clean` isolates exactly what changed.
 
 ## Attack matrix
 

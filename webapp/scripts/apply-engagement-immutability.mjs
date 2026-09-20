@@ -23,7 +23,7 @@
  * The relation is `onDelete: Restrict` instead, and the delete path copies the
  * rows to `engagement_authorization_archive` first. That copy is what the DELETE
  * exemption below is for, and it is scoped to exactly that: a session that has
- * set `redamon.archiving_project`.
+ * set `whitehat.archiving_project`.
  */
 import { PrismaClient } from '@prisma/client'
 
@@ -58,7 +58,7 @@ async function main() {
     )
 
     await prisma.$executeRawUnsafe(`
-      CREATE OR REPLACE FUNCTION redamon_engagement_authorizations_append_only()
+      CREATE OR REPLACE FUNCTION whitehat_engagement_authorizations_append_only()
       RETURNS trigger AS $$
       BEGIN
         IF TG_OP = 'UPDATE' THEN
@@ -71,7 +71,7 @@ async function main() {
         IF TG_OP = 'DELETE' THEN
           -- Deleting a project archives its records first and sets this flag for
           -- that transaction only. Any other DELETE is refused.
-          IF current_setting('redamon.archiving_project', true) IS DISTINCT FROM OLD.project_id THEN
+          IF current_setting('whitehat.archiving_project', true) IS DISTINCT FROM OLD.project_id THEN
             RAISE EXCEPTION
               'engagement_authorizations is append-only: an authorization record cannot be '
               'deleted. Deleting the project archives them instead.'
@@ -93,7 +93,7 @@ async function main() {
     await prisma.$executeRawUnsafe(`
       CREATE TRIGGER ${TABLE}_append_only
       BEFORE UPDATE OR DELETE ON ${TABLE}
-      FOR EACH ROW EXECUTE FUNCTION redamon_engagement_authorizations_append_only()
+      FOR EACH ROW EXECUTE FUNCTION whitehat_engagement_authorizations_append_only()
     `)
 
     console.log('[engagement] append-only trigger and archive table applied.')

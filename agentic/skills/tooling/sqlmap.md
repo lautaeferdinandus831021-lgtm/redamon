@@ -9,7 +9,7 @@ Reference for parameter-targeted SQL injection probing, technique tuning, WAF ev
 
 Upstream: https://github.com/sqlmapproject/sqlmap/wiki/usage
 
-## RedAmon wiring
+## WhiteHat wiring
 
 | Action | Tool | Notes |
 |---|---|---|
@@ -134,7 +134,7 @@ kali_shell: sqlmap -u "https://target.tld/item?id=1" -p id --batch --os-shell
 
 ### Captured traffic (proxy_brain tools)
 
-When HTTP Traffic Capture is enabled, the `-r` request-file flow is captured-traffic-native: redamon.to_curl(id) and redamon.get(id) render a captured transaction back to a raw request or curl you can drop into `/tmp/req.txt` and feed via `-r`, no re-run of the original tool needed. Find candidate injection points with redamon.params (injectability heuristic) and redamon.search; redamon.replay reproduces an authenticated request (host pinned to origin) to reach injection points behind a session. redamon.diff(id_a, id_b) is the in-platform boolean-blind true/false comparison, and redamon.fuzz iterates payloads over one query param.
+When HTTP Traffic Capture is enabled, the `-r` request-file flow is captured-traffic-native: whitehat.to_curl(id) and whitehat.get(id) render a captured transaction back to a raw request or curl you can drop into `/tmp/req.txt` and feed via `-r`, no re-run of the original tool needed. Find candidate injection points with whitehat.params (injectability heuristic) and whitehat.search; whitehat.replay reproduces an authenticated request (host pinned to origin) to reach injection points behind a session. whitehat.diff(id_a, id_b) is the in-platform boolean-blind true/false comparison, and whitehat.fuzz iterates payloads over one query param.
 
 ## Tamper chains for common WAFs
 

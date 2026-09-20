@@ -1,7 +1,7 @@
 """
 Unit tests for agent-side capture-proxy tagging (Phase 1).
 
-Verifies the agent's redamon_ctx copy is cross-compatible with the ingest copy
+Verifies the agent's whitehat_ctx copy is cross-compatible with the ingest copy
 (an agent-signed token, source=agent/INTERNAL_API_KEY, must verify on the ingest
 side) and that the kali-side routing helper obeys the §20.2 no-leak rule.
 
@@ -31,14 +31,14 @@ def _load(name, path):
 # test run (full repo mounted) but NOT in the agentic-only section image (where
 # capture_proxy/ is not mounted). Locate the files defensively and self-skip
 # cleanly (bucket 2) when they are absent, rather than erroring at import.
-_AGENT_CTX = REPO / "agentic" / "redamon_ctx.py"
-_INGEST_CTX = REPO / "capture_proxy" / "redamon_ctx.py"
+_AGENT_CTX = REPO / "agentic" / "whitehat_ctx.py"
+_INGEST_CTX = REPO / "capture_proxy" / "whitehat_ctx.py"
 _KALI_ROUTING = REPO / "mcp" / "servers" / "capture_routing.py"
 
 agent_ctx = ingest_ctx = kali_routing = None
 if _AGENT_CTX.exists() and _INGEST_CTX.exists() and _KALI_ROUTING.exists():
-    agent_ctx = _load("agent_redamon_ctx", _AGENT_CTX)
-    ingest_ctx = _load("ingest_redamon_ctx", _INGEST_CTX)
+    agent_ctx = _load("agent_whitehat_ctx", _AGENT_CTX)
+    ingest_ctx = _load("ingest_whitehat_ctx", _INGEST_CTX)
     kali_routing = _load("kali_capture_routing", _KALI_ROUTING)
 
 
@@ -80,7 +80,7 @@ class TestKaliRouting(unittest.TestCase):
             url, tok = kali_routing.agent_capture_routing("tok")
         self.assertEqual(tok, "tok")
         self.assertTrue(url.startswith("http://"))
-        self.assertIn("redamon-capture-proxy", url)
+        self.assertIn("whitehat-capture-proxy", url)
 
     def test_proxy_url_env_override(self):
         with mock.patch.dict("os.environ", {"CAPTURE_PROXY_URL": "http://x:9999"}, clear=False):

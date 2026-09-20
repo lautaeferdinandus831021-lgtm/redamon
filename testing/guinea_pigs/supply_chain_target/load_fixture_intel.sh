@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Load the guinea pig's FIXTURE incident catalog into redamon-sca-intel, so the
+# Load the guinea pig's FIXTURE incident catalog into whitehat-sca-intel, so the
 # supply-chain intel layer (B, A1, A2, D) has deterministic hits.
 #
 # Why a fixture instead of the real catalog:
@@ -16,8 +16,8 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VOLUME="${SCA_INTEL_VOLUME:-redamon-sca-intel}"
-IMAGE="${SCA_INTEL_HELPER_IMAGE:-redamon-supply-chain-analyzer:latest}"
+VOLUME="${SCA_INTEL_VOLUME:-whitehat-sca-intel}"
+IMAGE="${SCA_INTEL_HELPER_IMAGE:-whitehat-supply-chain-analyzer:latest}"
 BACKUP_SUFFIX=".real"
 
 usage() { sed -n '2,16p' "${BASH_SOURCE[0]}"; exit 0; }
@@ -40,7 +40,7 @@ if [[ "${1:-}" == "--restore" ]]; then
             fi
         done
         echo "[+] restored $restored file(s)"
-        [ "$restored" = 0 ] && echo "[!] nothing to restore - run ./redamon.sh sca-intel-sync --force" || true
+        [ "$restored" = 0 ] && echo "[!] nothing to restore - run ./whitehat.sh sca-intel-sync --force" || true
     '
     exit 0
 fi

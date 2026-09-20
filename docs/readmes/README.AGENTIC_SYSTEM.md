@@ -1,28 +1,28 @@
 **Version 4.13.0** - 2026-05-27
 
-# RedAmon Agentic System - Technical Whitepaper
+# WhiteHat Agentic System - Technical Whitepaper
 
 ## Executive Summary
 
-RedAmon is an AI-driven penetration testing platform built on **Scatter-Gather ReAct (SG-ReAct)**, a hybrid architecture that combines the iterative ReAct reasoning loop with bounded parallel multi-agent decomposition. A root agent runs the engagement; when an objective decomposes into independent investigation angles, it deploys a *fireteam* of specialist sub-agents that work concurrently inside the same event loop and merge their findings back. The pattern delivers wall-clock parallelism without coordination chaos, predictable termination, auditable safety, and real-time operator control at every node of the graph.
+WhiteHat is an AI-driven penetration testing platform built on **Scatter-Gather ReAct (SG-ReAct)**, a hybrid architecture that combines the iterative ReAct reasoning loop with bounded parallel multi-agent decomposition. A root agent runs the engagement; when an objective decomposes into independent investigation angles, it deploys a *fireteam* of specialist sub-agents that work concurrently inside the same event loop and merge their findings back. The pattern delivers wall-clock parallelism without coordination chaos, predictable termination, auditable safety, and real-time operator control at every node of the graph.
 
-What defines RedAmon is the *cognitive scaffolding* that surrounds the LLM loop. A **Deep Think strategic pre-step** runs at moments of architectural significance (first iteration, phase transition, a tiered productivity-score threshold crossing, or the agent's own request for help), producing a structured situation / competing-hypotheses / vectors / approach / priority / risks analysis that anchors the next decisions; the schema *forces* the strategist to enumerate ≥2 candidate explanations with a concrete disambiguating probe for each, which is the anti-confirmation-bias mechanism that turns "a list of guesses" into "a science experiment". Deep Think carries a **cooldown** (suppresses re-fires until the agent has executed the previous plan, with critical-tier and state-growth-stall overrides) and a **Jaccard novelty check** (rejects a new plan that paraphrases a failing one, forcing the agent to articulate what specific parameter is changing or pivot to a strategy class not present in the previous plan).
+What defines WhiteHat is the *cognitive scaffolding* that surrounds the LLM loop. A **Deep Think strategic pre-step** runs at moments of architectural significance (first iteration, phase transition, a tiered productivity-score threshold crossing, or the agent's own request for help), producing a structured situation / competing-hypotheses / vectors / approach / priority / risks analysis that anchors the next decisions; the schema *forces* the strategist to enumerate ≥2 candidate explanations with a concrete disambiguating probe for each, which is the anti-confirmation-bias mechanism that turns "a list of guesses" into "a science experiment". Deep Think carries a **cooldown** (suppresses re-fires until the agent has executed the previous plan, with critical-tier and state-growth-stall overrides) and a **Jaccard novelty check** (rejects a new plan that paraphrases a failing one, forcing the agent to articulate what specific parameter is changing or pivot to a strategy class not present in the previous plan).
 
 Looping is detected by a **continuous productivity score** that aggregates five observed signals into a single dimensionless number mapped to five tiers (green → yellow → orange → red → critical) with escalating prompt-level actions. The cleverest input is an **axis lock-in detector**: a per-tool-family extractor that reduces every expensive call to the semantic dimensions the agent is *holding constant* - `(target=/login, fixed_user=admin)` for a credential brute force, `(target=/FUZZ, fixed_filter=200,301)` for a directory fuzz - and records it in a session-long ledger. Three successive brute-force attempts against the same username collapse onto the same axis key even when the wordlists are different, so slow loops spread across many iterations still register as repetition. By the third unproductive attempt on the same axis the score crosses red and the orchestrator names the locked dial explicitly, demanding the agent change a different parameter rather than scale up the same losing attempt. Combined with an **orchestrator-owned state-growth signal** (resets to 0 when the engagement state actually grows, increments otherwise, completely independent of LLM self-report), the productivity layer cannot be fooled by an over-optimistic agent.
 
-The engagement itself runs on a **14-node LangGraph state machine** with durable PostgreSQL checkpoints after every step, so multi-hour autonomous runs resume cleanly after a backend restart. Every action the agent takes is captured in **EvoGraph**, a persistent attack-chain memory in Neo4j whose nodes (AttackChain, ChainStep, ChainFinding, ChainDecision, ChainFailure) are bridged back to the recon graph, so the next session on the same project starts already knowing what was tried, what worked, and what failed - RedAmon is a knowledge-accumulating system, not a stateless tool runner. A **four-layer guardrail stack** (deterministic domain blocklist, LLM-based scope check, phase-gated tool whitelist, encoded Rules-of-Engagement contract) governs both the root agent and every fireteam sub-agent it spawns, with a single set of approval gates the operator controls in real time over a WebSocket. Multi-tenant isolation is enforced at the database-query level, not just at the API layer. The result is a platform that is intelligent enough to find real bugs unprompted, disciplined enough to stay inside contractual scope, and observable enough to defend in front of a customer.
+The engagement itself runs on a **14-node LangGraph state machine** with durable PostgreSQL checkpoints after every step, so multi-hour autonomous runs resume cleanly after a backend restart. Every action the agent takes is captured in **EvoGraph**, a persistent attack-chain memory in Neo4j whose nodes (AttackChain, ChainStep, ChainFinding, ChainDecision, ChainFailure) are bridged back to the recon graph, so the next session on the same project starts already knowing what was tried, what worked, and what failed - WhiteHat is a knowledge-accumulating system, not a stateless tool runner. A **four-layer guardrail stack** (deterministic domain blocklist, LLM-based scope check, phase-gated tool whitelist, encoded Rules-of-Engagement contract) governs both the root agent and every fireteam sub-agent it spawns, with a single set of approval gates the operator controls in real time over a WebSocket. Multi-tenant isolation is enforced at the database-query level, not just at the API layer. The result is a platform that is intelligent enough to find real bugs unprompted, disciplined enough to stay inside contractual scope, and observable enough to defend in front of a customer.
 
 ---
 
 ## Overview
 
-The **RedAmon Agentic System** is an AI-driven penetration testing platform that combines an autonomous reasoning agent with a deterministic recon pipeline, a structured attack-chain memory, and a controlled fan-out of specialist sub-agents. It is engineered around a single architectural pattern that we call **Scatter-Gather ReAct (SG-ReAct)**, a hybrid of the classical ReAct (Reasoning + Acting) loop with bounded parallel multi-agent decomposition. SG-ReAct is what allows RedAmon to scale to multi-hour engagements without losing predictability, safety, or the operator's ability to intervene at any moment.
+The **WhiteHat Agentic System** is an AI-driven penetration testing platform that combines an autonomous reasoning agent with a deterministic recon pipeline, a structured attack-chain memory, and a controlled fan-out of specialist sub-agents. It is engineered around a single architectural pattern that we call **Scatter-Gather ReAct (SG-ReAct)**, a hybrid of the classical ReAct (Reasoning + Acting) loop with bounded parallel multi-agent decomposition. SG-ReAct is what allows WhiteHat to scale to multi-hour engagements without losing predictability, safety, or the operator's ability to intervene at any moment.
 
 This document is the technical reference for that system. It describes every node, every state transition, every guardrail layer, every prompt-injection mechanism, and every persistence boundary. It is written for two audiences at once: engineers who need to extend or audit the codebase, and security leaders who need to understand *why* the architectural choices that follow were made.
 
-### What RedAmon Is
+### What WhiteHat Is
 
-At a glance, RedAmon is an AI agent that conducts security assessments by reasoning step by step about a target, choosing which tools to run, observing the results, and deciding what to try next, repeating this loop until the engagement objective is reached or the operator stops it. That is the surface description, and it is the same description one could write about almost any agentic pentesting tool in 2026.
+At a glance, WhiteHat is an AI agent that conducts security assessments by reasoning step by step about a target, choosing which tools to run, observing the results, and deciding what to try next, repeating this loop until the engagement objective is reached or the operator stops it. That is the surface description, and it is the same description one could write about almost any agentic pentesting tool in 2026.
 
 The substance is in what surrounds the loop:
 
@@ -107,11 +107,11 @@ Engineers wanting to extend the platform should focus on the LangGraph chapter, 
 
 ## Agent State Machine
 
-This is the most important chapter in the document. The state machine is the foundational design pattern that every other capability, Deep Think, Fireteam, guardrails, multi-tenancy, persistence, human-in-the-loop, observability, builds on top of. If you read only one chapter to understand how RedAmon works, this should be it. The chapter starts with a plain-language overview of why a state machine (rather than a plain loop) is the right shape for an agentic pentester, then shows the graph structure top-down, then describes the state schema in four parts grouped by purpose, and ends with the per-node responsibility table.
+This is the most important chapter in the document. The state machine is the foundational design pattern that every other capability, Deep Think, Fireteam, guardrails, multi-tenancy, persistence, human-in-the-loop, observability, builds on top of. If you read only one chapter to understand how WhiteHat works, this should be it. The chapter starts with a plain-language overview of why a state machine (rather than a plain loop) is the right shape for an agentic pentester, then shows the graph structure top-down, then describes the state schema in four parts grouped by purpose, and ends with the per-node responsibility table.
 
 ### Overview
 
-At its core, RedAmon's agent is a **decision-making engine** that mimics how a senior penetration tester actually works: read what's on the screen, decide what to do next, run a tool, look at the result, decide what to do next, and repeat, sometimes for many hours, across many discoveries, across many objectives. The hard part of building such an engine is not the "thinking"; modern language models do that well. The hard part is keeping the entire process **predictable, interruptible, observable, and safe** while it runs.
+At its core, WhiteHat's agent is a **decision-making engine** that mimics how a senior penetration tester actually works: read what's on the screen, decide what to do next, run a tool, look at the result, decide what to do next, and repeat, sometimes for many hours, across many discoveries, across many objectives. The hard part of building such an engine is not the "thinking"; modern language models do that well. The hard part is keeping the entire process **predictable, interruptible, observable, and safe** while it runs.
 
 That is exactly the problem [LangGraph](https://langchain-ai.github.io/langgraph/) solves, and it is why the agent is built on top of it.
 
@@ -535,7 +535,7 @@ This section gives a **plain-language walkthrough of every major capability** of
 
 ReAct is the foundational behavioural pattern of the agent. The acronym stands for **Reason + Act**, and it captures the simplest possible model of how a human expert works: read what's known, *think* about what to do next, *act* (run a tool), look at the result, *think* again. The agent repeats this loop autonomously, sometimes for dozens of iterations, until the objective is reached or the operator stops it.
 
-In RedAmon's implementation, the loop has four characteristics that distinguish it from a basic "ask-LLM-then-run-tool" script. First, the LLM does not just emit a tool call, it emits a **structured decision** (`LLMDecision`) declaring what action it wants to take (`use_tool`, `plan_tools`, `deploy_fireteam`, `transition_phase`, `ask_user`, `complete`), along with reasoning, the tool to run, and an inline analysis of the *previous* tool's output that includes a **productivity verdict** classifying the call as `new_info`, `confirmation`, `no_progress`, `blocked`, or `duplicate`. Second, every iteration writes a `ChainStep` to the EvoGraph attack-chain memory, so the agent's history is structured and queryable rather than a flat log. Third, the loop is bounded, `MAX_ITERATIONS` (default 100) caps runaway sessions, and an **unproductive-streak detector** counts hard failures plus LLM-classified unproductive steps in a sliding window (default 3 of the last 6) and injects a pivot warning when the threshold trips. Crucially, the detector audits the LLM's verdict against actual state delta and auto-downgrades dishonest `new_info`/`confirmation` claims to `no_progress`, so identical fuzzing repeated 10 times cannot be hidden under a polite verdict. Fourth, the loop is **interruptible at every iteration**: the operator can stop, send guidance, or change skills mid-flight without breaking state.
+In WhiteHat's implementation, the loop has four characteristics that distinguish it from a basic "ask-LLM-then-run-tool" script. First, the LLM does not just emit a tool call, it emits a **structured decision** (`LLMDecision`) declaring what action it wants to take (`use_tool`, `plan_tools`, `deploy_fireteam`, `transition_phase`, `ask_user`, `complete`), along with reasoning, the tool to run, and an inline analysis of the *previous* tool's output that includes a **productivity verdict** classifying the call as `new_info`, `confirmation`, `no_progress`, `blocked`, or `duplicate`. Second, every iteration writes a `ChainStep` to the EvoGraph attack-chain memory, so the agent's history is structured and queryable rather than a flat log. Third, the loop is bounded, `MAX_ITERATIONS` (default 100) caps runaway sessions, and an **unproductive-streak detector** counts hard failures plus LLM-classified unproductive steps in a sliding window (default 3 of the last 6) and injects a pivot warning when the threshold trips. Crucially, the detector audits the LLM's verdict against actual state delta and auto-downgrades dishonest `new_info`/`confirmation` claims to `no_progress`, so identical fuzzing repeated 10 times cannot be hidden under a polite verdict. Fourth, the loop is **interruptible at every iteration**: the operator can stop, send guidance, or change skills mid-flight without breaking state.
 
 For the operator, ReAct is what makes the agent feel *intelligent rather than scripted*. There is no fixed playbook. The agent decides at every step what tool best fits what it just learned, and the chat surface shows the reasoning explicitly so the operator can follow along, correct course, or take over.
 
@@ -601,7 +601,7 @@ The advantage is twofold. **Within a session**, the agent's prompt no longer car
 
 ### Recon Graph & `query_graph` (Persistent Project Intelligence)
 
-Before the agent ever runs, RedAmon's deterministic **Recon Pipeline** has typically already mapped the target's attack surface and persisted it as a structured graph in Neo4j: domains, subdomains, IPs, ports, services, technologies, certificates, CVEs, endpoints, and the relationships that tie them together. This is the **Recon Graph**, the project's accumulated, queryable intelligence about *what exists* on the target. It is a sibling of EvoGraph, lives in the same Neo4j instance, and is tenant-scoped (`user_id`, `project_id`) so projects never leak into each other.
+Before the agent ever runs, WhiteHat's deterministic **Recon Pipeline** has typically already mapped the target's attack surface and persisted it as a structured graph in Neo4j: domains, subdomains, IPs, ports, services, technologies, certificates, CVEs, endpoints, and the relationships that tie them together. This is the **Recon Graph**, the project's accumulated, queryable intelligence about *what exists* on the target. It is a sibling of EvoGraph, lives in the same Neo4j instance, and is tenant-scoped (`user_id`, `project_id`) so projects never leak into each other.
 
 The agent does not need to rediscover any of this. It has a single tool, `query_graph`, that lets it ask the Recon Graph natural-language questions ("what ports are open on 10.0.0.5?", "which subdomains run nginx?", "any CVEs known on the discovered services?") and receive structured answers. Internally `Neo4jToolManager` calls a translator LLM to turn the question into Cypher, the manager rewrites the Cypher to inject the tenant filter (the agent never gets to write that part), executes against Neo4j, and on syntax errors retries up to `CYPHER_MAX_RETRIES` (default 3) with the error message attached as feedback. `query_graph` is allowed in every phase, reading what's already known is always safe.
 
@@ -988,7 +988,7 @@ flowchart TB
         NMAP_T[execute_nmap<br/>Deep scanning & NSE scripts]
         NUCLEI_T[execute_nuclei<br/>CVE verification + custom templates]
         KALI[kali_shell<br/>General Kali shell]
-        PROXYBRAIN[proxy_brain<br/>writes Python over the redamon SDK<br/>reads any phase, active sends gated to exploitation]
+        PROXYBRAIN[proxy_brain<br/>writes Python over the whitehat SDK<br/>reads any phase, active sends gated to exploitation]
     end
 
     subgraph ExplTools["Exploitation Tools"]
@@ -1122,7 +1122,7 @@ flowchart TB
 
 ## Recon Graph & query_graph (Persistent Project Intelligence)
 
-Before the agent ever runs, RedAmon's **deterministic Recon Pipeline** has typically already mapped the target's attack surface and persisted it to Neo4j as a structured graph: domains, subdomains, IPs, ports, services, technologies, certificates, CVEs, endpoints, and the relationships that tie them together. This is the **Recon Graph**, the project's accumulated, queryable intelligence about *what exists* on the target.
+Before the agent ever runs, WhiteHat's **deterministic Recon Pipeline** has typically already mapped the target's attack surface and persisted it to Neo4j as a structured graph: domains, subdomains, IPs, ports, services, technologies, certificates, CVEs, endpoints, and the relationships that tie them together. This is the **Recon Graph**, the project's accumulated, queryable intelligence about *what exists* on the target.
 
 The agent does not need to re-discover any of this. Instead, it has a single tool, `query_graph`, that lets it ask the Recon Graph natural-language questions ("what ports are open on 192.168.1.100?", "which subdomains run nginx?", "are there any known CVEs on the discovered services?") and get structured answers back. This is one of the most consequential design decisions in the platform: it cleanly separates **deterministic discovery** (fast, cheap, repeatable, runs offline) from **adaptive exploitation** (expensive LLM reasoning, runs online).
 
@@ -1423,7 +1423,7 @@ The following tools require manual confirmation when `REQUIRE_TOOL_CONFIRMATION`
 | `execute_code` | Python/shell code execution |
 | `execute_hydra` | Credential testing via THC Hydra |
 | `execute_wpscan` | WordPress vulnerability scanning (plugins, themes, users, misconfigurations) |
-| `proxy_brain` | Write Python over the pre-imported `redamon` SDK to work the captured HTTP corpus; active `replay` / `batch` / `fuzz` sends are host-pinned to the origin, phase-gated, and budgeted |
+| `proxy_brain` | Write Python over the pre-imported `whitehat` SDK to work the captured HTTP corpus; active `replay` / `batch` / `fuzz` sends are host-pinned to the origin, phase-gated, and budgeted |
 
 The dangerous tools list is defined in `project_settings.py` as `DANGEROUS_TOOLS` (a `frozenset`).
 
@@ -1774,7 +1774,7 @@ A real exploit chain is a **tree**, not a line. From a login endpoint the promis
 
 You cannot un-send a request to a live target, so the execution history only ever grows. LATS is therefore a **virtual tree search over an append-only execution stream**: the tree is bookkeeping metadata that decides *which single probe to run next*, and "backtracking" does not restore a checkpoint, it **re-roots the reasoning frontier** onto a different, more promising node and builds the next probe from that node's branch context.
 
-Classic MCTS runs one rollout at a time through a four-step cycle (Select -> Expand -> Evaluate -> Backpropagate). RedAmon already runs one action per `think` iteration, so that cycle maps **one-to-one onto the existing `think -> execute -> think` loop, spread across iterations**:
+Classic MCTS runs one rollout at a time through a four-step cycle (Select -> Expand -> Evaluate -> Backpropagate). WhiteHat already runs one action per `think` iteration, so that cycle maps **one-to-one onto the existing `think -> execute -> think` loop, spread across iterations**:
 
 ```mermaid
 flowchart LR
@@ -1792,13 +1792,13 @@ flowchart LR
 
 Each hook invocation completes one virtual rollout: it evaluates the wave issued *last* turn, then selects/expands/issues the wave for *this* turn. The `output_analysis` the think LLM already produces is the evaluation signal, so LATS adds no extra scoring call on the evaluate side.
 
-The crucial timing subtlety: the EVALUATE step does **not** run before the think LLM call, it runs **after** it. RedAmon's single think call produces `output_analysis` (the read of the previous wave) *and* a proposed action in one JSON. LATS keeps the analysis half (that is the evaluation) and overrides the action half. So on an evaluation turn the LLM call still fires (it is the one that reads the wave), and LATS post-processes its result. One think visit therefore performs the *evaluate* phase of the previous wave and the *select + expand + emit* phase of the next one, around a single LLM call.
+The crucial timing subtlety: the EVALUATE step does **not** run before the think LLM call, it runs **after** it. WhiteHat's single think call produces `output_analysis` (the read of the previous wave) *and* a proposed action in one JSON. LATS keeps the analysis half (that is the evaluation) and overrides the action half. So on an evaluation turn the LLM call still fires (it is the one that reads the wave), and LATS post-processes its result. One think visit therefore performs the *evaluate* phase of the previous wave and the *select + expand + emit* phase of the next one, around a single LLM call.
 
-### Classic LATS and the RedAmon Mapping
+### Classic LATS and the WhiteHat Mapping
 
-Every LATS concept maps onto a primitive RedAmon already had, which is why the integration is additive (no new node, no new model):
+Every LATS concept maps onto a primitive WhiteHat already had, which is why the integration is additive (no new node, no new model):
 
-| Classic LATS concept | RedAmon mechanism |
+| Classic LATS concept | WhiteHat mechanism |
 |----------------------|-------------------|
 | Node (state) | An entry in `_exploit_tree.nodes` summarizing a branch's observation, value, and visits |
 | Edge (action) | A tool call (`tool_name`, `tool_args`), executed by `execute_tool_node` / `execute_plan_node` |
@@ -2198,7 +2198,7 @@ sequenceDiagram
 
 ### LLM-Cost Accounting
 
-LATS adds **zero extra LLM round-trips on the evaluate/select/backprop side**, those reuse the analysis call that every think turn already makes, and are pure Python. The only added spend is **one structured `lats_expand` call per node expansion** on the single agent model (plus the one ENTER assessment call, which is the root's expand). The K parallel probes in a wave and all of Select / Evaluate / Backprop cost nothing. Over a ~15-node search that is ~15 expand calls on top of the analysis calls RedAmon already makes, far cheaper than a fireteam, whose cost scales with N full member reasoning loops. Each `lats_expand`'s tokens are folded back into the turn's counters so the cost KPI stays honest.
+LATS adds **zero extra LLM round-trips on the evaluate/select/backprop side**, those reuse the analysis call that every think turn already makes, and are pure Python. The only added spend is **one structured `lats_expand` call per node expansion** on the single agent model (plus the one ENTER assessment call, which is the root's expand). The K parallel probes in a wave and all of Select / Evaluate / Backprop cost nothing. Over a ~15-node search that is ~15 expand calls on top of the analysis calls WhiteHat already makes, far cheaper than a fireteam, whose cost scales with N full member reasoning loops. Each `lats_expand`'s tokens are folded back into the turn's counters so the cost KPI stays honest.
 
 ### Shadow Mode vs Drive Mode
 
@@ -4558,7 +4558,7 @@ classDiagram
 
 ## Configuration Reference
 
-This chapter is the **canonical reference for every setting that controls agent behaviour**. Configuration in RedAmon is **database-driven**: when `PROJECT_ID` and `WEBAPP_API_URL` are set, the agent fetches its settings from PostgreSQL via the webapp API at startup, so each project can have its own values without redeploying the agent container. When these env vars are not set (development, standalone use, automated tests), `DEFAULT_AGENT_SETTINGS` provides fallback values. The implication is that operators rarely edit code or environment files to change agent behaviour, they edit project settings in the webapp UI, and the changes take effect on the next session.
+This chapter is the **canonical reference for every setting that controls agent behaviour**. Configuration in WhiteHat is **database-driven**: when `PROJECT_ID` and `WEBAPP_API_URL` are set, the agent fetches its settings from PostgreSQL via the webapp API at startup, so each project can have its own values without redeploying the agent container. When these env vars are not set (development, standalone use, automated tests), `DEFAULT_AGENT_SETTINGS` provides fallback values. The implication is that operators rarely edit code or environment files to change agent behaviour, they edit project settings in the webapp UI, and the changes take effect on the next session.
 
 The settings span twelve thematic groups: model and prompt selection (`OPENAI_MODEL`, custom system prompts per phase), iteration and budget caps (`MAX_ITERATIONS`, `EXECUTION_TRACE_MEMORY_STEPS`, `TOOL_OUTPUT_MAX_CHARS`), human-in-the-loop approvals (`REQUIRE_APPROVAL_FOR_*`, `REQUIRE_TOOL_CONFIRMATION`), Deep Think and stealth toggles, fireteam knobs (concurrency cap, member iteration budget, wave timeout), guardrail flags (`AGENT_GUARDRAIL_ENABLED`, `IP_MODE`, `TARGET_DOMAIN`), tool registry overrides (`TOOL_PHASE_MAP`, `KALI_INSTALL_*`), per-attack-skill toggles (XSS dalfox, SQLi sqlmap level/risk, DoS limits, Hydra threading), Knowledge Base settings (`KB_*` family), Rules of Engagement (the ~35 `ROE_*` settings encoding a customer engagement contract), session config for stateful exploitation (`LHOST`, `LPORT`, `BIND_PORT_ON_TARGET`, `PAYLOAD_USE_HTTPS`, tunnel toggles), and observability (`LOG_MAX_MB`, `LOG_BACKUP_COUNT`).
 
@@ -4743,7 +4743,7 @@ flowchart LR
 
 ## Summary
 
-The RedAmon Agentic System provides:
+The WhiteHat Agentic System provides:
 
 1. **Autonomous Reasoning** - LangGraph-based ReAct pattern for intelligent decision making
 2. **Wave Execution** - Parallel tool execution via `asyncio.gather()` when the LLM identifies independent tools, with grouped analysis and frontend PlanWaveCard visualization

@@ -4,8 +4,8 @@
 # inside the orchestrator container (which has the Docker SDK + API access) and
 # writes recon_orchestrator/resource_profile.json.
 #
-#   bash tests/redamon_mem_calibrate.sh baseline
-#   bash tests/redamon_mem_calibrate.sh scan <project_id> [--seconds 120] [--user_id <id>]
+#   bash tests/whitehat_mem_calibrate.sh baseline
+#   bash tests/whitehat_mem_calibrate.sh scan <project_id> [--seconds 120] [--user_id <id>]
 # =============================================================================
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."

@@ -1,7 +1,7 @@
 """
 On-demand local LLM (Ollama) lifecycle manager for the AI Attack Surface layer.
 
-`redamon-local-llm` is the judge/attacker model used by the AI Attack Surface
+`whitehat-local-llm` is the judge/attacker model used by the AI Attack Surface
 scan tools (garak judge detectors, PyRIT attacker, giskard/promptfoo graders).
 It is NOT an always-on docker-compose service: it is spawned on demand when an
 AI-attack job needs it and torn down when the last job finishes, exactly like
@@ -12,11 +12,11 @@ Design (see AI_ATTACK_SURFACE_IMPLEMENTATION.md §15.2):
     removed only when the lease count returns to zero (shared across the N
     per-tool jobs of one scan).
   - Weights persist, container does not: models live in the named volume
-    `redamon_llm_models` (-> /root/.ollama). Start cost is load-into-RAM, not a
+    `whitehat_llm_models` (-> /root/.ollama). Start cost is load-into-RAM, not a
     re-download. First-ever launch pulls the judge model into the volume.
   - Networking: spawned on the shared bridge network with its port published to
     the host. The orchestrator reaches it by container DNS
-    (http://redamon-local-llm:11434); host-network scan containers reach the
+    (http://whitehat-local-llm:11434); host-network scan containers reach the
     published port via loopback (http://localhost:11434).
   - Failure-soft: any failure (image pull, container start, readiness, model
     pull) yields an unavailable status object and never raises to the caller,
@@ -50,8 +50,8 @@ LLM_IMAGE = os.environ.get("LOCAL_LLM_IMAGE", "ollama/ollama:latest")
 # Judge/attacker model. §12.4 open question (llama3.1-8b vs qwen2.5-7b) is
 # settled by env until the offline benchmark locks it.
 LLM_MODEL = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:7b")
-LLM_CONTAINER_NAME = os.environ.get("LOCAL_LLM_CONTAINER_NAME", "redamon-local-llm")
-LLM_MODELS_VOLUME = os.environ.get("LOCAL_LLM_VOLUME", "redamon_llm_models")
+LLM_CONTAINER_NAME = os.environ.get("LOCAL_LLM_CONTAINER_NAME", "whitehat-local-llm")
+LLM_MODELS_VOLUME = os.environ.get("LOCAL_LLM_VOLUME", "whitehat_llm_models")
 # Phase 7: the Ollama judge ran with NO mem_limit, so a model load could balloon
 # past what the governor assumed was free and OOM the host. Cap it (Docker mem_limit
 # string, e.g. "8g"). Empty/"0"/"none" disables the cap (GPU or a very large judge
@@ -71,7 +71,7 @@ def _default_llm_mem() -> str:
         mem = _rg.read_mem()
         if not mem or mem[0] <= 0:
             return "8g"
-        # scan pool ~= 32% of host (redamon.sh: (1 - OS_RESERVE_PCT) x (1 - SERVICES_PCT));
+        # scan pool ~= 32% of host (whitehat.sh: (1 - OS_RESERVE_PCT) x (1 - SERVICES_PCT));
         # the judge may claim half of it.
         gb = max(4, (mem[0] * 16 // 100) // (1024 ** 3))
         return f"{gb}g"
@@ -84,10 +84,10 @@ LLM_PORT = int(os.environ.get("LOCAL_LLM_PORT", "11434"))
 # Ollama is spawned on the shared bridge network and publishes its port to the
 # host. Two consumers reach it two different ways:
 #   - The orchestrator (this process) is ON the bridge network, so it reaches
-#     Ollama by container DNS name: http://redamon-local-llm:11434
+#     Ollama by container DNS name: http://whitehat-local-llm:11434
 #   - Future AI-attack scan containers run on the HOST network, so they reach
 #     the published port via loopback: http://localhost:11434
-LLM_NETWORK = os.environ.get("LOCAL_LLM_NETWORK", "redamon-network")
+LLM_NETWORK = os.environ.get("LOCAL_LLM_NETWORK", "whitehat-network")
 # How the orchestrator itself talks to Ollama (container DNS on the shared net).
 LLM_INTERNAL_HOST = os.environ.get("LOCAL_LLM_INTERNAL_HOST", LLM_CONTAINER_NAME)
 LLM_INTERNAL_URL = f"http://{LLM_INTERNAL_HOST}:{LLM_PORT}"

@@ -1,4 +1,4 @@
-# RedAmon single public origin -- HTTP-only template (ACCESS_MODE=http-domain | http-ip)
+# WhiteHat single public origin -- HTTP-only template (ACCESS_MODE=http-domain | http-ip)
 # --------------------------------------------------------------------------------------
 # LAB/TEST ONLY. No TLS: plaintext cookies/creds, no HSTS, agent WS over plain ws://.
 # deploy.sh only renders this behind ALLOW_INSECURE=1 and a loud banner. The single-origin
@@ -28,7 +28,7 @@ server {
     server_name __SERVER_NAME__;
     server_tokens off;
 
-    include /etc/nginx/snippets/redamon-security-headers.conf;
+    include /etc/nginx/snippets/whitehat-security-headers.conf;
     add_header __CSP_HEADER_NAME__ "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' __CSP_CONNECT__; worker-src 'self' blob:; manifest-src 'self'" always;
 
     limit_conn conn 20;
@@ -53,7 +53,7 @@ server {
 
     # __GATE__
 
-    location = /_redamon_session {
+    location = /_whitehat_session {
         internal;
         proxy_pass http://127.0.0.1:3000/api/auth/me;
         proxy_http_version 1.1;
@@ -69,7 +69,7 @@ server {
     location ~ ^/ws/(agent|kali-terminal|cypherfix-triage|cypherfix-codefix)$ {
         __WS_AUTH_REQUEST__
         limit_conn conn 20;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:8090;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -79,7 +79,7 @@ server {
 
     location = /api/auth/login {
         limit_req zone=login burst=3 nodelay; limit_req_status 429;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         add_header X-Frame-Options DENY always;
         add_header X-Content-Type-Options nosniff always;
@@ -95,24 +95,24 @@ server {
         limit_req_log_level warn;
         client_max_body_size 64k;
         # __MCP_GATE__
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_read_timeout 3600s; proxy_buffering off;
         # Re-stated via the shared snippet (a location with any add_header stops
         # inheriting the server-level set). No HSTS here: this template is the
         # plaintext one.
-        include /etc/nginx/snippets/redamon-security-headers-only.conf;
+        include /etc/nginx/snippets/whitehat-security-headers-only.conf;
         add_header __CSP_HEADER_NAME__ "default-src 'none'; frame-ancestors 'none'" always;
         add_header Cache-Control "no-store" always;
     }
     location /api/ {
         limit_req zone=api burst=60 nodelay; limit_req_status 429;
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_read_timeout 3600s; proxy_buffering off;
     }
     location / {
-        include /etc/nginx/snippets/redamon-proxy-common.conf;
+        include /etc/nginx/snippets/whitehat-proxy-common.conf;
         proxy_pass http://127.0.0.1:3000;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;

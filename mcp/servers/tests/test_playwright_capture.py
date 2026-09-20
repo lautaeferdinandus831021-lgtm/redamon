@@ -4,7 +4,7 @@ Capture-proxy routing tests for execute_playwright (both modes).
 Focus on the Tier A fix: self-contained scripts (which bring their own
 `sync_playwright()`) previously bypassed capture because the wrapper's proxy=/
 extra_http_headers kwargs never applied. `_capture_launch_patch` now forces the
-proxy + stamps the X-Redamon-Ctx header via a launch/new_context monkeypatch.
+proxy + stamps the X-WhiteHat-Ctx header via a launch/new_context monkeypatch.
 
 Run: python3 mcp/servers/tests/test_playwright_capture.py
 """
@@ -43,7 +43,7 @@ if "fastmcp" not in sys.modules:
 import capture_routing  # noqa: E402
 import playwright_server as pw  # noqa: E402
 
-_TEST_URL = "http://redamon-capture-proxy:8888"
+_TEST_URL = "http://whitehat-capture-proxy:8888"
 _TAG = "eyJhIjoxfQ.c2ln"
 _SELF_CONTAINED = "with sync_playwright() as p:\n    page = p.chromium.launch().new_page()\n    page.goto('http://t/')\n"
 
@@ -81,7 +81,7 @@ class TestCaptureLaunchPatch(_PwBase):
         ast.parse(patch)  # raises if the generated code is malformed
         # proxy forced + tag stamped
         self.assertIn(_TEST_URL, patch)
-        self.assertIn(f'"X-Redamon-Ctx": {_TAG!r}', patch)
+        self.assertIn(f'"X-WhiteHat-Ctx": {_TAG!r}', patch)
         # all three interception points patched
         self.assertIn("BrowserType.launch =", patch)
         self.assertIn("Browser.new_context =", patch)
@@ -91,7 +91,7 @@ class TestCaptureLaunchPatch(_PwBase):
         # A tag with a space would break the header line; the real tag is b64url.
         self._reachable(True)
         patch = pw._capture_launch_patch(_TAG)
-        self.assertNotIn("X-Redamon-Ctx:  ", patch)
+        self.assertNotIn("X-WhiteHat-Ctx:  ", patch)
 
 
 class TestCaptureArgsWrappedMode(_PwBase):
@@ -100,7 +100,7 @@ class TestCaptureArgsWrappedMode(_PwBase):
         proxy_kw, hdr_kw = pw._capture_playwright_args(_TAG)
         self.assertIn(_TEST_URL, proxy_kw)
         self.assertIn("proxy=", proxy_kw)
-        self.assertIn("X-Redamon-Ctx", hdr_kw)
+        self.assertIn("X-WhiteHat-Ctx", hdr_kw)
         self.assertIn(_TAG, hdr_kw)
 
     def test_direct_returns_empty(self):
@@ -126,20 +126,20 @@ class TestScriptModeIntegration(_PwBase):
         self._reachable(True)
         final = self._run_capture(_SELF_CONTAINED, _TAG)
         self.assertIn("_pw_orig_launch", final)          # the base _LAUNCH_PATCH
-        self.assertIn("X-Redamon-Ctx", final)            # capture patch present
+        self.assertIn("X-WhiteHat-Ctx", final)            # capture patch present
         self.assertIn(_TEST_URL, final)
         self.assertIn(_SELF_CONTAINED.strip(), final)    # user script preserved
 
     def test_self_contained_direct_no_leak(self):
         self._reachable(False)  # proxy unreachable -> fail open
         final = self._run_capture(_SELF_CONTAINED, _TAG)
-        self.assertNotIn("X-Redamon-Ctx", final)
+        self.assertNotIn("X-WhiteHat-Ctx", final)
         self.assertNotIn(_TEST_URL, final)
 
     def test_self_contained_no_token_no_leak(self):
         self._reachable(True)
         final = self._run_capture(_SELF_CONTAINED, "")
-        self.assertNotIn("X-Redamon-Ctx", final)
+        self.assertNotIn("X-WhiteHat-Ctx", final)
 
 
 if __name__ == "__main__":

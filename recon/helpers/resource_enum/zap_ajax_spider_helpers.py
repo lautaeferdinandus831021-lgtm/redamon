@@ -1,5 +1,5 @@
 """
-RedAmon - ZAP Ajax Spider Helpers for Resource Enumeration
+WhiteHat - ZAP Ajax Spider Helpers for Resource Enumeration
 ==========================================================
 Browser-driven resource discovery using OWASP ZAP's Ajax Spider.
 """
@@ -21,9 +21,9 @@ from urllib.parse import parse_qs, urlparse
 
 
 SOURCE_NAME = "zap_ajax_spider"
-ZAP_CONTEXT_NAME = "redamon-zap-ajax-context"
+ZAP_CONTEXT_NAME = "whitehat-zap-ajax-context"
 _URL_RE = re.compile(r"https?://[^\s\"'<>,]+", re.IGNORECASE)
-_DEBUG_ENV = "REDAMON_ZAP_AJAX_DEBUG"
+_DEBUG_ENV = "WHITEHAT_ZAP_AJAX_DEBUG"
 
 
 def _has_control_chars(value: str) -> bool:
@@ -113,7 +113,7 @@ def build_zap_ajax_automation_plan(
         return "true" if bool(value) else "false"
 
     lines = [
-        'name: "redamon-zap-ajax"',
+        'name: "whitehat-zap-ajax"',
         "env:",
         "  contexts:",
         f"    - name: {q(ZAP_CONTEXT_NAME)}",
@@ -132,7 +132,7 @@ def build_zap_ajax_automation_plan(
 
     lines.extend([
         '  - type: "replacer"',
-        '    name: "redamon-zap-ajax-headers"',
+        '    name: "whitehat-zap-ajax-headers"',
     ])
 
     if not headers:
@@ -148,7 +148,7 @@ def build_zap_ajax_automation_plan(
 
     lines.extend([
         '  - type: "spiderAjax"',
-        '    name: "redamon-zap-ajax-spider"',
+        '    name: "whitehat-zap-ajax-spider"',
         "    parameters:",
         f"      context: {q(ZAP_CONTEXT_NAME)}",
         f"      url: {q(seed_url)}",
@@ -169,11 +169,11 @@ def build_zap_ajax_automation_plan(
 
     lines.extend([
         '  - type: "passiveScan-wait"',
-        '    name: "redamon-zap-passive-scan"',
+        '    name: "whitehat-zap-passive-scan"',
         "    parameters:",
         f"      maxDuration: {int(max_duration)}",
         '  - type: "export"',
-        '    name: "redamon-zap-ajax-export"',
+        '    name: "whitehat-zap-ajax-export"',
         "    parameters:",
         f"      context: {q(ZAP_CONTEXT_NAME)}",
         '      type: "url"',
@@ -301,7 +301,7 @@ def merge_zap_ajax_into_by_base_url(
         from .classification import classify_endpoint, classify_parameter, infer_parameter_type
     except ImportError:
         classification_path = Path(__file__).resolve().parent / "classification.py"
-        spec = importlib.util.spec_from_file_location("redamon_resource_enum_classification", classification_path)
+        spec = importlib.util.spec_from_file_location("whitehat_resource_enum_classification", classification_path)
         if spec is None or spec.loader is None:
             raise
         classification = importlib.util.module_from_spec(spec)
@@ -470,7 +470,7 @@ def run_zap_ajax_spider(
         metadata.update(filter_meta)
         return filtered, metadata
 
-    work_dir = Path(f"/tmp/redamon/zap_ajax_{uuid.uuid4().hex[:8]}")
+    work_dir = Path(f"/tmp/whitehat/zap_ajax_{uuid.uuid4().hex[:8]}")
     work_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     _chmod_best_effort(work_dir, 0o700)
 

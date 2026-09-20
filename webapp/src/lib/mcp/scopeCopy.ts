@@ -9,7 +9,7 @@
  *
  *  - `blurb` is the shared, table-safe text. It becomes ONE MARKDOWN TABLE CELL
  *    in the generated API reference, so it stays to a sentence or two. Changing
- *    it changes `redamon.wiki/MCP-API-Reference.md`, which means `npm run
+ *    it changes `whitehat.wiki/MCP-API-Reference.md`, which means `npm run
  *    docs:mcp` has to run in the same change or apiReference.test.ts goes red.
  *  - `detail` and `learnMore` are UI-only. The renderer never prints them, so
  *    adding or editing either needs no regeneration.
@@ -104,7 +104,7 @@ export const MCP_SCOPE_COPY: Record<McpScope, ScopeCopy> = {
     label: 'Create projects and set their engagement scope',
     blurb: 'Create a new project and fix what it points at: its target list and its engagement kind, with its settings and limits applied at creation so the first scan runs configured. Scope is written ONCE at creation and is immutable afterwards through every route on this surface, so this opens new engagements rather than re-pointing existing ones. It governs create_project alone.',
     detail:
-      'This is the act that binds RedAmon to a target, which is why it is its own ' +
+      'This is the act that binds WhiteHat to a target, which is why it is its own ' +
       'checkbox rather than part of changing settings. A token with recon:settings ' +
       'can tune the engagements you already have; a token with this one can open ' +
       'new ones.\n\n' +
@@ -123,7 +123,7 @@ export const MCP_SCOPE_COPY: Record<McpScope, ScopeCopy> = {
     blurb: 'Attach the scope document that permits an engagement: its digest, its source and the program it came from. The record is APPEND-ONLY and outlives the token that wrote it, so anyone holding this can make a durable claim, in an audit, that a given document authorized a given scan. Separate from creating projects on purpose: writing the audit trail is a different act from configuring the work.',
     detail:
       'Only a DIGEST of the scope document is stored, never the document, so ' +
-      'RedAmon never parses somebody\'s scope prose and the record works the same ' +
+      'WhiteHat never parses somebody\'s scope prose and the record works the same ' +
       'for a HackerOne policy, a Bugcrowd brief, a signed PDF or an internal ' +
       'ticket.\n\n' +
       'The record cannot be edited or deleted through any path, including this one. ' +
@@ -138,7 +138,7 @@ export const MCP_SCOPE_COPY: Record<McpScope, ScopeCopy> = {
     label: 'Shell access to the Kali sandbox',
     blurb: 'Give the agent a SHELL in the Kali sandbox: `bash -c` with the full toolset, pipelines and redirection, no allowlist and no per-command target check. This is the most powerful permission on this surface and the only one that reaches a live target outside a scan.',
     // Leads with the decision the operator is actually making, because "does my
-    // agent bring its own tools or borrow RedAmon's" is the real question and
+    // agent bring its own tools or borrow WhiteHat's" is the real question and
     // everything else follows from it.
     //
     // It deliberately does NOT enumerate the toolset. That lives in the
@@ -146,7 +146,7 @@ export const MCP_SCOPE_COPY: Record<McpScope, ScopeCopy> = {
     // copied into this string would be wrong within a release.
     detail:
       'Does your agent already have security tools installed where it runs, or should it borrow ' +
-      'RedAmon\'s? With this on, your agent runs commands inside RedAmon\'s Kali sandbox instead of ' +
+      'WhiteHat\'s? With this on, your agent runs commands inside WhiteHat\'s Kali sandbox instead of ' +
       'on its own machine, so it needs nothing installed locally. It is the SAME access the in-app ' +
       'agent has: a real shell, the sandbox\'s whole toolset, and no allowlist. Unlike the in-app ' +
       'agent there is no human clicking a confirmation, and commands are NOT checked against this ' +
@@ -211,7 +211,7 @@ export const SCOPE_GROUPS: ScopeGroup[] = [
   {
     id: 'engagement',
     label: 'Open and authorize engagements',
-    hint: 'Binds RedAmon to a target, and records who said it could.',
+    hint: 'Binds WhiteHat to a target, and records who said it could.',
     tone: 'action',
     scopes: ['project:create', 'engagement:authorize'],
   },

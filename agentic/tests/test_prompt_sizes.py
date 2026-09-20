@@ -8,8 +8,8 @@ Budgets are tracked in CHARS (not tokens) because they're what we actually
 measure when grepping `FULL SYSTEM PROMPT (N chars)` in the agent log.
 
 Run:
-    docker run --rm -v "/home/samuele/Progetti didattici/redamon/agentic:/app" \
-        -w /app redamon-agent python -m unittest tests.test_prompt_sizes -v
+    docker run --rm -v "/home/samuele/Progetti didattici/whitehat/agentic:/app" \
+        -w /app whitehat-agent python -m unittest tests.test_prompt_sizes -v
 """
 
 from __future__ import annotations

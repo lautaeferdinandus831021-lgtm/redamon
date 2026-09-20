@@ -116,7 +116,7 @@ class TestFoldTechnologyDuplicates(unittest.TestCase):
 
 class TestConsolidationMigration(unittest.TestCase):
     def test_a_marked_database_is_left_alone(self):
-        session = FakeSession([("RedamonSchemaMigration {id: $id}) RETURN", FakeResult({"c": 1}))])
+        session = FakeSession([("WhiteHatSchemaMigration {id: $id}) RETURN", FakeResult({"c": 1}))])
         with patch.object(technology_identity, "fold_technology_duplicates") as fold:
             schema.consolidate_technology_identity(session)
         fold.assert_not_called()
@@ -126,14 +126,14 @@ class TestConsolidationMigration(unittest.TestCase):
         with patch.object(technology_identity, "fold_technology_duplicates",
                           side_effect=RuntimeError("boom")):
             schema.consolidate_technology_identity(session)
-        self.assertFalse([q for q, _ in session.queries if q.startswith("MERGE (m:RedamonSchemaMigration")])
+        self.assertFalse([q for q, _ in session.queries if q.startswith("MERGE (m:WhiteHatSchemaMigration")])
 
     def test_a_clean_fold_writes_the_marker(self):
         session = FakeSession([("RETURN count(m)", FakeResult({"c": 0}))])
         with patch.object(technology_identity, "fold_technology_duplicates",
                           return_value={"folded": 0, "versioned": 0}):
             schema.consolidate_technology_identity(session)
-        marks = [p for q, p in session.queries if q.startswith("MERGE (m:RedamonSchemaMigration")]
+        marks = [p for q, p in session.queries if q.startswith("MERGE (m:WhiteHatSchemaMigration")]
         self.assertEqual(marks, [{"id": schema.TECH_IDENTITY_MARKER}])
 
 

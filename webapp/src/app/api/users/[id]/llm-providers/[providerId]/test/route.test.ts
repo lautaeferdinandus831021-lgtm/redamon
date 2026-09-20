@@ -72,7 +72,7 @@ describe('POST llm-providers/[providerId]/test — agent down', () => {
 
     expect(res.status).toBe(503)
     expect(body.success).toBe(false)
-    expect(body.error).toContain('RedAmon agent service')
+    expect(body.error).toContain('WhiteHat agent service')
     expect(body.error).toContain('agent container is not running')
     expect(body.error).toContain('docker compose ps -a agent')
     // The regression: the operator must be told their Base URL is not at fault.

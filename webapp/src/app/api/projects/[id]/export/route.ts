@@ -298,7 +298,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     const safeName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50)
     const dateStr = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19)
-    const filename = `redamon-project-${safeName}-${dateStr}.zip`
+    const filename = `whitehat-project-${safeName}-${dateStr}.zip`
 
     return new Response(webStream, {
       headers: {

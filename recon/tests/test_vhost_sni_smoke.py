@@ -9,7 +9,7 @@ L4 (TLS SNI) is not exercised here -- it would need a real TLS reverse proxy
 with SNI-based routing. That's covered by the unit tests with mocked curl.
 
 Run:
-    docker exec redamon-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_smoke.py -v -s
+    docker exec whitehat-recon-orchestrator python -m pytest /app/recon/tests/test_vhost_sni_smoke.py -v -s
 """
 
 from __future__ import annotations

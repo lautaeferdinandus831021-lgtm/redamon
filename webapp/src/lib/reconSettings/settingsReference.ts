@@ -134,7 +134,7 @@ export function renderSettingsReference(): string {
   out.push('# Project Settings Registry')
   out.push('')
   out.push(
-    'Every configurable parameter of a RedAmon project, with what it means, what it accepts ' +
+    'Every configurable parameter of a WhiteHat project, with what it means, what it accepts ' +
     'and whether an external agent may write it. **GENERATED** from ' +
     '`recon_settings/registry.yaml`; a test fails the build when this page and the registry ' +
     'disagree, so it cannot go stale.'

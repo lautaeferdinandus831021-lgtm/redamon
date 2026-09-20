@@ -35,7 +35,7 @@ _SOURCE_ADJUST = {
 }
 
 
-def initial_confidence(kind: str, source: str = "redamon", text: str = "") -> float:
+def initial_confidence(kind: str, source: str = "whitehat", text: str = "") -> float:
     """Starting confidence for a freshly captured memory."""
     base = _KIND_PRIOR.get(kind, 0.4)
     base += _SOURCE_ADJUST.get(source, 0.0)

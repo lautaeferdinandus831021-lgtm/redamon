@@ -1,4 +1,4 @@
-# RedAmon Supply-Chain recon (L2) guinea pig
+# WhiteHat Supply-Chain recon (L2) guinea pig
 #
 # Bring up:    docker compose up -d --build
 # Bring down:  docker compose down
@@ -32,10 +32,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: redamon-supply-chain-target:latest
-    container_name: redamon-supply-chain-target
+    image: whitehat-supply-chain-target:latest
+    container_name: whitehat-supply-chain-target
     restart: unless-stopped
-    # This is a separate compose PROJECT, so redamon.sh's export_resource_caps
+    # This is a separate compose PROJECT, so whitehat.sh's export_resource_caps
     # never reaches it and the memory governor's reservation ledger does not know
     # it exists. It still shares the host with Neo4j and Postgres, so it carries
     # its own small caps: a runaway target must not be able to OOM the stack that
@@ -59,7 +59,7 @@ services:
 
 networks:
   sc_lab:
-    name: redamon_sc_lab
+    name: whitehat_sc_lab
     driver: bridge
     ipam:
       config:

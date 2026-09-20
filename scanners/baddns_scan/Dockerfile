@@ -1,12 +1,12 @@
-# RedAmon BadDNS sidecar
+# WhiteHat BadDNS sidecar
 # ======================================================================
 # AGPL-3.0 ISOLATION
 # ----------------------------------------------------------------------
 # BadDNS (https://github.com/blacklanternsecurity/baddns, AGPL-3.0) runs
 # ONLY inside this container. It is invoked as an unmodified upstream
-# Python package via `pip install baddns`. RedAmon code never imports
+# Python package via `pip install baddns`. WhiteHat code never imports
 # from this package -- the recon container spawns this image via
-# Docker-in-Docker (`docker run --rm redamon-baddns:latest ...`) and
+# Docker-in-Docker (`docker run --rm whitehat-baddns:latest ...`) and
 # receives results as NDJSON written to a shared volume.
 #
 # This process + filesystem boundary is the license-safe integration
@@ -15,8 +15,8 @@
 
 FROM python:3.12-slim
 
-LABEL maintainer="RedAmon Team"
-LABEL description="Isolated BadDNS sidecar (AGPL-3.0). Invoked by the recon container via Docker-in-Docker. Never linked against RedAmon code."
+LABEL maintainer="WhiteHat Team"
+LABEL description="Isolated BadDNS sidecar (AGPL-3.0). Invoked by the recon container via Docker-in-Docker. Never linked against WhiteHat code."
 LABEL upstream="https://github.com/blacklanternsecurity/baddns"
 LABEL license="AGPL-3.0"
 

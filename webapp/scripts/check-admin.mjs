@@ -1,7 +1,7 @@
 /**
  * Check if an admin user with a password exists.
  * Outputs "0" if no admin found, or the count if found.
- * Called from redamon.sh ensure_admin().
+ * Called from whitehat.sh ensure_admin().
  */
 
 import { PrismaClient } from '@prisma/client'

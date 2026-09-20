@@ -61,7 +61,7 @@
   gap: var(--space-2);
   flex-wrap: nowrap;
   padding: var(--space-3) var(--space-4);
-  /* RedAmon "world" background, matching redamon.org: the dotted world map (red
+  /* WhiteHat "world" background, matching redamon.org: the dotted world map (red
      dots on a dark red-to-black base) with a soft crimson glow blooming from the
      left. Top/bottom fade keeps the dots from touching the header edges. This is
      a branded strip, so it stays dark in both themes on purpose. */
@@ -219,7 +219,7 @@
   height: 32px;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid #d32f2f; /* RedAmon primary crimson */
+  border: 1px solid #d32f2f; /* WhiteHat primary crimson */
   border-radius: var(--radius-lg);
   color: #d32f2f;
 }
@@ -929,7 +929,7 @@
 }
 
 .messageAssistant .messageIcon {
-  border-color: #d32f2f; /* RedAmon primary crimson */
+  border-color: #d32f2f; /* WhiteHat primary crimson */
   color: #d32f2f;
 }
 

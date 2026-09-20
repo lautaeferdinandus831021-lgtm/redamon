@@ -1,6 +1,6 @@
 """Unit tests for the bundled offline incident-intel seed.
 
-Section: root-agent. Runs inside the redamon-agent image, where
+Section: root-agent. Runs inside the whitehat-agent image, where
 /repo/scanners is on PYTHONPATH.
 
 No network. Crafted entries use RFC 2606/6761 names and documentation IPs;
@@ -593,7 +593,7 @@ class TestDescribeAndCli(_TmpDirTest):
         self.assertIn("retried automatically",
                       d({"status": "seeded", "detail": "x"}))
         kept = d({"status": "failed", "detail": "HTTP 402", "kept": "2026-08-18"})
-        self.assertIn("upstream problem, not a RedAmon one", kept)
+        self.assertIn("upstream problem, not a WhiteHat one", kept)
         self.assertIn("No incident catalog is available",
                       d({"status": "failed", "detail": "x", "kept": ""}))
 

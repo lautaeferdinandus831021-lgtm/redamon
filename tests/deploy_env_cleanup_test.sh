@@ -32,7 +32,7 @@ CLEANUP_SRC="$(awk '/^cleanup_ssh\(\) \{/,/^\}/' "$DEPLOY")"
 eval "$CLEANUP_SRC"
 
 # Common stubs.
-REMOTE_TMP="/tmp/redamon-deploy"
+REMOTE_TMP="/tmp/whitehat-deploy"
 REMOTE_USER="op"; HOST_IP="203.0.113.1"; SSH_CONTROL_PATH=""
 SSH_CALLS=""
 

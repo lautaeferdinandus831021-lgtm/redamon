@@ -1,5 +1,5 @@
 """
-RedAmon - Rules of Engagement scope helpers
+WhiteHat - Rules of Engagement scope helpers
 ============================================
 Excluded-host matching for the RoE governor. Extracted from ``recon.main`` so
 active scanners (e.g. origin_discovery) can enforce the excluded-hosts list

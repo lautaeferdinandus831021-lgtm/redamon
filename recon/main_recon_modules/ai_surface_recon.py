@@ -195,7 +195,7 @@ def _mcp_detect(base_url: str, session: requests.Session, timeout: float) -> dic
     init = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
             "params": {"protocolVersion": "2025-06-18",
                        "capabilities": {"roots": {"listChanged": True}, "sampling": {}},
-                       "clientInfo": {"name": "RedAmon-AISurfaceRecon", "version": "1.0"}}}
+                       "clientInfo": {"name": "WhiteHat-AISurfaceRecon", "version": "1.0"}}}
     for path in cat.AI_MCP_PROBE_PATHS:
         url = base_url.rstrip("/") + path
         try:
@@ -655,7 +655,7 @@ def run_ai_surface_recon(combined_result: dict, output_file: Path = None,
     t0 = time.monotonic()
     timeout = float(settings.get("AI_SURFACE_RECON_TIMEOUT", 10))
     workers = int(settings.get("AI_SURFACE_RECON_MAX_WORKERS", 5))
-    ua = settings.get("AI_SURFACE_RECON_USER_AGENT", "RedAmon-AISurfaceRecon/1.0")
+    ua = settings.get("AI_SURFACE_RECON_USER_AGENT", "WhiteHat-AISurfaceRecon/1.0")
     chat_on = settings.get("AI_SURFACE_RECON_CHAT_SHAPE_PROBE_ENABLED", True)
     mcp_on = settings.get("AI_SURFACE_RECON_MCP_HANDSHAKE_ENABLED", True)
     mcp_list_on = settings.get("AI_SURFACE_RECON_MCP_LIST_TOOLS_ENABLED", True)
@@ -678,7 +678,7 @@ def run_ai_surface_recon(combined_result: dict, output_file: Path = None,
 
     _log(f"analyzing {len(candidates)} AI-surface host(s)")
     project_id = combined_result.get("metadata", {}).get("project_id", "unknown")
-    specs_dir = Path("/tmp/redamon") / "ai_surface_recon" / str(project_id) / "specs"
+    specs_dir = Path("/tmp/whitehat") / "ai_surface_recon" / str(project_id) / "specs"
 
     by_url: dict = {}
     findings: list = []

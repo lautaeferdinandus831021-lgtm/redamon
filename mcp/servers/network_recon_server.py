@@ -120,7 +120,7 @@ def _globoff_args(cmd_args: list) -> list:
 
 
 @mcp.tool()
-def execute_curl(args: str, _redamon_ctx: str = "", use_session: bool = False) -> str:
+def execute_curl(args: str, _whitehat_ctx: str = "", use_session: bool = False) -> str:
     """
     Execute curl HTTP client with any valid CLI arguments.
 
@@ -130,7 +130,7 @@ def execute_curl(args: str, _redamon_ctx: str = "", use_session: bool = False) -
 
     Args:
         args: Command-line arguments for curl (without the 'curl' command itself)
-        use_session: When true, RedAmon attaches the project's recorded/entered
+        use_session: When true, WhiteHat attaches the project's recorded/entered
             authenticated identity (cookie / bearer / headers) to this request,
             but ONLY if the target host is in the project's auth scope. You do NOT
             paste the credential yourself — the platform injects it, and it is
@@ -187,9 +187,9 @@ def execute_curl(args: str, _redamon_ctx: str = "", use_session: bool = False) -
         cmd_args = _globoff_args(shlex.split(args))
         # HTTP traffic capture (Phase 1): route through the capture proxy when a
         # tag is present + the proxy is reachable. -x + -H added together, ONLY in
-        # this branch (§20.2 no-leak); the LLM never sees _redamon_ctx.
+        # this branch (§20.2 no-leak); the LLM never sees _whitehat_ctx.
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
             # APPEND (not prepend) so a later user-supplied -x/--proxy cannot
             # override enforced routing and exfiltrate the tag (curl is last-wins).
@@ -198,7 +198,7 @@ def execute_curl(args: str, _redamon_ctx: str = "", use_session: bool = False) -
             # and nothing is captured. Only in the routing branch; direct curl keeps
             # cert validation. The target's real cert is already invisible behind the
             # MITM proxy, so -k costs no inspection the agent could otherwise do.
-            cmd_args = cmd_args + ["-x", _cap_url, "-k", "-H", f"X-Redamon-Ctx: {_cap_tok}"]
+            cmd_args = cmd_args + ["-x", _cap_url, "-k", "-H", f"X-WhiteHat-Ctx: {_cap_tok}"]
         result = subprocess.run(
             ["curl"] + cmd_args,
             capture_output=True,
@@ -275,7 +275,7 @@ def execute_naabu(args: str) -> str:
 
 
 @mcp.tool()
-def execute_httpx(args: str, _redamon_ctx: str = "") -> str:
+def execute_httpx(args: str, _whitehat_ctx: str = "") -> str:
     """
     Execute httpx HTTP prober with any valid CLI arguments.
 
@@ -316,11 +316,11 @@ def execute_httpx(args: str, _redamon_ctx: str = "") -> str:
         # HTTP traffic capture (Phase 1): route through the capture proxy when a
         # tag is present + reachable; -proxy + -H added together, ONLY here (§20.2).
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
             # APPEND so a later user-supplied -proxy cannot override enforced
             # routing and exfiltrate the tag (httpx is last-wins).
-            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_tok}"]
+            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_tok}"]
         result = subprocess.run(
             ["httpx"] + cmd_args,
             capture_output=True,
@@ -599,7 +599,7 @@ def execute_code(code: str, language: str = "python", filename: str = "exploit")
     binary_path = f"/tmp/{safe_filename}"
 
     # Step 1: Write code to file using single-quoted heredoc (no shell interpretation)
-    write_cmd = f"cat << 'REDAMON_CODE_EOF' > {filepath}\n{code}\nREDAMON_CODE_EOF"
+    write_cmd = f"cat << 'WHITEHAT_CODE_EOF' > {filepath}\n{code}\nWHITEHAT_CODE_EOF"
     try:
         write_result = subprocess.run(
             ["bash", "-c", write_cmd],
@@ -657,23 +657,23 @@ def execute_code(code: str, language: str = "python", filename: str = "exploit")
 
 
 @mcp.tool()
-def proxy_brain(code: str, _redamon_ctx: str = "") -> str:
+def proxy_brain(code: str, _whitehat_ctx: str = "") -> str:
     """
     Write and run Python to HUNT and EXPLOIT over the captured HTTP corpus (the
     "Burp history"). ONE tool replacing proxy_search/get/sitemap/params/grep/diff/
-    to_curl/query/replay/fuzz: call them as `redamon.*` functions and compose them
+    to_curl/query/replay/fuzz: call them as `whitehat.*` functions and compose them
     with loops, conditionals, math and crypto to build real exploit oracles that a
     fixed tool vocabulary cannot express (blind-SQLi bisection, IDOR sweeps, JWT
     forging, race conditions, multi-step chains).
 
     >>> READ THE MANUAL FIRST for anything beyond a basic search/replay:
-        print(redamon.manual())           # core: full SDK + Burp-capability map + section index
-        print(redamon.manual("jwt"))      # one deep technique section with copy-paste recipes
+        print(whitehat.manual())           # core: full SDK + Burp-capability map + section index
+        print(whitehat.manual("jwt"))      # one deep technique section with copy-paste recipes
         sections: recon intruder sqli authz jwt race smuggling cache injection
                   decode sequencer flows report. Read the section right before the code that uses it.
 
     RUNTIME
-    - Your code runs in the Kali sandbox with `redamon` pre-imported for you.
+    - Your code runs in the Kali sandbox with `whitehat` pre-imported for you.
     - Tenant scope is enforced server-side; you cannot read another project.
     - Active calls (replay/batch/fuzz) are HOST-PINNED to the origin request,
       egress-guarded, re-captured, and per-send phase-gated. You cannot retarget
@@ -681,7 +681,7 @@ def proxy_brain(code: str, _redamon_ctx: str = "") -> str:
     - Print ONLY what you need — output is truncated. Distil many responses to a
       few lines yourself; never dump raw bodies.
 
-    SDK (already imported as `redamon`)
+    SDK (already imported as `whitehat`)
       READ (no traffic):  search(**f) get(id,part) sitemap() params() grep(pat,limit)
                           diff(a,b) query(spec) to_curl(id)
       DECODE (no traffic): decode(v) ; jwt(tok).forge(alg_none=True|secret=..|claims=..)
@@ -695,26 +695,26 @@ def proxy_brain(code: str, _redamon_ctx: str = "") -> str:
 
     RECIPES
       # Fuzz + oracle (blind SQLi / anomaly)
-      t = redamon.search(path="/api/invoice")[0]
-      for r in redamon.fuzz(t.id, "id", ["1002","999999","1001'","1001 OR 1=1"]):
+      t = whitehat.search(path="/api/invoice")[0]
+      for r in whitehat.fuzz(t.id, "id", ["1002","999999","1001'","1001 OR 1=1"]):
           print(r.payload, r.status, r.length, "SQLERR" if "SQL" in r.body else "")
 
       # Access-control sweep (IDOR/BOLA)
-      for t in redamon.search(session="sess_alice"):
-          r = redamon.replay(t.id, mutate={"dropHeaders": ["Cookie"]})
-          if r.status == 200: redamon.finding("bola", t.id, evidence=r, severity="high")
+      for t in whitehat.search(session="sess_alice"):
+          r = whitehat.replay(t.id, mutate={"dropHeaders": ["Cookie"]})
+          if r.status == 200: whitehat.finding("bola", t.id, evidence=r, severity="high")
 
       # JWT forge
-      tok = redamon.jwt("eyJ...")
+      tok = whitehat.jwt("eyJ...")
       forged = tok.forge(secret="secret123", claims={"role": "admin"})
-      r = redamon.replay(id, mutate={"headers": {"Authorization": f"Bearer {forged}"}})
+      r = whitehat.replay(id, mutate={"headers": {"Authorization": f"Bearer {forged}"}})
 
       # Decode an opaque param
-      print(redamon.decode("dXNlcjoxMDAyOnJvbGU9dXNlcg=="))   # user:1002:role=user
+      print(whitehat.decode("dXNlcjoxMDAyOnJvbGU9dXNlcg=="))   # user:1002:role=user
 
       # Reflected-XSS confirm
-      r = redamon.replay(id, mutate={"param": {"q": "rdmn<svg/onload=1>"}})
-      if "rdmn<svg/onload=1>" in r.body: redamon.finding("xss", id, evidence=r, severity="high")
+      r = whitehat.replay(id, mutate={"param": {"q": "rdmn<svg/onload=1>"}})
+      if "rdmn<svg/onload=1>" in r.body: whitehat.finding("xss", id, evidence=r, severity="high")
 
     Args:
         code: the Python to run (multi-line, proper indentation, no escaping needed).
@@ -730,12 +730,12 @@ def proxy_brain(code: str, _redamon_ctx: str = "") -> str:
     # so a fixed filename would let concurrent runs overwrite each other's code.
     filepath = f"/tmp/pb_{uuid.uuid4().hex}.py"
 
-    # `redamon` is PRE-IMPORTED for the agent (the tool description promises this):
+    # `whitehat` is PRE-IMPORTED for the agent (the tool description promises this):
     # prepend a one-line preamble that puts the SDK on the path and imports it, so
-    # the agent's code can use `redamon.*` directly. One physical line keeps the
+    # the agent's code can use `whitehat.*` directly. One physical line keeps the
     # agent's traceback line numbers off by only 1.
-    preamble = "import sys as _s; _s.path.insert(0, '/opt/mcp_servers'); import redamon\n"
-    write_cmd = f"cat << 'REDAMON_PB_EOF' > {filepath}\n{preamble}{code}\nREDAMON_PB_EOF"
+    preamble = "import sys as _s; _s.path.insert(0, '/opt/mcp_servers'); import whitehat\n"
+    write_cmd = f"cat << 'WHITEHAT_PB_EOF' > {filepath}\n{preamble}{code}\nWHITEHAT_PB_EOF"
     try:
         w = subprocess.run(["bash", "-c", write_cmd], capture_output=True, text=True, timeout=10)
         if w.returncode != 0:
@@ -745,9 +745,9 @@ def proxy_brain(code: str, _redamon_ctx: str = "") -> str:
 
     # Per-invocation env: the signed tenant/session tag is set ONLY on this child,
     # never on the container/global env, so concurrent tenants never see each
-    # other's context. REDAMON_AGENT_URL + SCANNER_API_KEY are inherited.
+    # other's context. WHITEHAT_AGENT_URL + SCANNER_API_KEY are inherited.
     child_env = dict(os.environ)
-    child_env["REDAMON_CTX"] = _redamon_ctx or ""
+    child_env["WHITEHAT_CTX"] = _whitehat_ctx or ""
 
     try:
         result = subprocess.run(
@@ -1006,7 +1006,7 @@ def execute_masscan(args: str) -> str:
 
 
 @mcp.tool()
-def execute_wpscan(args: str, _redamon_ctx: str = "") -> str:
+def execute_wpscan(args: str, _whitehat_ctx: str = "") -> str:
     """
     Execute WPScan WordPress vulnerability scanner with any valid CLI arguments.
 
@@ -1052,7 +1052,7 @@ def execute_wpscan(args: str, _redamon_ctx: str = "") -> str:
         # value, so merge the tag into any existing --headers (else append one).
         # Added ONLY in this branch (§20.2 no-leak).
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
             cmd_args = cmd_args + ["--proxy", _cap_url]
             # The capture proxy MITMs TLS with its own (untrusted) CA; without this
@@ -1061,7 +1061,7 @@ def execute_wpscan(args: str, _redamon_ctx: str = "") -> str:
             # strict TLS validation.
             if "--disable-tls-checks" not in cmd_args:
                 cmd_args = cmd_args + ["--disable-tls-checks"]
-            _tag = f"X-Redamon-Ctx: {_cap_tok}"
+            _tag = f"X-WhiteHat-Ctx: {_cap_tok}"
             for _i, _a in enumerate(cmd_args):
                 if _a == "--headers" and _i + 1 < len(cmd_args):
                     cmd_args[_i + 1] = (cmd_args[_i + 1] + "\n" + _tag) if cmd_args[_i + 1] else _tag
@@ -1157,7 +1157,7 @@ def execute_amass(args: str) -> str:
 
 
 @mcp.tool()
-def execute_katana(args: str, _redamon_ctx: str = "") -> str:
+def execute_katana(args: str, _whitehat_ctx: str = "") -> str:
     """
     Execute Katana web crawler for endpoint and URL discovery.
 
@@ -1198,9 +1198,9 @@ def execute_katana(args: str, _redamon_ctx: str = "") -> str:
         # tag is present + reachable; -proxy + -H added together, ONLY here (§20.2
         # no-leak). katana -H is repeatable so appending never drops user headers.
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
-            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_tok}"]
+            cmd_args = cmd_args + ["-proxy", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_tok}"]
 
         result = subprocess.run(
             ["katana"] + cmd_args,
@@ -1228,7 +1228,7 @@ def execute_katana(args: str, _redamon_ctx: str = "") -> str:
 
 
 @mcp.tool()
-def execute_arjun(args: str, _redamon_ctx: str = "") -> str:
+def execute_arjun(args: str, _whitehat_ctx: str = "") -> str:
     """
     Execute Arjun HTTP parameter discovery tool with any valid CLI arguments.
 
@@ -1272,10 +1272,10 @@ def execute_arjun(args: str, _redamon_ctx: str = "") -> str:
         # via HTTP(S)_PROXY env + carry the tag in --headers (merged into any
         # existing --headers value). Both set ONLY in this branch (§20.2 no-leak).
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         _env = os.environ.copy()
         if _cap_url and _cap_tok:
-            _tag = f"X-Redamon-Ctx: {_cap_tok}"
+            _tag = f"X-WhiteHat-Ctx: {_cap_tok}"
             for _i, _a in enumerate(cmd_args):
                 if _a == "--headers" and _i + 1 < len(cmd_args):
                     cmd_args[_i + 1] = (cmd_args[_i + 1] + "\n" + _tag) if cmd_args[_i + 1] else _tag
@@ -1335,7 +1335,7 @@ def execute_arjun(args: str, _redamon_ctx: str = "") -> str:
 
 
 @mcp.tool()
-def execute_ffuf(args: str, _redamon_ctx: str = "") -> str:
+def execute_ffuf(args: str, _whitehat_ctx: str = "") -> str:
     """
     Execute FFuf web fuzzer with any valid CLI arguments.
 
@@ -1388,9 +1388,9 @@ def execute_ffuf(args: str, _redamon_ctx: str = "") -> str:
         # tag is present + reachable; -x + -H added together, ONLY here (§20.2
         # no-leak). ffuf -H is repeatable so appending never drops user headers.
         from capture_routing import agent_capture_routing
-        _cap_url, _cap_tok = agent_capture_routing(_redamon_ctx)
+        _cap_url, _cap_tok = agent_capture_routing(_whitehat_ctx)
         if _cap_url and _cap_tok:
-            cmd_args = cmd_args + ["-x", _cap_url, "-H", f"X-Redamon-Ctx: {_cap_tok}"]
+            cmd_args = cmd_args + ["-x", _cap_url, "-H", f"X-WhiteHat-Ctx: {_cap_tok}"]
 
         result = subprocess.run(
             ["ffuf"] + cmd_args,

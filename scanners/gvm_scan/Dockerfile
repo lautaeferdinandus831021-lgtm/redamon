@@ -1,5 +1,5 @@
 # =============================================================================
-# RedAmon Vulnerability Scanner - Python Container
+# WhiteHat Vulnerability Scanner - Python Container
 # =============================================================================
 # This container runs the GVM Python scanner script, connecting to gvmd
 # via Unix socket to create and execute vulnerability scans.
@@ -7,8 +7,8 @@
 
 FROM python:3.12-slim
 
-LABEL maintainer="RedAmon Project"
-LABEL description="Python-based GVM vulnerability scanner for RedAmon"
+LABEL maintainer="WhiteHat Project"
+LABEL description="Python-based GVM vulnerability scanner for WhiteHat"
 
 # Set working directory
 WORKDIR /app

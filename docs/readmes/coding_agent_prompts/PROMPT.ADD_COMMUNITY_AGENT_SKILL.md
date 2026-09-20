@@ -1,6 +1,6 @@
 # ADD A COMMUNITY AGENT SKILL
 
-Add **[SKILL_NAME]** (e.g. `ssrf_exploitation`, `xxe_exploitation`, `race_conditions`) as a new **Community Agent Skill** shipped with RedAmon.
+Add **[SKILL_NAME]** (e.g. `ssrf_exploitation`, `xxe_exploitation`, `race_conditions`) as a new **Community Agent Skill** shipped with WhiteHat.
 
 > **Scope**: a Community Agent Skill is a `.md` workflow file that users import via "Import from Community" in Global Settings > Agent Skills. Once imported, it becomes a row in the Postgres `UserAttackSkill` table, competes with built-in skills in the Intent Router classification, and gets its full markdown content injected into the agent's system prompt when selected. Use this flow when you have a battle-tested attack workflow you want to ship in the catalog but do NOT want to hardcode into Python. For hardcoded first-class skills, see [PROMPT.ADD_BUILTIN_AGENT_SKILL.md](PROMPT.ADD_BUILTIN_AGENT_SKILL.md). For reference docs (tool playbooks, theory), see [PROMPT.ADD_COMMUNITY_CHAT_SKILL.md](PROMPT.ADD_COMMUNITY_CHAT_SKILL.md).
 
@@ -41,7 +41,7 @@ agentic/community-skills/<skill_name>.md
 |---|---|---|
 | 1. The workflow file | [agentic/community-skills/<skill_name>.md](../../../agentic/community-skills/) | YES |
 | 2. The community README | [agentic/community-skills/README.md](../../../agentic/community-skills/README.md) | OPTIONAL (if an index exists) |
-| 3. Wiki community table | [redamon.wiki/Agent-Skills.md](../../../redamon.wiki/Agent-Skills.md) "Community Skills" | YES if shipping publicly |
+| 3. Wiki community table | [whitehat.wiki/Agent-Skills.md](../../../whitehat.wiki/Agent-Skills.md) "Community Skills" | YES if shipping publicly |
 | 4. Everything else | N/A | NO CODE CHANGES |
 
 The agentic `GET /community-skills` endpoint auto-discovers files by globbing the directory. There is nothing to register, and **no container rebuild is needed**: `./agentic/community-skills` is volume-mounted read-only into the agent container at `/app/community-skills` (see [docker-compose.yml:419](../../../docker-compose.yml#L419)). Drop the file and it is picked up on the next `GET /community-skills` call.
@@ -83,7 +83,7 @@ Study the existing community skills to match the tone and level of detail:
 - [agentic/community-skills/ssrf_exploitation.md](../../../agentic/community-skills/ssrf_exploitation.md) - SSRF, cloud metadata, DNS rebinding
 - [agentic/community-skills/api_testing.md](../../../agentic/community-skills/api_testing.md) - JWT, GraphQL, REST, 403 bypass
 
-Canonical template (follow this shape, the wiki at [redamon.wiki/Agent-Skills.md](../../../redamon.wiki/Agent-Skills.md) documents it and the Intent Router expects it):
+Canonical template (follow this shape, the wiki at [whitehat.wiki/Agent-Skills.md](../../../whitehat.wiki/Agent-Skills.md) documents it and the Intent Router expects it):
 
 ```markdown
 # <Skill Name> Attack Skill
@@ -163,7 +163,7 @@ If [agentic/community-skills/README.md](../../../agentic/community-skills/README
 
 ## Phase 3: Update the wiki
 
-Edit the "Community Skills" table in [redamon.wiki/Agent-Skills.md](../../../redamon.wiki/Agent-Skills.md) (the table around lines 164-169 in the current version).
+Edit the "Community Skills" table in [whitehat.wiki/Agent-Skills.md](../../../whitehat.wiki/Agent-Skills.md) (the table around lines 164-169 in the current version).
 
 Add a row matching the existing format:
 
@@ -227,6 +227,6 @@ No rebuild. The file is live as soon as you save it (directory is volume-mounted
 - [ ] File is under 50 KB
 - [ ] No em dashes anywhere
 - [ ] (Optional) [agentic/community-skills/README.md](../../../agentic/community-skills/README.md) updated
-- [ ] (Optional, if shipping publicly) [redamon.wiki/Agent-Skills.md](../../../redamon.wiki/Agent-Skills.md) Community Skills table updated
+- [ ] (Optional, if shipping publicly) [whitehat.wiki/Agent-Skills.md](../../../whitehat.wiki/Agent-Skills.md) Community Skills table updated
 - [ ] `GET /community-skills` returns the new entry (no rebuild, directory is volume-mounted)
 - [ ] End-to-end: imported via UI, appears in project settings, classifier picks it on matching message, full content shows in agent system prompt

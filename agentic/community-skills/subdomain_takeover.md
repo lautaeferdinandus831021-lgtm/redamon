@@ -50,7 +50,7 @@ The `subzy` binary was added specifically for this skill. If for any reason it i
 
 The goal of Phase 1 is to land in Phase 2 with a small, high-confidence list of `(subdomain, provider, missing-resource-name)` triples. Quality of the candidate list dictates everything downstream, so spend the time here.
 
-1. **Read prior `takeover_scan` findings from the graph FIRST.** RedAmon's recon pipeline already runs subjack + nuclei takeover templates and writes confirmed findings as `Vulnerability` nodes with `source: 'takeover_scan'`, `takeover_provider`, `takeover_method`, `verdict`, and `cname_target` properties (provenance: subjack and nuclei_takeover, see `sources` field). Always consume those rows via `query_graph` before kicking off any active scan -- they are pre-validated, deterministic-ID, and free.
+1. **Read prior `takeover_scan` findings from the graph FIRST.** WhiteHat's recon pipeline already runs subjack + nuclei takeover templates and writes confirmed findings as `Vulnerability` nodes with `source: 'takeover_scan'`, `takeover_provider`, `takeover_method`, `verdict`, and `cname_target` properties (provenance: subjack and nuclei_takeover, see `sources` field). Always consume those rows via `query_graph` before kicking off any active scan -- they are pre-validated, deterministic-ID, and free.
    ```
    MATCH (s:Subdomain)-[:HAS_VULNERABILITY]->(v:Vulnerability {source: 'takeover_scan'})
    WHERE s.project_id = $project_id

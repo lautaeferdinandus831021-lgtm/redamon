@@ -1,5 +1,5 @@
 # =============================================================================
-# RedAmon GitHub Secret Hunter - Python Container
+# WhiteHat GitHub Secret Hunter - Python Container
 # =============================================================================
 # This container runs the GitHub secret scanning tool, searching for
 # exposed secrets, API keys, and credentials in GitHub repositories.
@@ -7,8 +7,8 @@
 
 FROM python:3.12-slim
 
-LABEL maintainer="RedAmon Project"
-LABEL description="Python-based GitHub secret hunter for RedAmon"
+LABEL maintainer="WhiteHat Project"
+LABEL description="Python-based GitHub secret hunter for WhiteHat"
 
 # Set working directory
 WORKDIR /app

@@ -14,15 +14,15 @@
 #   AFTER:  the cleanup runs inside gvm-postgres' own entrypoint, before the
 #           server starts, so there is nothing live to delete.
 #
-# Not part of `./redamon.sh test` (the gate matches tests/*_test.sh only). Run:
+# Not part of `./whitehat.sh test` (the gate matches tests/*_test.sh only). Run:
 #     bash tests/gvm_socket_race_live.sh
 # =============================================================================
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PG_IMAGE="registry.community.greenbone.net/community/pg-gvm:stable"
-PROJECT="redamongvmsocket"
-CONTROL_PROJECT="redamongvmsocketctl"
+PROJECT="whitehatgvmsocket"
+CONTROL_PROJECT="whitehatgvmsocketctl"
 
 PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); printf '  ok   %s\n' "$1"; }
@@ -40,8 +40,8 @@ cleanup() {
     docker compose -p "$PROJECT" -f - --project-directory "$REPO_ROOT" down -v >/dev/null 2>&1 <<< "services: {}"
     docker rm -f "${PROJECT}-pg-1" >/dev/null 2>&1
     docker rm -f "${CONTROL_PROJECT}-pg-1" "${CONTROL_PROJECT}-init-1" >/dev/null 2>&1
-    docker rm -f "redamongvmsocketrec-pg-1" "redamongvmsocketrec-init-1" >/dev/null 2>&1
-    docker volume rm -f "redamongvmsocketrec_sock" "redamongvmsocketrec_data" >/dev/null 2>&1
+    docker rm -f "whitehatgvmsocketrec-pg-1" "whitehatgvmsocketrec-init-1" >/dev/null 2>&1
+    docker volume rm -f "whitehatgvmsocketrec_sock" "whitehatgvmsocketrec_data" >/dev/null 2>&1
     docker volume rm -f "${PROJECT}_sock" "${PROJECT}_data" >/dev/null 2>&1
     docker volume rm -f "${CONTROL_PROJECT}_sock" "${CONTROL_PROJECT}_data" >/dev/null 2>&1
 }
@@ -158,13 +158,13 @@ else
 fi
 down "$CONTROL_PROJECT" control
 
-echo "== recovery: \`redamon.sh update\` repairs an ALREADY-broken stack =="
+echo "== recovery: \`whitehat.sh update\` repairs an ALREADY-broken stack =="
 # The reporter of #174 is not in the "about to break" state, they are in the
 # BROKEN one: socket already deleted, Postgres still running, gvmd crash-looping.
 # `update` force-recreates gvm-postgres (docker-compose.yml changed => rebuild_all),
 # so prove that specific command restores the socket rather than merely preventing
 # the next deletion.
-RECOVER_PROJECT="redamongvmsocketrec"
+RECOVER_PROJECT="whitehatgvmsocketrec"
 down "$RECOVER_PROJECT" control
 if up "$RECOVER_PROJECT" control >/dev/null 2>&1; then
     REC_C="${RECOVER_PROJECT}-pg-1"

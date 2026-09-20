@@ -29,7 +29,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
      discover it from the file being edited. Component patterns belong in a
      scoped skill. See the root AGENTS.md for repo-wide rules. -->
 
-- **NEVER** give the agent white-box knowledge of a target. RedAmon agents
+- **NEVER** give the agent white-box knowledge of a target. WhiteHat agents
   operate black-box (no source access to the systems they test); prompts,
   skills, and tools must not assume target internals.
 
@@ -38,7 +38,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 ## TECH STACK
 
 Python 3.11 · LangGraph / LangChain agent · pydantic. Source is **baked into the
-`redamon-agent` image** (NOT volume-mounted): a `.py` change needs
+`whitehat-agent` image** (NOT volume-mounted): a `.py` change needs
 `docker compose build agent && docker compose up -d agent`. Exceptions that
 hot-reload (read-only mounts): `agentic/logs`, `agentic/skills` (Chat Skills),
 `agentic/community-skills` (Community Agent Skills).
@@ -62,14 +62,14 @@ tests/                                   pytest (run via ../agentic/run_tests.sh
 ```bash
 # Rebuild after any agentic/*.py change, then run the gate
 docker compose build agent && docker compose up -d agent
-./agentic/run_tests.sh          # unit gate, per-file isolated in redamon-agent; must be 100% green
+./agentic/run_tests.sh          # unit gate, per-file isolated in whitehat-agent; must be 100% green
 ./agentic/run_tests.sh integration    # heavier tier
 ```
 
 ## QA CHECKLIST
 
 - [ ] `./agentic/run_tests.sh` green (per-file isolation gate).
-- [ ] New or changed behaviour is covered by a test (see the `redamon-testing` skill for where + how).
+- [ ] New or changed behaviour is covered by a test (see the `whitehat-testing` skill for where + how).
 - [ ] Rebuilt the `agent` image if you changed a baked `.py` (skills/ & community-skills/ are exempt).
 - [ ] No white-box target assumptions introduced (black-box only).
 - [ ] New agent tool / skill wired through every layer it requires.

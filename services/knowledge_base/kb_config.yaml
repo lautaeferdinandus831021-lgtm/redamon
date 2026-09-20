@@ -15,8 +15,8 @@
 # Secrets (NEO4J_PASSWORD, NVD_API_KEY) belong in env variables or creds.yaml,
 # NOT in this file — this file is checked into git.
 # =============================================================================
-# KB_ENABLED is NOT read from this file at runtime — redamon.sh exports it
-# based on the `.kbase-enabled` flag written by `./redamon.sh install --kbase`.
+# KB_ENABLED is NOT read from this file at runtime — whitehat.sh exports it
+# based on the `.kbase-enabled` flag written by `./whitehat.sh install --kbase`.
 # This key remains for backward compatibility with kb_config.py schema
 # validation; the docker-compose env var is authoritative.
 KB_ENABLED: false
@@ -27,7 +27,7 @@ KB_ENABLED: false
 runtime:
   # Default execution mode for `make kb-*` targets:
   #   local  — run on host (~7x faster, requires `pip install -r agentic/requirements.txt`)
-  #   docker — run inside redamon-agent container (slower, no host setup needed)
+  #   docker — run inside whitehat-agent container (slower, no host setup needed)
   # Override per-invocation: `make kb-rebuild MODE=docker`
   mode: local
 

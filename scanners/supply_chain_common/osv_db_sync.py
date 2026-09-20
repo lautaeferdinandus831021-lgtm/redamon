@@ -64,7 +64,7 @@ SEED_MANIFESTS = {
 
 def _ecosystem_marker(db_path, ecosystem):
     safe = ecosystem.replace("/", "_").replace(".", "_")
-    return os.path.join(db_path, ".redamon_synced_{}".format(safe))
+    return os.path.join(db_path, ".whitehat_synced_{}".format(safe))
 
 
 def db_is_fresh(db_path, ecosystem, ttl_seconds=DEFAULT_TTL_SECONDS):
@@ -165,7 +165,7 @@ def _download_one(ecosystem, db_path, env, timeout, binary):
 
 
 def _main(argv=None):
-    """CLI used by `redamon.sh supply-chain-sync` inside the analyzer image."""
+    """CLI used by `whitehat.sh supply-chain-sync` inside the analyzer image."""
     import argparse
     import json
 

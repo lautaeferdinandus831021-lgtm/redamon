@@ -1134,7 +1134,7 @@
    "unit": "seconds"
   },
   "aiSurfaceReconUserAgent": {
-   "default": "RedAmon-AISurfaceRecon/1.0",
+   "default": "WhiteHat-AISurfaceRecon/1.0",
    "form_section": "AiSurfaceReconSection",
    "group": "llm",
    "has_default": true,
@@ -1259,8 +1259,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -1589,7 +1589,7 @@
    "validator": "json_object"
   },
   "baddnsDockerImage": {
-   "default": "redamon-baddns:latest",
+   "default": "whitehat-baddns:latest",
    "form_section": "TakeoverSection",
    "group": "image",
    "has_default": true,
@@ -1618,8 +1618,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -3126,8 +3126,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -3408,8 +3408,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -3801,8 +3801,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -4482,8 +4482,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -4752,8 +4752,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -6309,8 +6309,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -6493,8 +6493,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -7494,8 +7494,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -8117,8 +8117,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -8762,7 +8762,7 @@
    "validator": "free_text"
   },
   "ownershipTxtPrefix": {
-   "default": "_redamon-verify",
+   "default": "_whitehat-verify",
    "form_section": "TargetSection",
    "group": "scope",
    "has_default": true,
@@ -9038,8 +9038,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -11324,8 +11324,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -12146,8 +12146,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -12742,8 +12742,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -13543,7 +13543,7 @@
    "unit": "none"
   },
   "webCachePoisonDockerImage": {
-   "default": "redamon-wcvs:latest",
+   "default": "whitehat-wcvs:latest",
    "form_section": "WebCachePoisonSection",
    "group": "image",
    "has_default": true,
@@ -13572,8 +13572,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -13853,8 +13853,8 @@
     "projectdiscovery/subfinder:latest",
     "projectdiscovery/tlsx:latest",
     "projectdiscovery/uncover:latest",
-    "redamon-baddns:latest",
-    "redamon-wcvs:latest",
+    "whitehat-baddns:latest",
+    "whitehat-wcvs:latest",
     "sxcurity/gau:latest"
    ]
   },
@@ -14437,7 +14437,7 @@
    "unit": "none"
   },
   "USER_MCP_SERVERS": {
-   "meaning": "The OUTBOUND MCP servers the agent may connect to, configured on the user account rather than the project. Not to be confused with RedAmon's own inbound MCP server, which external agents connect to.",
+   "meaning": "The OUTBOUND MCP servers the agent may connect to, configured on the user account rather than the project. Not to be confused with WhiteHat's own inbound MCP server, which external agents connect to.",
    "roe_capped": false,
    "source": "user_account",
    "tool": "agent",
@@ -14547,7 +14547,7 @@
   "baddns": {
    "enabled_key": "BADDNS_ENABLED",
    "form_section": "TakeoverSection",
-   "image": "redamon-baddns:latest",
+   "image": "whitehat-baddns:latest",
    "module": "recon.main_recon_modules.subdomain_takeover",
    "partial_recon_module": "vulnerability_scanning",
    "phase": "vuln_scan",
@@ -15301,7 +15301,7 @@
   "web_cache_poison": {
    "enabled_key": "WEB_CACHE_POISON_ENABLED",
    "form_section": "WebCachePoisonSection",
-   "image": "redamon-wcvs:latest",
+   "image": "whitehat-wcvs:latest",
    "partial_recon_module": "cache_scanning",
    "phase": "standalone",
    "produces": [

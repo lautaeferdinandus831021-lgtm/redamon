@@ -1,4 +1,4 @@
-# RedAmon Usage Guide — Agent Memory, Report Discipline, the Unit Gate
+# WhiteHat Usage Guide — Agent Memory, Report Discipline, the Unit Gate
 
 This page is the **operator/analyst view** of three layers that landed together:
 the agent's project memory, the evidence/report discipline it is held to, and the
@@ -18,17 +18,17 @@ see.
 
 * **Both layers are ON by default.** You do not have to enable anything to get
   memory capture or the report discipline.
-* **This is agent-side code**, baked into the `redamon-agent` image. After pulling
+* **This is agent-side code**, baked into the `whitehat-agent` image. After pulling
   a revision that touches it:
 
   ```bash
   docker compose build agent && docker compose up -d agent
-  # or, for the whole stack: ./redamon.sh update
+  # or, for the whole stack: ./whitehat.sh update
   ```
 
 * **Settings are environment variables read at call time**, so changing one needs
   the container recreated, not a rebuild. Put the variable in `.env` (repository
-  root, created by `./redamon.sh install`) and run:
+  root, created by `./whitehat.sh install`) and run:
 
   ```bash
   docker compose up -d agent
@@ -170,7 +170,7 @@ One SQLite file per deployment, keyed by project id inside the file
 `/workspace` is the agent's writable volume (`./agentic/agent-workspace:/workspace`
 in `docker-compose.yml`), so **the file survives container rebuilds and
 recreates**. If `/workspace` is not writable, the fallback is
-`~/.redamon/memory/memory.db`; override either with `MEMORY_DB_PATH`.
+`~/.whitehat/memory/memory.db`; override either with `MEMORY_DB_PATH`.
 
 Inspect it from inside the container (read-only, no server needed):
 
@@ -188,7 +188,7 @@ print(get_store(c.db_path).stats('YOUR_PROJECT_ID'))
 Back up / reset:
 
 ```bash
-docker cp redamon-agent:/workspace/.memory/memory.db ./memory-backup.db   # back up
+docker cp whitehat-agent:/workspace/.memory/memory.db ./memory-backup.db   # back up
 docker compose exec -T agent rm /workspace/.memory/memory.db              # reset (next call recreates it)
 docker compose restart agent
 ```
@@ -206,7 +206,7 @@ Read at call time; all optional.
 | `MEMORY_AUTO_UPDATE` | `true` | Capture tool outcomes automatically |
 | `MEMORY_SELF_IMPROVE` | `true` | Run reflection passes |
 | `MEMORY_SELF_IMPROVE_EVERY` | `10` | Observations between periodic passes; `0` turns the periodic pass off (the session-end pass still runs) |
-| `MEMORY_DB_PATH` | `/workspace/.memory/memory.db` | Store location (fallback `~/.redamon/memory/`) |
+| `MEMORY_DB_PATH` | `/workspace/.memory/memory.db` | Store location (fallback `~/.whitehat/memory/`) |
 | `MEMORY_RECALL_LIMIT` | `8` | Default recall size |
 | `MEMORY_DECAY_HALF_LIFE_DAYS` | `30` | Idle half-life applied by a reflection pass |
 | `MEMORY_REINFORCE_BOOST` | `0.15` | Confidence gained per reuse |
@@ -228,7 +228,7 @@ The local store is always the source of truth. Setting `AGENTMEMORY_URL`
 `memory_save` writes — automatically captured observations stay local, since only
 that one path calls the mirror — and lets
 `memory_recall(include_mirror=true)` import anything the server has that this
-project does not. Imported hits carry `redamon_memory_id`, so a mirror round-trip
+project does not. Imported hits carry `whitehat_memory_id`, so a mirror round-trip
 cannot inflate a memory's use count. Every mirror call is best-effort: an
 unreachable second server never fails a tool call.
 
@@ -329,12 +329,12 @@ another one needs no code change.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `REDAMON_REPORT_DISCIPLINE` | `true` | Inject the always-on rules into the think prompt |
-| `REDAMON_REPORT_DISCIPLINE_REPORT_BLOCK` | `true` | Append structure + gotchas to the report prompt |
-| `REDAMON_REPORT_DISCIPLINE_AUTOCHECK` | `true` | Append the machine self-check to the finished report |
-| `REDAMON_REPORT_DISCIPLINE_MAX_FLAGS` | `12` | Cap on flags the self-check renders |
+| `WHITEHAT_REPORT_DISCIPLINE` | `true` | Inject the always-on rules into the think prompt |
+| `WHITEHAT_REPORT_DISCIPLINE_REPORT_BLOCK` | `true` | Append structure + gotchas to the report prompt |
+| `WHITEHAT_REPORT_DISCIPLINE_AUTOCHECK` | `true` | Append the machine self-check to the finished report |
+| `WHITEHAT_REPORT_DISCIPLINE_MAX_FLAGS` | `12` | Cap on flags the self-check renders |
 
-Turning `REDAMON_REPORT_DISCIPLINE` off removes the rules but leaves the
+Turning `WHITEHAT_REPORT_DISCIPLINE` off removes the rules but leaves the
 `report_review` tool callable — the switches are per-surface, not one master
 switch for everything.
 
@@ -359,10 +359,10 @@ wiring, and that the three skills are discoverable through the real skill loader
 ### 3.1 Run it locally (the canonical way)
 
 ```bash
-./redamon.sh test unit        # the gate: every section INSIDE its own image + shell + vitest
+./whitehat.sh test unit        # the gate: every section INSIDE its own image + shell + vitest
 ./agentic/run_tests.sh        # agent image only, per-file isolated
-./redamon.sh test all         # unit + integration (not live)
-./redamon.sh test coverage    # per-section floor via REDAMON_COV_FLOOR
+./whitehat.sh test all         # unit + integration (not live)
+./whitehat.sh test coverage    # per-section floor via WHITEHAT_COV_FLOOR
 ```
 
 Never run host `pytest` over a tree: many files stub `langchain` into
@@ -371,7 +371,7 @@ Never run host `pytest` over a tree: many files stub `langchain` into
 
 Read the section headers, not just the last line: `cmd_test` resolves each
 section **by image tag**, and a missing image is a **failure**, not a skip (the
-`SKIPPED` path only opens under an explicit `REDAMON_TEST_ALLOW_MISSING`).
+`SKIPPED` path only opens under an explicit `WHITEHAT_TEST_ALLOW_MISSING`).
 
 ### 3.2 On a pull request
 
@@ -380,8 +380,8 @@ command on every PR (and on `workflow_dispatch`):
 
 | Job | What it does |
 | --- | --- |
-| `plan` | parses `_TEST_SECTIONS` out of `redamon.sh`, validates each derived image against `docker-compose.yml` |
-| `unit-gate` | `npm ci` in `webapp/`, `docker compose build` of the six section services, then `./redamon.sh test unit` with **no** skip overrides |
+| `plan` | parses `_TEST_SECTIONS` out of `whitehat.sh`, validates each derived image against `docker-compose.yml` |
+| `unit-gate` | `npm ci` in `webapp/`, `docker compose build` of the six section services, then `./whitehat.sh test unit` with **no** skip overrides |
 
 Budget ~21 minutes end to end, measured on the first green run: ~9.5 for the six
 images (one of them installs torch and a browser), ~11 for the gate itself, plus
@@ -428,7 +428,7 @@ agentic/skills/reporting/       report_writing / report_triage / vuln_gotchas
 
 .github/workflows/test.yml      the PR gate                          -> Part 3
 tooling/scripts/pytest_isolated.py   one pytest process per test file
-tests/redamon_gate_unskippable_test.sh   pins "a missing input is a failure"
+tests/whitehat_gate_unskippable_test.sh   pins "a missing input is a failure"
 ```
 
 Related docs: [`README.MEMORY.md`](README.MEMORY.md) ·

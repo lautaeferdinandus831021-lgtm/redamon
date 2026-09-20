@@ -54,7 +54,7 @@ def _spawn(config: dict):
     mgr.client = mock.Mock()
     mgr.client.containers = _Containers()
     mgr._remove_container_if_exists = lambda name: None
-    mgr._capture_image = lambda: "redamon-capture-proxy:latest"
+    mgr._capture_image = lambda: "whitehat-capture-proxy:latest"
     mgr._capture_port = lambda: 8888
 
     async def _fake_status():
