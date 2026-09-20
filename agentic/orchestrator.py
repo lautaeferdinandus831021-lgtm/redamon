@@ -495,6 +495,21 @@ class AgentOrchestrator:
         # reload_mcp_manifests() once project settings are available.
         self.tool_executor.register_mcp_tools(mcp_tools)
 
+        # Agent-native memory tools (memory_recall/_save/_timeline/_reflect).
+        # In-process, not MCP: they hold the agent's own operational record, so
+        # they must not ride the target-facing Kali worker. Registration is
+        # fail-open, and register_mcp_tools() never drops them (it only clears
+        # its own MCP entries), so reconnects leave them in place.
+        from memory_hook import register_memory_tools
+        register_memory_tools(self.tool_executor)
+
+        # Agent-native report tools (report_review). In-process for the same
+        # reason: reviewing a draft sends no target traffic, and the Kali worker
+        # is the least-trusted zone. Fail-open, and register_mcp_tools() never
+        # drops them (it only clears its own MCP entries).
+        from report_hook import register_report_tools
+        register_report_tools(self.tool_executor)
+
         logger.info(f"Tools initialized: {len(self.tool_executor.get_all_tools())} available")
 
     async def reload_mcp_manifests(self, user_servers_raw=None) -> dict:

@@ -231,11 +231,53 @@ def _get_visible_tools(allowed_tools):
 
     Reads the per-session merged view (visible_registry) so the current project's
     tradecraft catalog is used, not whatever a concurrent project last wrote.
+
+    A pure filter over the allowlist it is handed: an empty allowlist renders
+    nothing. The agent-native memory_*/report_review tools are added UPSTREAM by
+    `with_agent_tools` (see below), at the call sites that turn a phase allowlist
+    into the agent's menu.
     """
     return [
         (name, info) for name, info in visible_registry().items()
         if name in allowed_tools
     ]
+
+
+def with_agent_tools(allowed_tools):
+    """Add the agent-native tools to a phase allowlist before it is a menu.
+
+    Two groups, both the agent's own rather than a capability aimed at a target:
+    memory_* (recall / save / timeline / reflect) is the agent's own state, and
+    report_review is the agent reviewing its own draft. Neither sends target
+    traffic, `project_settings.is_tool_allowed_in_phase` allows them in every
+    phase, and they are deliberately NOT TOOL_PHASE_MAP keys (a new key is
+    permanently disabled on every existing project, because fetch_agent_settings
+    REPLACES the stored map).
+
+    Runtime permissiveness alone is not enough. This list is what builds the
+    `tool_name` enum, the tool-args section and the availability table, so a tool
+    that is callable but never listed is invisible to the LLM - the BUG #20 shape.
+
+    Call it where a phase allowlist becomes the agent's MENU, never inside the
+    renderers: those are also used for deliberately narrow views (a fireteam
+    member's declared skills, its fallback list), where "render exactly what I
+    was given" is the contract that keeps those views honest.
+    """
+    merged = list(allowed_tools or ())
+    try:
+        from project_settings import memory_tool_names, report_tool_names
+        names = set(memory_tool_names()) | set(report_tool_names())
+    except Exception:  # noqa: BLE001 - standalone packages / partial installs
+        return merged
+    for name in sorted(names):
+        if name not in merged:
+            merged.append(name)
+    return merged
+
+
+# The memory-only name predates report_review; kept so callers and tests written
+# against it keep working.
+with_memory_tools = with_agent_tools
 
 
 def build_tool_availability_table(phase, allowed_tools, *, show_phase_allows_line=True):

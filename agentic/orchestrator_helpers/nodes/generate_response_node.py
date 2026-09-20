@@ -130,6 +130,13 @@ async def generate_response_node(
             target_info=target_info_str,
             todo_list=format_todo_list(state.get("todo_list", [])),
         )
+        # Report-time discipline: the structure, plus the gotchas for the class
+        # this session actually worked on, so an unproven claim is written as
+        # unproven instead of being discovered later. Fail-open.
+        from report_hook import report_prompt_block
+        _report_block = report_prompt_block(state.get("attack_path_type", "") or "")
+        if _report_block:
+            report_prompt += "\n\n" + _report_block
 
     response = await llm.ainvoke([HumanMessage(content=report_prompt)])
 
@@ -151,8 +158,19 @@ async def generate_response_node(
         phases_reached=phases,
     )
 
+    content = normalize_content(response.content)
+
+    # Machine self-check on the report that was just written. Appended only when
+    # it found something, so a clean report is untouched; fail-open in the hook.
+    if tier == "full_report" and isinstance(content, str):
+        from report_hook import self_check_appendix
+        appendix = self_check_appendix(content)
+        if appendix:
+            content += appendix
+            logger.info(f"[{user_id}/{project_id}/{session_id}] Report self-check appended")
+
     return {
-        "messages": [AIMessage(content=normalize_content(response.content))],
+        "messages": [AIMessage(content=content)],
         "task_complete": True,
         "completion_reason": state.get("completion_reason") or "Task completed successfully",
         "_report_generated": True,

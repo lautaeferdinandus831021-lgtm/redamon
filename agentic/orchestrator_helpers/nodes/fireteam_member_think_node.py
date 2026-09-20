@@ -612,12 +612,21 @@ def _build_pending_output_section(state: FireteamMemberState) -> str:
 
 def _build_member_prompt(state: FireteamMemberState) -> str:
     from prompts import get_phase_tools
-    from prompts.base import build_tool_args_section, build_compact_tool_list
+    from prompts.base import (
+        build_tool_args_section,
+        build_compact_tool_list,
+        with_agent_tools,
+    )
 
     phase = state.get("current_phase", "informational")
 
     declared_tools = state.get("tools") or []
-    phase_allowed = get_allowed_tools_for_phase(phase)
+    # Memory tools join the fallback set: a member that finds the target's
+    # behaviour contradicts what a sibling learned can read that memory, and it
+    # must not have to declare memory in its skills to be offered the tool.
+    # report_review rides along: a member that records a finding is the one that
+    # should check it against the evidence bar.
+    phase_allowed = with_agent_tools(get_allowed_tools_for_phase(phase))
 
     if declared_tools:
         # Soft allowlist. The member CAN call any phase-allowed tool, but the
